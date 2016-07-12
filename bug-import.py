@@ -5,5 +5,10 @@ sys.path.append(lib_path)
 
 from ApacheJiraParser import ApacheJiraParser
 
-parser = ApacheJiraParser('SENTRY-893') 
+for a in range(893,894):
+    parser = ApacheJiraParser('SENTRY-' + str(a)) 
+    parser.parse().write()
+
+parser = ApacheJiraParser('HIVE-11084')
 parser.parse().write()
+
