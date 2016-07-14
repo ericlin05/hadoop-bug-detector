@@ -1,9 +1,9 @@
-import os, sys, re
-lib_path = os.path.abspath(os.path.join('lib'))
-sys.path.append(lib_path)
-
+import re, sys, os
 from Logger import Logger
 from difflib import SequenceMatcher
+
+sys.path.append(os.path.abspath('conf'))
+import settings
 
 class HadoopBugDetector:
     def __init__(self, filename, jiraLoader):
@@ -25,7 +25,7 @@ class HadoopBugDetector:
             for jiraID in self.jiraLoader.lines:
                 for l in self.jiraLoader.lines[jiraID]:
                     ratio = SequenceMatcher(None, line, l).ratio()
-                    if ratio > 0.5:
+                    if ratio > settings.SIMILARITY_RATIO:
                         self.logger.info("")
                         self.logger.info("Similarity ratio: %s found in JIRA %s", str(ratio), jiraID)
                         self.logger.info("JIRA line: %s", l)
