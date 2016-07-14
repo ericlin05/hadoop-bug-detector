@@ -1,14 +1,9 @@
-import os, sys
+from lib.ApacheJiraParser import ApacheJiraParser
 
-lib_path = os.path.abspath(os.path.join('lib'))
-sys.path.append(lib_path)
+# for a in range(890,894):
+#     parser = ApacheJiraParser('SENTRY-' + str(a))
+#     parser.parse().write()
 
-from ApacheJiraParser import ApacheJiraParser
-
-for a in range(893,894):
-    parser = ApacheJiraParser('SENTRY-' + str(a)) 
+for a in range(8000,14240):
+    parser = ApacheJiraParser('HIVE-' + str(a))
     parser.parse().write()
-
-parser = ApacheJiraParser('HIVE-11084')
-parser.parse().write()
-

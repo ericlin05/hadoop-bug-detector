@@ -1,21 +1,18 @@
-from HTMLParser import HTMLParser
 from StringIO import StringIO
 from bs4 import BeautifulSoup
 import re, cgi
 import pycurl
-import logging
+from lib.Logger import Logger
 
 class ApacheJiraParser:
     def __init__(self, apache_id):
         self.apache_id = apache_id
         self.url = 'https://issues.apache.org/jira/browse/' + apache_id
         self.data = "" 
-
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
+        self.logger = Logger(__name__)
 
     def parse(self):
-        self.logger.info("Retrieving JIRA: " + self.url)
+        self.logger.info("Retrieving JIRA: %s", self.url)
 
         buffer = StringIO()
         c = pycurl.Curl()
@@ -34,16 +31,18 @@ class ApacheJiraParser:
         
         if content is None or content == 'None' or content.strip() == "":
             self.logger.info('No description was found for ID: %s', self.apache_id)
+        elif re.search(".*Exception.*", content) is None and re.search(".*Caused by.*", content) is None:
+            self.logger.info('No Exception or Cause By found for ID: %s', self.apache_id)
         else:
             tag_re = re.compile(r'(<!--.*?-->|<[^>]*>)')
             self.data = cgi.escape(tag_re.sub('', content))
             self.logger.info("Striping HTML tags")
 
-            return self
+        return self
 
     def write(self):
         if not self.data:
-            self.logger.info('No description was found for ID: %s, skipping writing file..', self.apache_id)
+            self.logger.info('No data was found for ID: %s, skipping writing file..', self.apache_id)
             return
 
         text_file = open("data/" + self.apache_id, "w")

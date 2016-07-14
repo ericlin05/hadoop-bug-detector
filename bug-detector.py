@@ -1,21 +1,16 @@
 import os, sys
-
-lib_path = os.path.abspath(os.path.join('lib'))
-sys.path.append(lib_path)
-
-from HadoopBugDetector import HadoopBugDetector
-from ApacheJiraLoader import ApacheJiraLoader
-from Logger import Logger
-
-jiraLoader = ApacheJiraLoader()
+from lib.HadoopBugDetector import HadoopBugDetector
+from lib.ApacheJiraLoader import ApacheJiraLoader
+from lib.Logger import Logger
 
 filename = sys.argv[1]
-
 logger = Logger(__name__)
 
 if not os.path.isfile(filename):
-    logger.error("File: " + filename + " does not exist")
+    logger.error("File: %s does not exist", filename)
     exit(1)
 
-detector = HadoopBugDetector(filename, jiraLoader)
+detector = HadoopBugDetector(filename, ApacheJiraLoader())
 detector.detect()
+
+print detector.matchedJira
