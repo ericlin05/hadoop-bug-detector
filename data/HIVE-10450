@@ -1,0 +1,141 @@
+Description
+
+Gopal V found a error with this query:
+
+explain select
+        s_state, count(1)
+ from store_sales,
+ store,
+ date_dim
+ where store_sales.ss_sold_date_sk = date_dim.d_date_sk and
+       store_sales.ss_store_sk = store.s_store_sk and
+       store.s_state in ('KS','AL', 'MN', 'AL', 'SC', 'VT')
+ group by s_state
+ order by s_state
+ limit 100;
+
+
+Stack trace:
+
+org.apache.hadoop.hive.ql.parse.SemanticException: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.reflect.InvocationTargetException
+	at org.apache.hadoop.hive.ql.optimizer.physical.Vectorizer$VectorizationNodeProcessor.doVectorize(Vectorizer.java:676)
+	at org.apache.hadoop.hive.ql.optimizer.physical.Vectorizer$MapWorkVectorizationNodeProcessor.process(Vectorizer.java:735)
+	at org.apache.hadoop.hive.ql.lib.DefaultRuleDispatcher.dispatch(DefaultRuleDispatcher.java:90)
+	at org.apache.hadoop.hive.ql.lib.DefaultGraphWalker.dispatchAndReturn(DefaultGraphWalker.java:95)
+	at org.apache.hadoop.hive.ql.lib.DefaultGraphWalker.dispatch(DefaultGraphWalker.java:79)
+	at org.apache.hadoop.hive.ql.lib.PreOrderWalker.walk(PreOrderWalker.java:54)
+	at org.apache.hadoop.hive.ql.lib.PreOrderWalker.walk(PreOrderWalker.java:59)
+	at org.apache.hadoop.hive.ql.lib.DefaultGraphWalker.startWalking(DefaultGraphWalker.java:110)
+	at org.apache.hadoop.hive.ql.optimizer.physical.Vectorizer$VectorizationDispatcher.vectorizeMapWork(Vectorizer.java:422)
+	at org.apache.hadoop.hive.ql.optimizer.physical.Vectorizer$VectorizationDispatcher.convertMapWork(Vectorizer.java:354)
+	at org.apache.hadoop.hive.ql.optimizer.physical.Vectorizer$VectorizationDispatcher.dispatch(Vectorizer.java:322)
+	at org.apache.hadoop.hive.ql.lib.TaskGraphWalker.dispatch(TaskGraphWalker.java:111)
+	at org.apache.hadoop.hive.ql.lib.TaskGraphWalker.walk(TaskGraphWalker.java:180)
+	at org.apache.hadoop.hive.ql.lib.TaskGraphWalker.startWalking(TaskGraphWalker.java:125)
+	at org.apache.hadoop.hive.ql.optimizer.physical.Vectorizer.resolve(Vectorizer.java:877)
+	at org.apache.hadoop.hive.ql.optimizer.physical.PhysicalOptimizer.optimize(PhysicalOptimizer.java:107)
+	at org.apache.hadoop.hive.ql.parse.MapReduceCompiler.optimizeTaskPlan(MapReduceCompiler.java:270)
+	at org.apache.hadoop.hive.ql.parse.TaskCompiler.compile(TaskCompiler.java:227)
+	at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:10084)
+	at org.apache.hadoop.hive.ql.parse.CalcitePlanner.analyzeInternal(CalcitePlanner.java:204)
+	at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:225)
+	at org.apache.hadoop.hive.ql.parse.ExplainSemanticAnalyzer.analyzeInternal(ExplainSemanticAnalyzer.java:74)
+	at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:225)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:424)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:308)
+	at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1122)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1170)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1059)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1049)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:213)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:165)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:376)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:311)
+	at org.apache.hadoop.hive.ql.QTestUtil.executeClientInternal(QTestUtil.java:1019)
+	at org.apache.hadoop.hive.ql.QTestUtil.executeClient(QTestUtil.java:993)
+	at org.apache.hadoop.hive.cli.TestMiniTezCliDriver.runTest(TestMiniTezCliDriver.java:244)
+	at org.apache.hadoop.hive.cli.TestMiniTezCliDriver.testCliDriver_vector_inner_join5(TestMiniTezCliDriver.java:180)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at junit.framework.TestCase.runTest(TestCase.java:176)
+	at junit.framework.TestCase.runBare(TestCase.java:141)
+	at junit.framework.TestResult$1.protect(TestResult.java:122)
+	at junit.framework.TestResult.runProtected(TestResult.java:142)
+	at junit.framework.TestResult.run(TestResult.java:125)
+	at junit.framework.TestCase.run(TestCase.java:129)
+	at junit.framework.TestSuite.runTest(TestSuite.java:255)
+	at junit.framework.TestSuite.run(TestSuite.java:250)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:84)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:264)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:153)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:124)
+	at org.apache.maven.surefire.booter.ForkedBooter.invokeProviderInSameClassLoader(ForkedBooter.java:200)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:153)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:103)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.reflect.InvocationTargetException
+	at org.apache.hadoop.hive.ql.exec.OperatorFactory.getVectorOperator(OperatorFactory.java:165)
+	at org.apache.hadoop.hive.ql.exec.OperatorFactory.getVectorOperator(OperatorFactory.java:174)
+	at org.apache.hadoop.hive.ql.optimizer.physical.Vectorizer.vectorizeOperator(Vectorizer.java:1608)
+	at org.apache.hadoop.hive.ql.optimizer.physical.Vectorizer$VectorizationNodeProcessor.doVectorize(Vectorizer.java:668)
+	... 55 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.GeneratedConstructorAccessor308.newInstance(Unknown Source)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:526)
+	at org.apache.hadoop.hive.ql.exec.OperatorFactory.getVectorOperator(OperatorFactory.java:159)
+	... 58 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: The column s_store_sk is not in the vectorization context column map {ss_sold_date_sk=0, ss_ext_list_price=16, ss_net_paid=19, ss_quantity=9, ss_list_price=11, ss_ticket_number=8, ss_net_paid_inc_tax=20, ss_sales_price=12, ss_net_profit=21, ss_item_sk=2, ss_cdemo_sk=4, ss_promo_sk=7, ss_coupon_amt=18, ss_customer_sk=3, ss_wholesale_cost=10, ss_sold_time_sk=1, ss_ext_discount_amt=13, ss_store_sk=22, ss_ext_tax=17, ss_ext_wholesale_cost=15, ss_addr_sk=6, ss_ext_sales_price=14, ss_hdemo_sk=5}.
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.createVectorExpression(VectorizationContext.java:1038)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getVectorExpressionForUdf(VectorizationContext.java:996)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getGenericUdfVectorExpression(VectorizationContext.java:1163)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getVectorExpression(VectorizationContext.java:441)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorFilterOperator.&amp;lt;init&amp;gt;(VectorFilterOperator.java:54)
+	... 62 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: The column s_store_sk is not in the vectorization context column map {ss_sold_date_sk=0, ss_ext_list_price=16, ss_net_paid=19, ss_quantity=9, ss_list_price=11, ss_ticket_number=8, ss_net_paid_inc_tax=20, ss_sales_price=12, ss_net_profit=21, ss_item_sk=2, ss_cdemo_sk=4, ss_promo_sk=7, ss_coupon_amt=18, ss_customer_sk=3, ss_wholesale_cost=10, ss_sold_time_sk=1, ss_ext_discount_amt=13, ss_store_sk=22, ss_ext_tax=17, ss_ext_wholesale_cost=15, ss_addr_sk=6, ss_ext_sales_price=14, ss_hdemo_sk=5}.
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.createVectorExpression(VectorizationContext.java:1038)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getVectorExpressionForUdf(VectorizationContext.java:996)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getGenericUdfVectorExpression(VectorizationContext.java:1163)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getVectorExpression(VectorizationContext.java:441)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.createVectorExpression(VectorizationContext.java:1014)
+	... 66 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: The column s_store_sk is not in the vectorization context column map {ss_sold_date_sk=0, ss_ext_list_price=16, ss_net_paid=19, ss_quantity=9, ss_list_price=11, ss_ticket_number=8, ss_net_paid_inc_tax=20, ss_sales_price=12, ss_net_profit=21, ss_item_sk=2, ss_cdemo_sk=4, ss_promo_sk=7, ss_coupon_amt=18, ss_customer_sk=3, ss_wholesale_cost=10, ss_sold_time_sk=1, ss_ext_discount_amt=13, ss_store_sk=22, ss_ext_tax=17, ss_ext_wholesale_cost=15, ss_addr_sk=6, ss_ext_sales_price=14, ss_hdemo_sk=5}.
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getInputColumnIndex(VectorizationContext.java:283)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getInputColumnIndex(VectorizationContext.java:291)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.createVectorExpression(VectorizationContext.java:1018)
+	... 70 more
+
+
+Related to Sergey Shelukhin HIVE-9983: Vectorizer doesn't vectorize (1) partitions with different schema anywhere (2) any MapWork with &amp;gt;1 table scans in MR
+The explain output shows 2 table scans (with different schema) in a Map vertex:
+
+      Map Operator Tree:
+          TableScan
+            alias: store_sales
+            Statistics: Num rows: 2750370 Data size: 3717170032 Basic stats: COMPLETE Column stats: NONE
+            Filter Operator
+              predicate: ss_sold_date_sk is not null (type: boolean)
+              Statistics: Num rows: 1375185 Data size: 1858585016 Basic stats: COMPLETE Column stats: NONE
+              Reduce Output Operator
+                key expressions: ss_store_sk (type: int)
+                sort order: +
+                Map-reduce partition columns: ss_store_sk (type: int)
+                Statistics: Num rows: 1375185 Data size: 1858585016 Basic stats: COMPLETE Column stats: NONE
+                value expressions: ss_sold_date_sk (type: int)
+          TableScan
+            alias: store
+            Statistics: Num rows: 12 Data size: 25632 Basic stats: COMPLETE Column stats: NONE
+            Filter Operator
+              predicate: (s_store_sk is not null and (s_state) IN ('KS', 'AL', 'MN', 'AL', 'SC', 'VT')) (type: boolean)
+              Statistics: Num rows: 3 Data size: 6408 Basic stats: COMPLETE Column stats: NONE
+              Reduce Output Operator
+                key expressions: s_store_sk (type: int)
+                sort order: +
+                Map-reduce partition columns: s_store_sk (type: int)
+                Statistics: Num rows: 3 Data size: 6408 Basic stats: COMPLETE Column stats: NONE
+                value expressions: s_state (type: string)
+
+
+
+

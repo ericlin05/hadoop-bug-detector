@@ -1,0 +1,94 @@
+Description
+
+Hello,
+I am streaming weblogs to Kafka and then to Flume 1.6 using a Hive sink, with an average of 20 million records a day. I have 5 compactors running at various times (30m/5m/5s), no matter what time I give, the compactors seem to run out of memory cleaning up a couple thousand delta files and ultimately falls behind compacting/cleaning delta files. Any suggestions on what I can do to improve performance? Or can Hive streaming not handle this kind of load?
+I used this post as reference: http://henning.kropponline.de/2015/05/19/hivesink-for-flume/
+
+2015-08-12 15:05:01,197 FATAL [main] org.apache.hadoop.mapred.YarnChild: Error running child : java.lang.OutOfMemoryError: Direct buffer memory
+
+Max block location exceeded for split: CompactorInputSplit{base: hdfs://Dev01HWNameService/user/hive/warehouse/weblogs.db/dt=15-08-12/base_1056406, bucket: 0, length: 6493042, deltas: [delta_1056407_1056408, delta_1056409_1056410, delta_1056411_1056412, delta_1056413_1056414, delta_1056415_1056416, delta_1056417_1056418,…
+, delta_1074039_1074040, delta_1074041_1074042, delta_1074043_1074044, delta_1074045_1074046, delta_1074047_1074048, delta_1074049_1074050, delta_1074051_1074052]} splitsize: 8772 maxsize: 10
+2015-08-12 15:34:25,271 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.JobSubmitter (JobSubmitter.java:submitJobInternal(198)) - number of splits:3
+2015-08-12 15:34:25,367 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.JobSubmitter (JobSubmitter.java:printTokens(287)) - Submitting tokens for job: job_1439397150426_0068
+2015-08-12 15:34:25,603 INFO  [upladevhwd04v.researchnow.com-18]: impl.YarnClientImpl (YarnClientImpl.java:submitApplication(274)) - Submitted application application_1439397150426_0068
+2015-08-12 15:34:25,610 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.Job (Job.java:submit(1294)) - The url to track the job: http://upladevhwd02v.researchnow.com:8088/proxy/application_1439397150426_0068/
+2015-08-12 15:34:25,611 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.Job (Job.java:monitorAndPrintJob(1339)) - Running job: job_1439397150426_0068
+2015-08-12 15:34:30,170 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:34:33,756 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.Job (Job.java:monitorAndPrintJob(1360)) - Job job_1439397150426_0068 running in uber mode : false
+2015-08-12 15:34:33,757 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.Job (Job.java:monitorAndPrintJob(1367)) -  map 0% reduce 0%
+2015-08-12 15:34:35,147 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:34:40,155 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:34:45,184 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:34:50,201 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:34:55,256 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:35:00,205 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:35:02,975 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.Job (Job.java:monitorAndPrintJob(1367)) -  map 33% reduce 0%
+2015-08-12 15:35:02,982 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.Job (Job.java:printTaskEvents(1406)) - Task Id : attempt_1439397150426_0068_m_000000_0, Status : FAILED
+2015-08-12 15:35:03,000 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.Job (Job.java:printTaskEvents(1406)) - Task Id : attempt_1439397150426_0068_m_000001_0, Status : FAILED
+2015-08-12 15:35:04,008 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.Job (Job.java:monitorAndPrintJob(1367)) -  map 0% reduce 0%
+2015-08-12 15:35:05,132 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:35:10,206 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:35:15,228 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:35:20,207 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:35:25,148 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:35:28,154 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.Job (Job.java:printTaskEvents(1406)) - Task Id : attempt_1439397150426_0068_m_000000_1, Status : FAILED
+2015-08-12 15:35:29,161 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.Job (Job.java:printTaskEvents(1406)) - Task Id : attempt_1439397150426_0068_m_000001_1, Status : FAILED
+2015-08-12 15:35:30,142 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:35:35,140 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:35:40,170 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:35:45,153 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:35:50,150 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:35:52,268 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.Job (Job.java:printTaskEvents(1406)) - Task Id : attempt_1439397150426_0068_m_000000_2, Status : FAILED
+2015-08-12 15:35:53,274 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.Job (Job.java:printTaskEvents(1406)) - Task Id : attempt_1439397150426_0068_m_000001_2, Status : FAILED
+2015-08-12 15:35:55,149 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:36:00,160 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:36:05,145 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:36:10,155 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:36:15,158 INFO  [Thread-7]: compactor.Initiator (Initiator.java:run(88)) - Checking to see if we should compact weblogs.vop_hs.dt=15-08-12
+2015-08-12 15:36:17,397 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.Job (Job.java:monitorAndPrintJob(1367)) -  map 100% reduce 0%
+2015-08-12 15:36:18,409 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.Job (Job.java:monitorAndPrintJob(1380)) - Job job_1439397150426_0068 failed with state FAILED due to: Task failed task_1439397150426_0068_m_000000
+Job failed as tasks failed. failedMaps:1 failedReduces:0
+
+2015-08-12 15:36:18,443 INFO  [upladevhwd04v.researchnow.com-18]: mapreduce.Job (Job.java:monitorAndPrintJob(1385)) - Counters: 10
+	Job Counters 
+		Failed map tasks=7
+		Killed map tasks=1
+		Launched map tasks=8
+		Other local map tasks=6
+		Data-local map tasks=2
+		Total time spent by all maps in occupied slots (ms)=191960
+		Total time spent by all reduces in occupied slots (ms)=0
+		Total time spent by all map tasks (ms)=191960
+		Total vcore-seconds taken by all map tasks=191960
+		Total megabyte-seconds taken by all map tasks=884551680
+2015-08-12 15:36:18,443 ERROR [upladevhwd04v.researchnow.com-18]: compactor.Worker (Worker.java:run(176)) - Caught exception while trying to compact weblogs.vop_hs.dt=15-08-12.  Marking clean to avoid repeated failures, java.io.IOException: Job failed!
+	at org.apache.hadoop.mapred.JobClient.runJob(JobClient.java:865)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR.run(CompactorMR.java:186)
+	at org.apache.hadoop.hive.ql.txn.compactor.Worker$1.run(Worker.java:169)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.hive.ql.txn.compactor.Worker.run(Worker.java:166)
+
+2015-08-12 15:36:18,444 ERROR [upladevhwd04v.researchnow.com-18]: txn.CompactionTxnHandler (CompactionTxnHandler.java:markCleaned(327)) - Expected to remove at least one row from completed_txn_components when marking compaction entry as clean!
+^C
+
+
+[ngmathew@upladevhwd04v ~]$ tail -f /var/log/hive/hivemetastore.log
+2015-08-12 15:36:18,443 ERROR [upladevhwd04v.researchnow.com-18]: compactor.Worker (Worker.java:run(176)) - Caught exception while trying to compact weblogs.vop_hs.dt=15-08-12.  Marking clean to avoid repeated failures, java.io.IOException: Job failed!
+	at org.apache.hadoop.mapred.JobClient.runJob(JobClient.java:865)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR.run(CompactorMR.java:186)
+	at org.apache.hadoop.hive.ql.txn.compactor.Worker$1.run(Worker.java:169)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.hive.ql.txn.compactor.Worker.run(Worker.java:166)
+Settings:
+hive.txn.manager = org.apache.hadoop.hive.ql.lockmgr.DbTxnManager
+hive.compactor.initiator.on = true
+hive.compactor.worker.threads = 5
+Table stored as ORC
+hive.vectorized.execution.enabled = false
+hive.input.format = org.apache.hadoop.hive.ql.io.HiveInputFormat
+
+

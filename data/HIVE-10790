@@ -1,0 +1,39 @@
+Description
+
+from a text table insert into a orc table like as 
+
+
+insert overwrite table custom.rank_less_orc_none partition(logdate='2015051500') 
+select ur,rf,it,dt from custom.rank_text where logdate='2015051500';
+
+
+will throws a error ,
+
+Error: java.lang.RuntimeException: Hive Runtime Error while closing operators
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.close(ExecMapper.java:260)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:61)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:168)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1892)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:163)
+Caused by: org.apache.hadoop.fs.viewfs.NotInMountpointException: getDefaultReplication on empty path is invalid
+        at org.apache.hadoop.fs.viewfs.ViewFileSystem.getDefaultReplication(ViewFileSystem.java:593)
+        at org.apache.hadoop.hive.ql.io.orc.WriterImpl.getStream(WriterImpl.java:1750)
+        at org.apache.hadoop.hive.ql.io.orc.WriterImpl.flushStripe(WriterImpl.java:1767)
+        at org.apache.hadoop.hive.ql.io.orc.WriterImpl.close(WriterImpl.java:2040)
+        at org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat$OrcRecordWriter.close(OrcOutputFormat.java:105)
+        at org.apache.hadoop.hive.ql.exec.FileSinkOperator$FSPaths.closeWriters(FileSinkOperator.java:164)
+        at org.apache.hadoop.hive.ql.exec.FileSinkOperator.closeOp(FileSinkOperator.java:842)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:577)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:588)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:588)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:588)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.close(ExecMapper.java:227)
+        ... 8 more
+
+
+
+

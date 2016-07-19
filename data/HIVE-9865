@@ -1,0 +1,99 @@
+Description
+
+2015-02-22 19:49:31,890 INFO  [HiveServer2-Handler-Pool: Thread-42]: session.SessionState (SessionState.java:createPath(558)) - Created HDFS directory: /tmp/hive/hive/8dda6291-828e-4bbd-a5a3-923617352699/_tmp_space.db
+2015-02-22 19:49:12,614 INFO  [HiveServer2-Handler-Pool: Thread-30]: thrift.ThriftCLIService (ThriftCLIService.java:OpenSession(232)) - Client protocol version: HIVE_CLI_SERVICE_PROTOCOL_V6
+2015-02-22 19:48:53,321 ERROR [HiveServer2-Handler-Pool: Thread-9222]: server.TThreadPoolServer (TThreadPoolServer.java:run(215)) - Error occurred during processing of message.
+java.lang.RuntimeException: org.apache.thrift.transport.TTransportException
+        at org.apache.thrift.transport.TSaslServerTransport$Factory.getTransport(TSaslServerTransport.java:219)
+        at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:190)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.thrift.transport.TTransportException
+        at org.apache.thrift.transport.TIOStreamTransport.read(TIOStreamTransport.java:132)
+        at org.apache.thrift.transport.TTransport.readAll(TTransport.java:84)
+        at org.apache.thrift.transport.TSaslTransport.receiveSaslMessage(TSaslTransport.java:178)
+        at org.apache.thrift.transport.TSaslServerTransport.handleSaslStartMessage(TSaslServerTransport.java:125)
+        at org.apache.thrift.transport.TSaslTransport.open(TSaslTransport.java:253)
+        at org.apache.thrift.transport.TSaslServerTransport.open(TSaslServerTransport.java:41)
+        at org.apache.thrift.transport.TSaslServerTransport$Factory.getTransport(TSaslServerTransport.java:216)
+        ... 4 more
+2015-02-22 19:50:21,784 INFO  [main-SendThread(ip-172-25-1-227.us-west-2.compute.internal:2181)]: zookeeper.ClientCnxn (ClientCnxn.java:primeConnection(852)) - Socket connection established to ip-172-25-1-227.us-west-2.compute.internal/172.25.1.227:2181, initiating session
+2015-02-22 19:50:21,784 INFO  [HiveServer2-Handler-Pool: Thread-9220]: thrift.ThriftCLIService (ThriftCLIService.java:OpenSession(232)) - Client protocol version: HIVE_CLI_SERVICE_PROTOCOL_V6
+2015-02-22 19:51:22,151 INFO  [HiveServer2-Handler-Pool: Thread-34]: session.SessionState (SessionState.java:createPath(558)) - Created local directory: /tmp/e9c8b31d-a096-4af8-8327-a252c0c3db1e_resources
+2015-02-22 19:52:17,425 ERROR [BoneCP-pool-watch-thread]: bonecp.CustomThreadFactory (CustomThreadFactory.java:uncaughtException(69)) - Uncaught Exception in thread BoneCP-pool-watch-thread
+java.lang.OutOfMemoryError: Java heap space
+        at java.sql.DriverManager.getConnection(DriverManager.java:570)
+        at java.sql.DriverManager.getConnection(DriverManager.java:187)
+        at com.jolbox.bonecp.BoneCP.obtainRawInternalConnection(BoneCP.java:361)
+        at com.jolbox.bonecp.BoneCP.obtainInternalConnection(BoneCP.java:269)
+        at com.jolbox.bonecp.ConnectionHandle.&amp;lt;init&amp;gt;(ConnectionHandle.java:242)
+        at com.jolbox.bonecp.PoolWatchThread.fillConnections(PoolWatchThread.java:115)
+        at com.jolbox.bonecp.PoolWatchThread.run(PoolWatchThread.java:82)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+2015-02-22 19:51:22,151 INFO  [HiveServer2-Handler-Pool: Thread-42]: session.SessionState (SessionState.java:start(460)) - No Tez session required at this point. hive.execution.engine=mr.
+2015-02-22 19:51:10,931 ERROR [CuratorFramework-0]: curator.ConnectionState (ConnectionState.java:checkTimeouts(201)) - Connection timed out for connection string (ip-172-25-1-227.us-west-2.compute.internal:2181,ip-172-25-1-230.us-west-2.compute.internal:2181,ip-172-25-1-231.us-west-2.compute.internal:2181) and timeout (15000) / elapsed (15114)
+org.apache.curator.CuratorConnectionLossException: KeeperErrorCode = ConnectionLoss
+        at org.apache.curator.ConnectionState.checkTimeouts(ConnectionState.java:198)
+        at org.apache.curator.ConnectionState.getZooKeeper(ConnectionState.java:88)
+        at org.apache.curator.CuratorZookeeperClient.getZooKeeper(CuratorZookeeperClient.java:115)
+        at org.apache.curator.framework.imps.CuratorFrameworkImpl.performBackgroundOperation(CuratorFrameworkImpl.java:793)
+        at org.apache.curator.framework.imps.CuratorFrameworkImpl.backgroundOperationsLoop(CuratorFrameworkImpl.java:779)
+        at org.apache.curator.framework.imps.CuratorFrameworkImpl.access$400(CuratorFrameworkImpl.java:58)
+        at org.apache.curator.framework.imps.CuratorFrameworkImpl$4.call(CuratorFrameworkImpl.java:265)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+2015-02-22 19:54:17,609 INFO  [HiveServer2-Handler-Pool: Thread-42]: session.HiveSessionImpl (HiveSessionImpl.java:setOperationLogSessionDir(218)) - Operation log session directory is created: /home/hive/$
+{system:java.io.tmpdir}
+/$
+{system:user.name}
+/operation_logs/8dda6291-828e-4bbd-a5a3-923617352699
+2015-02-22 19:53:55,164 ERROR [BoneCP-pool-watch-thread]: bonecp.BoneCP (BoneCP.java:obtainInternalConnection(292)) - Failed to acquire connection to jdbc:mysql://ip-172-25-1-231.us-west-2.compute.internal/hive?createDatabaseIfNotExist=true. Sleeping for 7000 ms. Attempts left: 5
+   ...
+2015-02-22 19:52:10,308 ERROR [HiveServer2-Handler-Pool: Thread-30]: thrift.ProcessFunction (ProcessFunction.java:process(41)) - Internal error processing OpenSession
+java.lang.OutOfMemoryError: Java heap space
+        at java.util.HashMap.createEntry(HashMap.java:897)
+        at java.util.HashMap.putForCreate(HashMap.java:550)
+        at java.util.HashMap.putAllForCreate(HashMap.java:555)
+        at java.util.HashMap.&amp;lt;init&amp;gt;(HashMap.java:298)
+        at org.apache.hadoop.conf.Configuration.&amp;lt;init&amp;gt;(Configuration.java:703)
+        at org.apache.hadoop.hive.conf.HiveConf.&amp;lt;init&amp;gt;(HiveConf.java:2372)
+        at org.apache.hadoop.hive.ql.session.SessionState.start(SessionState.java:425)
+        at org.apache.hive.service.cli.session.HiveSessionImpl.&amp;lt;init&amp;gt;(HiveSessionImpl.java:116)
+        at org.apache.hive.service.cli.session.HiveSessionImplwithUGI.&amp;lt;init&amp;gt;(HiveSessionImplwithUGI.java:47)
+        at org.apache.hive.service.cli.session.SessionManager.openSession(SessionManager.java:260)
+        at org.apache.hive.service.cli.CLIService.openSessionWithImpersonation(CLIService.java:175)
+        at org.apache.hive.service.cli.thrift.ThriftCLIService.getSessionHandle(ThriftCLIService.java:322)
+        at org.apache.hive.service.cli.thrift.ThriftCLIService.OpenSession(ThriftCLIService.java:235)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$OpenSession.getResult(TCLIService.java:1253)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$OpenSession.getResult(TCLIService.java:1238)
+        at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+        at org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:39)
+        at org.apache.hive.service.auth.TSetIpAddressProcessor.process(TSetIpAddressProcessor.java:56)
+        at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:206)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+2015-02-22 19:51:33,478 INFO  [main-SendThread(ip-172-25-1-227.us-west-2.compute.internal:2181)]: zookeeper.ClientCnxn (ClientCnxn.java:run(1096)) - Client session timed out, have not heard from server in 51503ms for sessionid 0x34ba7aa216d0006, closing socket connection and attempting reconnect
+2015-02-22 19:57:26,796 INFO  [Thread-6]: server.HiveServer2 (HiveServer2.java:stop(299)) - Shutting down HiveServer2
+    ...
+2015-02-22 19:51:33,478 INFO  [main-SendThread(ip-172-25-1-227.us-west-2.compute.internal:2181)]: zookeeper.ClientCnxn (ClientCnxn.java:run(1096)) - Client session timed out, have not heard from server in 51503ms for sessionid 0x34ba7aa216d0006, closing socket connection and attempting reconnect
+2015-02-22 19:57:26,796 INFO  [Thread-6]: server.HiveServer2 (HiveServer2.java:stop(299)) - Shutting down HiveServer2
+2015-02-22 19:56:21,460 INFO  [HiveServer2-Handler-Pool: Thread-34]: session.SessionState (SessionState.java:createPath(558)) - Created HDFS directory: /tmp/hive/hive/e9c8b31d-a096-4af8-8327-a252c0c3db1e
+2015-02-22 19:55:27,236 WARN  [CuratorFramework-0]: curator.ConnectionState (ConnectionState.java:checkTimeouts(192)) - Connection attempt unsuccessful after 579400 (greater than max timeout of 60000). Resetting connection and trying again with a new connection.
+2015-02-22 19:55:26,132 INFO  [HiveServer2-Handler-Pool: Thread-38]: session.SessionState (SessionState.java:createPath(558)) - Created local directory: /tmp/5a28f57a-f4e6-47f1-8c3f-34d86833df7f_resources
+2015-02-22 19:58:06,068 INFO  [main-SendThread(ip-172-25-1-231.us-west-2.compute.internal:2181)]: zookeeper.ClientCnxn (ClientCnxn.java:logStartConnect(975)) - Opening socket connection to server ip-172-25-1-231.us-west-2.compute.internal/172.25.1.231:2181. Will not attempt to authenticate using SASL (unknown error)
+2015-02-22 19:57:58,802 INFO  [Thread-6]: thrift.ThriftCLIService (ThriftCLIService.java:stop(137)) - Thrift server has stopped
+2015-02-22 19:58:36,333 INFO  [Thread-3]: server.HiveServer2 (HiveStringUtils.java:run(679)) - SHUTDOWN_MSG:
+/************************************************************
+SHUTDOWN_MSG: Shutting down HiveServer2 at ip-172-25-1-231.us-west-2.compute.internal/172.25.1.231
+************************************************************/ 2015-02-22 19:58:38,574 INFO  [main-SendThread(ip-172-25-1-231.us-west-2.compute.internal:2181)]: zookeeper.ClientCnxn (ClientCnxn.java:primeConnection(852)) - Socket connection established to ip-172-25-1-231.us-west-2.compute.internal/172.25.1.231:2181, initiating session 2015-02-22 19:58:36,334 INFO  [Thread-6]: service.AbstractService (AbstractService.java:stop(125)) - Service:ThriftBinaryCLIService is stopped.
+2015-02-22 19:58:50,858 INFO  [Thread-6]: service.AbstractService (AbstractService.java:stop(125)) - Service:OperationManager is stopped.
+2015-02-22 19:58:50,858 INFO  [Thread-6]: service.AbstractService (AbstractService.java:stop(125)) - Service:SessionManager is stopped.
+2015-02-22 19:59:02,200 INFO  [Thread-6]: service.AbstractService (AbstractService.java:stop(125)) - Service:CLIService is stopped.
+
+

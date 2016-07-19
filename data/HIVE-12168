@@ -1,0 +1,6 @@
+Description
+
+In HIVE-12038, missed a case of Error.  Originally the assumption that if error is true, then it is always a build error.  Apparently there is a TestFailedException.
+Currently, it incorrectly report failed tests as build errors.  
+
+

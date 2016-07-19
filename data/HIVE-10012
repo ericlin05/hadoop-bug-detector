@@ -1,0 +1,12 @@
+Description
+
+The LLAP YARN registry only registers entries after at least one daemon is up.
+Any Tez session starting before that will end up with an error listing zookeeper directories.
+
+
+2015-03-18 16:54:21,392 FATAL [main] app.DAGAppMaster: Error starting DAGAppMaster
+org.apache.hadoop.service.ServiceStateException: org.apache.hadoop.fs.PathNotFoundException: `/users/sershe/services/org-apache-hive/llap0/components/workers':
+
+
+
+

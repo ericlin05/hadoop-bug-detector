@@ -1,0 +1,55 @@
+Description
+
+Initialize method was deprecated with HIVE-5737. Now when using a custom UDTF, the following error is always received:
+Error while compiling statement: FAILED: IllegalStateException Should not be called directly
+Error stack:
+
+ ERROR org.apache.hadoop.hive.ql.Driver: FAILED: IllegalStateException Should not be called directly
+java.lang.IllegalStateException: Should not be called directly
+        at org.apache.hadoop.hive.ql.udf.generic.GenericUDTF.initialize(GenericUDTF.java:72)
+        at org.apache.hadoop.hive.ql.udf.generic.GenericUDTF.initialize(GenericUDTF.java:56)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genUDTFPlan(SemanticAnalyzer.java:6688)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genSelectPlan(SemanticAnalyzer.java:3763)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genLateralViewPlan(SemanticAnalyzer.java:9731)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genLateralViewPlans(SemanticAnalyzer.java:9675)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genPlan(SemanticAnalyzer.java:9530)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genPlan(SemanticAnalyzer.java:9468)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genOPTree(SemanticAnalyzer.java:9904)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:9915)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:9832)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:222)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:422)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:306)
+        at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1111)
+        at org.apache.hadoop.hive.ql.Driver.compileAndRespond(Driver.java:1105)
+        at org.apache.hive.service.cli.operation.SQLOperation.prepare(SQLOperation.java:100)
+        at org.apache.hive.service.cli.operation.SQLOperation.runInternal(SQLOperation.java:171)
+        at org.apache.hive.service.cli.operation.Operation.run(Operation.java:257)
+        at org.apache.hive.service.cli.session.HiveSessionImpl.executeStatementInternal(HiveSessionImpl.java:398)
+        at org.apache.hive.service.cli.session.HiveSessionImpl.executeStatementAsync(HiveSessionImpl.java:385)
+        at sun.reflect.GeneratedMethodAccessor15.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hive.service.cli.session.HiveSessionProxy.invoke(HiveSessionProxy.java:78)
+        at org.apache.hive.service.cli.session.HiveSessionProxy.access$000(HiveSessionProxy.java:36)
+        at org.apache.hive.service.cli.session.HiveSessionProxy$1.run(HiveSessionProxy.java:63)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+        at org.apache.hive.service.cli.session.HiveSessionProxy.invoke(HiveSessionProxy.java:59)
+        at com.sun.proxy.$Proxy25.executeStatementAsync(Unknown Source)
+        at org.apache.hive.service.cli.CLIService.executeStatementAsync(CLIService.java:258)
+        at org.apache.hive.service.cli.thrift.ThriftCLIService.ExecuteStatement(ThriftCLIService.java:490)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$ExecuteStatement.getResult(TCLIService.java:1313)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$ExecuteStatement.getResult(TCLIService.java:1298)
+        at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+        at org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:39)
+        at org.apache.hive.service.auth.TSetIpAddressProcessor.process(TSetIpAddressProcessor.java:56)
+        at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+
+

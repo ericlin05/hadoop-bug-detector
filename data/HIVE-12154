@@ -1,0 +1,16 @@
+Description
+
+We are using flume to sink data to HDFS directory '/tmp/test/', temporal files that flume actively writes into has a suffix .tmp, after writes finish, the file will be renamed to SAMPLE.data.
+Hive periodic task execute script like 
+
+load data inpath '/tmp/test/*.data' into table t1;
+This exception happens sometimes
+
+2015-10-12 19:38:00,133 | ERROR | HiveServer2-Handler-Pool: Thread-57 | FAILED: HiveAuthzPluginException Error getting permissions for hdfs://hacluster/tmp/test/*.data: null
+org.apache.hadoop.hive.ql.security.authorization.plugin.HiveAuthzPluginException: Error getting permissions for hdfs://hacluster/tmp/test/*.data: null
+...
+Caused by: java.io.FileNotFoundException: Path not found
+    at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.checkAccess(FSNamesystem.java:8175)
+I digged into the code, and found that SQLStdHiveAuthorizationValidator checks all the files in /tmp/test/ directory, but when checks the permission of .tmp file, the file is renamed to .data, hdfs cannot find this file.
+
+

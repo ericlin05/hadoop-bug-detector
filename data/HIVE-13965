@@ -1,0 +1,47 @@
+Description
+
+This error can be reproduced by enabling thrift binary serde, using beeline connect to hiveserver2 and executing the following commands:
+&amp;gt;create table test3(num1 int);
+&amp;gt;create table test4(num1 int);
+&amp;gt;insert into test3 values(1);
+&amp;gt;insert into test4 values(2);
+&amp;gt;select * from test3 join test4 on test3.num1=test4.num1;
+The result should be empty, but it gives an exception:
+Diagnostic Messages for this Task:
+Error: java.lang.RuntimeException: Hive Runtime Error while closing operators
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.close(ExecMapper.java:206)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:61)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:453)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:168)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:162)
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.exec.FileSinkOperator.closeOp(FileSinkOperator.java:1029)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:641)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:655)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:655)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:655)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.close(ExecMapper.java:195)
+        ... 8 more
+This error is caused in FileSinkOperator.java. 
+If the resultset is empty, function process() will not be called, so variable "fpaths" will not be set. When run into CloseOp(), 
+if (conf.isHiveServerQuery() &amp;amp;&amp;amp; HiveConf.getBoolVar(hconf,
+         HiveConf.ConfVars.HIVE_SERVER2_THRIFT_RESULTSET_SERIALIZE_IN_TASKS) &amp;amp;&amp;amp;
+         serializer.getClass().getName().equalsIgnoreCase(ThriftJDBCBinarySerDe.class.getName())) {
+         try 
+{
+           recordValue = serializer.serialize(null, inputObjInspectors[0]);
+           rowOutWriters = fpaths.outWriters;
+           rowOutWriters[0].write(recordValue);
+         }
+ catch (SerDeException | IOException e) 
+{
+           throw new HiveException(e);
+         }
+     }
+Here fpaths is null.
+
+

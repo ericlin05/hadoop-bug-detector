@@ -1,0 +1,18 @@
+Description
+
+It seems not right that a write permission is needed on the source side for import table because the CopyTask in import needs to create a staging directory under the imported source directory. For a user who does not have the write permission to the source directory, you will get error like following
+
+
+Caused by: java.lang.RuntimeException: Cannot create staging directory 'hdfs://quickstart.cloudera:8020/user/hive/exp_t1/.hive-staging_hive_2016-05-26_16-38-29_453_8739265934924968327-1': Permission denied: user=test1, access=WRITE, inode="/user/hive/exp_t1":anonymous:supergroup:drwxrwxr-x
+ ...
+org.apache.hadoop.hdfs.DistributedFileSystem.mkdirsInternal(DistributedFileSystem.java:952)
+	at org.apache.hadoop.hdfs.DistributedFileSystem.mkdirs(DistributedFileSystem.java:945)
+	at org.apache.hadoop.fs.FileSystem.mkdirs(FileSystem.java:1856)
+	at org.apache.hadoop.hive.common.FileUtils.mkdir(FileUtils.java:518)
+	at org.apache.hadoop.hive.ql.Context.getStagingDir(Context.java:234)
+	... 23 more
+
+
+There are three tasks involved in import table, CopyTask, DDLTask and MoveTask. I wonder if the CopyTask is really needed?
+
+

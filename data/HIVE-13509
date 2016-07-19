@@ -1,0 +1,15 @@
+Description
+
+It is quite common that there is the discrepancy between partition directory and its HMS metadata, simply because the directory could be added/deleted externally using hdfs shell command. Technically it should be fixed by MSCK and alter table .. add/drop command etc, but sometimes it might not be practical especially in a multi-tenant env. This discrepancy does not cause any problem to Hive, Hive returns no rows for a partition with an invalid (e.g. non-existing) path, but it fails the Pig load with HCatLoader, because the HCatBaseInputFormat getSplits throws an error when getting a split for a non-existing path. The error message might looks like:
+
+
+Caused by: org.apache.hadoop.mapred.InvalidInputException: Input path does not exist: hdfs://xyz.com:8020/user/hive/warehouse/xyz/date=2016-01-01/country=BR
+	at org.apache.hadoop.mapred.FileInputFormat.singleThreadedListStatus(FileInputFormat.java:287)
+	at org.apache.hadoop.mapred.FileInputFormat.listStatus(FileInputFormat.java:229)
+	at org.apache.hadoop.mapred.FileInputFormat.getSplits(FileInputFormat.java:315)
+	at org.apache.hive.hcatalog.mapreduce.HCatBaseInputFormat.getSplits(HCatBaseInputFormat.java:162)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigInputFormat.getSplits(PigInputFormat.java:274)
+
+
+
+

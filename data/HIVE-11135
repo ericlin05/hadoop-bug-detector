@@ -1,0 +1,23 @@
+Description
+
+When I run set and save command at Beeline in my environment. And NullPointerException occurred as follows.
+
+
+[root@hive ~]# /usr/local/hive/bin/beeline
+Beeline version 2.0.0-SNAPSHOT by Apache Hive
+beeline&amp;gt; !set
+java.lang.NullPointerException
+beeline&amp;gt; !save
+Saving preferences to: /root/.beeline/beeline.properties
+java.lang.NullPointerException
+
+
+This problem has occurred because the following method's return value in BeeLineOpts#toProperties is null.
+
+
+beeLine.getReflector().invoke(this, "get" + names[i], new Object[0]).toString()
+
+
+Therefore it is modified so as to avoid NullPointerException.
+
+

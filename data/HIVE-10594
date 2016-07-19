@@ -1,0 +1,81 @@
+Description
+
+Reporting problem found by one of the HoS users:
+Currently, if user is running Beeline on a different host than HS2, and he/she didn't do kinit on the HS2 host, then he/she may get the following error:
+
+
+2015-04-29 15:49:34,614 INFO org.apache.hive.spark.client.SparkClientImpl: 15/04/29 15:49:34 WARN UserGroupInformation: PriviledgedActionException as:hive (auth:KERBEROS) cause:java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+2015-04-29 15:49:34,652 INFO org.apache.hive.spark.client.SparkClientImpl: Exception in thread "main" java.io.IOException: Failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]; Host Details : local host is: "secure-hos-1.ent.cloudera.com/10.20.77.79"; destination host is: "secure-hos-1.ent.cloudera.com":8032;
+2015-04-29 15:49:34,653 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.net.NetUtils.wrapException(NetUtils.java:772)
+2015-04-29 15:49:34,653 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.ipc.Client.call(Client.java:1472)
+2015-04-29 15:49:34,654 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.ipc.Client.call(Client.java:1399)
+2015-04-29 15:49:34,654 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.ipc.ProtobufRpcEngine$Invoker.invoke(ProtobufRpcEngine.java:232)
+2015-04-29 15:49:34,654 INFO org.apache.hive.spark.client.SparkClientImpl:      at com.sun.proxy.$Proxy11.getClusterMetrics(Unknown Source)
+2015-04-29 15:49:34,655 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.yarn.api.impl.pb.client.ApplicationClientProtocolPBClientImpl.getClusterMetrics(ApplicationClientProtocolPBClientImpl.java:202)
+2015-04-29 15:49:34,655 INFO org.apache.hive.spark.client.SparkClientImpl:      at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+2015-04-29 15:49:34,655 INFO org.apache.hive.spark.client.SparkClientImpl:      at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+2015-04-29 15:49:34,656 INFO org.apache.hive.spark.client.SparkClientImpl:      at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2015-04-29 15:49:34,656 INFO org.apache.hive.spark.client.SparkClientImpl:      at java.lang.reflect.Method.invoke(Method.java:606)
+2015-04-29 15:49:34,656 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.io.retry.RetryInvocationHandler.invokeMethod(RetryInvocationHandler.java:187)
+2015-04-29 15:49:34,657 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.io.retry.RetryInvocationHandler.invoke(RetryInvocationHandler.java:102)
+2015-04-29 15:49:34,657 INFO org.apache.hive.spark.client.SparkClientImpl:      at com.sun.proxy.$Proxy12.getClusterMetrics(Unknown Source)
+2015-04-29 15:49:34,657 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.yarn.client.api.impl.YarnClientImpl.getYarnClusterMetrics(YarnClientImpl.java:461)
+2015-04-29 15:49:34,657 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.spark.deploy.yarn.Client$$anonfun$submitApplication$1.apply(Client.scala:91)
+2015-04-29 15:49:34,657 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.spark.deploy.yarn.Client$$anonfun$submitApplication$1.apply(Client.scala:91)
+2015-04-29 15:49:34,657 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.spark.Logging$class.logInfo(Logging.scala:59)
+2015-04-29 15:49:34,657 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.spark.deploy.yarn.Client.logInfo(Client.scala:49)
+2015-04-29 15:49:34,657 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.spark.deploy.yarn.Client.submitApplication(Client.scala:90)
+2015-04-29 15:49:34,658 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.spark.deploy.yarn.Client.run(Client.scala:619)
+2015-04-29 15:49:34,658 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.spark.deploy.yarn.Client$.main(Client.scala:647)
+2015-04-29 15:49:34,658 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.spark.deploy.yarn.Client.main(Client.scala)
+2015-04-29 15:49:34,658 INFO org.apache.hive.spark.client.SparkClientImpl:      at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+2015-04-29 15:49:34,658 INFO org.apache.hive.spark.client.SparkClientImpl:      at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+2015-04-29 15:49:34,658 INFO org.apache.hive.spark.client.SparkClientImpl:      at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2015-04-29 15:49:34,658 INFO org.apache.hive.spark.client.SparkClientImpl:      at java.lang.reflect.Method.invoke(Method.java:606)
+2015-04-29 15:49:34,659 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.spark.deploy.SparkSubmit$.org$apache$spark$deploy$SparkSubmit$$runMain(SparkSubmit.scala:569)
+2015-04-29 15:49:34,659 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.spark.deploy.SparkSubmit$.doRunMain$1(SparkSubmit.scala:166)
+2015-04-29 15:49:34,659 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.spark.deploy.SparkSubmit$.submit(SparkSubmit.scala:189)
+2015-04-29 15:49:34,659 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:110)
+2015-04-29 15:49:34,659 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala)
+2015-04-29 15:49:34,660 INFO org.apache.hive.spark.client.SparkClientImpl: Caused by: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+2015-04-29 15:49:34,660 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.ipc.Client$Connection$1.run(Client.java:680)
+2015-04-29 15:49:34,660 INFO org.apache.hive.spark.client.SparkClientImpl:      at java.security.AccessController.doPrivileged(Native Method)
+2015-04-29 15:49:34,660 INFO org.apache.hive.spark.client.SparkClientImpl:      at javax.security.auth.Subject.doAs(Subject.java:415)
+2015-04-29 15:49:34,660 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+2015-04-29 15:49:34,660 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.ipc.Client$Connection.handleSaslConnectionFailure(Client.java:643)
+2015-04-29 15:49:34,661 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.ipc.Client$Connection.setupIOstreams(Client.java:730)
+2015-04-29 15:49:34,661 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.ipc.Client$Connection.access$2800(Client.java:368)
+2015-04-29 15:49:34,661 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.ipc.Client.getConnection(Client.java:1521)
+2015-04-29 15:49:34,661 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.ipc.Client.call(Client.java:1438)
+2015-04-29 15:49:34,661 INFO org.apache.hive.spark.client.SparkClientImpl:      ... 29 more
+2015-04-29 15:49:34,662 INFO org.apache.hive.spark.client.SparkClientImpl: Caused by: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+2015-04-29 15:49:34,662 INFO org.apache.hive.spark.client.SparkClientImpl:      at com.sun.security.sasl.gsskerb.GssKrb5Client.evaluateChallenge(GssKrb5Client.java:212)
+2015-04-29 15:49:34,662 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.security.SaslRpcClient.saslConnect(SaslRpcClient.java:413)
+2015-04-29 15:49:34,662 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.ipc.Client$Connection.setupSaslConnection(Client.java:553)
+2015-04-29 15:49:34,662 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.ipc.Client$Connection.access$1800(Client.java:368)
+2015-04-29 15:49:34,663 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.ipc.Client$Connection$2.run(Client.java:722)
+2015-04-29 15:49:34,663 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.ipc.Client$Connection$2.run(Client.java:718)
+2015-04-29 15:49:34,663 INFO org.apache.hive.spark.client.SparkClientImpl:      at java.security.AccessController.doPrivileged(Native Method)
+2015-04-29 15:49:34,663 INFO org.apache.hive.spark.client.SparkClientImpl:      at javax.security.auth.Subject.doAs(Subject.java:415)
+2015-04-29 15:49:34,663 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+2015-04-29 15:49:34,664 INFO org.apache.hive.spark.client.SparkClientImpl:      at org.apache.hadoop.ipc.Client$Connection.setupIOstreams(Client.java:717)
+2015-04-29 15:49:34,664 INFO org.apache.hive.spark.client.SparkClientImpl:      ... 32 more
+2015-04-29 15:49:34,664 INFO org.apache.hive.spark.client.SparkClientImpl: Caused by: GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)
+2015-04-29 15:49:34,664 INFO org.apache.hive.spark.client.SparkClientImpl:      at sun.security.jgss.krb5.Krb5InitCredential.getInstance(Krb5InitCredential.java:147)
+2015-04-29 15:49:34,664 INFO org.apache.hive.spark.client.SparkClientImpl:      at sun.security.jgss.krb5.Krb5MechFactory.getCredentialElement(Krb5MechFactory.java:121)
+2015-04-29 15:49:34,665 INFO org.apache.hive.spark.client.SparkClientImpl:      at sun.security.jgss.krb5.Krb5MechFactory.getMechanismContext(Krb5MechFactory.java:187)
+2015-04-29 15:49:34,665 INFO org.apache.hive.spark.client.SparkClientImpl:      at sun.security.jgss.GSSManagerImpl.getMechanismContext(GSSManagerImpl.java:223)
+2015-04-29 15:49:34,665 INFO org.apache.hive.spark.client.SparkClientImpl:      at sun.security.jgss.GSSContextImpl.initSecContext(GSSContextImpl.java:212)
+2015-04-29 15:49:34,665 INFO org.apache.hive.spark.client.SparkClientImpl:      at sun.security.jgss.GSSContextImpl.initSecContext(GSSContextImpl.java:179)
+2015-04-29 15:49:34,665 INFO org.apache.hive.spark.client.SparkClientImpl:      at com.sun.security.sasl.gsskerb.GssKrb5Client.evaluateChallenge(GssKrb5Client.java:193)
+2015-04-29 15:49:34,665 INFO org.apache.hive.spark.client.SparkClientImpl:      ... 41 more...
+
+
+For MR, it works fine. I reproduced the issue on a newly provisioned CDH-5.4.1 cluster, by explicitly kdestroy on the HS2 host first, and later submitting HoS query through beeline on a different host.
+According to the user's investigation, it might be an issue with spark-submit.sh.
+Here's the quote:
+
+I think I found it .. HS2 calls out via Bash to set up the spark container for the HS2 session – I am not seeing any keytab access for this new session – so having a krb5cc_xx available solves the hive need for an active TGT.
+Basically bash is laundering the access .. the TGT that HS2 is carrying isn’t passed on through to bash – because bash doesn’t have a KRB5CCNAME to go looking for so it cannot pass the TGT on even if one existed.
+
+

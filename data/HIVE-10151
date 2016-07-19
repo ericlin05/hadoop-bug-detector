@@ -1,0 +1,95 @@
+Description
+
+BucketingSortingReduceSinkOptimizer makes 
+insert into AcidTable select * from otherAcidTable
+use BucketizedHiveInputFormat which bypasses ORC merge logic on read and tries to send bucket files (rather than table dir) down to OrcInputFormat.
+(this is true only if both AcidTable and otherAcidTable are bucketed the same way).  Then ORC dies.
+More specifically:
+
+create table acidTbl(a int, b int) clustered by (a) into 2 buckets stored as orc TBLPROPERTIES ('transactional'='true')
+create table acidTblPart(a int, b int) partitioned by (p string) clustered by (a) into 2 buckets stored as orc TBLPROPERTIES ('transactional'='true')
+insert into acidTblPart partition(p=1) (a,b) values(1,2)
+insert into acidTbl(a,b) select a,b from acidTblPart where p = 1
+
+
+results in 
+
+2015-04-29 13:57:35,807 ERROR [main]: exec.Task (SessionState.java:printError(956)) - Job Submission failed with exception 'java.lang.RuntimeException(serious problem)'
+java.lang.RuntimeException: serious problem
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.generateSplitsInfo(OrcInputFormat.java:1021)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getSplits(OrcInputFormat.java:1048)
+        at org.apache.hadoop.hive.ql.io.BucketizedHiveInputFormat.getSplits(BucketizedHiveInputFormat.java:141)
+        at org.apache.hadoop.mapreduce.JobSubmitter.writeOldSplits(JobSubmitter.java:624)
+        at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:616)
+        at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:492)
+        at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1296)
+        at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1293)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+        at org.apache.hadoop.mapreduce.Job.submit(Job.java:1293)
+        at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:562)
+        at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:557)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+        at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:557)
+        at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:548)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecDriver.execute(ExecDriver.java:430)
+        at org.apache.hadoop.hive.ql.exec.mr.MapRedTask.execute(MapRedTask.java:137)
+        at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+        at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:88)
+        at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1650)
+        at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1409)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1192)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1059)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1049)
+        at org.apache.hadoop.hive.ql.TestTxnCommands2.runStatementOnDriver(TestTxnCommands2.java:225)
+        at org.apache.hadoop.hive.ql.TestTxnCommands2.testDeleteIn2(TestTxnCommands2.java:148)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27)
+        at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:55)
+        at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:271)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:70)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)
+        at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+        at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:254)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:149)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:124)
+        at org.apache.maven.surefire.booter.ForkedBooter.invokeProviderInSameClassLoader(ForkedBooter.java:200)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:153)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:103)
+Caused by: java.util.concurrent.ExecutionException: java.lang.IllegalArgumentException: delta_0000001_0000001 does not start with base_
+        at java.util.concurrent.FutureTask.report(FutureTask.java:122)
+        at java.util.concurrent.FutureTask.get(FutureTask.java:188)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.generateSplitsInfo(OrcInputFormat.java:998)
+        ... 56 more
+Caused by: java.lang.IllegalArgumentException: delta_0000001_0000001 does not start with base_
+        at org.apache.hadoop.hive.ql.io.AcidUtils.parseBase(AcidUtils.java:144)
+        at org.apache.hadoop.hive.ql.io.AcidUtils.parseBaseBucketFilename(AcidUtils.java:172)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$FileGenerator.call(OrcInputFormat.java:655)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$FileGenerator.call(OrcInputFormat.java:620)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+
+2015-04-29 13:57:35,809 ERROR [main]: ql.Driver (SessionState.java:printError(956)) - FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+
+
+
+

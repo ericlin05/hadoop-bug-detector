@@ -1,0 +1,44 @@
+Description
+
+When executing a SELECT Distinct on a field of type VARCHAR hive fails with the following error:
+FATAL [main] org.apache.hadoop.hive.ql.exec.mr.ExecMapper: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row 
+{"hp_process_date":null,"dw_sequence_nbr":null,"de2_card_nbr":"ACTUAL VALUE MASKED BY JAA","pds1_paypass_acct_nbr":null,"dw_process_date":"2014-01-10"}
+at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:549)
+at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:177)
+at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54)
+at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:168)
+at java.security.AccessController.doPrivileged(Native Method)
+at javax.security.auth.Subject.doAs(Subject.java:415)
+at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1642)
+at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:163)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.ClassCastException: org.apache.hadoop.io.Text cannot be cast to org.apache.hadoop.hive.serde2.io.HiveVarcharWritable
+at org.apache.hadoop.hive.ql.exec.GroupByOperator.processOp(GroupByOperator.java:808)
+at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+at org.apache.hadoop.hive.ql.exec.SelectOperator.processOp(SelectOperator.java:87)
+at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:92)
+at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:539)
+... 9 more
+Caused by: java.lang.ClassCastException: org.apache.hadoop.io.Text cannot be cast to org.apache.hadoop.hive.serde2.io.HiveVarcharWritable
+at org.apache.hadoop.hive.serde2.objectinspector.primitive.WritableHiveVarcharObjectInspector.copyObject(WritableHiveVarcharObjectInspector.java:109)
+at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils.copyToStandardObject(ObjectInspectorUtils.java:309)
+at org.apache.hadoop.hive.ql.exec.KeyWrapperFactory$ListKeyWrapper.deepCopyElements(KeyWrapperFactory.java:150)
+at org.apache.hadoop.hive.ql.exec.KeyWrapperFactory$ListKeyWrapper.deepCopyElements(KeyWrapperFactory.java:142)
+at org.apache.hadoop.hive.ql.exec.KeyWrapperFactory$ListKeyWrapper.copyKey(KeyWrapperFactory.java:119)
+at org.apache.hadoop.hive.ql.exec.GroupByOperator.processHashAggr(GroupByOperator.java:821)
+at org.apache.hadoop.hive.ql.exec.GroupByOperator.processKey(GroupByOperator.java:735)
+at org.apache.hadoop.hive.ql.exec.GroupByOperator.processOp(GroupByOperator.java:803)
+I understand that Varchar support with parquet was introduced in Hive 0.14: 
+https://cwiki.apache.org/confluence/display/Hive/Parquet
+This issue seems similar to:
+https://issues.apache.org/jira/browse/HIVE-9371
+Which was closed as a duplicate. Which I believe was marked as such do to 
+https://issues.apache.org/jira/browse/HIVE-7735
+Even with this fix however I am experiencing the issue. 
+Thank you, 
+Ryan
+
+

@@ -1,0 +1,15 @@
+Description
+
+
+Caused by: org.apache.hadoop.service.ServiceStateException: java.io.IOException: Llap Kerberos keytab is empty
+at org.apache.hadoop.service.ServiceStateException.convert(ServiceStateException.java:59)
+at org.apache.hadoop.service.AbstractService.start(AbstractService.java:204)
+at org.apache.hadoop.hive.llap.registry.impl.LlapRegistryService.getClient(LlapRegistryService.java:67)
+at org.apache.hadoop.hive.llap.LlapBaseInputFormat.getServiceInstance(LlapBaseInputFormat.java:238)
+at org.apache.hadoop.hive.llap.LlapBaseInputFormat.getRecordReader(LlapBaseInputFormat.java:142)
+at org.apache.hadoop.hive.llap.LlapRowInputFormat.getRecordReader(LlapRowInputFormat.java:51)
+
+
+Using the LLAP ZK registry in environments other than the LLAP daemon (such as external LLAP clients), there should be a way to skip this ZK auth setup.
+
+

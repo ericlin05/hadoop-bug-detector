@@ -1,0 +1,61 @@
+Description
+
+We bumped into a bug when using vectorization on a transactional table.
+Here is a minimal example :
+```sql
+DROP TABLE IF EXISTS vectorization_transactional_test ;
+CREATE TABLE vectorization_transactional_test (
+    id INT
+)
+CLUSTERED BY (id) into 3 buckets
+STORED AS ORC
+TBLPROPERTIES('transactional'='true') ;
+INSERT INTO TABLE vectorization_transactional_test values 
+(1)
+;
+SET hive.vectorized.execution.enabled=true ;
+SELECT
+
+FROM vectorization_transactional_test
+WHERE id = 1
+;
+```
+
+With vectorization enable, the last query will fail with a n ArrayOutOfBoundException in the mappers. 
+Here is the full stack:
+```
+FATAL [main] org.apache.hadoop.hive.ql.exec.mr.ExecMapper: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row 
+    at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:52)
+    at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:170)
+    at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54)
+    at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:453)
+    at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+    at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at javax.security.auth.Subject.doAs(Subject.java:415)
+    at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+    at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Error evaluating 1
+    at org.apache.hadoop.hive.ql.exec.vector.VectorSelectOperator.processOp(VectorSelectOperator.java:126)
+    at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+    at org.apache.hadoop.hive.ql.exec.vector.VectorFilterOperator.processOp(VectorFilterOperator.java:111)
+    at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+    at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:95)
+    at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:157)
+    at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:45)
+    ... 9 more
+Caused by: java.lang.ArrayIndexOutOfBoundsException: 1
+    at org.apache.hadoop.hive.ql.exec.vector.expressions.ConstantVectorExpression.evaluateLong(ConstantVectorExpression.java:102)
+    at org.apache.hadoop.hive.ql.exec.vector.expressions.ConstantVectorExpression.evaluate(ConstantVectorExpression.java:150)
+    at org.apache.hadoop.hive.ql.exec.vector.VectorSelectOperator.processOp(VectorSelectOperator.java:124)
+    ... 15 more
+```
+Of course, disabling vectorization (or transactionnality) removes the bug.
+More annoyingly, when the table is used in a JOIN, the job doesn't fail but returns a wrong result instead :
+for instance an empty table, while disabling vectorization returns a non-empty one. This behavior is harder to reproduce with a minimal example.
+We experienced this bug in version 1.1.0-cdh5.4.2.
+I did not achieve to reproduce this bug on a local build of hive 1.2.0
+because I did not succeed to have transactionnality working correctly.
+I guess it only works in pseudo-distributed mode and not in local mode.
+
+

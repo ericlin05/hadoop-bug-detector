@@ -1,0 +1,35 @@
+Description
+
+Didn't spend a lot of time investigating
+
+2015-06-15 17:00:49,334 ERROR [main]: SessionState (SessionState.java:printError(984)) - Vertex failed, vertexName=Map 2, vertexId=vertex_1434412732572_0002_5_01, diagnostics=[Task failed, taskId=task_1434412732572_0002_5_01_000000, diagnostics=[TaskAttempt 0 failed, info=[Error: Failure while running task: attempt_1434412732572_0002_5_01_000000_0:java.lang.RuntimeException: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:181)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:146)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:349)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:71)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:60)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:60)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:35)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:255)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:157)
+	... 14 more
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.MapOperator.getNominalPath(MapOperator.java:399)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.initializeContexts(MapOperator.java:644)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.getKeyValueReader(MapRecordProcessor.java:293)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.initializeMapRecordSources(MapRecordProcessor.java:269)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:223)
+	... 15 more
+
+
+
+

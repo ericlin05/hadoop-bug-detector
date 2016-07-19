@@ -1,0 +1,44 @@
+Description
+
+count on view with get_json_object() UDF and lateral views and unions fails in the master with error:
+2015-10-27 17:51:33,742 WARN [main] org.apache.hadoop.mapred.YarnChild: Exception running child : java.lang.RuntimeException: Error in configuring object
+        at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:109)
+        at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:75)
+        at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:133)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:449)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: java.lang.reflect.InvocationTargetException
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:106)
+        ... 9 more
+Caused by: java.lang.RuntimeException: Error in configuring object
+        at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:109)
+        at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:75)
+        at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:133)
+        at org.apache.hadoop.mapred.MapRunner.configure(MapRunner.java:38)
+        ... 14 more
+Caused by: java.lang.reflect.InvocationTargetException
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:106)
+        ... 17 more
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.configure(ExecMapper.java:147)
+        ... 22 more
+Caused by: java.lang.IndexOutOfBoundsException: Index: 1, Size: 1
+        at java.util.ArrayList.rangeCheck(ArrayList.java:635)
+        at java.util.ArrayList.get(ArrayList.java:411)
+This query works fine in 1.1 version. 
+The last two qfile unit tests added by HIVE-11384 fail when hive.in.test is false. It may relate how we handle prunelist for select. When select include every column in a table, the prunelist for the select is empty. It may cause issues to calculate its parent's prunelist.. 
+
+

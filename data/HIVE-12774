@@ -1,0 +1,99 @@
+Description
+
+A query against a table with no data in partition X fails under vectorization.
+Table:
+
+
+use default;
+drop table if exists test;
+CREATE TABLE default.test(
+  district_id bigint, 
+  user_type string,
+  7d int)
+PARTITIONED BY
+  (partition_date string)
+ROW FORMAT SERDE 
+  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' 
+STORED AS INPUTFORMAT 
+  'org.apache.hadoop.mapred.TextInputFormat' 
+OUTPUTFORMAT 
+  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+
+
+Query:
+
+
+set hive.vectorized.execution.enabled = true;
+select partition_date, sum(teachers_7d)
+from
+(
+select distinct ad1.partition_date, ad1.district_id, ad1.7d teachers_7d
+from default.test ad1
+left join default.test ad2 on ad1.district_id = ad2.district_id and ad2.user_type = 'STUDENT' 
+and ad2.partition_date = '2015-12-20'
+where ad1.user_type = 'TEACHER'
+and ad1.partition_date = '2015-12-20'
+) a
+group by partition_date
+;
+
+
+This will elicit a task that fails:
+
+
+Diagnostic Messages for this Task:
+Error: java.lang.RuntimeException: Error in configuring object
+	at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:109)
+	at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:75)
+	at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:133)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:449)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:106)
+	... 9 more
+Caused by: java.lang.RuntimeException: Error in configuring object
+	at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:109)
+	at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:75)
+	at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:133)
+	at org.apache.hadoop.mapred.MapRunner.configure(MapRunner.java:38)
+	... 14 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:106)
+	... 17 more
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.configure(ExecMapper.java:147)
+	... 22 more
+Caused by: java.lang.ClassCastException: org.apache.hadoop.hive.serde2.lazy.objectinspector.primitive.LazyLongObjectInspector cannot be cast to org.apache.hadoop.hive.serde2.objectinspector.primitive.SettableLongObjectInspector
+	at org.apache.hadoop.hive.ql.exec.vector.expressions.VectorExpressionWriterFactory.genVectorExpressionWritable(VectorExpressionWriterFactory.java:410)
+	at org.apache.hadoop.hive.ql.exec.vector.expressions.VectorExpressionWriterFactory.processVectorInspector(VectorExpressionWriterFactory.java:1102)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorReduceSinkOperator.initializeOp(VectorReduceSinkOperator.java:55)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:385)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:469)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:425)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorFilterOperator.initializeOp(VectorFilterOperator.java:77)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:385)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:469)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:425)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.initializeOp(TableScanOperator.java:193)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:385)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.initializeOp(MapOperator.java:431)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:385)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.configure(ExecMapper.java:126)
+	... 22 more
+
+
+
+

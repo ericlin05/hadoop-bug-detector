@@ -1,0 +1,9 @@
+Description
+
+alter table tablename set tblproperties ('key'='value')  =&amp;gt; works as expected
+alter table tablename unset tblproperties ('key')  =&amp;gt; works as expected
+alter table tablename set serdeproperties ('key'='value')  =&amp;gt; works as expected
+alter table tablename unset serdeproperties ('key')  =&amp;gt; not supported
+FAILED: ParseException line 1:28 mismatched input 'serdeproperties' expecting TBLPROPERTIES near 'unset' in alter properties statement
+
+

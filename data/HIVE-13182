@@ -1,0 +1,13 @@
+Description
+
+I run query , then cause ArrayIndexOutOfBoundsException,For detail see attachment. 
+I digg into the code.
+GenMapRedUtils.java
+
+//parent.getSchema() is (_col0:string,_col3:string) and parent is FilterOperator I don't think that is right, it shoulde be (_col0:string,_col1:bigint,_col2:bigint,_col3:string)
+TableDesc tt_desc = PlanUtils.getIntermediateFileTableDesc(PlanUtils
+        .getFieldSchemasFromRowSchema(parent.getSchema(), "temporarycol"));
+
+
+
+

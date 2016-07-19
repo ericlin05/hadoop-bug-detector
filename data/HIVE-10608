@@ -1,0 +1,13 @@
+Description
+
+"if" statement below is useless because it ends with ;
+
+
+      } catch (MetaException e) {
+        if (e.getMessage().matches("(?s).*(IO|TTransport)Exception.*"));
+        caughtException = e;
+      }
+
+
+
+

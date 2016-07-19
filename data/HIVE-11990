@@ -1,0 +1,14 @@
+Description
+
+The query runs:
+
+load data inpath 'wasb:///tmp/testtemptable/temptablemisc_5/data' overwrite into table temp2;
+
+
+It fails with:
+
+FAILED: SemanticException [Error 10028]: Line 2:37 Path is not legal ''wasb:///tmp/testtemptable/temptablemisc_5/data'': Move from: wasb://humb23-hive1@humboldttesting3.blob.core.windows.net/tmp/testtemptable/temptablemisc_5/data to: hdfs://headnode0.humb23-hive1-ssh.h2.internal.cloudapp.net:8020/tmp/hive/hrt_qa/0d5f8b31-5908-44bf-ae4c-9eee956da066/_tmp_space.db/75b44252-42a7-4d28-baf8-4977daa5d49c is not valid. Please check that values for params "default.fs.name" and "hive.metastore.warehouse.dir" do not conflict.
+
+
+
+

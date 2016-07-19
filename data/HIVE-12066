@@ -1,0 +1,28 @@
+Description
+
+Looking through the changes for ORC, there are methods being added without documentation:
+
+
+--- ql/src/java/org/apache/hadoop/hive/ql/io/orc/Reader.java
++++ ql/src/java/org/apache/hadoop/hive/ql/io/orc/Reader.java
+@@ -360,8 +353,18 @@ RecordReader rows(long offset, long length,
+
+   MetadataReader metadata() throws IOException;
+
++  List&amp;lt;Integer&amp;gt; getVersionList();
++
++  int getMetadataSize();
++
++  List&amp;lt;OrcProto.StripeStatistics&amp;gt; getOrcProtoStripeStatistics();
++
++  List&amp;lt;StripeStatistics&amp;gt; getStripeStatistics();
++
++  List&amp;lt;OrcProto.ColumnStatistics&amp;gt; getOrcProtoFileStatistics();
++
++  DataReader createDefaultDataReader(boolean useZeroCopy);
++
+
+
+You really need to look through all of the interfaces and fix them before merging into master.
+
+

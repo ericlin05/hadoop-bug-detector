@@ -1,0 +1,24 @@
+Description
+
+
+# beeline -u jdbc:hive2://localhost:10000
+[...]
+Beeline version 1.1.0-cdh5.4.5 by Apache Hive
+0: jdbc:hive2://localhost:10000&amp;gt; "
+0: jdbc:hive2://localhost:10000&amp;gt; select * from foo;
+Error: Error while compiling statement: FAILED: ParseException line 2:17 character '&amp;lt;EOF&amp;gt;' not supported here (state=42000,code=40000)
+0: jdbc:hive2://localhost:10000&amp;gt; 
+
+
+After (accidentally) entering a lonely quote character on its own line and pressing Enter, I get back the normal prompt. This easily makes me believe I'm about to type a new command from scratch, e.g. a select query as in the example, which ends up not working due to parsing error.
+Expected behavior: When a previous command is continued, or a quote is opened or anything like this, a differently looking secondary prompt should be displayed rather than the normal prompt; as this is done in e.g. hive, impala, mysql, bash..., e.g.:
+
+# beeline -u jdbc:hive2://localhost:10000
+[...]
+Beeline version 1.1.0-cdh5.4.5 by Apache Hive
+0: jdbc:hive2://localhost:10000&amp;gt; "
+                               &amp;gt; ...
+
+
+
+

@@ -1,0 +1,34 @@
+Description
+
+Queries like
+
+
+select * from table where col = null
+
+
+will throw the following exception
+
+
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.io.sarg.SearchArgumentImpl$ExpressionBuilder.boxLiteral(SearchArgumentImpl.java:446)
+	at org.apache.hadoop.hive.ql.io.sarg.SearchArgumentImpl$ExpressionBuilder.getLiteral(SearchArgumentImpl.java:476)
+	at org.apache.hadoop.hive.ql.io.sarg.SearchArgumentImpl$ExpressionBuilder.createLeaf(SearchArgumentImpl.java:524)
+	at org.apache.hadoop.hive.ql.io.sarg.SearchArgumentImpl$ExpressionBuilder.createLeaf(SearchArgumentImpl.java:584)
+	at org.apache.hadoop.hive.ql.io.sarg.SearchArgumentImpl$ExpressionBuilder.parse(SearchArgumentImpl.java:629)
+	at org.apache.hadoop.hive.ql.io.sarg.SearchArgumentImpl$ExpressionBuilder.addChildren(SearchArgumentImpl.java:598)
+	at org.apache.hadoop.hive.ql.io.sarg.SearchArgumentImpl$ExpressionBuilder.parse(SearchArgumentImpl.java:621)
+	at org.apache.hadoop.hive.ql.io.sarg.SearchArgumentImpl$ExpressionBuilder.addChildren(SearchArgumentImpl.java:598)
+	at org.apache.hadoop.hive.ql.io.sarg.SearchArgumentImpl$ExpressionBuilder.parse(SearchArgumentImpl.java:621)
+	at org.apache.hadoop.hive.ql.io.sarg.SearchArgumentImpl$ExpressionBuilder.expression(SearchArgumentImpl.java:916)
+	at org.apache.hadoop.hive.ql.io.sarg.SearchArgumentImpl.&amp;lt;init&amp;gt;(SearchArgumentImpl.java:953)
+	at org.apache.hadoop.hive.ql.io.sarg.SearchArgumentFactory.create(SearchArgumentFactory.java:36)
+	at org.apache.hadoop.hive.ql.io.sarg.SearchArgumentFactory.createFromConf(SearchArgumentFactory.java:50)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.setSearchArgument(OrcInputFormat.java:312)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getReader(OrcInputFormat.java:1224)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getRecordReader(OrcInputFormat.java:1113)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.getRecordReader(HiveInputFormat.java:249)
+
+
+This issue does not happen when CBO is enabled.
+
+

@@ -1,0 +1,26 @@
+Description
+
+The command "Analyze table .. partition compute statistics for columns" fails if the partition value is not a normalize integer with leading zeros. For example:
+create table colstatspartint (key int, value string) partitioned by (part int);
+insert into colstatspartint partition (part='0003') select key, value from src limit 30;
+analyze table colstatspartint partition (part='0003') compute statistics for columns; or
+analyze table colstatspartint partition (part=0003) compute statistics for columns;
+you will get the error:
+
+
+15/04/03 10:13:19 ERROR metastore.RetryingHMSHandler: NoSuchObjectException(message:Partition for which stats is gathered doesn't exist.)
+	at org.apache.hadoop.hive.metastore.ObjectStore.updatePartitionColumnStatistics(ObjectStore.java:5952)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.hive.metastore.RawStoreProxy.invoke(RawStoreProxy.java:114)
+	at com.sun.proxy.$Proxy6.updatePartitionColumnStatistics(Unknown Source)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.update_partition_column_statistics(HiveMetaStore.java:4346)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.set_aggr_stats_for(HiveMetaStore.java:5678)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+
+
+
+

@@ -1,0 +1,28 @@
+Description
+
+when execute a script:
+INSERT overwrite TABLE tmp.tmp_dim_cpttr_categ1
+   SELECT DISTINCT cur.categ_id       AS categ_id,
+                   cur.categ_code     AS categ_code,
+                   cur.categ_name     AS categ_name,
+                   cur.categ_parnt_id AS categ_parnt_id,
+                   par.categ_name     AS categ_parnt_name,
+                   cur.mc_site_id     AS mc_site_id
+   FROM   tmp.tmp_dim_cpttr_categ cur
+   LEFT   OUTER JOIN tmp.tmp_dim_cpttr_categ par
+   ON     cur.categ_parnt_id = par.categ_id;
+error occur :  SemanticException Column categ_name Found in more than One Tables/Subqueries
+when modify the alias categ_name to categ_name_cur, it will be execute successfully.
+INSERT overwrite TABLE tmp.tmp_dim_cpttr_categ1
+   SELECT DISTINCT cur.categ_id       AS categ_id,
+                   cur.categ_code     AS categ_code,
+                   cur.categ_name     AS categ_name_cur,
+                   cur.categ_parnt_id AS categ_parnt_id,
+                   par.categ_name     AS categ_parnt_name,
+                   cur.mc_site_id     AS mc_site_id
+   FROM   tmp.tmp_dim_cpttr_categ cur
+   LEFT   OUTER JOIN tmp.tmp_dim_cpttr_categ par
+   ON     cur.categ_parnt_id = par.categ_id;
+ this happen when we upgrade hive from 0.10 to 1.1.0 .  
+
+

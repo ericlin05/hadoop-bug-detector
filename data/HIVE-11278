@@ -1,0 +1,24 @@
+Description
+
+https://github.com/apache/hive/blob/master/ql/src/java/org/apache/hadoop/hive/ql/metadata/Partition.java#L286
+inside setInputFormatClass, we're doing:
+
+ public void setInputFormatClass(Class&amp;lt;? extends InputFormat&amp;gt; inputFormatClass) {
+    this.inputFormatClass = inputFormatClass;
+    tPartition.getSd().setInputFormat(inputFormatClass.getName());
+  }
+
+
+But inside setOutputFormatClass, we're doing toString for class, instead of getName().
+
+  public void setOutputFormatClass(Class&amp;lt;? extends HiveOutputFormat&amp;gt; outputFormatClass) {
+    this.outputFormatClass = outputFormatClass;
+    tPartition.getSd().setOutputFormat(HiveFileFormatUtils
+        .getOutputFormatSubstitute(outputFormatClass).toString());
+  }
+
+
+Difference is that, for Class A.class, toString is "class A.class", getName is "A.class". So Class.forName(cls.getName()) succeeds, but Class.forName(cls.toString()) is not valid. 
+So if you get a partition, set outputformat, and make an alter call, then get the partition again and make a getOutputFormatClass call on that object, it throws a ClassNotFoundException on https://github.com/apache/hive/blob/master/ql/src/java/org/apache/hadoop/hive/ql/metadata/Partition.java#L316, because it's basically calling Class.forName("class a.b.c.ClassName.class") which is wrong!
+
+

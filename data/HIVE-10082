@@ -1,0 +1,30 @@
+Description
+
+TPC-DS Query27 runs with map-joins enabled results in errors originating from these lines in UnwrappedRowContainer::unwrap() 
+
+
+   for (int index : valueIndex) {
+      if (index &amp;gt;= 0) {
+        unwrapped.add(currentKey == null ? null : currentKey[index]);
+      } else {
+        unwrapped.add(values.get(-index - 1));
+      }
+    }
+
+
+
+
+Caused by: java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
+    at java.util.ArrayList.rangeCheck(ArrayList.java:653)
+    at java.util.ArrayList.get(ArrayList.java:429)
+    at org.apache.hadoop.hive.ql.exec.persistence.UnwrapRowContainer.unwrap(UnwrapRowContainer.java:79)
+    at org.apache.hadoop.hive.ql.exec.persistence.UnwrapRowContainer.first(UnwrapRowContainer.java:62)
+    at org.apache.hadoop.hive.ql.exec.persistence.UnwrapRowContainer.first(UnwrapRowContainer.java:33)
+    at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.genAllOneUniqueJoinObject(CommonJoinOperator.java:670)
+    at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.checkAndGenObject(CommonJoinOperator.java:754)
+    at org.apache.hadoop.hive.ql.exec.MapJoinOperator.process(MapJoinOperator.java:341)
+
+
+This is intermittent and does not cause query failures as the retries succeed, but slows down the query by an entire wave due to the retry.
+
+

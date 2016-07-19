@@ -1,0 +1,57 @@
+Description
+
+The following exception was noticed in testing out the AccumuloStorageHandler's OutputFormat:
+
+java.lang.IllegalStateException: Connector info for AccumuloOutputFormat can only be set once per job
+  at org.apache.accumulo.core.client.mapreduce.lib.impl.ConfiguratorBase.setConnectorInfo(ConfiguratorBase.java:146)
+  at org.apache.accumulo.core.client.mapred.AccumuloOutputFormat.setConnectorInfo(AccumuloOutputFormat.java:125)
+  at org.apache.hadoop.hive.accumulo.mr.HiveAccumuloTableOutputFormat.configureAccumuloOutputFormat(HiveAccumuloTableOutputFormat.java:95)
+  at org.apache.hadoop.hive.accumulo.mr.HiveAccumuloTableOutputFormat.checkOutputSpecs(HiveAccumuloTableOutputFormat.java:51)
+  at org.apache.hadoop.hive.ql.io.HivePassThroughOutputFormat.checkOutputSpecs(HivePassThroughOutputFormat.java:46)
+  at org.apache.hadoop.hive.ql.exec.FileSinkOperator.checkOutputSpecs(FileSinkOperator.java:1124)
+  at org.apache.hadoop.hive.ql.io.HiveOutputFormatImpl.checkOutputSpecs(HiveOutputFormatImpl.java:67)
+  at org.apache.hadoop.mapreduce.JobSubmitter.checkSpecs(JobSubmitter.java:268)
+  at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:139)
+  at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1290)
+  at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1287)
+  at java.security.AccessController.doPrivileged(Native Method)
+  at javax.security.auth.Subject.doAs(Subject.java:415)
+  at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+  at org.apache.hadoop.mapreduce.Job.submit(Job.java:1287)
+  at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:575)
+  at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:570)
+  at java.security.AccessController.doPrivileged(Native Method)
+  at javax.security.auth.Subject.doAs(Subject.java:415)
+  at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+  at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:570)
+  at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:561)
+  at org.apache.hadoop.hive.ql.exec.mr.ExecDriver.execute(ExecDriver.java:431)
+  at org.apache.hadoop.hive.ql.exec.mr.MapRedTask.execute(MapRedTask.java:137)
+  at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+  at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:88)
+  at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1653)
+  at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1412)
+  at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1195)
+  at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1059)
+  at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1049)
+  at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:213)
+  at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:165)
+  at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:376)
+  at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:311)
+  at org.apache.hadoop.hive.cli.CliDriver.processReader(CliDriver.java:409)
+  at org.apache.hadoop.hive.cli.CliDriver.processFile(CliDriver.java:425)
+  at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:714)
+  at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:681)
+  at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:621)
+  at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+  at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+  at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+  at java.lang.reflect.Method.invoke(Method.java:606)
+  at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+  at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+  Job Submission failed with exception 'java.lang.IllegalStateException(Connector info for AccumuloOutputFormat can only be set once per job)'
+
+
+The OutputFormat implementation already had a method in place to account for this exception but the method accidentally wasn't getting called.
+
+

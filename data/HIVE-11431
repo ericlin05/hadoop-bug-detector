@@ -1,0 +1,25 @@
+Description
+
+The "select *" is meant to only apply to the left most table, not the right most - the unprojected "d" from tmp1 triggers this NPE.
+
+
+select * from tmp2 left semi join tmp1 where c1 = id and c0 = q;
+
+
+
+
+Caused by: java.lang.NullPointerException
+        at java.lang.System.arraycopy(Native Method)
+        at org.apache.hadoop.io.Text.set(Text.java:225)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorExtractRow$StringExtractorByValue.extract(VectorExtractRow.java:472)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorExtractRow.extractRow(VectorExtractRow.java:732)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorFileSinkOperator.process(VectorFileSinkOperator.java:96)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorSelectOperator.process(VectorSelectOperator.java:136)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorFilterOperator.process(VectorFilterOperator.java:117)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+
+
+
+

@@ -1,0 +1,11 @@
+Description
+
+We have a use case where we have a list of partitions that are created as a result of a batch job (new or updated) outside of Hive and would like to synchronize them with the Hive MetaStore. We would like to use the HCatalog HCatClient but it currently does not seem to support this. However it is possible with the HiveMetaStoreClient directly. I am proposing to add the following method to HCatClient and HCatClientHMSImpl:
+A method for altering partitions. The implementation would delegate to HiveMetaStoreClient#alter_partitions. I've used "update" instead of "alter" in the name so it's consistent with the HCatClient#updateTableSchema method.
+
+
+public void updatePartitions(List&amp;lt;HCatPartition&amp;gt; partitions) throws HCatException
+
+
+
+

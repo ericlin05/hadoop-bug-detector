@@ -1,0 +1,67 @@
+Description
+
+stderr log from one executor.
+
+16/05/12 15:56:51 INFO exec.MapJoinOperator: Initializing operator MAPJOIN[10]
+16/05/12 15:56:51 INFO exec.CommonJoinOperator: JOIN struct&amp;lt;_col0:int,_col1:string,_col2:int,_col3:string&amp;gt; totalsz = 4
+16/05/12 15:56:51 INFO spark.HashTableLoader: ******* Load from HashTable for input file: hdfs://test-cluster/user/hive/warehouse-store2/pokes/kv1.txt
+16/05/12 15:56:51 INFO spark.HashTableLoader: 	Load back all hashtable files from tmp folder uri:hdfs://test-cluster/tmp/hive/hadoop/4062fcea-6759-4340-b4be-5e83181e68bf/hive_2016-05-12_15-56-50_196_4198620026582283764-1/-mr-10004/HashTable-Stage-1/MapJoin-mapfile11--.hashtable
+16/05/12 15:56:51 INFO exec.MapJoinOperator: Exception loading hash tables. Clearing partially loaded hash table containers.
+16/05/12 15:56:51 ERROR executor.Executor: Exception in task 0.0 in stage 3.0 (TID 3)
+java.lang.RuntimeException: Map operator initialization failed: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.init(SparkMapRecordHandler.java:121)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunction.call(HiveMapFunction.java:55)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunction.call(HiveMapFunction.java:30)
+	at org.apache.spark.api.java.JavaRDDLike$$anonfun$fn$7$1.apply(JavaRDDLike.scala:192)
+	at org.apache.spark.api.java.JavaRDDLike$$anonfun$fn$7$1.apply(JavaRDDLike.scala:192)
+	at org.apache.spark.rdd.RDD$$anonfun$mapPartitions$1$$anonfun$apply$20.apply(RDD.scala:710)
+	at org.apache.spark.rdd.RDD$$anonfun$mapPartitions$1$$anonfun$apply$20.apply(RDD.scala:710)
+	at org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:38)
+	at org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:306)
+	at org.apache.spark.rdd.RDD.iterator(RDD.scala:270)
+	at org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:66)
+	at org.apache.spark.scheduler.Task.run(Task.scala:89)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:214)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.mr.ObjectCache.retrieve(ObjectCache.java:57)
+	at org.apache.hadoop.hive.ql.exec.mr.ObjectCache.retrieveAsync(ObjectCache.java:63)
+	at org.apache.hadoop.hive.ql.exec.ObjectCacheWrapper.retrieveAsync(ObjectCacheWrapper.java:46)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.initializeOp(MapJoinOperator.java:173)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:355)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:504)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:457)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:365)
+	at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.init(SparkMapRecordHandler.java:112)
+	... 15 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.spark.HashTableLoader.load(HashTableLoader.java:151)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.loadHashTable(MapJoinOperator.java:299)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator$1.call(MapJoinOperator.java:180)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator$1.call(MapJoinOperator.java:176)
+	at org.apache.hadoop.hive.ql.exec.mr.ObjectCache.retrieve(ObjectCache.java:55)
+	... 23 more
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.spark.SparkUtilities.isDedicatedCluster(SparkUtilities.java:118)
+	at org.apache.hadoop.hive.ql.exec.spark.HashTableLoader.load(HashTableLoader.java:158)
+	at org.apache.hadoop.hive.ql.exec.spark.HashTableLoader.load(HashTableLoader.java:148)
+	... 27 more
+
+
+The wiki https://cwiki.apache.org/confluence/display/Hive/Hive+on+Spark%3A+Getting+Started says:
+Configure Spark-application configs for Hive.  See: http://spark.apache.org/docs/latest/configuration.html.  This can be done either by adding a file "spark-defaults.conf" with these properties to the Hive classpath, or by setting them on Hive configuration (hive-site.xml). For instance:
+So I only copy "spark-defaults.conf" to hive classpath. But as you can see from the hive source code:
+
+
+  public static boolean isDedicatedCluster(Configuration conf) {
+    String master = conf.get("spark.master");
+    return master.startsWith("yarn-") || master.startsWith("local");
+  }
+
+
+The conf value is got from Configuration which only read from hive-site.xml but not from spark-default.conf. That's where the NPE comes from.
+If I set spark.master in hive-site.xml, I don't hit the same NPE any more.
+
+

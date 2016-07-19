@@ -1,0 +1,33 @@
+Description
+
+Stack
+
+
+java.util.ConcurrentModificationException
+        at java.util.HashMap$HashIterator.nextEntry(HashMap.java:922)
+        at java.util.HashMap$EntryIterator.next(HashMap.java:962)
+        at java.util.HashMap$EntryIterator.next(HashMap.java:960)
+        at org.apache.hadoop.hive.metastore.AggregateStatsCache.findBestMatch(AggregateStatsCache.java:244)
+        at org.apache.hadoop.hive.metastore.AggregateStatsCache.get(AggregateStatsCache.java:186)
+        at org.apache.hadoop.hive.metastore.MetaStoreDirectSql.aggrColStatsForPartitions(MetaStoreDirectSql.java:1131)
+        at org.apache.hadoop.hive.metastore.ObjectStore$9.getSqlResult(ObjectStore.java:6174)
+        at org.apache.hadoop.hive.metastore.ObjectStore$9.getSqlResult(ObjectStore.java:6170)
+        at org.apache.hadoop.hive.metastore.ObjectStore$GetHelper.run(ObjectStore.java:2405)
+        at org.apache.hadoop.hive.metastore.ObjectStore.get_aggr_stats_for(ObjectStore.java:6170)
+        at sun.reflect.GeneratedMethodAccessor103.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.hive.metastore.RawStoreProxy.invoke(RawStoreProxy.java:114)
+        at com.sun.proxy.$Proxy6.get_aggr_stats_for(Unknown Source)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.get_aggr_stats_for(HiveMetaStore.java:5707)
+        at sun.reflect.GeneratedMethodAccessor102.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.hive.metastore.RetryingHMSHandler.invoke(RetryingHMSHandler.java:107)
+        at com.sun.proxy.$Proxy8.get_aggr_stats_for(Unknown Source)
+        at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.getAggrColStatsFor(HiveMetaStoreClient.java:2067)
+        at sun.reflect.GeneratedMethodAccessor101.invoke(Unknown Source)
+
+
+
+

@@ -1,0 +1,9 @@
+Description
+
+ORC currently does not support schema-on-read. If we alter an ORC table with 'int' type to 'bigint' and if we query the altered table ClassCastException will be thrown as the schema on read from table descriptor will expect LongWritable whereas ORC will return IntWritable based on file schema stored within ORC file. OrcSerde currently doesn't do any type conversions or type promotions for performance reasons in inner loop. Since smallints, ints and bigints are stored in the same way in ORC, it will be possible be allow such type promotions without hurting performance. Following type promotions can be supported without any casting
+smallint -&amp;gt; int
+smallint -&amp;gt; bigint
+int -&amp;gt; bigint
+Tinyint promotion is not possible without casting as tinyints are stored using RLE byte writer whereas smallints, ints and bigints are stored using RLE integer writer.
+
+

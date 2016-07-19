@@ -1,0 +1,56 @@
+Description
+
+Looks like a trivial fix, unless I'm missing something. I may do it later if you don't 
+
+aused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.io.orc.EncodedTreeReaderFactory.createEncodedTreeReader(EncodedTreeReaderFactory.java:1764)
+	at org.apache.hadoop.hive.llap.io.decode.OrcEncodedDataConsumer.decodeBatch(OrcEncodedDataConsumer.java:92)
+	at org.apache.hadoop.hive.llap.io.decode.OrcEncodedDataConsumer.decodeBatch(OrcEncodedDataConsumer.java:39)
+	at org.apache.hadoop.hive.llap.io.decode.EncodedDataConsumer.consumeData(EncodedDataConsumer.java:116)
+	at org.apache.hadoop.hive.llap.io.decode.EncodedDataConsumer.consumeData(EncodedDataConsumer.java:36)
+	at org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl.readEncodedColumns(EncodedReaderImpl.java:329)
+	at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:299)
+	at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:55)
+	at org.apache.hadoop.hive.common.CallableWithNdc.call(CallableWithNdc.java:37)
+	... 4 more
+
+
+Running q file
+
+SET hive.vectorized.execution.enabled=true;
+
+SET hive.llap.io.enabled=false;
+
+SET hive.exec.orc.default.row.index.stride=1000;
+SET hive.optimize.index.filter=true;
+
+DROP TABLE orc_llap;
+
+CREATE TABLE orc_llap(
+    ctinyint TINYINT,
+    csmallint SMALLINT,
+    cint INT,
+    cbigint BIGINT,
+    cfloat FLOAT,
+    cdouble DOUBLE,
+    cstring1 STRING,
+    cstring2 STRING,
+    ctimestamp1 TIMESTAMP,
+    ctimestamp2 TIMESTAMP,
+    cboolean1 BOOLEAN,
+    cboolean2 BOOLEAN)
+    STORED AS ORC tblproperties ("orc.compress"="ZLIB");
+
+insert into table orc_llap
+select ctinyint, csmallint, cint, cbigint, cfloat, cdouble, cstring1, cstring2, ctimestamp1, ctimestamp2, cboolean1, cboolean2
+from alltypesorc limit 10;
+
+SET hive.llap.io.enabled=true;
+
+select count(*) from orc_llap where cint &amp;lt; 60000000;
+
+DROP TABLE orc_llap;
+
+
+
+

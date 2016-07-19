@@ -1,0 +1,5 @@
+Description
+
+Invoking PreparedStatement.setNull(col num, Types.Integer) results in SQLException w/ error message: "Method not supported"
+
+

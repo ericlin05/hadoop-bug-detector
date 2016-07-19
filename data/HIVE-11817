@@ -1,0 +1,21 @@
+Description
+
+This query
+
+select key, max(value) over (order by key rows between 10 preceding and 20 following) from src1 where length(key) &amp;gt; 10;
+
+
+fails with NPE:
+
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.udf.generic.GenericUDAFMax$MaxStreamingFixedWindow.terminate(GenericUDAFMax.java:290) 
+        at org.apache.hadoop.hive.ql.udf.ptf.WindowingTableFunction.finishPartition(WindowingTableFunction.java:477) 
+        at org.apache.hadoop.hive.ql.exec.PTFOperator$PTFInvocation.finishPartition(PTFOperator.java:337) 
+        at org.apache.hadoop.hive.ql.exec.PTFOperator.closeOp(PTFOperator.java:95)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:617)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:631)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.close(ExecReducer.java:278)
+
+
+
+

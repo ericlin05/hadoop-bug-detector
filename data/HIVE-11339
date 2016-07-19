@@ -1,0 +1,16 @@
+Description
+
+Hi, it's my first Jira and I don't know how to make patches, so I'll explain the issue in the description as it is rather simple.
+I have a problem serializing "DefaultHCatRecord" using Apache Flink when those records include Timestamps because of an incorrect class cast in org.apache.hadoop.hive.serde2.io.TimestampWritable.write(DataOutput out). It is implemented using a cast to Outputstream  : 
+public void write(DataOutput out) throws IOException 
+{
+    write((OutputStream) out);
+ }
+
+but nothing says that a DataOutput object is an OutputStream, (and it's not the case in Flink) it should rather be implmented using the same code as write(OutputStream) :
+{
+checkBytes();
+out.write(currentBytes, offset, getTotalLength());
+}
+            
+

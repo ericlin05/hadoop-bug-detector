@@ -1,0 +1,401 @@
+Description
+
+I'm trying to use the Syslog appender with log4j2 in Hive 2.0.0. The syslog appender is configured on my hiveserver2 and my metastore.
+With a simple configuration, the logs are well written in the logfile with a generic pattern layout:
+
+May 19 10:12:16 myhiveserver2.fr Starting HiveServer2
+May 19 10:12:18 myhiveserver2.fr Connected to metastore.
+May 19 10:12:20 myhiveserver2.fr Service: CLIService is inited.
+May 19 10:12:20 myhiveserver2.fr Service: ThriftBinaryCLIService is inited.
+
+
+I tried to customize this pattern layout by adding the loggerFields parameter in my hive-log4j2.properties. At the end, the configuration file is:
+
+status = TRACE
+name = HiveLog4j2
+packages = org.apache.hadoop.hive.ql.log
+
+property.hive.log.level = INFO
+property.hive.root.logger = SYSLOG
+property.hive.query.id = hadoop
+property.hive.log.dir = /var/log/bigdata
+property.hive.log.file = bigdata.log
+
+appenders = console, SYSLOG
+
+appender.console.type = Console
+appender.console.name = console
+appender.console.target = SYSTEM_ERR
+appender.console.layout.type = PatternLayout
+appender.console.layout.pattern = %d{yy/MM/dd HH:mm:ss} [%t]: %p %c{2}: %m%n
+
+appender.SYSLOG.type = Syslog
+appender.SYSLOG.name = SYSLOG
+appender.SYSLOG.host = 127.0.0.1
+appender.SYSLOG.port = 514
+appender.SYSLOG.protocol = UDP
+appender.SYSLOG.facility = LOCAL1
+appender.SYSLOG.layout.type = loggerFields
+appender.SYSLOG.layout.sdId = test
+appender.SYSLOG.layout.enterpriseId = 18060
+appender.SYSLOG.layout.pairs.type = KeyValuePair
+appender.SYSLOG.layout.pairs.key = service
+appender.SYSLOG.layout.pairs.value = hiveserver2
+appender.SYSLOG.layout.pairs.key = loglevel
+appender.SYSLOG.layout.pairs.value = %p
+appender.SYSLOG.layout.pairs.key = message
+appender.SYSLOG.layout.pairs.value = %c%m%n
+
+loggers = NIOServerCnxn, ClientCnxnSocketNIO, DataNucleus, Datastore, JPOX
+
+logger.NIOServerCnxn.name = org.apache.zookeeper.server.NIOServerCnxn
+logger.NIOServerCnxn.level = WARN
+
+logger.ClientCnxnSocketNIO.name = org.apache.zookeeper.ClientCnxnSocketNIO
+logger.ClientCnxnSocketNIO.level = WARN
+
+logger.DataNucleus.name = DataNucleus
+logger.DataNucleus.level = ERROR
+
+logger.Datastore.name = Datastore
+logger.Datastore.level = ERROR
+
+logger.JPOX.name = JPOX
+logger.JPOX.level = ERROR
+
+rootLogger.level = ${sys:hive.log.level}
+rootLogger.appenderRefs = root
+rootLogger.appenderRef.root.ref = ${sys:hive.root.logger}
+
+
+Unfortunately, the logs are still written in a generic pattern layout. The KeyValuePairs are not used. The log4j logs are:
+
+2016-05-19 10:36:14,866 main DEBUG Initializing configuration org.apache.logging.log4j.core.config.properties.PropertiesConfiguration@5433a329
+2016-05-19 10:36:16,575 main DEBUG Took 1.706004 seconds to load 3 plugins from package org.apache.hadoop.hive.ql.log
+2016-05-19 10:36:16,575 main DEBUG PluginManager 'Core' found 80 plugins
+2016-05-19 10:36:16,576 main DEBUG PluginManager 'Level' found 0 plugins
+2016-05-19 10:36:16,578 main DEBUG Building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for builder factory method...
+2016-05-19 10:36:16,583 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.Property. Going to try finding a factory method instead.
+2016-05-19 10:36:16,583 main DEBUG Still building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for factory method...
+2016-05-19 10:36:16,584 main DEBUG Found factory method [createProperty]: public static org.apache.logging.log4j.core.config.Property org.apache.logging.log4j.core.config.Property.createProperty(java.lang.String,java.lang.String).
+2016-05-19 10:36:16,611 main DEBUG TypeConverterRegistry initializing.
+2016-05-19 10:36:16,611 main DEBUG PluginManager 'TypeConverter' found 21 plugins
+2016-05-19 10:36:16,636 main DEBUG Calling createProperty on class org.apache.logging.log4j.core.config.Property for element Property with params(name="hive.log.file", value="bigdata.log")
+2016-05-19 10:36:16,636 main DEBUG Built Plugin[name=property] OK from factory method.
+2016-05-19 10:36:16,636 main DEBUG Building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for builder factory method...
+2016-05-19 10:36:16,637 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.Property. Going to try finding a factory method instead.
+2016-05-19 10:36:16,637 main DEBUG Still building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for factory method...
+2016-05-19 10:36:16,638 main DEBUG Found factory method [createProperty]: public static org.apache.logging.log4j.core.config.Property org.apache.logging.log4j.core.config.Property.createProperty(java.lang.String,java.lang.String).
+2016-05-19 10:36:16,639 main DEBUG Calling createProperty on class org.apache.logging.log4j.core.config.Property for element Property with params(name="hive.log.dir", value="/var/log/bigdata")
+2016-05-19 10:36:16,639 main DEBUG Built Plugin[name=property] OK from factory method.
+2016-05-19 10:36:16,640 main DEBUG Building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for builder factory method...
+2016-05-19 10:36:16,640 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.Property. Going to try finding a factory method instead.
+2016-05-19 10:36:16,641 main DEBUG Still building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for factory method...
+2016-05-19 10:36:16,641 main DEBUG Found factory method [createProperty]: public static org.apache.logging.log4j.core.config.Property org.apache.logging.log4j.core.config.Property.createProperty(java.lang.String,java.lang.String).
+2016-05-19 10:36:16,642 main DEBUG Calling createProperty on class org.apache.logging.log4j.core.config.Property for element Property with params(name="hive.log.level", value="INFO")
+2016-05-19 10:36:16,642 main DEBUG Built Plugin[name=property] OK from factory method.
+2016-05-19 10:36:16,643 main DEBUG Building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for builder factory method...
+2016-05-19 10:36:16,643 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.Property. Going to try finding a factory method instead.
+2016-05-19 10:36:16,644 main DEBUG Still building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for factory method...
+2016-05-19 10:36:16,644 main DEBUG Found factory method [createProperty]: public static org.apache.logging.log4j.core.config.Property org.apache.logging.log4j.core.config.Property.createProperty(java.lang.String,java.lang.String).
+2016-05-19 10:36:16,645 main DEBUG Calling createProperty on class org.apache.logging.log4j.core.config.Property for element Property with params(name="hive.root.logger", value="SYSLOG")
+2016-05-19 10:36:16,645 main DEBUG Built Plugin[name=property] OK from factory method.
+2016-05-19 10:36:16,646 main DEBUG Building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for builder factory method...
+2016-05-19 10:36:16,646 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.Property. Going to try finding a factory method instead.
+2016-05-19 10:36:16,647 main DEBUG Still building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for factory method...
+2016-05-19 10:36:16,647 main DEBUG Found factory method [createProperty]: public static org.apache.logging.log4j.core.config.Property org.apache.logging.log4j.core.config.Property.createProperty(java.lang.String,java.lang.String).
+2016-05-19 10:36:16,648 main DEBUG Calling createProperty on class org.apache.logging.log4j.core.config.Property for element Property with params(name="hive.query.id", value="hadoop")
+2016-05-19 10:36:16,648 main DEBUG Built Plugin[name=property] OK from factory method.
+2016-05-19 10:36:16,649 main DEBUG Building Plugin[name=properties, class=org.apache.logging.log4j.core.config.PropertiesPlugin]. Searching for builder factory method...
+2016-05-19 10:36:16,649 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.PropertiesPlugin. Going to try finding a factory method instead.
+2016-05-19 10:36:16,650 main DEBUG Still building Plugin[name=properties, class=org.apache.logging.log4j.core.config.PropertiesPlugin]. Searching for factory method...
+2016-05-19 10:36:16,650 main DEBUG Found factory method [configureSubstitutor]: public static org.apache.logging.log4j.core.lookup.StrLookup org.apache.logging.log4j.core.config.PropertiesPlugin.configureSubstitutor(org.apache.logging.log4j.core.config.Property[],org.apache.logging.log4j.core.config.Configuration).
+2016-05-19 10:36:16,660 main DEBUG Calling configureSubstitutor on class org.apache.logging.log4j.core.config.PropertiesPlugin for element Properties with params(={hive.log.file=bigdata.log, hive.log.dir=/var/log/bigdata, hive.log.level=INFO, hive.root.logger=SYSLOG, hive.query.id=hadoop}, Configuration(HiveLog4j2))
+2016-05-19 10:36:16,661 main DEBUG PluginManager 'Lookup' found 14 plugins
+2016-05-19 10:36:16,662 main DEBUG Built Plugin[name=properties] OK from factory method.
+2016-05-19 10:36:16,662 main DEBUG Building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for builder factory method...
+2016-05-19 10:36:16,663 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.LoggerConfig. Going to try finding a factory method instead.
+2016-05-19 10:36:16,663 main DEBUG Still building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for factory method...
+2016-05-19 10:36:16,664 main DEBUG Found factory method [createLogger]: public static org.apache.logging.log4j.core.config.LoggerConfig org.apache.logging.log4j.core.config.LoggerConfig.createLogger(java.lang.String,org.apache.logging.log4j.Level,java.lang.String,java.lang.String,org.apache.logging.log4j.core.config.AppenderRef[],org.apache.logging.log4j.core.config.Property[],org.apache.logging.log4j.core.config.Configuration,org.apache.logging.log4j.core.Filter).
+2016-05-19 10:36:16,666 main DEBUG Calling createLogger on class org.apache.logging.log4j.core.config.LoggerConfig for element Logger with params(additivity="null", level="WARN", name="org.apache.zookeeper.server.NIOServerCnxn", includeLocation="null", ={}, ={}, Configuration(HiveLog4j2), null)
+2016-05-19 10:36:16,669 main DEBUG Built Plugin[name=logger] OK from factory method.
+2016-05-19 10:36:16,669 main DEBUG Building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for builder factory method...
+2016-05-19 10:36:16,670 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.LoggerConfig. Going to try finding a factory method instead.
+2016-05-19 10:36:16,670 main DEBUG Still building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for factory method...
+2016-05-19 10:36:16,672 main DEBUG Found factory method [createLogger]: public static org.apache.logging.log4j.core.config.LoggerConfig org.apache.logging.log4j.core.config.LoggerConfig.createLogger(java.lang.String,org.apache.logging.log4j.Level,java.lang.String,java.lang.String,org.apache.logging.log4j.core.config.AppenderRef[],org.apache.logging.log4j.core.config.Property[],org.apache.logging.log4j.core.config.Configuration,org.apache.logging.log4j.core.Filter).
+2016-05-19 10:36:16,673 main DEBUG Calling createLogger on class org.apache.logging.log4j.core.config.LoggerConfig for element Logger with params(additivity="null", level="WARN", name="org.apache.zookeeper.ClientCnxnSocketNIO", includeLocation="null", ={}, ={}, Configuration(HiveLog4j2), null)
+2016-05-19 10:36:16,674 main DEBUG Built Plugin[name=logger] OK from factory method.
+2016-05-19 10:36:16,674 main DEBUG Building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for builder factory method...
+2016-05-19 10:36:16,675 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.LoggerConfig. Going to try finding a factory method instead.
+2016-05-19 10:36:16,675 main DEBUG Still building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for factory method...
+2016-05-19 10:36:16,676 main DEBUG Found factory method [createLogger]: public static org.apache.logging.log4j.core.config.LoggerConfig org.apache.logging.log4j.core.config.LoggerConfig.createLogger(java.lang.String,org.apache.logging.log4j.Level,java.lang.String,java.lang.String,org.apache.logging.log4j.core.config.AppenderRef[],org.apache.logging.log4j.core.config.Property[],org.apache.logging.log4j.core.config.Configuration,org.apache.logging.log4j.core.Filter).
+2016-05-19 10:36:16,679 main DEBUG Calling createLogger on class org.apache.logging.log4j.core.config.LoggerConfig for element Logger with params(additivity="null", level="ERROR", name="DataNucleus", includeLocation="null", ={}, ={}, Configuration(HiveLog4j2), null)
+2016-05-19 10:36:16,679 main DEBUG Built Plugin[name=logger] OK from factory method.
+2016-05-19 10:36:16,680 main DEBUG Building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for builder factory method...
+2016-05-19 10:36:16,680 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.LoggerConfig. Going to try finding a factory method instead.
+2016-05-19 10:36:16,681 main DEBUG Still building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for factory method...
+2016-05-19 10:36:16,681 main DEBUG Found factory method [createLogger]: public static org.apache.logging.log4j.core.config.LoggerConfig org.apache.logging.log4j.core.config.LoggerConfig.createLogger(java.lang.String,org.apache.logging.log4j.Level,java.lang.String,java.lang.String,org.apache.logging.log4j.core.config.AppenderRef[],org.apache.logging.log4j.core.config.Property[],org.apache.logging.log4j.core.config.Configuration,org.apache.logging.log4j.core.Filter).
+2016-05-19 10:36:16,683 main DEBUG Calling createLogger on class org.apache.logging.log4j.core.config.LoggerConfig for element Logger with params(additivity="null", level="ERROR", name="Datastore", includeLocation="null", ={}, ={}, Configuration(HiveLog4j2), null)
+2016-05-19 10:36:16,683 main DEBUG Built Plugin[name=logger] OK from factory method.
+2016-05-19 10:36:16,684 main DEBUG Building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for builder factory method...
+2016-05-19 10:36:16,684 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.LoggerConfig. Going to try finding a factory method instead.
+2016-05-19 10:36:16,685 main DEBUG Still building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for factory method...
+2016-05-19 10:36:16,685 main DEBUG Found factory method [createLogger]: public static org.apache.logging.log4j.core.config.LoggerConfig org.apache.logging.log4j.core.config.LoggerConfig.createLogger(java.lang.String,org.apache.logging.log4j.Level,java.lang.String,java.lang.String,org.apache.logging.log4j.core.config.AppenderRef[],org.apache.logging.log4j.core.config.Property[],org.apache.logging.log4j.core.config.Configuration,org.apache.logging.log4j.core.Filter).
+2016-05-19 10:36:16,689 main DEBUG Calling createLogger on class org.apache.logging.log4j.core.config.LoggerConfig for element Logger with params(additivity="null", level="ERROR", name="JPOX", includeLocation="null", ={}, ={}, Configuration(HiveLog4j2), null)
+2016-05-19 10:36:16,689 main DEBUG Built Plugin[name=logger] OK from factory method.
+2016-05-19 10:36:16,689 main DEBUG Building Plugin[name=AppenderRef, class=org.apache.logging.log4j.core.config.AppenderRef]. Searching for builder factory method...
+2016-05-19 10:36:16,690 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.AppenderRef. Going to try finding a factory method instead.
+2016-05-19 10:36:16,690 main DEBUG Still building Plugin[name=AppenderRef, class=org.apache.logging.log4j.core.config.AppenderRef]. Searching for factory method...
+2016-05-19 10:36:16,691 main DEBUG Found factory method [createAppenderRef]: public static org.apache.logging.log4j.core.config.AppenderRef org.apache.logging.log4j.core.config.AppenderRef.createAppenderRef(java.lang.String,org.apache.logging.log4j.Level,org.apache.logging.log4j.core.Filter).
+2016-05-19 10:36:16,692 main DEBUG Calling createAppenderRef on class org.apache.logging.log4j.core.config.AppenderRef for element AppenderRef with params(ref="SYSLOG", level="null", null)
+2016-05-19 10:36:16,692 main DEBUG Built Plugin[name=AppenderRef] OK from factory method.
+2016-05-19 10:36:16,693 main DEBUG Building Plugin[name=root, class=org.apache.logging.log4j.core.config.LoggerConfig$RootLogger]. Searching for builder factory method...
+2016-05-19 10:36:16,693 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.LoggerConfig$RootLogger. Going to try finding a factory method instead.
+2016-05-19 10:36:16,694 main DEBUG Still building Plugin[name=root, class=org.apache.logging.log4j.core.config.LoggerConfig$RootLogger]. Searching for factory method...
+2016-05-19 10:36:16,694 main DEBUG Found factory method [createLogger]: public static org.apache.logging.log4j.core.config.LoggerConfig org.apache.logging.log4j.core.config.LoggerConfig$RootLogger.createLogger(java.lang.String,org.apache.logging.log4j.Level,java.lang.String,org.apache.logging.log4j.core.config.AppenderRef[],org.apache.logging.log4j.core.config.Property[],org.apache.logging.log4j.core.config.Configuration,org.apache.logging.log4j.core.Filter).
+2016-05-19 10:36:16,696 main DEBUG Calling createLogger on class org.apache.logging.log4j.core.config.LoggerConfig$RootLogger for element Root with params(additivity="null", level="INFO", includeLocation="null", ={SYSLOG}, ={}, Configuration(HiveLog4j2), null)
+2016-05-19 10:36:16,696 main DEBUG Built Plugin[name=root] OK from factory method.
+2016-05-19 10:36:16,696 main DEBUG Building Plugin[name=loggers, class=org.apache.logging.log4j.core.config.LoggersPlugin]. Searching for builder factory method...
+2016-05-19 10:36:16,698 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.LoggersPlugin. Going to try finding a factory method instead.
+2016-05-19 10:36:16,698 main DEBUG Still building Plugin[name=loggers, class=org.apache.logging.log4j.core.config.LoggersPlugin]. Searching for factory method...
+2016-05-19 10:36:16,699 main DEBUG Found factory method [createLoggers]: public static org.apache.logging.log4j.core.config.Loggers org.apache.logging.log4j.core.config.LoggersPlugin.createLoggers(org.apache.logging.log4j.core.config.LoggerConfig[]).
+2016-05-19 10:36:16,699 main DEBUG Calling createLoggers on class org.apache.logging.log4j.core.config.LoggersPlugin for element Loggers with params(={org.apache.zookeeper.server.NIOServerCnxn, org.apache.zookeeper.ClientCnxnSocketNIO, DataNucleus, Datastore, JPOX, root})
+2016-05-19 10:36:16,700 main DEBUG Built Plugin[name=loggers] OK from factory method.
+2016-05-19 10:36:16,700 main DEBUG Building Plugin[name=layout, class=org.apache.logging.log4j.core.layout.PatternLayout]. Searching for builder factory method...
+2016-05-19 10:36:16,705 main DEBUG Found builder factory method [newBuilder]: public static org.apache.logging.log4j.core.layout.PatternLayout$Builder org.apache.logging.log4j.core.layout.PatternLayout.newBuilder().
+2016-05-19 10:36:16,712 main DEBUG Calling build() on class class org.apache.logging.log4j.core.layout.PatternLayout$Builder for element PatternLayout with params(pattern="%d{yy/MM/dd HH:mm:ss} [%t]: %p %c{2}: %m%n", null, Configuration(HiveLog4j2), null, charset="null", alwaysWriteExceptions="null", noConsoleNoAnsi="null", header="null", footer="null")
+2016-05-19 10:36:16,712 main DEBUG PluginManager 'Converter' found 38 plugins
+2016-05-19 10:36:16,735 main DEBUG Built Plugin[name=layout] OK from builder factory method.
+2016-05-19 10:36:16,735 main DEBUG Building Plugin[name=appender, class=org.apache.logging.log4j.core.appender.ConsoleAppender]. Searching for builder factory method...
+2016-05-19 10:36:16,737 main DEBUG PluginManager 'Converter' found 38 plugins
+2016-05-19 10:36:16,739 main DEBUG Found builder factory method [newBuilder]: public static org.apache.logging.log4j.core.appender.ConsoleAppender$Builder org.apache.logging.log4j.core.appender.ConsoleAppender.newBuilder().
+2016-05-19 10:36:16,746 main DEBUG No PluginVisitorStrategy found on annotation [interface org.apache.logging.log4j.core.config.plugins.validation.constraints.Required]. Ignoring.
+2016-05-19 10:36:16,747 main DEBUG Encountered type [org.apache.logging.log4j.core.layout.PatternLayout] which can only be checked for null.
+2016-05-19 10:36:16,749 main DEBUG No PluginVisitorStrategy found on annotation [interface org.apache.logging.log4j.core.config.plugins.validation.constraints.Required]. Ignoring.
+2016-05-19 10:36:16,749 main DEBUG Encountered type [org.apache.logging.log4j.core.appender.ConsoleAppender$Target] which can only be checked for null.
+2016-05-19 10:36:16,750 main DEBUG No PluginVisitorStrategy found on annotation [interface org.apache.logging.log4j.core.config.plugins.validation.constraints.Required]. Ignoring.
+2016-05-19 10:36:16,750 main DEBUG Calling build() on class class org.apache.logging.log4j.core.appender.ConsoleAppender$Builder for element Console with params(PatternLayout(%d{yy/MM/dd HH:mm:ss} [%t]: %p %c{2}: %m%n), null, target="SYSTEM_ERR", name="console", follow="null", ignoreExceptions="null")
+2016-05-19 10:36:16,751 main DEBUG Starting OutputStreamManager SYSTEM_ERR.false
+2016-05-19 10:36:16,751 main DEBUG Built Plugin[name=appender] OK from builder factory method.
+2016-05-19 10:36:16,751 main DEBUG Building Plugin[name=KeyValuePair, class=org.apache.logging.log4j.core.util.KeyValuePair]. Searching for builder factory method...
+2016-05-19 10:36:16,754 main DEBUG Found builder factory method [newBuilder]: public static org.apache.logging.log4j.core.util.KeyValuePair$Builder org.apache.logging.log4j.core.util.KeyValuePair.newBuilder().
+2016-05-19 10:36:16,755 main DEBUG Calling build() on class class org.apache.logging.log4j.core.util.KeyValuePair$Builder for element KeyValuePair with params(, key="message", value="%c%m%n")
+2016-05-19 10:36:16,755 main DEBUG Built Plugin[name=KeyValuePair] OK from builder factory method.
+2016-05-19 10:36:16,755 main DEBUG Building Plugin[name=LoggerFields, class=org.apache.logging.log4j.core.layout.LoggerFields]. Searching for builder factory method...
+2016-05-19 10:36:16,757 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.layout.LoggerFields. Going to try finding a factory method instead.
+2016-05-19 10:36:16,757 main DEBUG Still building Plugin[name=LoggerFields, class=org.apache.logging.log4j.core.layout.LoggerFields]. Searching for factory method...
+2016-05-19 10:36:16,758 main DEBUG Found factory method [createLoggerFields]: public static org.apache.logging.log4j.core.layout.LoggerFields org.apache.logging.log4j.core.layout.LoggerFields.createLoggerFields(org.apache.logging.log4j.core.util.KeyValuePair[],java.lang.String,java.lang.String,boolean).
+2016-05-19 10:36:16,759 main DEBUG Calling createLoggerFields on class org.apache.logging.log4j.core.layout.LoggerFields for element loggerFields with params(={message=%c%m%n}, sdId="test", enterpriseId="18060", discardIfAllFieldsAreEmpty="false")
+2016-05-19 10:36:16,759 main DEBUG Built Plugin[name=LoggerFields] OK from factory method.
+2016-05-19 10:36:16,760 main DEBUG Building Plugin[name=appender, class=org.apache.logging.log4j.core.appender.SyslogAppender]. Searching for builder factory method...
+2016-05-19 10:36:16,763 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.appender.SyslogAppender. Going to try finding a factory method instead.
+2016-05-19 10:36:16,764 main DEBUG Still building Plugin[name=appender, class=org.apache.logging.log4j.core.appender.SyslogAppender]. Searching for factory method...
+2016-05-19 10:36:16,764 main DEBUG Found factory method [createAppender]: public static org.apache.logging.log4j.core.appender.SyslogAppender org.apache.logging.log4j.core.appender.SyslogAppender.createAppender(java.lang.String,int,java.lang.String,org.apache.logging.log4j.core.net.ssl.SslConfiguration,int,int,boolean,java.lang.String,boolean,boolean,org.apache.logging.log4j.core.net.Facility,java.lang.String,int,boolean,java.lang.String,java.lang.String,java.lang.String,boolean,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,org.apache.logging.log4j.core.Filter,org.apache.logging.log4j.core.config.Configuration,java.nio.charset.Charset,java.lang.String,org.apache.logging.log4j.core.layout.LoggerFields[],boolean).
+2016-05-19 10:36:16,772 main DEBUG Calling createAppender on class org.apache.logging.log4j.core.appender.SyslogAppender for element Syslog with params(host="127.0.0.1", port="514", protocol="UDP", null, connectTimeoutMillis="0", reconnectionDelayMillis="0", immediateFail="true", name="SYSLOG", immediateFlush="true", ignoreExceptions="true", facility="LOCAL1", id="null", enterpriseNumber="18060", includeMdc="true", mdcId="null", mdcPrefix="null", eventPrefix="null", newLine="false", newLineEscape="null", appName="null", messageId="null", mdcExcludes="null", mdcIncludes="null", mdcRequired="null", format="null", null, Configuration(HiveLog4j2), charset="UTF-8", exceptionPattern="null", ={{message=%c%m%n}}, advertise="false")
+2016-05-19 10:36:16,787 main DEBUG Starting DatagramSocketManager UDP:127.0.0.1:514
+2016-05-19 10:36:16,787 main DEBUG Built Plugin[name=appender] OK from factory method.
+2016-05-19 10:36:16,788 main DEBUG Building Plugin[name=appenders, class=org.apache.logging.log4j.core.config.AppendersPlugin]. Searching for builder factory method...
+2016-05-19 10:36:16,788 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.AppendersPlugin. Going to try finding a factory method instead.
+2016-05-19 10:36:16,789 main DEBUG Still building Plugin[name=appenders, class=org.apache.logging.log4j.core.config.AppendersPlugin]. Searching for factory method...
+2016-05-19 10:36:16,789 main DEBUG Found factory method [createAppenders]: public static java.util.concurrent.ConcurrentMap org.apache.logging.log4j.core.config.AppendersPlugin.createAppenders(org.apache.logging.log4j.core.Appender[]).
+2016-05-19 10:36:16,790 main DEBUG Calling createAppenders on class org.apache.logging.log4j.core.config.AppendersPlugin for element Appenders with params(={console, SYSLOG})
+2016-05-19 10:36:16,790 main DEBUG Built Plugin[name=appenders] OK from factory method.
+2016-05-19 10:36:16,795 main DEBUG Configuration org.apache.logging.log4j.core.config.properties.PropertiesConfiguration@5433a329 initialized
+2016-05-19 10:36:16,796 main DEBUG Starting configuration org.apache.logging.log4j.core.config.properties.PropertiesConfiguration@5433a329
+2016-05-19 10:36:16,797 main DEBUG Started configuration org.apache.logging.log4j.core.config.properties.PropertiesConfiguration@5433a329 OK.
+2016-05-19 10:36:16,797 main TRACE Stopping org.apache.logging.log4j.core.config.DefaultConfiguration@d13e8c7...
+2016-05-19 10:36:16,798 main TRACE AbstractConfiguration notified 0 ReliabilityStrategies that config will be stopped.
+2016-05-19 10:36:16,798 main TRACE AbstractConfiguration stopped 0 AsyncLoggerConfigs.
+2016-05-19 10:36:16,798 main TRACE AbstractConfiguration stopped 0 AsyncAppenders.
+2016-05-19 10:36:16,799 main TRACE AbstractConfiguration notified 0 ReliabilityStrategies that appenders will be stopped.
+2016-05-19 10:36:16,799 main TRACE AbstractConfiguration stopped 1 Appenders.
+2016-05-19 10:36:16,800 main TRACE AbstractConfiguration stopped 0 LoggerConfigs.
+2016-05-19 10:36:16,801 main DEBUG Stopped org.apache.logging.log4j.core.config.DefaultConfiguration@d13e8c7 OK
+2016-05-19 10:36:16,879 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027
+2016-05-19 10:36:16,884 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=StatusLogger
+2016-05-19 10:36:16,886 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=ContextSelector
+2016-05-19 10:36:16,889 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=JPOX
+2016-05-19 10:36:16,899 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=org.apache.zookeeper.server.NIOServerCnxn
+2016-05-19 10:36:16,899 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=DataNucleus
+2016-05-19 10:36:16,900 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=
+2016-05-19 10:36:16,900 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=Datastore
+2016-05-19 10:36:16,901 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=org.apache.zookeeper.ClientCnxnSocketNIO
+2016-05-19 10:36:16,903 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Appenders,name=SYSLOG
+2016-05-19 10:36:16,904 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Appenders,name=console
+2016-05-19 10:36:16,908 main DEBUG Using default SystemClock for timestamps
+2016-05-19 10:36:16,916 main DEBUG Using default SystemClock for timestamps
+2016-05-19 10:36:16,920 main DEBUG AsyncLogger.ThreadNameStrategy=CACHED
+2016-05-19 10:36:16,921 main DEBUG property AsyncLogger.WaitStrategy=null
+2016-05-19 10:36:16,921 main DEBUG disruptor event handler uses BlockingWaitStrategy
+2016-05-19 10:36:16,964 main DEBUG No AsyncLogger.ExceptionHandler specified
+2016-05-19 10:36:17,265 main DEBUG Starting AsyncLogger disruptor with ringbuffer size 262144...
+2016-05-19 10:36:17,266 main DEBUG Reconfiguration complete for context[name=1695244027] at URI null (org.apache.logging.log4j.core.LoggerContext@62ab3a93) with optional ClassLoader: null
+2016-05-19 10:36:17,267 main DEBUG Shutdown hook enabled. Registering a new one.
+2016-05-19 10:36:17,268 main DEBUG LoggerContext[name=1695244027, org.apache.logging.log4j.core.LoggerContext@62ab3a93] started OK.
+2016-05-19 10:36:19,149 main DEBUG Setting configuration to file:/opt/application/Hive/apache-hive-2.0.0-bin/conf/hive-log4j2.properties
+2016-05-19 10:36:19,149 main DEBUG Reconfiguration started for context[name=1695244027] at URI file:/opt/application/Hive/apache-hive-2.0.0-bin/conf/hive-log4j2.properties (org.apache.logging.log4j.core.LoggerContext@62ab3a93) with optional ClassLoader: null
+2016-05-19 10:36:19,149 main DEBUG Using configurationFactory org.apache.logging.log4j.core.config.ConfigurationFactory$Factory@15674a26
+2016-05-19 10:36:19,153 main DEBUG Initializing configuration org.apache.logging.log4j.core.config.properties.PropertiesConfiguration@30350fc4
+2016-05-19 10:36:19,153 main DEBUG PluginManager 'Core' found 80 plugins
+2016-05-19 10:36:19,154 main DEBUG PluginManager 'Level' found 0 plugins
+2016-05-19 10:36:19,154 main DEBUG Building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for builder factory method...
+2016-05-19 10:36:19,155 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.Property. Going to try finding a factory method instead.
+2016-05-19 10:36:19,155 main DEBUG Still building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for factory method...
+2016-05-19 10:36:19,156 main DEBUG Found factory method [createProperty]: public static org.apache.logging.log4j.core.config.Property org.apache.logging.log4j.core.config.Property.createProperty(java.lang.String,java.lang.String).
+2016-05-19 10:36:19,156 main DEBUG Calling createProperty on class org.apache.logging.log4j.core.config.Property for element Property with params(name="hive.log.file", value="bigdata.log")
+2016-05-19 10:36:19,157 main DEBUG Built Plugin[name=property] OK from factory method.
+2016-05-19 10:36:19,157 main DEBUG Building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for builder factory method...
+2016-05-19 10:36:19,157 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.Property. Going to try finding a factory method instead.
+2016-05-19 10:36:19,158 main DEBUG Still building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for factory method...
+2016-05-19 10:36:19,158 main DEBUG Found factory method [createProperty]: public static org.apache.logging.log4j.core.config.Property org.apache.logging.log4j.core.config.Property.createProperty(java.lang.String,java.lang.String).
+2016-05-19 10:36:19,159 main DEBUG Calling createProperty on class org.apache.logging.log4j.core.config.Property for element Property with params(name="hive.log.dir", value="/var/log/bigdata")
+2016-05-19 10:36:19,159 main DEBUG Built Plugin[name=property] OK from factory method.
+2016-05-19 10:36:19,160 main DEBUG Building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for builder factory method...
+2016-05-19 10:36:19,160 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.Property. Going to try finding a factory method instead.
+2016-05-19 10:36:19,160 main DEBUG Still building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for factory method...
+2016-05-19 10:36:19,161 main DEBUG Found factory method [createProperty]: public static org.apache.logging.log4j.core.config.Property org.apache.logging.log4j.core.config.Property.createProperty(java.lang.String,java.lang.String).
+2016-05-19 10:36:19,162 main DEBUG Calling createProperty on class org.apache.logging.log4j.core.config.Property for element Property with params(name="hive.log.level", value="INFO")
+2016-05-19 10:36:19,162 main DEBUG Built Plugin[name=property] OK from factory method.
+2016-05-19 10:36:19,162 main DEBUG Building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for builder factory method...
+2016-05-19 10:36:19,163 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.Property. Going to try finding a factory method instead.
+2016-05-19 10:36:19,163 main DEBUG Still building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for factory method...
+2016-05-19 10:36:19,164 main DEBUG Found factory method [createProperty]: public static org.apache.logging.log4j.core.config.Property org.apache.logging.log4j.core.config.Property.createProperty(java.lang.String,java.lang.String).
+2016-05-19 10:36:19,164 main DEBUG Calling createProperty on class org.apache.logging.log4j.core.config.Property for element Property with params(name="hive.root.logger", value="SYSLOG")
+2016-05-19 10:36:19,165 main DEBUG Built Plugin[name=property] OK from factory method.
+2016-05-19 10:36:19,165 main DEBUG Building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for builder factory method...
+2016-05-19 10:36:19,166 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.Property. Going to try finding a factory method instead.
+2016-05-19 10:36:19,166 main DEBUG Still building Plugin[name=property, class=org.apache.logging.log4j.core.config.Property]. Searching for factory method...
+2016-05-19 10:36:19,167 main DEBUG Found factory method [createProperty]: public static org.apache.logging.log4j.core.config.Property org.apache.logging.log4j.core.config.Property.createProperty(java.lang.String,java.lang.String).
+2016-05-19 10:36:19,167 main DEBUG Calling createProperty on class org.apache.logging.log4j.core.config.Property for element Property with params(name="hive.query.id", value="hadoop")
+2016-05-19 10:36:19,168 main DEBUG Built Plugin[name=property] OK from factory method.
+2016-05-19 10:36:19,168 main DEBUG Building Plugin[name=properties, class=org.apache.logging.log4j.core.config.PropertiesPlugin]. Searching for builder factory method...
+2016-05-19 10:36:19,169 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.PropertiesPlugin. Going to try finding a factory method instead.
+2016-05-19 10:36:19,169 main DEBUG Still building Plugin[name=properties, class=org.apache.logging.log4j.core.config.PropertiesPlugin]. Searching for factory method...
+2016-05-19 10:36:19,169 main DEBUG Found factory method [configureSubstitutor]: public static org.apache.logging.log4j.core.lookup.StrLookup org.apache.logging.log4j.core.config.PropertiesPlugin.configureSubstitutor(org.apache.logging.log4j.core.config.Property[],org.apache.logging.log4j.core.config.Configuration).
+2016-05-19 10:36:19,170 main DEBUG Calling configureSubstitutor on class org.apache.logging.log4j.core.config.PropertiesPlugin for element Properties with params(={hive.log.file=bigdata.log, hive.log.dir=/var/log/bigdata, hive.log.level=INFO, hive.root.logger=SYSLOG, hive.query.id=hadoop}, Configuration(HiveLog4j2))
+2016-05-19 10:36:19,171 main DEBUG PluginManager 'Lookup' found 14 plugins
+2016-05-19 10:36:19,171 main DEBUG Built Plugin[name=properties] OK from factory method.
+2016-05-19 10:36:19,172 main DEBUG Building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for builder factory method...
+2016-05-19 10:36:19,172 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.LoggerConfig. Going to try finding a factory method instead.
+2016-05-19 10:36:19,172 main DEBUG Still building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for factory method...
+2016-05-19 10:36:19,173 main DEBUG Found factory method [createLogger]: public static org.apache.logging.log4j.core.config.LoggerConfig org.apache.logging.log4j.core.config.LoggerConfig.createLogger(java.lang.String,org.apache.logging.log4j.Level,java.lang.String,java.lang.String,org.apache.logging.log4j.core.config.AppenderRef[],org.apache.logging.log4j.core.config.Property[],org.apache.logging.log4j.core.config.Configuration,org.apache.logging.log4j.core.Filter).
+2016-05-19 10:36:19,174 main DEBUG Calling createLogger on class org.apache.logging.log4j.core.config.LoggerConfig for element Logger with params(additivity="null", level="WARN", name="org.apache.zookeeper.server.NIOServerCnxn", includeLocation="null", ={}, ={}, Configuration(HiveLog4j2), null)
+2016-05-19 10:36:19,175 main DEBUG Built Plugin[name=logger] OK from factory method.
+2016-05-19 10:36:19,175 main DEBUG Building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for builder factory method...
+2016-05-19 10:36:19,176 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.LoggerConfig. Going to try finding a factory method instead.
+2016-05-19 10:36:19,176 main DEBUG Still building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for factory method...
+2016-05-19 10:36:19,177 main DEBUG Found factory method [createLogger]: public static org.apache.logging.log4j.core.config.LoggerConfig org.apache.logging.log4j.core.config.LoggerConfig.createLogger(java.lang.String,org.apache.logging.log4j.Level,java.lang.String,java.lang.String,org.apache.logging.log4j.core.config.AppenderRef[],org.apache.logging.log4j.core.config.Property[],org.apache.logging.log4j.core.config.Configuration,org.apache.logging.log4j.core.Filter).
+2016-05-19 10:36:19,178 main DEBUG Calling createLogger on class org.apache.logging.log4j.core.config.LoggerConfig for element Logger with params(additivity="null", level="WARN", name="org.apache.zookeeper.ClientCnxnSocketNIO", includeLocation="null", ={}, ={}, Configuration(HiveLog4j2), null)
+2016-05-19 10:36:19,179 main DEBUG Built Plugin[name=logger] OK from factory method.
+2016-05-19 10:36:19,179 main DEBUG Building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for builder factory method...
+2016-05-19 10:36:19,180 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.LoggerConfig. Going to try finding a factory method instead.
+2016-05-19 10:36:19,180 main DEBUG Still building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for factory method...
+2016-05-19 10:36:19,180 main DEBUG Found factory method [createLogger]: public static org.apache.logging.log4j.core.config.LoggerConfig org.apache.logging.log4j.core.config.LoggerConfig.createLogger(java.lang.String,org.apache.logging.log4j.Level,java.lang.String,java.lang.String,org.apache.logging.log4j.core.config.AppenderRef[],org.apache.logging.log4j.core.config.Property[],org.apache.logging.log4j.core.config.Configuration,org.apache.logging.log4j.core.Filter).
+2016-05-19 10:36:19,182 main DEBUG Calling createLogger on class org.apache.logging.log4j.core.config.LoggerConfig for element Logger with params(additivity="null", level="ERROR", name="DataNucleus", includeLocation="null", ={}, ={}, Configuration(HiveLog4j2), null)
+2016-05-19 10:36:19,182 main DEBUG Built Plugin[name=logger] OK from factory method.
+2016-05-19 10:36:19,183 main DEBUG Building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for builder factory method...
+2016-05-19 10:36:19,183 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.LoggerConfig. Going to try finding a factory method instead.
+2016-05-19 10:36:19,184 main DEBUG Still building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for factory method...
+2016-05-19 10:36:19,184 main DEBUG Found factory method [createLogger]: public static org.apache.logging.log4j.core.config.LoggerConfig org.apache.logging.log4j.core.config.LoggerConfig.createLogger(java.lang.String,org.apache.logging.log4j.Level,java.lang.String,java.lang.String,org.apache.logging.log4j.core.config.AppenderRef[],org.apache.logging.log4j.core.config.Property[],org.apache.logging.log4j.core.config.Configuration,org.apache.logging.log4j.core.Filter).
+2016-05-19 10:36:19,185 main DEBUG Calling createLogger on class org.apache.logging.log4j.core.config.LoggerConfig for element Logger with params(additivity="null", level="ERROR", name="Datastore", includeLocation="null", ={}, ={}, Configuration(HiveLog4j2), null)
+2016-05-19 10:36:19,186 main DEBUG Built Plugin[name=logger] OK from factory method.
+2016-05-19 10:36:19,186 main DEBUG Building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for builder factory method...
+2016-05-19 10:36:19,187 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.LoggerConfig. Going to try finding a factory method instead.
+2016-05-19 10:36:19,187 main DEBUG Still building Plugin[name=logger, class=org.apache.logging.log4j.core.config.LoggerConfig]. Searching for factory method...
+2016-05-19 10:36:19,187 main DEBUG Found factory method [createLogger]: public static org.apache.logging.log4j.core.config.LoggerConfig org.apache.logging.log4j.core.config.LoggerConfig.createLogger(java.lang.String,org.apache.logging.log4j.Level,java.lang.String,java.lang.String,org.apache.logging.log4j.core.config.AppenderRef[],org.apache.logging.log4j.core.config.Property[],org.apache.logging.log4j.core.config.Configuration,org.apache.logging.log4j.core.Filter).
+2016-05-19 10:36:19,189 main DEBUG Calling createLogger on class org.apache.logging.log4j.core.config.LoggerConfig for element Logger with params(additivity="null", level="ERROR", name="JPOX", includeLocation="null", ={}, ={}, Configuration(HiveLog4j2), null)
+2016-05-19 10:36:19,189 main DEBUG Built Plugin[name=logger] OK from factory method.
+2016-05-19 10:36:19,190 main DEBUG Building Plugin[name=AppenderRef, class=org.apache.logging.log4j.core.config.AppenderRef]. Searching for builder factory method...
+2016-05-19 10:36:19,190 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.AppenderRef. Going to try finding a factory method instead.
+2016-05-19 10:36:19,191 main DEBUG Still building Plugin[name=AppenderRef, class=org.apache.logging.log4j.core.config.AppenderRef]. Searching for factory method...
+2016-05-19 10:36:19,191 main DEBUG Found factory method [createAppenderRef]: public static org.apache.logging.log4j.core.config.AppenderRef org.apache.logging.log4j.core.config.AppenderRef.createAppenderRef(java.lang.String,org.apache.logging.log4j.Level,org.apache.logging.log4j.core.Filter).
+2016-05-19 10:36:19,192 main DEBUG Calling createAppenderRef on class org.apache.logging.log4j.core.config.AppenderRef for element AppenderRef with params(ref="SYSLOG", level="null", null)
+2016-05-19 10:36:19,192 main DEBUG Built Plugin[name=AppenderRef] OK from factory method.
+2016-05-19 10:36:19,193 main DEBUG Building Plugin[name=root, class=org.apache.logging.log4j.core.config.LoggerConfig$RootLogger]. Searching for builder factory method...
+2016-05-19 10:36:19,193 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.LoggerConfig$RootLogger. Going to try finding a factory method instead.
+2016-05-19 10:36:19,194 main DEBUG Still building Plugin[name=root, class=org.apache.logging.log4j.core.config.LoggerConfig$RootLogger]. Searching for factory method...
+2016-05-19 10:36:19,194 main DEBUG Found factory method [createLogger]: public static org.apache.logging.log4j.core.config.LoggerConfig org.apache.logging.log4j.core.config.LoggerConfig$RootLogger.createLogger(java.lang.String,org.apache.logging.log4j.Level,java.lang.String,org.apache.logging.log4j.core.config.AppenderRef[],org.apache.logging.log4j.core.config.Property[],org.apache.logging.log4j.core.config.Configuration,org.apache.logging.log4j.core.Filter).
+2016-05-19 10:36:19,196 main DEBUG Calling createLogger on class org.apache.logging.log4j.core.config.LoggerConfig$RootLogger for element Root with params(additivity="null", level="INFO", includeLocation="null", ={SYSLOG}, ={}, Configuration(HiveLog4j2), null)
+2016-05-19 10:36:19,197 main DEBUG Built Plugin[name=root] OK from factory method.
+2016-05-19 10:36:19,197 main DEBUG Building Plugin[name=loggers, class=org.apache.logging.log4j.core.config.LoggersPlugin]. Searching for builder factory method...
+2016-05-19 10:36:19,197 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.LoggersPlugin. Going to try finding a factory method instead.
+2016-05-19 10:36:19,198 main DEBUG Still building Plugin[name=loggers, class=org.apache.logging.log4j.core.config.LoggersPlugin]. Searching for factory method...
+2016-05-19 10:36:19,198 main DEBUG Found factory method [createLoggers]: public static org.apache.logging.log4j.core.config.Loggers org.apache.logging.log4j.core.config.LoggersPlugin.createLoggers(org.apache.logging.log4j.core.config.LoggerConfig[]).
+2016-05-19 10:36:19,199 main DEBUG Calling createLoggers on class org.apache.logging.log4j.core.config.LoggersPlugin for element Loggers with params(={org.apache.zookeeper.server.NIOServerCnxn, org.apache.zookeeper.ClientCnxnSocketNIO, DataNucleus, Datastore, JPOX, root})
+2016-05-19 10:36:19,199 main DEBUG Built Plugin[name=loggers] OK from factory method.
+2016-05-19 10:36:19,199 main DEBUG Building Plugin[name=layout, class=org.apache.logging.log4j.core.layout.PatternLayout]. Searching for builder factory method...
+2016-05-19 10:36:19,200 main DEBUG Found builder factory method [newBuilder]: public static org.apache.logging.log4j.core.layout.PatternLayout$Builder org.apache.logging.log4j.core.layout.PatternLayout.newBuilder().
+2016-05-19 10:36:19,202 main DEBUG Calling build() on class class org.apache.logging.log4j.core.layout.PatternLayout$Builder for element PatternLayout with params(pattern="%d{yy/MM/dd HH:mm:ss} [%t]: %p %c{2}: %m%n", null, Configuration(HiveLog4j2), null, charset="null", alwaysWriteExceptions="null", noConsoleNoAnsi="null", header="null", footer="null")
+2016-05-19 10:36:19,203 main DEBUG PluginManager 'Converter' found 38 plugins
+2016-05-19 10:36:19,204 main DEBUG Built Plugin[name=layout] OK from builder factory method.
+2016-05-19 10:36:19,204 main DEBUG Building Plugin[name=appender, class=org.apache.logging.log4j.core.appender.ConsoleAppender]. Searching for builder factory method...
+2016-05-19 10:36:19,205 main DEBUG PluginManager 'Converter' found 38 plugins
+2016-05-19 10:36:19,206 main DEBUG Found builder factory method [newBuilder]: public static org.apache.logging.log4j.core.appender.ConsoleAppender$Builder org.apache.logging.log4j.core.appender.ConsoleAppender.newBuilder().
+2016-05-19 10:36:19,207 main DEBUG No PluginVisitorStrategy found on annotation [interface org.apache.logging.log4j.core.config.plugins.validation.constraints.Required]. Ignoring.
+2016-05-19 10:36:19,207 main DEBUG Encountered type [org.apache.logging.log4j.core.layout.PatternLayout] which can only be checked for null.
+2016-05-19 10:36:19,208 main DEBUG No PluginVisitorStrategy found on annotation [interface org.apache.logging.log4j.core.config.plugins.validation.constraints.Required]. Ignoring.
+2016-05-19 10:36:19,208 main DEBUG Encountered type [org.apache.logging.log4j.core.appender.ConsoleAppender$Target] which can only be checked for null.
+2016-05-19 10:36:19,209 main DEBUG No PluginVisitorStrategy found on annotation [interface org.apache.logging.log4j.core.config.plugins.validation.constraints.Required]. Ignoring.
+2016-05-19 10:36:19,210 main DEBUG Calling build() on class class org.apache.logging.log4j.core.appender.ConsoleAppender$Builder for element Console with params(PatternLayout(%d{yy/MM/dd HH:mm:ss} [%t]: %p %c{2}: %m%n), null, target="SYSTEM_ERR", name="console", follow="null", ignoreExceptions="null")
+2016-05-19 10:36:19,210 main DEBUG Built Plugin[name=appender] OK from builder factory method.
+2016-05-19 10:36:19,210 main DEBUG Building Plugin[name=KeyValuePair, class=org.apache.logging.log4j.core.util.KeyValuePair]. Searching for builder factory method...
+2016-05-19 10:36:19,211 main DEBUG Found builder factory method [newBuilder]: public static org.apache.logging.log4j.core.util.KeyValuePair$Builder org.apache.logging.log4j.core.util.KeyValuePair.newBuilder().
+2016-05-19 10:36:19,212 main DEBUG Calling build() on class class org.apache.logging.log4j.core.util.KeyValuePair$Builder for element KeyValuePair with params(, key="message", value="%c%m%n")
+2016-05-19 10:36:19,212 main DEBUG Built Plugin[name=KeyValuePair] OK from builder factory method.
+2016-05-19 10:36:19,212 main DEBUG Building Plugin[name=LoggerFields, class=org.apache.logging.log4j.core.layout.LoggerFields]. Searching for builder factory method...
+2016-05-19 10:36:19,213 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.layout.LoggerFields. Going to try finding a factory method instead.
+2016-05-19 10:36:19,213 main DEBUG Still building Plugin[name=LoggerFields, class=org.apache.logging.log4j.core.layout.LoggerFields]. Searching for factory method...
+2016-05-19 10:36:19,214 main DEBUG Found factory method [createLoggerFields]: public static org.apache.logging.log4j.core.layout.LoggerFields org.apache.logging.log4j.core.layout.LoggerFields.createLoggerFields(org.apache.logging.log4j.core.util.KeyValuePair[],java.lang.String,java.lang.String,boolean).
+2016-05-19 10:36:19,215 main DEBUG Calling createLoggerFields on class org.apache.logging.log4j.core.layout.LoggerFields for element loggerFields with params(={message=%c%m%n}, sdId="test", enterpriseId="18060", discardIfAllFieldsAreEmpty="false")
+2016-05-19 10:36:19,215 main DEBUG Built Plugin[name=LoggerFields] OK from factory method.
+2016-05-19 10:36:19,216 main DEBUG Building Plugin[name=appender, class=org.apache.logging.log4j.core.appender.SyslogAppender]. Searching for builder factory method...
+2016-05-19 10:36:19,216 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.appender.SyslogAppender. Going to try finding a factory method instead.
+2016-05-19 10:36:19,217 main DEBUG Still building Plugin[name=appender, class=org.apache.logging.log4j.core.appender.SyslogAppender]. Searching for factory method...
+2016-05-19 10:36:19,217 main DEBUG Found factory method [createAppender]: public static org.apache.logging.log4j.core.appender.SyslogAppender org.apache.logging.log4j.core.appender.SyslogAppender.createAppender(java.lang.String,int,java.lang.String,org.apache.logging.log4j.core.net.ssl.SslConfiguration,int,int,boolean,java.lang.String,boolean,boolean,org.apache.logging.log4j.core.net.Facility,java.lang.String,int,boolean,java.lang.String,java.lang.String,java.lang.String,boolean,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,org.apache.logging.log4j.core.Filter,org.apache.logging.log4j.core.config.Configuration,java.nio.charset.Charset,java.lang.String,org.apache.logging.log4j.core.layout.LoggerFields[],boolean).
+2016-05-19 10:36:19,221 main DEBUG Calling createAppender on class org.apache.logging.log4j.core.appender.SyslogAppender for element Syslog with params(host="127.0.0.1", port="514", protocol="UDP", null, connectTimeoutMillis="0", reconnectionDelayMillis="0", immediateFail="true", name="SYSLOG", immediateFlush="true", ignoreExceptions="true", facility="LOCAL1", id="null", enterpriseNumber="18060", includeMdc="true", mdcId="null", mdcPrefix="null", eventPrefix="null", newLine="false", newLineEscape="null", appName="null", messageId="null", mdcExcludes="null", mdcIncludes="null", mdcRequired="null", format="null", null, Configuration(HiveLog4j2), charset="UTF-8", exceptionPattern="null", ={{message=%c%m%n}}, advertise="false")
+2016-05-19 10:36:19,226 main DEBUG Built Plugin[name=appender] OK from factory method.
+2016-05-19 10:36:19,226 main DEBUG Building Plugin[name=appenders, class=org.apache.logging.log4j.core.config.AppendersPlugin]. Searching for builder factory method...
+2016-05-19 10:36:19,227 main DEBUG No builder factory method found in class org.apache.logging.log4j.core.config.AppendersPlugin. Going to try finding a factory method instead.
+2016-05-19 10:36:19,227 main DEBUG Still building Plugin[name=appenders, class=org.apache.logging.log4j.core.config.AppendersPlugin]. Searching for factory method...
+2016-05-19 10:36:19,228 main DEBUG Found factory method [createAppenders]: public static java.util.concurrent.ConcurrentMap org.apache.logging.log4j.core.config.AppendersPlugin.createAppenders(org.apache.logging.log4j.core.Appender[]).
+2016-05-19 10:36:19,228 main DEBUG Calling createAppenders on class org.apache.logging.log4j.core.config.AppendersPlugin for element Appenders with params(={console, SYSLOG})
+2016-05-19 10:36:19,228 main DEBUG Built Plugin[name=appenders] OK from factory method.
+2016-05-19 10:36:19,229 main DEBUG Configuration org.apache.logging.log4j.core.config.properties.PropertiesConfiguration@30350fc4 initialized
+2016-05-19 10:36:19,234 main DEBUG Starting configuration org.apache.logging.log4j.core.config.properties.PropertiesConfiguration@30350fc4
+2016-05-19 10:36:19,234 main DEBUG Started configuration org.apache.logging.log4j.core.config.properties.PropertiesConfiguration@30350fc4 OK.
+2016-05-19 10:36:19,235 main TRACE Stopping org.apache.logging.log4j.core.config.properties.PropertiesConfiguration@5433a329...
+2016-05-19 10:36:19,235 main TRACE AbstractConfiguration notified 6 ReliabilityStrategies that config will be stopped.
+2016-05-19 10:36:19,236 main TRACE AbstractConfiguration stopped 0 AsyncLoggerConfigs.
+2016-05-19 10:36:19,236 main TRACE AbstractConfiguration stopped 0 AsyncAppenders.
+2016-05-19 10:36:19,236 main TRACE AbstractConfiguration notified 6 ReliabilityStrategies that appenders will be stopped.
+2016-05-19 10:36:19,237 main TRACE AbstractConfiguration stopped 2 Appenders.
+2016-05-19 10:36:19,237 main TRACE AbstractConfiguration stopped 6 LoggerConfigs.
+2016-05-19 10:36:19,238 main DEBUG Stopped org.apache.logging.log4j.core.config.properties.PropertiesConfiguration@5433a329 OK
+2016-05-19 10:36:19,238 main DEBUG Unregistering MBean org.apache.logging.log4j2:type=1695244027
+2016-05-19 10:36:19,239 main DEBUG Unregistering MBean org.apache.logging.log4j2:type=1695244027,component=StatusLogger
+2016-05-19 10:36:19,239 main DEBUG Unregistering MBean org.apache.logging.log4j2:type=1695244027,component=ContextSelector
+2016-05-19 10:36:19,240 main DEBUG Unregistering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=Datastore
+2016-05-19 10:36:19,241 main DEBUG Unregistering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=org.apache.zookeeper.ClientCnxnSocketNIO
+2016-05-19 10:36:19,241 main DEBUG Unregistering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=org.apache.zookeeper.server.NIOServerCnxn
+2016-05-19 10:36:19,241 main DEBUG Unregistering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=DataNucleus
+2016-05-19 10:36:19,242 main DEBUG Unregistering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=
+2016-05-19 10:36:19,242 main DEBUG Unregistering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=JPOX
+2016-05-19 10:36:19,243 main DEBUG Unregistering MBean org.apache.logging.log4j2:type=1695244027,component=Appenders,name=SYSLOG
+2016-05-19 10:36:19,243 main DEBUG Unregistering MBean org.apache.logging.log4j2:type=1695244027,component=Appenders,name=console
+2016-05-19 10:36:19,244 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027
+2016-05-19 10:36:19,245 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=StatusLogger
+2016-05-19 10:36:19,245 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=ContextSelector
+2016-05-19 10:36:19,246 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=JPOX
+2016-05-19 10:36:19,246 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=org.apache.zookeeper.server.NIOServerCnxn
+2016-05-19 10:36:19,247 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=DataNucleus
+2016-05-19 10:36:19,247 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=
+2016-05-19 10:36:19,248 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=Datastore
+2016-05-19 10:36:19,248 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Loggers,name=org.apache.zookeeper.ClientCnxnSocketNIO
+2016-05-19 10:36:19,249 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Appenders,name=SYSLOG
+2016-05-19 10:36:19,249 main DEBUG Registering MBean org.apache.logging.log4j2:type=1695244027,component=Appenders,name=console
+2016-05-19 10:36:19,250 main DEBUG Reconfiguration complete for context[name=1695244027] at URI file:/opt/application/Hive/apache-hive-2.0.0-bin/conf/hive-log4j2.properties (org.apache.logging.log4j.core.LoggerContext@62ab3a93) with optional ClassLoader: null
+2016-05-19 10:36:22,513 main DEBUG Starting StringOutputStreamManager StringStream
+
+
+
+

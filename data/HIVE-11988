@@ -1,0 +1,18 @@
+Description
+
+if a user does not have permission to create table in hive , then if the same user import data for a table using following command then , it will have to create table also and that is working successfully , ideally it should not work
+STR:
+====
+1. put some raw data in hdfs path /user/user1/tempdata
+2. in ranger check policy , user1 should not have any permission on any table
+3. login through user1 into beeline ( obviously it will fail since user doesnt have permission to create table)
+create table tt1(id INT,ff String);
+FAILED: HiveAccessControlException Permission denied: user user1 does not have CREATE privilege on default/tt1 (state=42000,code=40000)
+4. now try following command to import data into a table ( table should not exist already)
+import table tt1 from '/user/user1/tempdata';
+ER:
+since user1 doesnt have permission to create table so this operation should fail
+AR:
+table is created successfully and data is also imported !!
+
+

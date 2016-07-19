@@ -1,0 +1,5 @@
+Description
+
+If the wait queue is full, currently the task scheduler throws RejectedExecutionException. Instead it should kick out the lowest priority task and notify the AM as task killed.
+
+

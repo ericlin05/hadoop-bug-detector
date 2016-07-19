@@ -1,0 +1,26 @@
+Description
+
+Currently the command "analyze table .. partition .. compute statistics for columns" may only work for partition column type of string, numeric types, but not others like date. See following case using date as partition coltype:
+
+
+create table colstatspartdate (key int, value string) partitioned by (ds date, hr int);
+insert into colstatspartdate partition (ds=date '2015-04-02', hr=2) select key, value from src limit 20;
+analyze table colstatspartdate partition (ds=date '2015-04-02', hr=2) compute statistics for columns;
+
+
+you will get RuntimeException:
+
+
+FAILED: RuntimeException Cannot convert to Date from: int
+15/04/06 17:30:01 ERROR ql.Driver: FAILED: RuntimeException Cannot convert to Date from: int
+java.lang.RuntimeException: Cannot convert to Date from: int
+	at org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils.getDate(PrimitiveObjectInspectorUtils.java:1048)
+	at org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorConverter$DateConverter.convert(PrimitiveObjectInspectorConverter.java:264)
+	at org.apache.hadoop.hive.ql.optimizer.ConstantPropagateProcFactory.typeCast(ConstantPropagateProcFactory.java:163)
+	at org.apache.hadoop.hive.ql.optimizer.ConstantPropagateProcFactory.propagate(ConstantPropagateProcFactory.java:333)
+	at org.apache.hadoop.hive.ql.optimizer.ConstantPropagateProcFactory.foldExpr(ConstantPropagateProcFactory.java:242)
+....
+
+
+
+

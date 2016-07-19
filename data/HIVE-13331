@@ -1,0 +1,35 @@
+Description
+
+I hit this issue consistently when I try to concatenate the ORC files in a hive partition using 'ALTER TABLE ... PARTITION(...) CONCATENATE'. In an email thread on the hive users mailing list http://mail-archives.apache.org/mod_mbox/hive-user/201504.mbox/%3C553A2A9E.70005@uib.no%3E, I read that tez should be used as the execution engine for hive, so I updated my hive configs to use tez as the exec engine.
+Here's the stack trace when I use the Tez execution engine:
+--------------------------------------------------------------------------------
+VERTICES STATUS TOTAL COMPLETED RUNNING PENDING FAILED KILLED
+--------------------------------------------------------------------------------
+File Merge FAILED -1 0 0 -1 0 0
+--------------------------------------------------------------------------------
+VERTICES: 00/01 [&amp;gt;&amp;gt;--------------------------] 0% ELAPSED TIME: 1458666880.00 s
+--------------------------------------------------------------------------------
+Status: Failed
+Vertex failed, vertexName=File Merge, vertexId=vertex_1455906569416_0009_1_00, diagnostics=[Vertex vertex_1455906569416_0009_1_00 [File Merge] killed/failed due to:ROOT_INPUT_INIT_FAILURE, Vertex Input: [&amp;lt;HDFS file location&amp;gt;] initializer failed, vertex=vertex_1455906569416_0009_1_00 [File Merge], java.lang.NullPointerException
+at org.apache.hadoop.hive.ql.io.HiveInputFormat.init(HiveInputFormat.java:265)
+at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getSplits(CombineHiveInputFormat.java:452)
+at org.apache.tez.mapreduce.hadoop.MRInputHelpers.generateOldSplits(MRInputHelpers.java:441)
+at org.apache.tez.mapreduce.hadoop.MRInputHelpers.generateInputSplitsToMem(MRInputHelpers.java:295)
+at org.apache.tez.mapreduce.common.MRInputAMSplitGenerator.initialize(MRInputAMSplitGenerator.java:124)
+at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable$1.run(RootInputInitializerManager.java:245)
+at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable$1.run(RootInputInitializerManager.java:239)
+at java.security.AccessController.doPrivileged(Native Method)
+at javax.security.auth.Subject.doAs(Subject.java:422)
+at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable.call(RootInputInitializerManager.java:239)
+at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable.call(RootInputInitializerManager.java:226)
+at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+at java.lang.Thread.run(Thread.java:745)
+]
+DAG failed due to vertex failure. failedVertices:1 killedVertices:0
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.DDLTask
+Please let me know if this has been fixed ? This seems like a very basic thing for Hive to get wrong, so I am wondering if I am using the right configs. 
+
+

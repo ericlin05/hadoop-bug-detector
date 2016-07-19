@@ -1,0 +1,27 @@
+Description
+
+
+create table src (key string);
+
+select distinct t1.key from src t1, src t2 where t1.key=t2.key;
+
+
+The command fails with OOM error.
+
+java.lang.Exception: java.lang.OutOfMemoryError: Java heap space
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:406)
+Caused by: java.lang.OutOfMemoryError: Java heap space
+        at org.apache.hadoop.mapred.MapTask$MapOutputBuffer.init(MapTask.java:826)
+        at org.apache.hadoop.mapred.MapTask.createSortingCollector(MapTask.java:376)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:406)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:332)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job$MapTaskRunnable.run(LocalJobRunner.java:268)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+
+

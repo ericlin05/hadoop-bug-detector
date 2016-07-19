@@ -1,0 +1,20 @@
+Description
+
+I wrote a Java client to talk with HiveMetaStore. (Hive 1.2.0)
+But found that it can't new a HiveMetaStoreClient object successfully via a proxy using in Kerberos env.
+===========================
+15/10/13 00:14:38 ERROR transport.TSaslTransport: SASL negotiation failure
+javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+        at com.sun.security.sasl.gsskerb.GssKrb5Client.evaluateChallenge(GssKrb5Client.java:211)
+        at org.apache.thrift.transport.TSaslClientTransport.handleSaslStartMessage(TSaslClientTransport.java:94)
+        at org.apache.thrift.transport.TSaslTransport.open(TSaslTransport.java:271)
+==========================
+When I debugging on Hive, I found that the error came from open() method in HiveMetaStoreClient class.
+Around line 406,
+ transport = UserGroupInformation.getCurrentUser().doAs(new PrivilegedExceptionAction&amp;lt;TTransport&amp;gt;() {  //FAILED, because the current user doesn't have the cridential
+But it will work if I change above line to
+ transport = UserGroupInformation.getCurrentUser().getRealUser().doAs(new PrivilegedExceptionAction&amp;lt;TTransport&amp;gt;() {  //PASS
+I found DRILL-3413 fixes this error in Drill side as a workaround. But if I submit a mapreduce job via Pig/HCatalog, it runs into the same issue again when initialize the object via HCatalog.
+It would be better to fix this issue in Hive side.
+
+

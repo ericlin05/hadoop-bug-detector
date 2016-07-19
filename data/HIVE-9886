@@ -1,0 +1,73 @@
+Description
+
+
+
+set hive.auto.convert.sortmerge.join = true;
+
+create table t1(
+id string,
+od string);
+
+create table t2(
+id string,
+od string);
+
+select vt1.id from
+(select rt1.id from
+(select t1.id, row_number() over (partition by id order by od desc) as row_no from t1) rt1
+where rt1.row_no=1) vt1
+join
+(select rt2.id from
+(select t2.id, row_number() over (partition by id order by od desc) as row_no from t2) rt2
+where rt2.row_no=1) vt2
+where vt1.id=vt2.id;
+
+
+throws NPE:
+
+
+	at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordProcessor.init(ReduceRecordProcessor.java:146)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:162)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:138)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:324)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:176)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:168)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:168)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:163)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:744)
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.AbstractMapJoinOperator.getValueObjectInspectors(AbstractMapJoinOperator.java:96)
+	at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.getJoinOutputObjectInspector(CommonJoinOperator.java:167)
+	at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.initializeOp(CommonJoinOperator.java:310)
+	at org.apache.hadoop.hive.ql.exec.AbstractMapJoinOperator.initializeOp(AbstractMapJoinOperator.java:72)
+	at org.apache.hadoop.hive.ql.exec.CommonMergeJoinOperator.initializeOp(CommonMergeJoinOperator.java:89)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:385)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:469)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:425)
+	at org.apache.hadoop.hive.ql.exec.SelectOperator.initializeOp(SelectOperator.java:65)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:385)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:469)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:425)
+	at org.apache.hadoop.hive.ql.exec.FilterOperator.initializeOp(FilterOperator.java:66)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:385)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:469)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:425)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeOp(Operator.java:410)
+	at org.apache.hadoop.hive.ql.exec.PTFOperator.initializeOp(PTFOperator.java:89)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:385)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:469)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:425)
+	at org.apache.hadoop.hive.ql.exec.ExtractOperator.initializeOp(ExtractOperator.java:40)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:385)
+	at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordProcessor.init(ReduceRecordProcessor.java:116)
+	... 14 more
+
+
+
+

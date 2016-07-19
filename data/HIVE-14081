@@ -1,0 +1,10 @@
+Description
+
+New to this forum please help or guide me where do i find the solution to this error.
+Query inside java :
+ res=stm.executeQuery("select * from dataset where c_name = "+jComboBox1.getSelectedItem());
+Error :
+FAILED: SemanticException [Error 10004]: Line 1:35 Invalid table alias or column reference 'AAPL': (possible column names are:
+Cannot get over this issue.
+
+

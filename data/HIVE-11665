@@ -1,0 +1,24 @@
+Description
+
+ORC String Dictionary Reader is slow due to the chunking of the input stream.
+ql/src/java/org/apache/hadoop/hive/ql/io/orc/TreeReaderFactory.java#L1678
+
+ private void readDictionaryStream(InStream in) throws IOException {
+      if (in != null) { // Guard against empty dictionary stream.
+        if (in.available() &amp;gt; 0) {
+          dictionaryBuffer = new DynamicByteArray(64, in.available());
+          dictionaryBuffer.readAll(in);
+          // Since its start of strip invalidate the cache.
+          dictionaryBufferInBytesCache = null;
+        }
+        in.close();
+      } else {
+        dictionaryBuffer = null;
+      }
+    }
+
+
+The fact that the data is chunked offers no advantage for the read-path where there is no grow() operation for memory savings.
+
+
+

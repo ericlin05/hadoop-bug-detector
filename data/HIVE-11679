@@ -1,0 +1,21 @@
+Description
+
+
+
+public static ExprNodeGenericFuncDesc newInstance(GenericUDF genericUDF,
+      String funcText,
+      List&amp;lt;ExprNodeDesc&amp;gt; children) throws UDFArgumentException {
+...
+
+ if (genericUDF instanceof GenericUDFBaseCompare &amp;amp;&amp;amp; children.size() == 2) {
+
+      TypeInfo oiTypeInfo0 = children.get(0).getTypeInfo();
+      TypeInfo oiTypeInfo1 = children.get(1).getTypeInfo();
+
+      SessionState ss = SessionState.get();
+      Configuration conf = (ss != null) ? ss.getConf() : new Configuration();
+
+
+This is both a SessionState.get() which is a threadlocal lookup or worse, a  new Configuration()  which means XML parsing of multiple files for each equality expression in the query.
+
+

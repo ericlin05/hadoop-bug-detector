@@ -1,0 +1,123 @@
+Description
+
+
+
+hive&amp;gt; CREATE TABLE intable_p (
+    &amp;gt;   sr_no int,
+    &amp;gt;   name string,
+    &amp;gt;   emp_id int
+    &amp;gt; ) PARTITIONED BY (
+    &amp;gt;   a string,
+    &amp;gt;   b string,
+    &amp;gt;   c string
+    &amp;gt; ) ROW FORMAT DELIMITED
+    &amp;gt;   FIELDS TERMINATED BY '\t'
+    &amp;gt;   LINES TERMINATED BY '\n'
+    &amp;gt; STORED AS PARQUET;
+
+hive&amp;gt; insert overwrite table intable_p partition (a='a', b='b', c='c') select * from intable;
+Total jobs = 3
+Launching Job 1 out of 3
+Number of reduce tasks is set to 0 since there's no reduce operator
+....
+MapReduce Jobs Launched:
+Stage-Stage-1: Map: 1   Cumulative CPU: 2.59 sec   HDFS Read: 247 HDFS Write: 410 SUCCESS
+Total MapReduce CPU Time Spent: 2 seconds 590 msec
+OK
+Time taken: 30.382 seconds
+hive&amp;gt; show create table intable_p;
+OK
+CREATE  TABLE `intable_p`(
+  `sr_no` int,
+  `name` string,
+  `emp_id` int)
+PARTITIONED BY (
+  `a` string,
+  `b` string,
+  `c` string)
+ROW FORMAT DELIMITED
+  FIELDS TERMINATED BY '\t'
+  LINES TERMINATED BY '\n'
+STORED AS INPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'
+OUTPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'
+LOCATION
+  'hdfs://nameservice1/hive/db/intable_p'
+TBLPROPERTIES (
+  'transient_lastDdlTime'='1435080569')
+Time taken: 0.212 seconds, Fetched: 19 row(s)
+hive&amp;gt; CREATE  TABLE `intable_p2`(
+    &amp;gt;   `sr_no` int,
+    &amp;gt;   `name` string,
+    &amp;gt;   `emp_id` int)
+    &amp;gt; PARTITIONED BY (
+    &amp;gt;   `a` string,
+    &amp;gt;   `b` string,
+    &amp;gt;   `c` string)
+    &amp;gt; ROW FORMAT DELIMITED
+    &amp;gt;   FIELDS TERMINATED BY '\t'
+    &amp;gt;   LINES TERMINATED BY '\n'
+    &amp;gt; STORED AS INPUTFORMAT
+    &amp;gt;   'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'
+    &amp;gt; OUTPUTFORMAT
+    &amp;gt;   'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat';
+OK
+Time taken: 0.179 seconds
+hive&amp;gt; insert overwrite table intable_p2 partition (a='a', b='b', c='c') select * from intable;
+Total jobs = 3
+Launching Job 1 out of 3
+Number of reduce tasks is set to 0 since there's no reduce operator
+...
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 0
+2015-06-23 17:34:40,471 Stage-1 map = 0%,  reduce = 0%
+2015-06-23 17:35:10,753 Stage-1 map = 100%,  reduce = 0%
+Ended Job = job_1433246369760_7947 with errors
+Error during job, obtaining debugging information...
+Examining task ID: task_xxxx (and more) from job job_xxxx
+
+Task with the most failures(4):
+-----
+Task ID:
+  task_xxxx
+
+URL:
+  xxxx
+-----
+Diagnostic Messages for this Task:
+Error: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"sr_no":1,"name":"ABC","emp_id":1001}
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:198)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:168)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1642)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:163)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"sr_no":1,"name":"ABC","emp_id":1001}
+        at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:549)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:180)
+        ... 8 more
+Caused by: {color:red}java.lang.ClassCastException: org.apache.hadoop.io.Text cannot be cast to org.apache.hadoop.io.ArrayWritable{color}
+        at org.apache.hadoop.hive.ql.io.parquet.write.ParquetRecordWriterWrapper.write(ParquetRecordWriterWrapper.java:105)
+        at org.apache.hadoop.hive.ql.exec.FileSinkOperator.processOp(FileSinkOperator.java:628)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+        at org.apache.hadoop.hive.ql.exec.SelectOperator.processOp(SelectOperator.java:87)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+        at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:92)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+        at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:539)
+        ... 9 more
+
+
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+MapReduce Jobs Launched:
+Stage-Stage-1: Map: 1   HDFS Read: 0 HDFS Write: 0 FAIL
+Total MapReduce CPU Time Spent: 0 msec
+hive&amp;gt;
+
+
+What is the issue with my second table?
+
+

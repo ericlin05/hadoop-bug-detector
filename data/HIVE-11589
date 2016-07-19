@@ -1,0 +1,42 @@
+Description
+
+When an user accidentally set an invalid value such as '-1' for 'hive.txn.timeout', the query simply fails throwing 'NoSuchLockException'
+
+2015-08-16 23:25:43,149 ERROR [HiveServer2-Background-Pool: Thread-206]: metastore.RetryingHMSHandler (RetryingHMSHandler.java:invoke(159)) - NoSuchLockException(message:No such lock: 40)
+	at org.apache.hadoop.hive.metastore.txn.TxnHandler.heartbeatLock(TxnHandler.java:1710)
+	at org.apache.hadoop.hive.metastore.txn.TxnHandler.unlock(TxnHandler.java:501)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.unlock(HiveMetaStore.java:5571)
+	at sun.reflect.GeneratedMethodAccessor41.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.hive.metastore.RetryingHMSHandler.invoke(RetryingHMSHandler.java:107)
+	at com.sun.proxy.$Proxy7.unlock(Unknown Source)
+	at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.unlock(HiveMetaStoreClient.java:1876)
+	at sun.reflect.GeneratedMethodAccessor40.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.invoke(RetryingMetaStoreClient.java:156)
+	at com.sun.proxy.$Proxy8.unlock(Unknown Source)
+	at org.apache.hadoop.hive.ql.lockmgr.DbLockManager.unlock(DbLockManager.java:134)
+	at org.apache.hadoop.hive.ql.lockmgr.DbLockManager.releaseLocks(DbLockManager.java:153)
+	at org.apache.hadoop.hive.ql.Driver.releaseLocksAndCommitOrRollback(Driver.java:1038)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1208)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1059)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1054)
+	at org.apache.hive.service.cli.operation.SQLOperation.runQuery(SQLOperation.java:154)
+	at org.apache.hive.service.cli.operation.SQLOperation.access$100(SQLOperation.java:71)
+	at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:206)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:218)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+The better way to handle such an invalid value is to check the value beforehand instead of throwing NoSuchLockException.
+
+

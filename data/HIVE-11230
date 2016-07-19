@@ -1,0 +1,27 @@
+Description
+
+The interface org.apache.hadoop.hive.metastore.IMetaStoreClient declares a method getPartition as:
+
+
+Partition getPartition(String tblName, String dbName, List&amp;lt;String&amp;gt; partVals) throws NoSuchObjectException, MetaException, TException;
+
+
+This is implemented in org.apache.hadoop.hive.metastore.HiveMetaStoreClient as:
+
+
+public Partition getPartition(String db_name, String tbl_name, List&amp;lt;String&amp;gt; part_vals) throws NoSuchObjectException, MetaException, TException {
+  return deepCopy(filterHook.filterPartition(client.get_partition(db_name, tbl_name, part_vals)));
+}
+
+
+Note that in the above code the param named db_name occupies the tbl_name equivalent in the IMetaStoreClient method and vice-versa.
+The method called in HiveMetaStoreClient also seemingly expects db_name to appear first (see ThriftHiveMetastore.Iface.get_partition):
+
+
+public Partition get_partition(String db_name, String tbl_name, List&amp;lt;String&amp;gt; part_vals) throws MetaException, NoSuchObjectException, org.apache.thrift.TException;
+
+
+And following this all the way through to the implementation of org.apache.hadoop.hive.metastore.ObjectStore.getMTable(String, String) shows that the database name is ultimately taken from the first argument.
+Therefore I propose that the order needs to be corrected on IMetaStoreClient.
+
+

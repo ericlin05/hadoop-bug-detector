@@ -1,0 +1,162 @@
+Description
+
+The following sequence of SQL commands causes an error.  The context I am running in is the Cloudera nightly build, but this also causes an error with the released CDH 5.5, which runs "hive-1.1.0+cdh5.5.0+323".
+
+
+CREATE TABLE foo_partition_test (`foo` string) PARTITIONED BY (`year` int, `month` smallint);
+DESCRIBE foo_partition_test;
+SHOW PARTITIONS foo_partition_test;
+ALTER TABLE foo_partition_test ADD PARTITION (year=2007, month=4) LOCATION '/tmp/tmp-6991f3a5decf47809a513b7007ae6f28';
+SHOW PARTITIONS foo_partition_test;
+ALTER TABLE foo_partition_test DROP PARTITION (year=2007, month=4);
+DROP TABLE foo_partition_test;
+
+
+I ran into this problem trying to fix an Ibis test.  The resulting error I get (from the Metastore log, which gives a bit more info) is:
+
+
+MetaException(message:Failed to delete parent: Permission denied: user=root, access=READ_EXECUTE, inode="/tmp/mapred/system":mapred:supergroup:drwx------
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.checkFsPermission(DefaultAuthorizationProvider.java:281)
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.check(DefaultAuthorizationProvider.java:262)
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.checkSubAccess(DefaultAuthorizationProvider.java:225)
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.checkPermission(DefaultAuthorizationProvider.java:178)
+	at org.apache.hadoop.hdfs.server.namenode.FSPermissionChecker.checkPermission(FSPermissionChecker.java:152)
+	at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.checkPermission(FSNamesystem.java:6610)
+	at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.checkPermission(FSNamesystem.java:6592)
+	at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.getContentSummary(FSNamesystem.java:4482)
+	at org.apache.hadoop.hdfs.server.namenode.NameNodeRpcServer.getContentSummary(NameNodeRpcServer.java:1081)
+	at org.apache.hadoop.hdfs.server.namenode.AuthorizationProviderProxyClientProtocol.getContentSummary(AuthorizationProviderProxyClientProtocol.java:562)
+	at org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolServerSideTranslatorPB.getContentSummary(ClientNamenodeProtocolServerSideTranslatorPB.java:858)
+	at org.apache.hadoop.hdfs.protocol.proto.ClientNamenodeProtocolProtos$ClientNamenodeProtocol$2.callBlockingMethod(ClientNamenodeProtocolProtos.java)
+	at org.apache.hadoop.ipc.ProtobufRpcEngine$Server$ProtoBufRpcInvoker.call(ProtobufRpcEngine.java:617)
+	at org.apache.hadoop.ipc.RPC$Server.call(RPC.java:1060)
+	at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2086)
+	at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2082)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+	at org.apache.hadoop.ipc.Server$Handler.run(Server.java:2080)
+)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.drop_partitions_req(HiveMetaStore.java:2874)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.hive.metastore.RetryingHMSHandler.invokeInternal(RetryingHMSHandler.java:138)
+	at org.apache.hadoop.hive.metastore.RetryingHMSHandler.invoke(RetryingHMSHandler.java:99)
+	at com.sun.proxy.$Proxy20.drop_partitions_req(Unknown Source)
+	at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Processor$drop_partitions_req.getResult(ThriftHiveMetastore.java:9883)
+	at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Processor$drop_partitions_req.getResult(ThriftHiveMetastore.java:9867)
+	at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+	at org.apache.hadoop.hive.metastore.TUGIBasedProcessor$1.run(TUGIBasedProcessor.java:110)
+	at org.apache.hadoop.hive.metastore.TUGIBasedProcessor$1.run(TUGIBasedProcessor.java:106)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+	at org.apache.hadoop.hive.metastore.TUGIBasedProcessor.process(TUGIBasedProcessor.java:118)
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+Nearby in the log, there is possibly related additional exception (though I don't always see this):
+
+
+Error from deleteParentRecursive
+org.apache.hadoop.security.AccessControlException: Permission denied: user=root, access=READ_EXECUTE, inode="/tmp/mapred/system":mapred:supergroup:drwx------
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.checkFsPermission(DefaultAuthorizationProvider.java:281)
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.check(DefaultAuthorizationProvider.java:262)
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.checkSubAccess(DefaultAuthorizationProvider.java:225)
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.checkPermission(DefaultAuthorizationProvider.java:178)
+	at org.apache.hadoop.hdfs.server.namenode.FSPermissionChecker.checkPermission(FSPermissionChecker.java:152)
+	at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.checkPermission(FSNamesystem.java:6610)
+	at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.checkPermission(FSNamesystem.java:6592)
+	at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.getContentSummary(FSNamesystem.java:4482)
+	at org.apache.hadoop.hdfs.server.namenode.NameNodeRpcServer.getContentSummary(NameNodeRpcServer.java:1081)
+	at org.apache.hadoop.hdfs.server.namenode.AuthorizationProviderProxyClientProtocol.getContentSummary(AuthorizationProviderProxyClientProtocol.java:562)
+	at org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolServerSideTranslatorPB.getContentSummary(ClientNamenodeProtocolServerSideTranslatorPB.java:858)
+	at org.apache.hadoop.hdfs.protocol.proto.ClientNamenodeProtocolProtos$ClientNamenodeProtocol$2.callBlockingMethod(ClientNamenodeProtocolProtos.java)
+	at org.apache.hadoop.ipc.ProtobufRpcEngine$Server$ProtoBufRpcInvoker.call(ProtobufRpcEngine.java:617)
+	at org.apache.hadoop.ipc.RPC$Server.call(RPC.java:1060)
+	at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2086)
+	at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2082)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+	at org.apache.hadoop.ipc.Server$Handler.run(Server.java:2080)
+
+	at sun.reflect.GeneratedConstructorAccessor58.newInstance(Unknown Source)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:526)
+	at org.apache.hadoop.ipc.RemoteException.instantiateException(RemoteException.java:106)
+	at org.apache.hadoop.ipc.RemoteException.unwrapRemoteException(RemoteException.java:73)
+	at org.apache.hadoop.hdfs.DFSClient.getContentSummary(DFSClient.java:3110)
+	at org.apache.hadoop.hdfs.DistributedFileSystem$13.doCall(DistributedFileSystem.java:663)
+	at org.apache.hadoop.hdfs.DistributedFileSystem$13.doCall(DistributedFileSystem.java:659)
+	at org.apache.hadoop.fs.FileSystemLinkResolver.resolve(FileSystemLinkResolver.java:81)
+	at org.apache.hadoop.hdfs.DistributedFileSystem.getContentSummary(DistributedFileSystem.java:659)
+	at org.apache.hadoop.hive.metastore.Warehouse.isEmpty(Warehouse.java:237)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.deleteParentRecursive(HiveMetaStore.java:2727)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.drop_partitions_req(HiveMetaStore.java:2871)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.hive.metastore.RetryingHMSHandler.invokeInternal(RetryingHMSHandler.java:138)
+	at org.apache.hadoop.hive.metastore.RetryingHMSHandler.invoke(RetryingHMSHandler.java:99)
+	at com.sun.proxy.$Proxy20.drop_partitions_req(Unknown Source)
+	at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Processor$drop_partitions_req.getResult(ThriftHiveMetastore.java:9883)
+	at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Processor$drop_partitions_req.getResult(ThriftHiveMetastore.java:9867)
+	at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+	at org.apache.hadoop.hive.metastore.TUGIBasedProcessor$1.run(TUGIBasedProcessor.java:110)
+	at org.apache.hadoop.hive.metastore.TUGIBasedProcessor$1.run(TUGIBasedProcessor.java:106)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+	at org.apache.hadoop.hive.metastore.TUGIBasedProcessor.process(TUGIBasedProcessor.java:118)
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.security.AccessControlException): Permission denied: user=root, access=READ_EXECUTE, inode="/tmp/mapred/system":mapred:supergroup:drwx------
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.checkFsPermission(DefaultAuthorizationProvider.java:281)
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.check(DefaultAuthorizationProvider.java:262)
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.checkSubAccess(DefaultAuthorizationProvider.java:225)
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.checkPermission(DefaultAuthorizationProvider.java:178)
+	at org.apache.hadoop.hdfs.server.namenode.FSPermissionChecker.checkPermission(FSPermissionChecker.java:152)
+	at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.checkPermission(FSNamesystem.java:6610)
+	at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.checkPermission(FSNamesystem.java:6592)
+	at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.getContentSummary(FSNamesystem.java:4482)
+	at org.apache.hadoop.hdfs.server.namenode.NameNodeRpcServer.getContentSummary(NameNodeRpcServer.java:1081)
+	at org.apache.hadoop.hdfs.server.namenode.AuthorizationProviderProxyClientProtocol.getContentSummary(AuthorizationProviderProxyClientProtocol.java:562)
+	at org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolServerSideTranslatorPB.getContentSummary(ClientNamenodeProtocolServerSideTranslatorPB.java:858)
+	at org.apache.hadoop.hdfs.protocol.proto.ClientNamenodeProtocolProtos$ClientNamenodeProtocol$2.callBlockingMethod(ClientNamenodeProtocolProtos.java)
+	at org.apache.hadoop.ipc.ProtobufRpcEngine$Server$ProtoBufRpcInvoker.call(ProtobufRpcEngine.java:617)
+	at org.apache.hadoop.ipc.RPC$Server.call(RPC.java:1060)
+	at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2086)
+	at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2082)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+	at org.apache.hadoop.ipc.Server$Handler.run(Server.java:2080)
+
+	at org.apache.hadoop.ipc.Client.call(Client.java:1466)
+	at org.apache.hadoop.ipc.Client.call(Client.java:1403)
+	at org.apache.hadoop.ipc.ProtobufRpcEngine$Invoker.invoke(ProtobufRpcEngine.java:230)
+	at com.sun.proxy.$Proxy18.getContentSummary(Unknown Source)
+	at org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolTranslatorPB.getContentSummary(ClientNamenodeProtocolTranslatorPB.java:787)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler.invokeMethod(RetryInvocationHandler.java:256)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler.invoke(RetryInvocationHandler.java:104)
+	at com.sun.proxy.$Proxy19.getContentSummary(Unknown Source)
+	at org.apache.hadoop.hdfs.DFSClient.getContentSummary(DFSClient.java:3108)
+	... 27 more
+
+
+It's not clear to me why the path /tmp/mapred/system is even in the picture.  On the CDH cluster that I get the same error, the path is different (/tmp/logs/tom).  When I search for such a string in the config of HDFS, YARN, Hive, and Impala, I don't find anything.
+
+

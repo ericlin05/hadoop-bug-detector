@@ -1,0 +1,33 @@
+Description
+
+
+
+hive&amp;gt; source xcross.sql;
+OK
+Time taken: 0.837 seconds
+Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+        at java.util.Arrays.copyOf(Arrays.java:3332)
+        at java.lang.AbstractStringBuilder.expandCapacity(AbstractStringBuilder.java:137)
+        at java.lang.AbstractStringBuilder.ensureCapacityInternal(AbstractStringBuilder.java:121)
+        at java.lang.AbstractStringBuilder.append(AbstractStringBuilder.java:421)
+        at java.lang.StringBuilder.append(StringBuilder.java:136)
+        at org.apache.hadoop.hive.ql.parse.ASTNode.dump(ASTNode.java:111)
+        at org.apache.hadoop.hive.ql.parse.ASTNode.dump(ASTNode.java:119)
+        at org.apache.hadoop.hive.ql.parse.ASTNode.dump(ASTNode.java:119)
+        at org.apache.hadoop.hive.ql.parse.ASTNode.dump(ASTNode.java:119)
+        at org.apache.hadoop.hive.ql.parse.ASTNode.dump(ASTNode.java:119)
+
+
+The query contains 360 join clauses, wrapped in a UNION ALL.
+Looks like genOpTree does 
+
+
+          this.ctx.setCboInfo("Plan optimized by CBO.");
+          this.ctx.setCboSucceeded(true);
+          LOG.debug(newAST.dump());
+          }
+
+
+the debug logging OOMs.
+
+

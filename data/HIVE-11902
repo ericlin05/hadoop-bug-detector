@@ -1,0 +1,41 @@
+Description
+
+When cleaning left over transactions we see the DeadTxnReaper code threw the following exception:
+
+2015-09-21 05:23:38,148 WARN  [DeadTxnReaper-0]: txn.TxnHandler (TxnHandler.java:performTimeOuts(1876)) - Aborting timedout transactions failed due to You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')' at line 1(SQLState=42000,ErrorCode=1064)
+com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')' at line 1
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:57)
+        at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+        at java.lang.reflect.Constructor.newInstance(Constructor.java:526)
+        at com.mysql.jdbc.Util.handleNewInstance(Util.java:377)
+        at com.mysql.jdbc.Util.getInstance(Util.java:360)
+        at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:978)
+        at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:3887)
+        at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:3823)
+        at com.mysql.jdbc.MysqlIO.sendCommand(MysqlIO.java:2435)
+        at com.mysql.jdbc.MysqlIO.sqlQueryDirect(MysqlIO.java:2582)
+        at com.mysql.jdbc.ConnectionImpl.execSQL(ConnectionImpl.java:2526)
+        at com.mysql.jdbc.StatementImpl.executeUpdate(StatementImpl.java:1618)
+        at com.mysql.jdbc.StatementImpl.executeUpdate(StatementImpl.java:1549)
+        at com.jolbox.bonecp.StatementHandle.executeUpdate(StatementHandle.java:497)
+        at org.apache.hadoop.hive.metastore.txn.TxnHandler.abortTxns(TxnHandler.java:1275)
+        at org.apache.hadoop.hive.metastore.txn.TxnHandler.performTimeOuts(TxnHandler.java:1866)
+        at org.apache.hadoop.hive.ql.txn.AcidHouseKeeperService$TimedoutTxnReaper.run(AcidHouseKeeperService.java:87)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+        at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:304)
+        at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:178)
+        at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+The problem here is that the method abortTxns(Connection dbConn, List&amp;lt;Long&amp;gt; txnids) in metastore/src/java/org/apache/hadoop/hive/metastore/txn/TxnHandler.java creates the following bad query when txnids list is empty.
+
+
+delete from HIVE_LOCKS where hl_txnid in ();
+
+
+
+

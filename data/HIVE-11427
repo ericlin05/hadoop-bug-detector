@@ -1,0 +1,21 @@
+Description
+
+If a user does not have HDFS write permissions to the default database, and attempts to create a table in a private database to which the user does have permissions using CREATE TABLE AS SELECT from a table in the default database, the following happens:
+
+
+use default;
+create table grisha.blahblah as select * from some_table;
+FAILED: SemanticException 0:0 Error creating temporary folder on: hdfs://nn.example.com/user/hive/warehouse. Error encountered near token 'TOK_TMP_FILE’
+
+
+I've edited this issue because my initial explanation was completely bogus. A more likely explanation is in https://github.com/apache/hive/commit/1614314ef7bd0c3b8527ee32a434ababf7711278
+
+
+ -                fname = ctx.getExternalTmpPath(
+ +                fname = ctx.getExtTmpPathRelTo(  
+    // and then something incorrect happens in getExtTmpPathRelTo()
+
+
+In any event - the bug is that the location chosen for the temporary storage is not in the same place as the target table. It should be same as the target table (/user/hive/warehouse/grisha.db in the above example) because this is where presumably the user running the query would have write permissions to.
+
+

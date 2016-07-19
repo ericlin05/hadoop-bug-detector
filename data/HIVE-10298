@@ -1,0 +1,30 @@
+Description
+
+
+
+2015-04-10 00:33:57,791 [org.apache.hadoop.util.JvmPauseMonitor$Monitor@5cee5251()] WARN org.apache.hadoop.util.JvmPauseMonitor: Detected pause in JVM or host machine (eg GC): pause of approximately 10838ms
+GC pool 'PS MarkSweep' had collection(s): count=74 time=75850ms
+...
+2015-04-10 00:34:33,265 [IPC Server handler 3 on 15001()] WARN org.apache.hadoop.ipc.Server: IPC Server handler 3 on 15001, call org.apache.hadoop.hive.llap.daemon.LlapDaemonProtocolBlockingPB.submitWork from 172.19.128.59:47617 Call#2788 Retry#0: output error
+2015-04-10 00:34:34,454 [Llap low level cache cleanup thread()] ERROR org.apache.hadoop.hive.llap.io.api.impl.LlapIoImpl: Cleanup has failed; the thread will now exit
+java.lang.IllegalArgumentException: timeout value is negative
+	at java.lang.Thread.sleep(Native Method)
+	at org.apache.hadoop.hive.llap.cache.LowLevelCacheImpl$CleanupThread.doOneCleanupRound(LowLevelCacheImpl.java:426)
+	at org.apache.hadoop.hive.llap.cache.LowLevelCacheImpl$CleanupThread.run(LowLevelCacheImpl.java:387)
+
+
+This seems to be due to a rather long GC pause 
+
+
+ // Duration is an estimate; if the size of the map changes, it can be very different.
+      long endTime = System.nanoTime() + approxCleanupIntervalSec * 1000000000L;
+...
+while (subIter.hasNext()) {
+          Thread.sleep((leftToCheck &amp;lt;= 0)
+              ? 1 : (endTime - System.nanoTime()) / (1000000L * leftToCheck));
+          if (subIter.next().getValue().isInvalid()) {
+
+
+We spent more than 5 minutes in a GC pause causing this error.
+
+

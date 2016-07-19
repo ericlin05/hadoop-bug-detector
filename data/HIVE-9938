@@ -1,0 +1,20 @@
+Description
+
+Sometimes parallel updates using DBTxnMgr results in the following error trace
+
+5325 [main] INFO org.apache.hadoop.hive.ql.log.PerfLogger - &amp;lt;PERFLOG method=acquireReadWriteLocks from=org.apache.hadoop.hive.ql.Driver&amp;gt; 
+5351 [main] ERROR org.apache.hadoop.hive.ql.Driver - FAILED: Error in acquiring locks: Error communicating with the metastore 
+org.apache.hadoop.hive.ql.lockmgr.LockException: Error communicating with the metastore 
+at org.apache.hadoop.hive.ql.lockmgr.DbLockManager.lock(DbLockManager.java:100) 
+at org.apache.hadoop.hive.ql.lockmgr.DbTxnManager.acquireLocks(DbTxnManager.java:194) 
+
+
+Internally looking at the postgres logs we see 
+
+2015-02-02 06:36:05,632 ERROR org.apache.hadoop.hive.metastore.RetryingHMSHandler: org.apache.thrift.TException: MetaException(message:Unable to update transaction database org.postgresql.util.PSQLException: ERROR: could not serialize access due to concurrent update 
+
+
+
+Ideally we should add a retry logic to retry the failed transaction.
+
+

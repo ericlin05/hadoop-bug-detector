@@ -1,0 +1,35 @@
+Description
+
+When flexing in a new node, it accepts DAG requests before the shuffle handler is setup, causing fatals
+
+
+DAG did not succeed due to VERTEX_FAILURE. failedVertices:1 killedVertices:2
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.tez.TezTask. Vertex failed, vertexName=Map 1, vertexId=vertex_1433459966952_0729_1_00, diagnostics=[Task failed, taskId=task_1t
+        at com.google.common.base.Preconditions.checkState(Preconditions.java:145)
+        at org.apache.hadoop.hive.llap.shufflehandler.ShuffleHandler.get(ShuffleHandler.java:353)
+        at org.apache.hadoop.hive.llap.daemon.impl.ContainerRunnerImpl.submitWork(ContainerRunnerImpl.java:192)
+        at org.apache.hadoop.hive.llap.daemon.impl.LlapDaemon.submitWork(LlapDaemon.java:301)
+        at org.apache.hadoop.hive.llap.daemon.impl.LlapDaemonProtocolServerImpl.submitWork(LlapDaemonProtocolServerImpl.java:75)
+        at org.apache.hadoop.hive.llap.daemon.rpc.LlapDaemonProtocolProtos$LlapDaemonProtocol$2.callBlockingMethod(LlapDaemonProtocolProtos.java:12094)
+        at org.apache.hadoop.ipc.ProtobufRpcEngine$Server$ProtoBufRpcInvoker.call(ProtobufRpcEngine.java:616)
+        at org.apache.hadoop.ipc.RPC$Server.call(RPC.java:972)
+        at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2085)
+        at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2081)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:422)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1654)
+        at org.apache.hadoop.ipc.Server$Handler.run(Server.java:2081)
+], TaskAttempt 1 failed, info=[org.apache.hadoop.ipc.RemoteException(java.lang.IllegalStateException): ShuffleHandler must be started before invoking get
+        at com.google.common.base.Preconditions.checkState(Preconditions.java:145)
+        at org.apache.hadoop.hive.llap.shufflehandler.ShuffleHandler.get(ShuffleHandler.java:353)
+        at org.apache.hadoop.hive.llap.daemon.impl.ContainerRunnerImpl.submitWork(ContainerRunnerImpl.java:192)
+        at org.apache.hadoop.hive.llap.daemon.impl.LlapDaemon.submitWork(LlapDaemon.java:301)
+        at org.apache.hadoop.hive.llap.daemon.impl.LlapDaemonProtocolServerImpl.submitWork(LlapDaemonProtocolServerImpl.java:75)
+        at org.apache.hadoop.hive.llap.daemon.rpc.LlapDaemonProtocolProtos$LlapDaemonProtocol$2.callBlockingMethod(LlapDaemonProtocolProtos.java:12094)
+        at org.apache.hadoop.ipc.ProtobufRpcEngine$Server$ProtoBufRpcInvoker.call(ProtobufRpcEngine.java:616)
+        at org.apache.hadoop.ipc.RPC$Server.call(RPC.java:972)
+        at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2085)
+
+
+
+

@@ -1,0 +1,47 @@
+Description
+
+The following script fail on MR mode:
+
+
+CREATE TABLE orc_update_table (k1 INT, f1 STRING, op_code STRING) 
+CLUSTERED BY (k1) INTO 2 BUCKETS 
+STORED AS ORC TBLPROPERTIES("transactional"="true"); 
+INSERT INTO TABLE orc_update_table VALUES (1, 'a', 'I');
+CREATE TABLE orc_table (k1 INT, f1 STRING) 
+CLUSTERED BY (k1) SORTED BY (k1) INTO 2 BUCKETS 
+STORED AS ORC; 
+INSERT OVERWRITE TABLE orc_table VALUES (1, 'x');
+SET hive.execution.engine=mr; 
+SET hive.auto.convert.join=false; 
+SET hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
+SELECT t1.*, t2.* FROM orc_table t1 
+JOIN orc_update_table t2 ON t1.k1=t2.k1 ORDER BY t1.k1;
+
+
+Stack:
+
+
+Error: java.io.IOException: java.lang.NullPointerException
+	at org.apache.hadoop.hive.io.HiveIOExceptionHandlerChain.handleRecordReaderCreationException(HiveIOExceptionHandlerChain.java:97)
+	at org.apache.hadoop.hive.io.HiveIOExceptionHandlerUtil.handleRecordReaderCreationException(HiveIOExceptionHandlerUtil.java:57)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.getRecordReader(HiveInputFormat.java:251)
+	at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getRecordReader(CombineHiveInputFormat.java:701)
+	at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.&amp;lt;init&amp;gt;(MapTask.java:169)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:429)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.io.AcidUtils.deserializeDeltas(AcidUtils.java:368)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getReader(OrcInputFormat.java:1211)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getRecordReader(OrcInputFormat.java:1129)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.getRecordReader(HiveInputFormat.java:249)
+	... 9 more
+
+
+The script pass in 1.2.0 release however.
+
+

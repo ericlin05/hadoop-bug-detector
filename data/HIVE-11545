@@ -1,0 +1,9 @@
+Description
+
+I was debugging an issue where Tez was running a simple query of the form select count from table where x = y. x is a partition column, stats and cbo were disabled, and the table was backed by RCFiles with ColumnarSerDe
+With MapReduce, when the MapOperator goes to create its ColumnarSerDe instances, ColumnProjectUtils#isReadAllColumns returns false. This causes the operation to not attempt to parse any of the data in the table and just count it. With Tez, ColumnProjectUtils#isReadAllColumns returns true, which causes data to be deserialized. In combination with HIVE-11544, this was causing my queries using Tez to run over 100x slower than with MR.
+I finally traced this through, and found that the issue lies in HiveInputFormat#pushProjectionsAndFilters when the RecordReader is created. The JobConf that HiveInputFormat sees, and subsequently modifies, is the same instance the MapOperator sees when the execution engine is MapReduce. When the ColumnarSerDe instance is created, ColumnProjectUtils#isReadAllColumns is set to false.
+Under Tez, HiveInputFormat sees a copy of the original JobConf, so its modifications are lost. The JobConf/Configuration that the MapOperator sees doesn't have hive.io.file.read.all.columns set, so ColumnProjectUtils#isReadAllColumns defaults to true.
+As for what the fix should be, I don't really know. I debated on making this a Tez issue, but I'm generally of the opinion that passing around mutable state leads to problems, but MR has been allowing that for a while now. Maybe the client can force  hive.io.file.read.all.columns to false, but I don't know how it'd work with multiple input splits of different types.
+
+

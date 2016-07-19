@@ -1,0 +1,68 @@
+Description
+
+When reading via HCatalog an ORC table that has null values in fields it fails with the following exception: 
+15/12/07 19:47:42 INFO mapred.Task:  Using ResourceCalculatorProcessTree : null
+15/12/07 19:47:42 INFO mapred.MapTask: Processing split: org.apache.hive.hcatalog.mapreduce.HCatSplit@4c8c30bc
+15/12/07 19:47:42 INFO mapred.MapTask: (EQUATOR) 0 kvi 26214396(104857584)
+15/12/07 19:47:42 INFO mapred.MapTask: mapreduce.task.io.sort.mb: 100
+15/12/07 19:47:42 INFO mapred.MapTask: soft limit at 83886080
+15/12/07 19:47:42 INFO mapred.MapTask: bufstart = 0; bufvoid = 104857600
+15/12/07 19:47:42 INFO mapred.MapTask: kvstart = 26214396; length = 6553600
+15/12/07 19:47:42 INFO mapred.MapTask: Map output collector class = org.apache.hadoop.mapred.MapTask$MapOutputBuffer
+15/12/07 19:47:42 INFO orc.ReaderImpl: Reading ORC rows from hdfs://[REDACTED]/000000_0 with 
+{include: null, offset: 0, length: 1628}
+15/12/07 19:47:42 INFO mapred.MapTask: Ignoring exception during close for org.apache.hadoop.mapred.MapTask$NewTrackingRecordReader@5096bee4
+java.lang.NullPointerException
+	at org.apache.hive.hcatalog.mapreduce.HCatRecordReader.close(HCatRecordReader.java:223)
+	at org.apache.hadoop.mapred.MapTask$NewTrackingRecordReader.close(MapTask.java:520)
+	at org.apache.hadoop.mapred.MapTask.closeQuietly(MapTask.java:1999)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:793)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:341)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job$MapTaskRunnable.run(LocalJobRunner.java:243)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+15/12/07 19:47:42 INFO mapred.MapTask: Starting flush of map output
+15/12/07 19:47:42 INFO mapred.LocalJobRunner: map task executor complete.
+15/12/07 19:47:42 INFO mapreduce.FileOutputCommitterContainer: Job failed. Try cleaning up temporary directory [hdfs://bd/user/hive/warehouse/test.db/billing_aolon_revenue_output_stream/_DYN0.44164173619220104].
+15/12/07 19:47:42 INFO mapreduce.FileOutputCommitterContainer: Cancelling delegation token for the job.
+15/12/07 19:47:42 WARN conf.Configuration: file:/tmp/hadoop-/mapred/local/localRunner/job_local413328602_0001/job_local413328602_0001.xml:an attempt to override final parameter: mapreduce.job.end-notification.max.retry.interval;  Ignoring.
+15/12/07 19:47:42 WARN conf.Configuration: file:/tmp/hadoop-/mapred/local/localRunner/job_local413328602_0001/job_local413328602_0001.xml:an attempt to override final parameter: mapreduce.job.end-notification.max.attempts;  Ignoring.
+15/12/07 19:47:42 INFO hive.metastore: Trying to connect to metastore with URI thrift://bd:9083
+15/12/07 19:47:42 INFO hive.metastore: Connected to metastore.
+15/12/07 19:47:42 WARN mapred.LocalJobRunner: job_local413328602_0001
+java.lang.Exception: java.lang.NullPointerException
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.runTasks(LocalJobRunner.java:462)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:522)
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$StringDictionaryTreeReader.startStripe(RecordReaderImpl.java:1545)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$StringTreeReader.startStripe(RecordReaderImpl.java:1337)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$StructTreeReader.startStripe(RecordReaderImpl.java:1825)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.readStripe(RecordReaderImpl.java:2537)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.advanceStripe(RecordReaderImpl.java:2950)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.advanceToNextRow(RecordReaderImpl.java:2992)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.&amp;lt;init&amp;gt;(RecordReaderImpl.java:284)
+	at org.apache.hadoop.hive.ql.io.orc.ReaderImpl.rowsOptions(ReaderImpl.java:480)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.createReaderFromFile(OrcInputFormat.java:214)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$OrcRecordReader.&amp;lt;init&amp;gt;(OrcInputFormat.java:146)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getRecordReader(OrcInputFormat.java:1010)
+	at org.apache.hive.hcatalog.mapreduce.HCatRecordReader.createBaseRecordReader(HCatRecordReader.java:116)
+	at org.apache.hive.hcatalog.mapreduce.HCatRecordReader.initialize(HCatRecordReader.java:91)
+	at org.apache.hadoop.mapred.MapTask$NewTrackingRecordReader.initialize(MapTask.java:545)
+	at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:783)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:341)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job$MapTaskRunnable.run(LocalJobRunner.java:243)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+15/12/07 19:47:43 INFO mapreduce.Job: Job job_local413328602_0001 running in uber mode : false
+15/12/07 19:47:43 INFO mapreduce.Job:  map 0% reduce 0%
+15/12/07 19:47:43 INFO mapreduce.Job: Job job_local413328602_0001 failed with state FAILED due to: NA
+15/12/07 19:47:43 INFO mapreduce.Job: Counters: 0
+I could not test it with later versions because those introduce the HIVE-10213 bug with dynamic partitions which is not solved until 1.12 and I can't use that since we're running on cloudera. Sorry.
+
+

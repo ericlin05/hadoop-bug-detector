@@ -1,0 +1,12 @@
+Description
+
+Support a INTERSECTION operation  as &amp;lt;qb1&amp;gt; INTERSECTION &amp;lt;qb2&amp;gt; .
+Common requirement of queries to project two sets where you want result set which contains only those rows returned by both queries.
+The following sample statement combines the results with the INTERSECT operator, which returns only those rows returned by both queries:
+SELECT * FROM tableA
+INTERSECT
+SELECT * FROM tableB;
+current exception:
+FAILED: ParseException line :* missing EOF at 'SELECT' near 'INTERSECT'
+
+

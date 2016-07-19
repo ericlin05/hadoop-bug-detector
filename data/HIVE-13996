@@ -1,0 +1,60 @@
+Description
+
+I m trying to create table As:
+
+
+CREATE EXTERNAL TABLE mydata (sessionid STRING)   LOCATION 's3n://mybucket/kafkalogs/20160411/';
+
+
+I have setup all aws access keys in both hadoop (core-site.xml) and hive-site.xml file.
+How to resolve this issue ?
+I am getting below error:
+
+
+	16/06/11 23:39:16 [main]: ERROR exec.DDLTask: org.apache.hadoop.hive.ql.metadata.HiveException: MetaException(message:Got exception: java.io.IOException No FileSystem for scheme: s3n)
+	at org.apache.hadoop.hive.ql.metadata.Hive.createTable(Hive.java:720)
+	at org.apache.hadoop.hive.ql.exec.DDLTask.createTable(DDLTask.java:4135)
+	at org.apache.hadoop.hive.ql.exec.DDLTask.execute(DDLTask.java:306)
+	at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:88)
+	at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1653)
+	at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1412)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1195)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1059)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1049)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:213)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:165)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:376)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:736)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:681)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:621)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+Caused by: MetaException(message:Got exception: java.io.IOException No FileSystem for scheme: s3n)
+	at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$create_table_with_environment_context_result$create_table_with_environment_context_resultStandardScheme.read(ThriftHiveMetastore.java:29983)
+	at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$create_table_with_environment_context_result$create_table_with_environment_context_resultStandardScheme.read(ThriftHiveMetastore.java:29951)
+	at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$create_table_with_environment_context_result.read(ThriftHiveMetastore.java:29877)
+	at org.apache.thrift.TServiceClient.receiveBase(TServiceClient.java:78)
+	at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.recv_create_table_with_environment_context(ThriftHiveMetastore.java:1075)
+	at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.create_table_with_environment_context(ThriftHiveMetastore.java:1061)
+	at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.create_table_with_environment_context(HiveMetaStoreClient.java:2050)
+	at org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient.create_table_with_environment_context(SessionHiveMetaStoreClient.java:97)
+	at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.createTable(HiveMetaStoreClient.java:669)
+	at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.createTable(HiveMetaStoreClient.java:657)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.invoke(RetryingMetaStoreClient.java:156)
+	at com.sun.proxy.$Proxy5.createTable(Unknown Source)
+	at org.apache.hadoop.hive.ql.metadata.Hive.createTable(Hive.java:714)
+	... 21 more
+
+
+
+
+

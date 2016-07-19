@@ -1,0 +1,24 @@
+Description
+
+It is supported for cli to execute hive script on hdfs, it should be straightforward to support it in beeline too.
+Beeline.java
+
+
+  private int executeFile(String fileName) {
+    FileInputStream initStream = null;
+    try {
+      initStream = new FileInputStream(fileName);
+      return execute(getConsoleReader(initStream), true);
+    } catch (Throwable t) {
+      handleException(t);
+      return ERRNO_OTHER;
+    } finally {
+      IOUtils.closeStream(initStream);
+      consoleReader = null;
+      output("");   // dummy new line
+    }
+  }
+
+
+
+

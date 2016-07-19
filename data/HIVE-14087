@@ -1,0 +1,31 @@
+Description
+
+I discovered that altering a table will require write permissions when a partition is created. 
+
+hive (shfs3453)&amp;gt; ALTER TABLE external_table ADD IF NOT EXISTS PARTITION(address='Idaho') LOCATION "hdfs://sandbox/User/shfs3453/WORK/HIVE_TEST";
+ALTER TABLE external_table ADD IF NOT EXISTS PARTITION(address='Idaho') LOCATION "hdfs://sandbox/User/shfs3453/WORK/HIVE_TEST"
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. MetaException(message:java.security.AccessControlException: Permission denied: user=shfs3453, access=WRITE, inode="/User/shfs3453/WORK/HIVE_TEST":shfs3453:shfs3453:dr-xr-x---
+        at org.apache.hadoop.hdfs.server.namenode.FSPermissionChecker.check(FSPermissionChecker.java:319)
+        at org.apache.hadoop.hdfs.server.namenode.FSPermissionChecker.checkPermission(FSPermissionChecker.java:219)
+        at org.apache.hadoop.hdfs.server.namenode.FSPermissionChecker.checkPermission(FSPermissionChecker.java:190)
+        at org.apache.hadoop.hdfs.server.namenode.FSDirectory.checkPermission(FSDirectory.java:1720)
+        at org.apache.hadoop.hdfs.server.namenode.FSDirectory.checkPermission(FSDirectory.java:1704)
+        at org.apache.hadoop.hdfs.server.namenode.FSDirectory.checkPathAccess(FSDirectory.java:1678)
+        at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.checkAccess(FSNamesystem.java:8178)
+        at org.apache.hadoop.hdfs.server.namenode.NameNodeRpcServer.checkAccess(NameNodeRpcServer.java:1911)
+        at org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolServerSideTranslatorPB.checkAccess(ClientNamenodeProtocolServerSideTranslatorPB.java:1443)
+        at org.apache.hadoop.hdfs.protocol.proto.ClientNamenodeProtocolProtos$ClientNamenodeProtocol$2.callBlockingMethod(ClientNamenodeProtocolProtos.java)
+        at org.apache.hadoop.ipc.ProtobufRpcEngine$Server$ProtoBufRpcInvoker.call(ProtobufRpcEngine.java:616)
+        at org.apache.hadoop.ipc.RPC$Server.call(RPC.java:969)
+        at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2049)
+        at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2045)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+        at org.apache.hadoop.ipc.Server$Handler.run(Server.java:2043)
+)
+
+
+This is a strange behavior because nothing is written in "/User/shfs3453/WORK/HIVE_TEST".
+
+

@@ -1,0 +1,10 @@
+Description
+
+Hive supports Validator class which allows you to specify valid ranges for various configuration variables.  
+There is Validator.validate() which checks that the value specified is actually within the constraints.
+Unfortunately validate() is not called in general.
+Should make validate() throw IllegalArgumentException and override
+Configuration.set() to make sure validate() is always called.
+This would not be backwards compatible but we should do what we can to ensure that Hive is configured properly before starting a service.
+
+

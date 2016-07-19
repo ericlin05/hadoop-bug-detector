@@ -1,0 +1,238 @@
+Description
+
+Inserting a row with a Date parameter marker (PreparedStatement.setDate()) fails with ParseException:
+Exception: org.apache.hive.service.cli.HiveSQLException: Error while compiling statement: FAILED: ParseException line 1:41 mismatched input '-' expecting ) near '1980' in statement
+org.apache.hive.service.cli.HiveSQLException: Error while compiling statement: FAILED: ParseException line 1:41 mismatched input '-' expecting ) near '1980' in statement
+        at org.apache.hive.jdbc.Utils.verifySuccess(Utils.java:231)
+        at org.apache.hive.jdbc.Utils.verifySuccessWithInfo(Utils.java:217)
+        at org.apache.hive.jdbc.HiveStatement.execute(HiveStatement.java:254)
+        at org.apache.hive.jdbc.HiveStatement.executeUpdate(HiveStatement.java:4
+06)
+        at org.apache.hive.jdbc.HivePreparedStatement.executeUpdate(HivePrepared
+Statement.java:117)
+        at repro1.main(repro1.java:90)
+Caused by: org.apache.hive.service.cli.HiveSQLException: Error while compiling statement: FAILED: ParseException line 1:41 mismatched input '-' expecting ) near '1980' in statement
+        at org.apache.hive.service.cli.operation.Operation.toSQLException(Operat
+ion.java:314)
+        at org.apache.hive.service.cli.operation.SQLOperation.prepare(SQLOperati
+on.java:102)
+        at org.apache.hive.service.cli.operation.SQLOperation.runInternal(SQLOpe
+ration.java:171)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+REPRO:
+----------
+/*
+
+It may be freely used, modified, and distributed with no restrictions.
+ */
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSetMetaData;
+import java.io.Reader;
+
+/**
+ */
+public class repro1
+{
+  /**
+
+Main method.
+
+@param args
+no arguments required
+   */
+  public static void main(String [] args)
+  {
+    Connection con = null;
+    Statement stmt = null;
+    ResultSet rst = null;
+
+    String drptab = "DROP TABLE SDLJUNK";
+    String crttab = "CREATE TABLE SDLJUNK(I INT, D DATE)";
+    String instab = "INSERT INTO TABLE SDLJUNK VALUES (1, ? )";
+    try {
+      System.out.println("=================================================");
+      System.out.println("Problem description:");
+      System.out.println("After setting a value for a DATE parameter marker ");
+      System.out.println(" with PreparedStatement.setDate(),"); 
+      System.out.println(" an INSERT statement fails execution with error:  "); 
+      System.out.println("                                                  "); 
+      System.out.println("  Error while compiling statement: FAILED: ");
+      System.out.println("ParseException line 1:78 mismatched input '-' ");
+      System.out.println(" expecting ) near '1980' in statement"); 
+      System.out.println("=================================================");
+      System.out.println("");
+      // Create new instance of JDBC Driver and make connection.
+      System.out.println("Registering Driver.");
+      Class.forName("org.apache.hive.jdbc.HiveDriver");
+      String url="jdbc:hive2://hwhive:10000/R729999D";
+      System.out.println("Making a connection to: "+url);
+      con = DriverManager.getConnection(url, "hive", "hive");     
+      System.out.println("Connection successful.\n");
+      DatabaseMetaData dbmd = con.getMetaData();
+      System.out.println("getDatabaseProductName() = "+dbmd.getDatabaseProductName());
+      System.out.println("getDatabaseProductVersion() = "+dbmd.getDatabaseProductVersion());
+      System.out.println("getDriverName() = "+dbmd.getDriverName());
+      System.out.println("getDriverVersion() = "+dbmd.getDriverVersion());
+      try 
+{
+         System.out.println("con.createStatement()");
+         stmt = con.createStatement();
+
+         System.out.println(drptab);
+         stmt.executeUpdate(drptab);
+         }
+
+      catch (Exception ex)
+      {	
+        System.out.println("Exception: " + ex);
+      }
+
+      System.out.println(crttab);
+      stmt.executeUpdate(crttab);
+      System.out.println("preparing: "+instab);
+      PreparedStatement pstmt = con.prepareStatement(instab);
+      System.out.println("calling setDate() for parameter marker");
+      java.sql.Date dt = java.sql.Date.valueOf("1980-12-26");
+      pstmt.setDate(1, dt);
+//    pstmt.setString(1, "1980-12-26");
+      System.out.println("executing: "+instab);
+      pstmt.executeUpdate();
+//    System.out.println("committing");
+//    con.commit();
+    }
+    catch (Exception ex)
+    {	
+      System.out.println("Exception: " + ex);
+      ex.printStackTrace();
+    }
+
+    finally
+    {			
+      if (con != null)
+      {	
+        try
+        {	
+          // Close the connection
+          con.close();				
+        }
+        catch (SQLException ex)
+        {	
+          System.out.println("SQLException: " + ex);
+        }
+      }
+    } 
+  }
+  //-------------------------------------------------------------------
+  // dispResultSet
+  // Displays all columns and rows in the given result set
+  //-------------------------------------------------------------------
+  private static void dispResultSet (ResultSet rs)
+	throws SQLException
+  {
+    int i;
+    // Get the ResultSetMetaData.  This will be used for
+    // the column headings
+    ResultSetMetaData rsmd = rs.getMetaData ();
+    // Get the number of columns in the result set
+    int numCols = rsmd.getColumnCount ();
+    // Display column headings
+    for (i=1; i&amp;lt;=numCols; i++) 
+{
+      if (i &amp;gt; 1) System.out.print(",");
+      System.out.print(rsmd.getColumnLabel(i));
+    }
+
+    System.out.println("");
+    // Display data, fetching until end of the result set
+    boolean more = rs.next ();
+    while (more) {
+      // Loop through each column, getting the
+      // column data and displaying
+      for (i=1; i&amp;lt;=numCols; i++) 
+{
+        if (i &amp;gt; 1) System.out.print(",");
+          System.out.print(rs.getString(i));
+      }
+      System.out.println("");
+      // Fetch the next result set row
+      more = rs.next ();
+    }
+  }
+}
++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+REPRO OUTPUT:
+----------------------
+Picked up _JAVA_OPTIONS: -Xms128m -Xmx256m
+=================================================
+Problem description:
+After setting a value for a DATE parameter marker 
+ with PreparedStatement.setDate(),
+ an INSERT statement fails execution with error:  
+  Error while compiling statement: FAILED: 
+ParseException line 1:78 mismatched input '-' 
+ expecting ) near '1980' in statement
+=================================================
+Registering Driver.
+Making a connection to: jdbc:hive2://hwhive:10000/R729999D
+log4j:WARN No appenders could be found for logger (org.apache.hive.jdbc.Utils).
+log4j:WARN Please initialize the log4j system properly.
+log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
+Connection successful.
+getDatabaseProductName() = Apache Hive
+getDatabaseProductVersion() = 0.14.0.2.2.0.0-2041
+getDriverName() = Hive JDBC
+getDriverVersion() = 0.14.0.2.2.0.0-2041
+con.createStatement()
+DROP TABLE SDLJUNK
+CREATE TABLE SDLJUNK(I INT, D DATE)
+preparing: INSERT INTO TABLE SDLJUNK VALUES (1, ? )
+calling setDate() for parameter marker
+executing: INSERT INTO TABLE SDLJUNK VALUES (1, ? )
+Exception: org.apache.hive.service.cli.HiveSQLException: Error while compiling statement: FAILED: ParseException line 1:41 mismatched input '-' expecting ) near '1980' in statement
+org.apache.hive.service.cli.HiveSQLException: Error while compiling statement: FAILED: ParseException line 1:41 mismatched input '-' expecting ) near '1980' in statement
+	at org.apache.hive.jdbc.Utils.verifySuccess(Utils.java:231)
+	at org.apache.hive.jdbc.Utils.verifySuccessWithInfo(Utils.java:217)
+	at org.apache.hive.jdbc.HiveStatement.execute(HiveStatement.java:254)
+	at org.apache.hive.jdbc.HiveStatement.executeUpdate(HiveStatement.java:406)
+	at org.apache.hive.jdbc.HivePreparedStatement.executeUpdate(HivePreparedStatement.java:117)
+	at repro1.main(repro1.java:90)
+Caused by: org.apache.hive.service.cli.HiveSQLException: Error while compiling statement: FAILED: ParseException line 1:41 mismatched input '-' expecting ) near '1980' in statement
+	at org.apache.hive.service.cli.operation.Operation.toSQLException(Operation.java:314)
+	at org.apache.hive.service.cli.operation.SQLOperation.prepare(SQLOperation.java:102)
+	at org.apache.hive.service.cli.operation.SQLOperation.runInternal(SQLOperation.java:171)
+	at org.apache.hive.service.cli.operation.Operation.run(Operation.java:256)
+	at org.apache.hive.service.cli.session.HiveSessionImpl.executeStatementInternal(HiveSessionImpl.java:376)
+	at org.apache.hive.service.cli.session.HiveSessionImpl.executeStatementAsync(HiveSessionImpl.java:363)
+	at org.apache.hive.service.cli.CLIService.executeStatementAsync(CLIService.java:247)
+	at org.apache.hive.service.cli.thrift.ThriftCLIService.ExecuteStatement(ThriftCLIService.java:401)
+	at org.apache.hive.service.cli.thrift.TCLIService$Processor$ExecuteStatement.getResult(TCLIService.java:1313)
+	at org.apache.hive.service.cli.thrift.TCLIService$Processor$ExecuteStatement.getResult(TCLIService.java:1298)
+	at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+	at org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:39)
+	at org.apache.hive.service.auth.TSetIpAddressProcessor.process(TSetIpAddressProcessor.java:56)
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:206)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: org.apache.hadoop.hive.ql.parse.ParseException:line 1:41 mismatched input '-' expecting ) near '1980' in statement
+	at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:202)
+	at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:166)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:389)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:303)
+	at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1067)
+	at org.apache.hadoop.hive.ql.Driver.compileAndRespond(Driver.java:1061)
+	at org.apache.hive.service.cli.operation.SQLOperation.prepare(SQLOperation.java:100)
+	... 15 more
++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ENVIRONMENT:
+---------------------
+export CLASSPATH=.:/qas/hive14/hive-serde.jar:/qas/hive14/hive-exec.jar:/qas/hive14/slf4j-api-1.7.5.jar:/qas/hive14/libfb303-0.9.0.jar:/qas/hive14/hive-service.jar:/qas/hive14/httpclient-4.2.5.jar:/qas/hive14/hive-metastore.jar:/qas/hive14/hive-common.jar:/qas/hive14/httpcore-4.2.5.jar:/qas/hive14/hive-jdbc.jar:/qas/hive14/hadoop-common.jar:/qas/hive14/libthrift-0.9.0.jar:/qas/hive14/hive-shims.jar:/qas/hive14/log4j-1.2.16.jar:/qas/hive14/commons-logging-1.1.3.jar
+export PATH=$JDK_HOME/bin:$PATH
+
+

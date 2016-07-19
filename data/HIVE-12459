@@ -1,0 +1,35 @@
+Description
+
+We are seeing an issue that I summarize as “Tez doesn’t like spaces in the classpath”, but I wanted to check with the group before submitting a JIRA.  This is showing when we try to access Hive on HDP 2.3 from a Windows client, where we’ve put the client jars in a classpath that contains spaces.  
+The causing line in our code is:
+	    state = SessionState.start(hiveConf);
+where SessionState is in org.apache.hadoop.hive.ql.session
+The exception stack is:
+net/redpoint/hiveclient/DMHCatClient.newInstance:java.lang.RuntimeException: java.io.FileNotFoundException: File file:/C:/Program%20Files/RedPointDM7/hadoop/clusters/hds-cent6/lib/hive-exec-1.2.1.2.3.0.0-2557.jar does not exist
+Additional message: 
+    org.apache.hadoop.hive.ql.session.SessionState.start(SessionState.java:535)
+    org.apache.hadoop.hive.ql.session.SessionState.start(SessionState.java:466)
+    net.redpoint.hiveclient.DMHCatClient.&amp;lt;init&amp;gt;(DMHCatClient.java:255)
+    net.redpoint.hiveclient.DMHCatClient.newInstance(DMHCatClient.java:59)
+Caused by: java.io.FileNotFoundException: File file:/C:/Program%20Files/RedPointDM7/hadoop/clusters/hds-cent6/lib/hive-exec-1.2.1.2.3.0.0-2557.jar does not exist
+    org.apache.hadoop.fs.RawLocalFileSystem.deprecatedGetFileStatus(RawLocalFileSystem.java:606)
+    org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatusInternal(RawLocalFileSystem.java:819)
+    org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:596)
+    org.apache.hadoop.fs.FilterFileSystem.getFileStatus(FilterFileSystem.java:421)
+    org.apache.hadoop.fs.ChecksumFileSystem$ChecksumFSInputChecker.&amp;lt;init&amp;gt;(ChecksumFileSystem.java:140)
+    org.apache.hadoop.fs.ChecksumFileSystem.open(ChecksumFileSystem.java:341)
+    org.apache.hadoop.fs.FileSystem.open(FileSystem.java:767)
+    org.apache.hadoop.hive.ql.exec.tez.TezSessionState.getSha(TezSessionState.java:356)
+    org.apache.hadoop.hive.ql.exec.tez.TezSessionState.createJarLocalResource(TezSessionState.java:332)
+    org.apache.hadoop.hive.ql.exec.tez.TezSessionState.open(TezSessionState.java:151)
+    org.apache.hadoop.hive.ql.exec.tez.TezSessionState.open(TezSessionState.java:116)
+    org.apache.hadoop.hive.ql.session.SessionState.start(SessionState.java:532)
+    org.apache.hadoop.hive.ql.session.SessionState.start(SessionState.java:466)
+    net.redpoint.hiveclient.DMHCatClient.&amp;lt;init&amp;gt;(DMHCatClient.java:255)
+    net.redpoint.hiveclient.DMHCatClient.newInstance(DMHCatClient.java:59)
+It sure looks like something in the client code is turning “C:/Program Files” into “C:/Program%20Files”.  I am certain that it is not our code, because we otherwise access all of the jars and Java classes just fine.
+Furthermore, disabling Tez for client-side Hive query in the configuration seems to fix or avoid the issue:
+theConfiguration.set("hive.execution.engine", "mr");
+The stack trace doesn’t make sense to me, because we use FileSystem all over the place and it doesn’t run into this problem when accessing HDFS, only when connecting to Hive.
+
+

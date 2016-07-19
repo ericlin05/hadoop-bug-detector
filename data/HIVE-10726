@@ -1,0 +1,5 @@
+Description
+
+Hive's JDBC driver does not support setQueryTimeout. Ideally, the driver should have a timeout mechanism beyond which any query execution should throw SQLTimeoutException. JMeter calls setQueryTimeout method before actually executing the SQL query. Hive's JDBC throws SQLException which prevents JMeter from executing any query.
+
+

@@ -1,0 +1,99 @@
+Description
+
+In query (TPC-H query9):
+query9.sql
+
+create table q9_result as 
+select 
+nation, 
+o_year, 
+sum(amount) as sum_profit 
+from 
+( 
+select 
+n_name as nation, 
+substr(o_orderdate,1,4) as o_year, 
+l_extendedprice * (1 - l_discount) - ps_supplycost * l_quantity as amount 
+from 
+supplier s 
+join lineitem l on s.s_suppkey = l.l_suppkey 
+join partsupp ps on ps.ps_suppkey = l.l_suppkey and ps.ps_partkey = l.l_partkey 
+join part p on p.p_partkey = l.l_partkey 
+join orders o on o.o_orderkey = l.l_orderkey 
+join nation n on s.s_nationkey = n.n_nationkey 
+where 
+p_name like '%green%' 
+) profit 
+group by 
+nation, 
+o_year 
+order by 
+nation, 
+o_year desc;
+
+
+The error is when joining table s and n (CBO let them join first), we got an exception as follows:
+
+
+Error: Failure while running task:java.lang.RuntimeException: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row 
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:337)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:179)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:171)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:171)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:167)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:334)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:166)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)
+	at java.lang.Thread.run(Thread.java:722)
+Caused by: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row 
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:91)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.pushRecord(MapRecordSource.java:68)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.run(MapRecordProcessor.java:290)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:148)
+	... 15 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row 
+	at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:52)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:83)
+	... 18 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.ArrayIndexOutOfBoundsException: -1
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerLongOperator.process(VectorMapJoinInnerLongOperator.java:368)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorSelectOperator.process(VectorSelectOperator.java:138)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorFilterOperator.process(VectorFilterOperator.java:117)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.process(TableScanOperator.java:97)
+	at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:162)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:45)
+	... 19 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.ArrayIndexOutOfBoundsException: -1
+	at org.apache.hadoop.hive.ql.exec.ReduceSinkOperator.process(ReduceSinkOperator.java:403)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorReduceSinkOperator.process(VectorReduceSinkOperator.java:98)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinGenerateResultOperator.forwardBigTableBatch(VectorMapJoinGenerateResultOperator.java:603)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerLongOperator.process(VectorMapJoinInnerLongOperator.java:362)
+	... 27 more
+Caused by: java.lang.ArrayIndexOutOfBoundsException: -1
+	at org.apache.tez.runtime.library.common.writers.UnorderedPartitionedKVWriter.write(UnorderedPartitionedKVWriter.java:301)
+	at org.apache.tez.runtime.library.common.writers.UnorderedPartitionedKVWriter.write(UnorderedPartitionedKVWriter.java:244)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor$TezKVOutputCollector.collect(TezProcessor.java:196)
+	at org.apache.hadoop.hive.ql.exec.ReduceSinkOperator.collect(ReduceSinkOperator.java:542)
+	at org.apache.hadoop.hive.ql.exec.ReduceSinkOperator.process(ReduceSinkOperator.java:386)
+	... 31 more
+
+
+After disabling auto convert join, the problem is gone.
+Context:
+Both s_nationkey &amp;amp; n_nationkey are bigint.
+CBO enabled
+Execution engine is tez.
+Vectorized execution enabled.
+
+

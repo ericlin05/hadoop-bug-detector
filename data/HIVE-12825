@@ -1,0 +1,8 @@
+Description
+
+&amp;gt; create table foo3 as select * from foo2 f1 cross join foo2 f2;
+Warning: Map Join MAPJOIN[7][bigTable=f1] in task 'Map 1' is a cross product
+FAILED: SemanticException [Error 10036]: Duplicate column name: f
+If the column names are not specified, ctas generates them; for select *, it should also generate them if there are collisions.
+
+

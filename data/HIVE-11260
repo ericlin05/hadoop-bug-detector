@@ -1,0 +1,17 @@
+Description
+
+
+2015-07-14 15:14:36,583 [ExecutionCompletionThread #0()] ERROR org.apache.hadoop.hive.llap.daemon.impl.TaskRunnerCallable: TezTaskRunner execution failed for : AppId=application_1435700346116_1882, containerId=container_222212222_1882_01_002033, Dag=sershe_20150714151421_0d6c548d-077e-407c-a5ef-d86b6a830a73:14, Vertex=Map 1, FragmentNum=66, Attempt=2
+java.lang.NullPointerException
+        at org.apache.hadoop.hive.llap.daemon.impl.AMReporter.unregisterTask(AMReporter.java:207)
+        at org.apache.hadoop.hive.llap.daemon.impl.TaskRunnerCallable.callInternal(TaskRunnerCallable.java:152)
+        at org.apache.hadoop.hive.llap.daemon.impl.TaskRunnerCallable.callInternal(TaskRunnerCallable.java:74)
+        at org.apache.hadoop.hive.common.CallableWithNdc.call(CallableWithNdc.java:37)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+
+

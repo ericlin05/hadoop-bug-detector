@@ -1,0 +1,22 @@
+Description
+
+With some logging, I confirmed that the String length vectors contained junk data &amp;amp; the length field is overflowing.
+
+
+Caused by: java.lang.NegativeArraySizeException
+    at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$BytesColumnVectorUtil.commonReadByteArrays(RecordReaderImpl.java:1550)
+    at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$BytesColumnVectorUtil.readOrcByteArrays(RecordReaderImpl.java:1569)
+    at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$StringDirectTreeReader.nextVector(RecordReaderImpl.java:1691)
+    at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$StringTreeReader.nextVector(RecordReaderImpl.java:1517)
+    at org.apache.hadoop.hive.llap.io.decode.OrcEncodedDataConsumer.decodeBatch(OrcEncodedDataConsumer.java:115)
+    at org.apache.hadoop.hive.llap.io.decode.EncodedDataConsumer.consumeData(EncodedDataConsumer.java:108)
+    at org.apache.hadoop.hive.llap.io.decode.EncodedDataConsumer.consumeData(EncodedDataConsumer.java:35)
+    at org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl.readEncodedColumns(EncodedReaderImpl.java:314)
+    at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:272)
+    at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:44)
+    at org.apache.hadoop.hive.common.CallableWithNdc.call(CallableWithNdc.java:37)
+    ... 4 more
+
+
+
+

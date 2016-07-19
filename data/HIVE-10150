@@ -1,0 +1,11 @@
+Description
+
+this query raises an error 
+"10297,FAILED: SemanticException [Error 10297]: Attempt to do update or delete on table nonAcidOrcTbl that does not use an AcidOutputFormat or is not bucketed"
+even though nonAcidOrcTbl is only being read, not written.
+select b from " + Table.ACIDTBL + " where a in (select b from " + Table.NONACIDORCTBL + ")
+runs fine.
+There doesn't seem to be any logical reason why we should rise the error here.
+Same for 'update' statement.
+
+

@@ -1,0 +1,9 @@
+Description
+
+The data type definitions in the table schema are limited to 4K characters - as per the code here: https://github.com/apache/hive/tree/master/metastore/scripts/upgrade/derby
+I checked quickly and all meta stores have similar schema definition for the column type. 
+Is there any reason why this limit is low? We had a table that had defined a struct, which had over 200 columns and the column names were rather verbose (for readability). This caused a non-obvious failure like 
+FAILED: IllegalArgumentException Error: : expected at the end of 'string:array&amp;lt;struct&amp;lt;xyz:string, .....'. Is it possible to make this configurable or at least increase it to something much higher?
+Additionally, there is no validation error that communicates this limitation to the user, it required non-trivial debugging and looking into the table definitions when it failed trying to parse what was essentially a truncated type. 
+
+

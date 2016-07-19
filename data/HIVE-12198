@@ -1,0 +1,24 @@
+Description
+
+
+
+hive&amp;gt; select sum(l_extendedprice * l_discount) as revenue from testing.lineitem where l_shipdate &amp;gt;= '1993-01-01' and l_shipdate &amp;lt; '1994-01-01' ;
+
+Caused by: java.lang.ClassCastException: org.apache.hadoop.hive.ql.io.orc.encoded.EncodedReaderImpl$UncompressedCacheChunk cannot be cast to org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$BufferChunk
+        at org.apache.hadoop.hive.ql.io.orc.encoded.EncodedReaderImpl.copyAndReplaceUncompressedChunks(EncodedReaderImpl.java:962)
+        at org.apache.hadoop.hive.ql.io.orc.encoded.EncodedReaderImpl.preReadUncompressedStream(EncodedReaderImpl.java:890)
+        at org.apache.hadoop.hive.ql.io.orc.encoded.EncodedReaderImpl.readEncodedColumns(EncodedReaderImpl.java:319)
+        at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.performDataRead(OrcEncodedDataReader.java:413)
+        at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader$4.run(OrcEncodedDataReader.java:194)
+        at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader$4.run(OrcEncodedDataReader.java:191)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+        at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:191)
+        at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:74)
+        at org.apache.hadoop.hive.common.CallableWithNdc.call(CallableWithNdc.java:37)
+        ... 4 more
+
+
+
+

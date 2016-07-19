@@ -1,0 +1,60 @@
+Description
+
+sometimes the hiveserver will throw below exception , 
+2015-08-28 05:05:44,107 | FATAL | Thread-82995 | error parsing conf mapred-default.xml | org.apache.hadoop.conf.Configuration.loadResource(Configuration.java:2404)
+java.io.IOException: Stream closed
+	at java.util.zip.InflaterInputStream.ensureOpen(InflaterInputStream.java:84)
+	at java.util.zip.InflaterInputStream.read(InflaterInputStream.java:160)
+	at java.io.FilterInputStream.read(FilterInputStream.java:133)
+	at com.sun.org.apache.xerces.internal.impl.XMLEntityManager$RewindableInputStream.read(XMLEntityManager.java:2902)
+	at com.sun.org.apache.xerces.internal.impl.io.UTF8Reader.read(UTF8Reader.java:302)
+	at com.sun.org.apache.xerces.internal.impl.XMLEntityScanner.load(XMLEntityScanner.java:1753)
+	at com.sun.org.apache.xerces.internal.impl.XMLEntityScanner.skipChar(XMLEntityScanner.java:1426)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl$FragmentContentDriver.next(XMLDocumentFragmentScannerImpl.java:2807)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:606)
+	at com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.next(XMLNSDocumentScannerImpl.java:117)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:510)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:848)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:777)
+	at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:141)
+	at com.sun.org.apache.xerces.internal.parsers.DOMParser.parse(DOMParser.java:243)
+	at com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderImpl.parse(DocumentBuilderImpl.java:347)
+	at javax.xml.parsers.DocumentBuilder.parse(DocumentBuilder.java:150)
+	at org.apache.hadoop.conf.Configuration.parse(Configuration.java:2246)
+	at org.apache.hadoop.conf.Configuration.parse(Configuration.java:2234)
+	at org.apache.hadoop.conf.Configuration.loadResource(Configuration.java:2305)
+	at org.apache.hadoop.conf.Configuration.loadResources(Configuration.java:2258)
+	at org.apache.hadoop.conf.Configuration.getProps(Configuration.java:2175)
+	at org.apache.hadoop.conf.Configuration.get(Configuration.java:854)
+	at org.apache.hadoop.mapred.JobConf.checkAndWarnDeprecation(JobConf.java:2069)
+	at org.apache.hadoop.mapred.JobConf.&amp;lt;init&amp;gt;(JobConf.java:477)
+	at org.apache.hadoop.mapred.JobConf.&amp;lt;init&amp;gt;(JobConf.java:467)
+	at org.apache.hadoop.mapreduce.Cluster.getJob(Cluster.java:187)
+	at org.apache.hadoop.mapred.JobClient$2.run(JobClient.java:580)
+	at org.apache.hadoop.mapred.JobClient$2.run(JobClient.java:578)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1612)
+	at org.apache.hadoop.mapred.JobClient.getJobUsingCluster(JobClient.java:578)
+	at org.apache.hadoop.mapred.JobClient.getJob(JobClient.java:596)
+	at org.apache.hadoop.hive.ql.exec.mr.HadoopJobExecHelper.progress(HadoopJobExecHelper.java:289)
+	at org.apache.hadoop.hive.ql.exec.mr.HadoopJobExecHelper.progress(HadoopJobExecHelper.java:548)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecDriver.execute(ExecDriver.java:435)
+	at org.apache.hadoop.hive.ql.exec.mr.MapRedTask.execute(MapRedTask.java:159)
+	at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:153)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:85)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.run(TaskRunner.java:72)
+after analysis, we found the root cause, below is step to reproduce the issue
+1.  open one beeline window, add jar
+2.  execute one sql like create table abc as select * from t1;
+3.  execute !quit, before this add a breakpoint at java.net.URLClassLoader.close(), so it will stop here
+4. open another beeline window
+5. execute one sql like select count from t1, before this add one condition breakpoint at org.apache.hadoop.conf.Configuration.parse, the condition is url.toString().indexOf("hadoop-mapreduce-client-core-V100R001C00.jar!/mapred-default.xml")&amp;gt;0
+6. when proceed to the above step, just get the stream
+7. let the 3th step go ahead, which will close the stream
+8. now, let sixth step go ahead, then the above exception coming
+suggest solution:
+the issue is hadppend when client use add jar + short connection ,  the client app should try best to use long connection, means reuse hive connetion
+meanwhile, here ,experts can suggest good solution for this issue
+
+

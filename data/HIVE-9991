@@ -1,0 +1,14 @@
+Description
+
+I cannot do any select query on external tables that are not part of HDFS. For example S3.
+
+
+Select * from my_table limit 10;
+
+FAILED: SemanticException Unable to determine if s3n://my-bucket/is encrypted: java.lang.IllegalArgumentException: Wrong FS: s3n://my-bucket/, expected: hdfs://0.0.0.0:8020
+
+
+This error is due to a internal function that checks if a table is encrypted or not. This is only supported on HDFS files, but the check is happening on any external table as well causing the above error.
+To fix this, we should check for encrypted tables only for HDFS tables. And skip the check for any other file schema.
+
+

@@ -1,0 +1,56 @@
+Description
+
+Bug based on this mail: http://mail-archives.apache.org/mod_mbox/hive-user/201606.mbox/%3CD37DAA17.5AB3F%25ekoifman%40hortonworks.com%3E
+I'm using Hive 1.2.1, Hive JDBC driver 1.2.1 and perform simple test on transactional table:
+
+asyncExecute("Select count(distinct in_info_msisdn) from mobile_connections where dt=20151124 and msisdn_last_digit=2", 1);
+Thread.sleep(3000);
+asyncExecute("alter table mobile_connections drop if exists partition (dt=20151124, msisdn_last_digit=2) purge", 2);
+Thread.sleep(3000);
+asyncExecute("Select count(distinct in_info_msisdn) from mobile_connections where dt=20151124 and msisdn_last_digit=2", 3);
+Thread.sleep(3000);
+asyncExecute("Select count(distinct in_info_msisdn) from mobile_connections where dt=20151124 and msisdn_last_digit=2", 4);
+Full code: http://pastebin.com/LsktC0sx
+I cretate several threads, each execute query async. First is querying partition. Second drop partition. Others are the same as first. First query takes about 10-15 seconds to complete, so "alter table" query starts before first query completes.
+As a result i get:
+First query - successfully completes 
+Second query - successfully completes
+Third query - successfully completes
+Fourth query - throw exception.
+Here's output:
+
+Wed Jun 08 16:36:02 MSK 2016 Start thread 1
+Wed Jun 08 16:36:05 MSK 2016 Start thread 2
+Wed Jun 08 16:36:08 MSK 2016 Start thread 3
+Wed Jun 08 16:36:11 MSK 2016 Start thread 4
+Wed Jun 08 16:36:17 MSK 2016 Finish thread 1
+Wed Jun 08 16:36:17 MSK 2016 Thread 1 result: '344186'
+Wed Jun 08 16:36:17 MSK 2016 Thread 1 completed in 14443 ms
+Wed Jun 08 16:36:19 MSK 2016 Finished 2
+Wed Jun 08 16:36:19 MSK 2016 Thread 2 completed in 13967 ms
+Wed Jun 08 16:36:20 MSK 2016 Finish thread 3
+Wed Jun 08 16:36:20 MSK 2016 Thread 3 result: '344186'
+Wed Jun 08 16:36:20 MSK 2016 Thread 3 completed in 11737 ms
+java.sql.SQLException: Error while processing statement: FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.tez.TezTask. Vertex failed, vertexName=Map 1, vertexId=vertex_1461923723503_0931_1_00, diagnostics=[Vertex vertex_1461923723503_0931_1_00 [Map 1] killed/failed due to:ROOT_INPUT_INIT_FAILURE, Vertex Input: mobile_connections initializer failed, vertex=vertex_1461923723503_0931_1_00 [Map 1], java.lang.RuntimeException: serious problem
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.generateSplitsInfo(OrcInputFormat.java:1059)
+HiveServer2 log contains this:
+
+	Line 1043: 2016-06-08 16:36:04,546 INFO  [HiveServer2-Background-Pool: Thread-42]: lockmgr.DbLockManager (DbLockManager.java:lock(101)) - Response to queryId=hive_20160608163602_542056d9-c524-4df4-af18-6aa5e906284f LockResponse(lockid:179728, state:ACQUIRED)
+	Line 1349: 2016-06-08 16:36:05,214 INFO  [HiveServer2-Background-Pool: Thread-50]: lockmgr.DbLockManager (DbLockManager.java:lock(98)) - Requesting: queryId=hive_20160608163604_832abbff-6199-497e-b969-fd8ac1465abc LockRequest(component:[LockComponent(type:EXCLUSIVE, level:PARTITION, dbname:default, tablename:mobile_connections, partitionname:dt=20151123/msisdn_last_digit=3)], txnid:0, user:hdfs, hostname:mercury)
+	Line 1390: 2016-06-08 16:36:05,270 INFO  [HiveServer2-Background-Pool: Thread-50]: lockmgr.DbLockManager (DbLockManager.java:lock(101)) - Response to queryId=hive_20160608163604_832abbff-6199-497e-b969-fd8ac1465abc LockResponse(lockid:179729, state:WAITING)
+	Line 2346: 2016-06-08 16:36:08,028 INFO  [HiveServer2-Background-Pool: Thread-68]: lockmgr.DbLockManager (DbLockManager.java:lock(98)) - Requesting: queryId=hive_20160608163607_7b18da12-6f86-41c9-b4b1-be45252c18c2 LockRequest(component:[LockComponent(type:SHARED_READ, level:TABLE, dbname:default, tablename:mobile_connections), LockComponent(type:SHARED_READ, level:PARTITION, dbname:default, tablename:mobile_connections, partitionname:dt=20151123/msisdn_last_digit=3)], txnid:0, user:hdfs, hostname:mercury)
+	Line 2370: 2016-06-08 16:36:08,069 INFO  [HiveServer2-Background-Pool: Thread-68]: lockmgr.DbLockManager (DbLockManager.java:lock(101)) - Response to queryId=hive_20160608163607_7b18da12-6f86-41c9-b4b1-be45252c18c2 LockResponse(lockid:179730, state:ACQUIRED)
+	Line 3561: 2016-06-08 16:36:11,000 INFO  [HiveServer2-Background-Pool: Thread-91]: lockmgr.DbLockManager (DbLockManager.java:lock(98)) - Requesting: queryId=hive_20160608163610_b78a201b-ae6d-4040-9115-f92118d5b629 LockRequest(component:[LockComponent(type:SHARED_READ, level:TABLE, dbname:default, tablename:mobile_connections), LockComponent(type:SHARED_READ, level:PARTITION, dbname:default, tablename:mobile_connections, partitionname:dt=20151123/msisdn_last_digit=3)], txnid:0, user:hdfs, hostname:mercury)
+	Line 3587: 2016-06-08 16:36:11,060 INFO  [HiveServer2-Background-Pool: Thread-91]: lockmgr.DbLockManager (DbLockManager.java:lock(101)) - Response to queryId=hive_20160608163610_b78a201b-ae6d-4040-9115-f92118d5b629 LockResponse(lockid:179731, state:ACQUIRED)
+	Line 4468: 2016-06-08 16:36:16,481 DEBUG [HiveServer2-Background-Pool: Thread-42]: lockmgr.DbLockManager (DbLockManager.java:unlock(182)) - Unlocking lockid:179728
+	Line 4473: 2016-06-08 16:36:16,522 DEBUG [HiveServer2-Background-Pool: Thread-42]: lockmgr.DbLockManager (DbLockManager.java:unlock(185)) - Removed a lock true
+	Line 4880: 2016-06-08 16:36:18,676 DEBUG [HiveServer2-Background-Pool: Thread-50]: lockmgr.DbLockManager (DbLockManager.java:unlock(182)) - Unlocking lockid:179729
+	Line 4889: 2016-06-08 16:36:18,829 DEBUG [HiveServer2-Background-Pool: Thread-50]: lockmgr.DbLockManager (DbLockManager.java:unlock(185)) - Removed a lock true
+	Line 4976: 2016-06-08 16:36:19,439 DEBUG [HiveServer2-Background-Pool: Thread-68]: lockmgr.DbLockManager (DbLockManager.java:unlock(182)) - Unlocking lockid:179730
+	Line 4979: 2016-06-08 16:36:19,486 DEBUG [HiveServer2-Background-Pool: Thread-68]: lockmgr.DbLockManager (DbLockManager.java:unlock(185)) - Removed a lock true
+	Line 5467: 2016-06-08 16:36:28,090 DEBUG [HiveServer2-Background-Pool: Thread-91]: lockmgr.DbLockManager (DbLockManager.java:unlock(182)) - Unlocking lockid:179731
+	Line 5470: 2016-06-08 16:36:28,131 DEBUG [HiveServer2-Background-Pool: Thread-91]: lockmgr.DbLockManager (DbLockManager.java:unlock(185)) - Removed a lock true
+Hive Server 2 log: https://drive.google.com/open?id=0ByB92PAoAkrKakhqYXhmdzlidkk
+The reads locks 179730 and 179731 should have been blocked by 179729.
+
+

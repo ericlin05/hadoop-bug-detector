@@ -1,0 +1,32 @@
+Description
+
+Steps to reproduce:
+
+
+CREATE TABLE test_orc (a INT, b MAP&amp;lt;INT, STRING&amp;gt;) STORED AS ORC;
+INSERT OVERWRITE TABLE test_orc SELECT 1, MAP(1, "one", 2, "two") FROM src LIMIT 1;
+CREATE TABLE test(key INT) ;
+INSERT OVERWRITE TABLE test SELECT 1 FROM src LIMIT 1;
+
+set hive.vectorized.execution.enabled=true;
+set hive.auto.convert.join=false;
+
+select l.key from test l left outer join test_orc r on (l.key= r.a) where r.a is not null;
+
+
+Stack trace:
+
+Caused by: java.lang.IllegalArgumentException: Unsupported complex type: MAP
+	at org.apache.hadoop.hive.ql.exec.vector.expressions.VectorExpressionWriterFactory.genVectorExpressionWritable(VectorExpressionWriterFactory.java:456)
+	at org.apache.hadoop.hive.ql.exec.vector.expressions.VectorExpressionWriterFactory.processVectorInspector(VectorExpressionWriterFactory.java:1191)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorReduceSinkOperator.initializeOp(VectorReduceSinkOperator.java:58)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:362)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:481)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:438)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:375)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.initializeMapOperator(MapOperator.java:442)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:198)
+
+
+
+

@@ -1,0 +1,64 @@
+Description
+
+UNION ALL must take actual source table in both side or none exclusively.
+
+UNION ALL with actual table in both side -&amp;gt; Succeed as expected
+
+
+SELECT 
+  1 AS id,
+  'Alice' AS name
+FROM
+  table1
+UNION ALL 
+SELECT 
+  2 AS id,
+  'Bob' AS name
+FROM
+  table2
+
+
+
+
+UNION ALL without actual table in both side -&amp;gt; Succeed as expected
+
+
+SELECT 
+  1 AS id,
+  'Alice' AS name
+UNION ALL 
+SELECT 
+  2 AS id,
+  'Bob' AS name
+
+
+
+
+UNION ALL with actual table on one side -&amp;gt; Failed
+
+
+SELECT 
+  1 AS id,
+  'Alice' AS name
+UNION ALL 
+SELECT 
+  2 AS id,
+  'Bob' AS name
+FROM
+   some_table
+
+
+
+The error message from map task of third case is this.
+
+
+Diagnostic Messages for this Task:
+Error: java.lang.IllegalArgumentException: Can not create a Path from an empty string
+	at org.apache.hadoop.fs.Path.checkPathArg(Path.java:127)
+	at org.apache.hadoop.fs.Path.&amp;lt;init&amp;gt;(Path.java:135)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat$HiveInputSplit.getPath(HiveInputFormat.java:116)
+	at org.apache.hadoop.mapred.MapTask.updateJobWithSplit(MapTask.java:458)
+
+
+
+

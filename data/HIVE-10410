@@ -1,0 +1,154 @@
+Description
+
+On our secure Hadoop cluster, queries submitted to HiveServer2 through JDBC occasionally trigger odd Thrift exceptions with messages such as "Read a negative frame size (-2147418110)!" or "out of sequence response" in HiveServer2's connections to the metastore. For certain metastore calls (for example, showDatabases), these Thrift exceptions are converted to MetaExceptions in HiveMetaStoreClient, which prevents RetryingMetaStoreClient from retrying these calls and thus causes the failure to bubble out to the JDBC client.
+Note that as far as we can tell, this issue appears to only affect queries that are submitted with the runAsync flag on TExecuteStatementReq set to true (which, in practice, seems to mean all JDBC queries), and it appears to only manifest when HiveServer2 is using the new HTTP transport mechanism. When both these conditions hold, we are able to fairly reliably reproduce the issue by spawning about 100 simple, concurrent hive queries (we have been using "show databases"), two or three of which typically fail. However, when either of these conditions do not hold, we are no longer able to reproduce the issue.
+Some example stack traces from the HiveServer2 logs:
+
+2015-04-16 13:54:55,486 ERROR hive.log: Got exception: org.apache.thrift.transport.TTransportException Read a negative frame size (-2147418110)!
+org.apache.thrift.transport.TTransportException: Read a negative frame size (-2147418110)!
+        at org.apache.thrift.transport.TSaslTransport.readFrame(TSaslTransport.java:435)
+        at org.apache.thrift.transport.TSaslTransport.read(TSaslTransport.java:414)
+        at org.apache.thrift.transport.TSaslClientTransport.read(TSaslClientTransport.java:37)
+        at org.apache.thrift.transport.TTransport.readAll(TTransport.java:84)
+        at org.apache.hadoop.hive.thrift.TFilterTransport.readAll(TFilterTransport.java:62)
+        at org.apache.thrift.protocol.TBinaryProtocol.readAll(TBinaryProtocol.java:378)
+        at org.apache.thrift.protocol.TBinaryProtocol.readI32(TBinaryProtocol.java:297)
+        at org.apache.thrift.protocol.TBinaryProtocol.readMessageBegin(TBinaryProtocol.java:204)
+        at org.apache.thrift.TServiceClient.receiveBase(TServiceClient.java:69)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.recv_get_databases(ThriftHiveMetastore.java:600)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.get_databases(ThriftHiveMetastore.java:587)
+        at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.getDatabases(HiveMetaStoreClient.java:837)
+        at org.apache.sentry.binding.metastore.SentryHiveMetaStoreClient.getDatabases(SentryHiveMetaStoreClient.java:60)
+        at sun.reflect.GeneratedMethodAccessor20.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.invoke(RetryingMetaStoreClient.java:90)
+        at com.sun.proxy.$Proxy6.getDatabases(Unknown Source)
+        at org.apache.hadoop.hive.ql.metadata.Hive.getDatabasesByPattern(Hive.java:1139)
+        at org.apache.hadoop.hive.ql.exec.DDLTask.showDatabases(DDLTask.java:2445)
+        at org.apache.hadoop.hive.ql.exec.DDLTask.execute(DDLTask.java:364)
+        at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:153)
+        at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:85)
+        at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1554)
+        at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1321)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1139)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:962)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:957)
+        at org.apache.hive.service.cli.operation.SQLOperation.runInternal(SQLOperation.java:145)
+        at org.apache.hive.service.cli.operation.SQLOperation.access$000(SQLOperation.java:69)
+        at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:200)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1642)
+        at org.apache.hadoop.hive.shims.HadoopShimsSecure.doAs(HadoopShimsSecure.java:502)
+        at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:213)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+
+The above exception being converted into a MetaException and re-thrown:
+
+2015-04-16 13:54:55,486 ERROR hive.ql.exec.DDLTask: org.apache.hadoop.hive.ql.metadata.HiveException: MetaException(message:Got exception: org.apache.thrift.transport.TTransportException Read a negative frame size (-2147418110)!)
+        at org.apache.hadoop.hive.ql.metadata.Hive.getDatabasesByPattern(Hive.java:1141)
+        at org.apache.hadoop.hive.ql.exec.DDLTask.showDatabases(DDLTask.java:2445)
+        at org.apache.hadoop.hive.ql.exec.DDLTask.execute(DDLTask.java:364)
+        at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:153)
+        at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:85)
+        at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1554)
+        at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1321)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1139)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:962)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:957)
+        at org.apache.hive.service.cli.operation.SQLOperation.runInternal(SQLOperation.java:145)
+        at org.apache.hive.service.cli.operation.SQLOperation.access$000(SQLOperation.java:69)
+        at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:200)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1642)
+        at org.apache.hadoop.hive.shims.HadoopShimsSecure.doAs(HadoopShimsSecure.java:502)
+        at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:213)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+Caused by: MetaException(message:Got exception: org.apache.thrift.transport.TTransportException Read a negative frame size (-2147418110)!)
+        at org.apache.hadoop.hive.metastore.MetaStoreUtils.logAndThrowMetaException(MetaStoreUtils.java:1116)
+        at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.getDatabases(HiveMetaStoreClient.java:839)
+        at org.apache.sentry.binding.metastore.SentryHiveMetaStoreClient.getDatabases(SentryHiveMetaStoreClient.java:60)
+        at sun.reflect.GeneratedMethodAccessor20.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.invoke(RetryingMetaStoreClient.java:90)
+        at com.sun.proxy.$Proxy6.getDatabases(Unknown Source)
+        at org.apache.hadoop.hive.ql.metadata.Hive.getDatabasesByPattern(Hive.java:1139)
+        ... 22 more
+
+
+
+The above MetaException causing the query as a whole to fail:
+
+2015-04-16 13:54:55,486 ERROR org.apache.hive.service.cli.operation.Operation: Error running hive query:
+org.apache.hive.service.cli.HiveSQLException: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. MetaException(message:Got exception: org.apache.thrift.transport.TTransportException Read a negative frame size (-2147418110)!)
+        at org.apache.hive.service.cli.operation.SQLOperation.runInternal(SQLOperation.java:148)
+        at org.apache.hive.service.cli.operation.SQLOperation.access$000(SQLOperation.java:69)
+        at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:200)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1642)
+        at org.apache.hadoop.hive.shims.HadoopShimsSecure.doAs(HadoopShimsSecure.java:502)
+        at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:213)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+
+An "out of sequence response" that occurred shortly after the above exception and may have been triggered by it:
+
+2015-04-16 13:54:55,498 ERROR hive.log: Got exception: org.apache.thrift.TApplicationException get_databases failed: out of sequence response
+org.apache.thrift.TApplicationException: get_databases failed: out of sequence response
+        at org.apache.thrift.TServiceClient.receiveBase(TServiceClient.java:76)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.recv_get_databases(ThriftHiveMetastore.java:600)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.get_databases(ThriftHiveMetastore.java:587)
+        at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.getDatabases(HiveMetaStoreClient.java:837)
+        at org.apache.sentry.binding.metastore.SentryHiveMetaStoreClient.getDatabases(SentryHiveMetaStoreClient.java:60)
+        at sun.reflect.GeneratedMethodAccessor20.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.invoke(RetryingMetaStoreClient.java:90)
+        at com.sun.proxy.$Proxy6.getDatabases(Unknown Source)
+        at org.apache.hadoop.hive.ql.metadata.Hive.getDatabasesByPattern(Hive.java:1139)
+        at org.apache.hadoop.hive.ql.exec.DDLTask.showDatabases(DDLTask.java:2445)
+        at org.apache.hadoop.hive.ql.exec.DDLTask.execute(DDLTask.java:364)
+        at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:153)
+        at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:85)
+        at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1554)
+        at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1321)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1139)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:962)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:957)
+        at org.apache.hive.service.cli.operation.SQLOperation.runInternal(SQLOperation.java:145)
+        at org.apache.hive.service.cli.operation.SQLOperation.access$000(SQLOperation.java:69)
+        at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:200)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1642)
+        at org.apache.hadoop.hive.shims.HadoopShimsSecure.doAs(HadoopShimsSecure.java:502)
+        at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:213)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+
+
+

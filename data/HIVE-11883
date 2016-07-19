@@ -1,0 +1,17 @@
+Description
+
+Given:
+
+CREATE TABLE mytable (col1 int, col2 string)
+    CLUSTERED BY (col1) INTO 2 BUCKETS
+    STORED AS ORC TBLPROPERTIES('TRANSACTIONAL'='TRUE');
+
+
+update/delete statements will fail with 
+
+FAILED: SemanticException [Error 10122]: Bucketized tables do not support INSERT INTO: Table: default.mytable
+
+
+but 'transactional' (in lower case) works fine
+
+

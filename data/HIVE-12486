@@ -1,0 +1,8 @@
+Description
+
+CREATE TEMPORARY FUNCTION printf_test AS 'org.apache.hadoop.hive.ql.udf.generic.GenericUDFPrintf' 
+SELECT printf_test('%d', under_col) FROM tab1;
+The above select fails with 
+org.apache.hive.service.cli.HiveSQLException: Error while compiling statement: FAILED: SemanticException UDF printf_test is not allowed
+
+

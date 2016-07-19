@@ -1,0 +1,32 @@
+Description
+
+I'm trying to switch from hive cli to beeline and found the below working with hive cli, but not with beeline.
+This works in hive cli:
+$ hive -e "USE my_db;SHOW TABLES;" 
+The same does not work in beeline:
+$ beeline -u jdbc:hive2://my_server.com -n my_user -p my_password -e "USE my_db;SHOW TABLES;"
+Error: Error while compiling statement: FAILED: ParseException line 1:9 missing EOF at ';' near 'my_db' (state=42000,code=40000)
+Beeline version 0.12.0-cdh5.1.3 by Apache Hive 
+I have also tried with beeline -f [filename]
+The issue is the same, except  when the two statements are listed in separate lines in the file supplied via the -f parameter.
+So when using 
+beeline -f my.hql
+This works:
+my.hql:
+USE my_db;
+SHOW TABLES;
+This does not work:
+my.hql:
+USE my_db;SHOW TABLES;
+$ beeline -u jdbc:hive2://my_server.com -n my_user -p my_password -f my.hql
+Connected to: Apache Hive (version 0.12.0-cdh5.1.3)
+Driver: Hive JDBC (version 0.12.0-cdh5.1.3)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 0.12.0-cdh5.1.3 by Apache Hive
+0: jdbc:hive2://my_server.com&amp;gt; USE my_db;SHOW TABLES;
+Error: Error while compiling statement: FAILED: ParseException line 1:9 missing EOF at ';' near 'my_db' (state=42000,code=40000)
+Closing: org.apache.hive.jdbc.HiveConnection
+How to reproduce:
+Run any type of multiple statements with beeline where the statements are in the same line separated by ; whether using "beeline -e [statement]" or "beeline -f [file]"
+
+

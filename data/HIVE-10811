@@ -1,0 +1,255 @@
+Description
+
+RelFieldTrimmer runs into NoSuchElementException in some cases.
+Stack trace:
+
+Exception in thread "main" java.lang.AssertionError: Internal error: While invoking method 'public org.apache.calcite.sql2rel.RelFieldTrimmer$TrimResult org.apache.calcite.sql2rel.RelFieldTrimmer.trimFields(org.apache.calcite.rel.core.Sort,org.apache.calcite.util.ImmutableBitSet,java.util.Set)'
+	at org.apache.calcite.util.Util.newInternal(Util.java:743)
+	at org.apache.calcite.util.ReflectUtil$2.invoke(ReflectUtil.java:543)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.dispatchTrimFields(RelFieldTrimmer.java:269)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.trim(RelFieldTrimmer.java:175)
+	at org.apache.hadoop.hive.ql.parse.CalcitePlanner$CalcitePlannerAction.applyPreJoinOrderingTransforms(CalcitePlanner.java:947)
+	at org.apache.hadoop.hive.ql.parse.CalcitePlanner$CalcitePlannerAction.apply(CalcitePlanner.java:820)
+	at org.apache.hadoop.hive.ql.parse.CalcitePlanner$CalcitePlannerAction.apply(CalcitePlanner.java:768)
+	at org.apache.calcite.tools.Frameworks$1.apply(Frameworks.java:109)
+	at org.apache.calcite.prepare.CalcitePrepareImpl.perform(CalcitePrepareImpl.java:730)
+	at org.apache.calcite.tools.Frameworks.withPrepare(Frameworks.java:145)
+	at org.apache.calcite.tools.Frameworks.withPlanner(Frameworks.java:105)
+	at org.apache.hadoop.hive.ql.parse.CalcitePlanner.getOptimizedAST(CalcitePlanner.java:607)
+	at org.apache.hadoop.hive.ql.parse.CalcitePlanner.genOPTree(CalcitePlanner.java:244)
+	at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:10048)
+	at org.apache.hadoop.hive.ql.parse.CalcitePlanner.analyzeInternal(CalcitePlanner.java:207)
+	at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:227)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:424)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:308)
+	at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1122)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1170)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1059)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1049)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:213)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:165)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:376)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:736)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:681)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:621)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.calcite.util.ReflectUtil$2.invoke(ReflectUtil.java:536)
+	... 32 more
+Caused by: java.lang.AssertionError: Internal error: While invoking method 'public org.apache.calcite.sql2rel.RelFieldTrimmer$TrimResult org.apache.calcite.sql2rel.RelFieldTrimmer.trimFields(org.apache.calcite.rel.core.Sort,org.apache.calcite.util.ImmutableBitSet,java.util.Set)'
+	at org.apache.calcite.util.Util.newInternal(Util.java:743)
+	at org.apache.calcite.util.ReflectUtil$2.invoke(ReflectUtil.java:543)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.dispatchTrimFields(RelFieldTrimmer.java:269)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.trimChild(RelFieldTrimmer.java:210)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.trimFields(RelFieldTrimmer.java:499)
+	... 37 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.calcite.util.ReflectUtil$2.invoke(ReflectUtil.java:536)
+	... 40 more
+Caused by: java.lang.AssertionError: Internal error: While invoking method 'public org.apache.calcite.sql2rel.RelFieldTrimmer$TrimResult org.apache.calcite.sql2rel.RelFieldTrimmer.trimFields(org.apache.calcite.rel.core.Project,org.apache.calcite.util.ImmutableBitSet,java.util.Set)'
+	at org.apache.calcite.util.Util.newInternal(Util.java:743)
+	at org.apache.calcite.util.ReflectUtil$2.invoke(ReflectUtil.java:543)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.dispatchTrimFields(RelFieldTrimmer.java:269)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.trimChild(RelFieldTrimmer.java:210)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.trimFields(RelFieldTrimmer.java:499)
+	... 45 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.calcite.util.ReflectUtil$2.invoke(ReflectUtil.java:536)
+	... 48 more
+Caused by: java.lang.AssertionError: Internal error: While invoking method 'public org.apache.calcite.sql2rel.RelFieldTrimmer$TrimResult org.apache.calcite.sql2rel.RelFieldTrimmer.trimFields(org.apache.calcite.rel.core.Aggregate,org.apache.calcite.util.ImmutableBitSet,java.util.Set)'
+	at org.apache.calcite.util.Util.newInternal(Util.java:743)
+	at org.apache.calcite.util.ReflectUtil$2.invoke(ReflectUtil.java:543)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.dispatchTrimFields(RelFieldTrimmer.java:269)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.trimChild(RelFieldTrimmer.java:210)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.trimFields(RelFieldTrimmer.java:345)
+	... 53 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.calcite.util.ReflectUtil$2.invoke(ReflectUtil.java:536)
+	... 56 more
+Caused by: java.lang.AssertionError: Internal error: While invoking method 'public org.apache.calcite.sql2rel.RelFieldTrimmer$TrimResult org.apache.calcite.sql2rel.RelFieldTrimmer.trimFields(org.apache.calcite.rel.core.Project,org.apache.calcite.util.ImmutableBitSet,java.util.Set)'
+	at org.apache.calcite.util.Util.newInternal(Util.java:743)
+	at org.apache.calcite.util.ReflectUtil$2.invoke(ReflectUtil.java:543)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.dispatchTrimFields(RelFieldTrimmer.java:269)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.trimChild(RelFieldTrimmer.java:210)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.trimFields(RelFieldTrimmer.java:772)
+	... 61 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.calcite.util.ReflectUtil$2.invoke(ReflectUtil.java:536)
+	... 64 more
+Caused by: java.lang.AssertionError: Internal error: While invoking method 'public org.apache.calcite.sql2rel.RelFieldTrimmer$TrimResult org.apache.calcite.sql2rel.RelFieldTrimmer.trimFields(org.apache.calcite.rel.core.Project,org.apache.calcite.util.ImmutableBitSet,java.util.Set)'
+	at org.apache.calcite.util.Util.newInternal(Util.java:743)
+	at org.apache.calcite.util.ReflectUtil$2.invoke(ReflectUtil.java:543)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.dispatchTrimFields(RelFieldTrimmer.java:269)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.trimChild(RelFieldTrimmer.java:210)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.trimFields(RelFieldTrimmer.java:345)
+	... 69 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.calcite.util.ReflectUtil$2.invoke(ReflectUtil.java:536)
+	... 72 more
+Caused by: java.util.NoSuchElementException
+	at java.util.AbstractList$Itr.next(AbstractList.java:364)
+	at java.util.AbstractList.hashCode(AbstractList.java:540)
+	at org.apache.calcite.util.Util.hash(Util.java:230)
+	at org.apache.calcite.util.Pair.hashCode(Pair.java:87)
+	at com.google.common.base.Equivalences$Equals.doHash(Equivalences.java:70)
+	at com.google.common.base.Equivalence.hash(Equivalence.java:105)
+	at com.google.common.cache.LocalCache.hash(LocalCache.java:1888)
+	at com.google.common.cache.LocalCache.getIfPresent(LocalCache.java:3953)
+	at com.google.common.cache.LocalCache$LocalManualCache.getIfPresent(LocalCache.java:4758)
+	at org.apache.calcite.rel.type.RelDataTypeFactoryImpl.canonize(RelDataTypeFactoryImpl.java:352)
+	at org.apache.calcite.rel.type.RelDataTypeFactoryImpl.createStructType(RelDataTypeFactoryImpl.java:148)
+	at org.apache.calcite.rel.type.RelDataTypeFactoryImpl.createStructType(RelDataTypeFactoryImpl.java:172)
+	at org.apache.calcite.plan.RelOptUtil.permute(RelOptUtil.java:2589)
+	at org.apache.calcite.sql2rel.RelFieldTrimmer.trimFields(RelFieldTrimmer.java:383)
+	... 77 more
+
+
+query:
+
+SELECT w_warehouse_name, 
+       w_warehouse_sq_ft, 
+       w_city, 
+       w_county, 
+       w_state, 
+       w_country, 
+       ship_carriers, 
+       year, 
+       Sum(jan_sales)                     AS jan_sales, 
+       Sum(feb_sales)                     AS feb_sales, 
+       Sum(jan_sales / w_warehouse_sq_ft) AS jan_sales_per_sq_foot, 
+       Sum(feb_sales / w_warehouse_sq_ft) AS feb_sales_per_sq_foot, 
+       Sum(jan_net)                       AS jan_net, 
+       Sum(feb_net)                       AS feb_net 
+FROM   (SELECT w_warehouse_name, 
+               w_warehouse_sq_ft, 
+               w_city, 
+               w_county, 
+               w_state, 
+               w_country, 
+               Concat('DHL', ',', 'BARIAN') AS ship_carriers, 
+               d_year                       AS year, 
+               Sum(CASE 
+                     WHEN d_moy = 1 THEN ws_ext_sales_price * ws_quantity 
+                     ELSE Cast(0 AS DECIMAL(7, 2)) 
+                   end)                     AS jan_sales, 
+               Sum(CASE 
+                     WHEN d_moy = 2 THEN ws_ext_sales_price * ws_quantity 
+                     ELSE Cast(0 AS DECIMAL(7, 2)) 
+                   end)                     AS feb_sales, 
+               Sum(CASE 
+                     WHEN d_moy = 1 THEN ws_net_paid * ws_quantity 
+                     ELSE Cast(0 AS DECIMAL(7, 2)) 
+                   end)                     AS jan_net, 
+               Sum(CASE 
+                     WHEN d_moy = 2 THEN ws_net_paid * ws_quantity 
+                     ELSE Cast(0 AS DECIMAL(7, 2)) 
+                   end)                     AS feb_net 
+        FROM   web_sales 
+               JOIN warehouse 
+                 ON web_sales.ws_warehouse_sk = warehouse.w_warehouse_sk 
+               JOIN date_dim 
+                 ON web_sales.ws_sold_date_sk = date_dim.d_date_sk 
+               JOIN time_dim 
+                 ON web_sales.ws_sold_time_sk = time_dim.t_time_sk 
+               JOIN ship_mode 
+                 ON web_sales.ws_ship_mode_sk = ship_mode.sm_ship_mode_sk 
+        WHERE  d_year = 2001 
+               AND t_time BETWEEN 30838 AND 30838 + 28800 
+               AND sm_carrier IN ( 'DHL', 'BARIAN' ) 
+        GROUP  BY w_warehouse_name, 
+                  w_warehouse_sq_ft, 
+                  w_city, 
+                  w_county, 
+                  w_state, 
+                  w_country, 
+                  d_year 
+        UNION DISTINCT
+        SELECT w_warehouse_name, 
+               w_warehouse_sq_ft, 
+               w_city, 
+               w_county, 
+               w_state, 
+               w_country, 
+               Concat('DHL', ',', 'BARIAN') AS ship_carriers, 
+               d_year                       AS year, 
+               Sum(CASE 
+                     WHEN d_moy = 1 THEN cs_sales_price * cs_quantity 
+                     ELSE Cast(0 AS DECIMAL(7, 2)) 
+                   end)                     AS jan_sales, 
+               Sum(CASE 
+                     WHEN d_moy = 2 THEN cs_sales_price * cs_quantity 
+                     ELSE Cast(0 AS DECIMAL(7, 2)) 
+                   end)                     AS feb_sales, 
+               Sum(CASE 
+                     WHEN d_moy = 1 THEN cs_net_paid_inc_tax * cs_quantity 
+                     ELSE Cast(0 AS DECIMAL(7, 2)) 
+                   end)                     AS jan_net, 
+               Sum(CASE 
+                     WHEN d_moy = 2 THEN cs_net_paid_inc_tax * cs_quantity 
+                     ELSE Cast(0 AS DECIMAL(7, 2)) 
+                   end)                     AS feb_net 
+        FROM   catalog_sales 
+               JOIN warehouse 
+                 ON catalog_sales.cs_warehouse_sk = warehouse.w_warehouse_sk 
+               JOIN date_dim 
+                 ON catalog_sales.cs_sold_date_sk = date_dim.d_date_sk 
+               JOIN time_dim 
+                 ON catalog_sales.cs_sold_time_sk = time_dim.t_time_sk 
+               JOIN ship_mode 
+                 ON catalog_sales.cs_ship_mode_sk = ship_mode.sm_ship_mode_sk 
+        WHERE  d_year = 2001 
+               AND t_time BETWEEN 30838 AND 30838 + 28800 
+               AND sm_carrier IN ( 'DHL', 'BARIAN' ) 
+        GROUP  BY w_warehouse_name, 
+                  w_warehouse_sq_ft, 
+                  w_city, 
+                  w_county, 
+                  w_state, 
+                  w_country, 
+                  d_year) x 
+GROUP  BY w_warehouse_name, 
+          w_warehouse_sq_ft, 
+          w_city, 
+          w_county, 
+          w_state, 
+          w_country, 
+          ship_carriers, 
+          year 
+ORDER  BY w_warehouse_name 
+LIMIT  100; 
+
+
+Seems like use of Sum(jan_sales / w_warehouse_sq_ft) AS jan_sales_per_sq_foot, 
+Sum(feb_sales / w_warehouse_sq_ft) AS feb_sales_per_sq_foot in the select clause causing the error.
+Query works fine if I turn off cbo or remove these two columns from select clause.
+
+

@@ -1,0 +1,33 @@
+Description
+
+Sqoop import of JDBC table fails with following error:
+Error: java.lang.NullPointerException
+    at org.apache.hadoop.hive.ql.io.orc.ColumnStatisticsImpl$DecimalStatisticsImpl.serialize(ColumnStatisticsImpl.java:585)
+    at org.apache.hadoop.hive.ql.io.orc.WriterImpl$TreeWriter.createRowIndexEntry(WriterImpl.java:769)
+    at org.apache.hadoop.hive.ql.io.orc.WriterImpl$TreeWriter.createRowIndexEntry(WriterImpl.java:775)
+    at org.apache.hadoop.hive.ql.io.orc.WriterImpl.createRowIndexEntry(WriterImpl.java:1978)
+    at org.apache.hadoop.hive.ql.io.orc.WriterImpl.flushStripe(WriterImpl.java:1985)
+    at org.apache.hadoop.hive.ql.io.orc.WriterImpl.checkMemory(WriterImpl.java:322)
+    at org.apache.hadoop.hive.ql.io.orc.MemoryManager.notifyWriters(MemoryManager.java:168)
+    at org.apache.hadoop.hive.ql.io.orc.MemoryManager.addedRow(MemoryManager.java:157)
+    at org.apache.hadoop.hive.ql.io.orc.WriterImpl.addRow(WriterImpl.java:2276)
+    at org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat$OrcRecordWriter.write(OrcOutputFormat.java:76)
+    at org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat$OrcRecordWriter.write(OrcOutputFormat.java:55)
+    at org.apache.hive.hcatalog.mapreduce.FileRecordWriterContainer.write(FileRecordWriterContainer.java:122)
+    at org.apache.hive.hcatalog.mapreduce.FileRecordWriterContainer.write(FileRecordWriterContainer.java:54)
+    at org.apache.hadoop.mapred.MapTask$NewDirectOutputCollector.write(MapTask.java:655)
+    at org.apache.hadoop.mapreduce.task.TaskInputOutputContextImpl.write(TaskInputOutputContextImpl.java:89)
+    at org.apache.hadoop.mapreduce.lib.map.WrappedMapper$Context.write(WrappedMapper.java:112)
+    at org.apache.sqoop.mapreduce.hcat.SqoopHCatImportMapper.map(SqoopHCatImportMapper.java:52)
+    at org.apache.sqoop.mapreduce.hcat.SqoopHCatImportMapper.map(SqoopHCatImportMapper.java:34)
+    at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:145)
+    at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:784)
+    at org.apache.hadoop.mapred.MapTask.run(MapTask.java:341)
+    at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at javax.security.auth.Subject.doAs(Subject.java:415)
+    at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+    at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+The problem is caused by null DECIMAL value in the imported table. The creation of ORC table statistics crashes because of this. The issue probably affects some other column types as well.
+
+

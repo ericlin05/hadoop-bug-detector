@@ -1,0 +1,22 @@
+Description
+
+When we create a new table from the table with table-level serde to be Parquet and partition-level serde to be JSON, currently the following exception will be thrown if there are struct fields.
+Apparently, getStructFieldsDataAsList() also needs to handle the case of List in addition to ArrayWritable similar to getStructFieldData.
+
+Caused by: java.lang.UnsupportedOperationException: Cannot inspect java.util.ArrayList
+        at org.apache.hadoop.hive.ql.io.parquet.serde.ArrayWritableObjectInspector.getStructFieldsDataAsList(ArrayWritableObjectInspector.java:172)
+        at org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe.serialize(LazySimpleSerDe.java:354)
+        at org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe.serializeField(LazySimpleSerDe.java:257)
+        at org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe.doSerialize(LazySimpleSerDe.java:241)
+        at org.apache.hadoop.hive.serde2.AbstractEncodingAwareSerDe.serialize(AbstractEncodingAwareSerDe.java:55)
+        at org.apache.hadoop.hive.ql.exec.FileSinkOperator.process(FileSinkOperator.java:720)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:813)
+        at org.apache.hadoop.hive.ql.exec.SelectOperator.process(SelectOperator.java:88)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:813)
+        at org.apache.hadoop.hive.ql.exec.TableScanOperator.process(TableScanOperator.java:97)
+        at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:162)
+        at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:508)
+
+
+
+

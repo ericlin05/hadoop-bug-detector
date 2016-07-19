@@ -1,0 +1,43 @@
+Description
+
+PROBLEM: Authenticating to HS2 in HTTP mode with Kerberos, auth_to_local mappings do not get applied.  Because of this various permissions checks which rely on the local cluster name for a user are going to fail.
+STEPS TO REPRODUCE:
+1.  Create  kerberos cluster  and HS2 in HTTP mode
+2.  Create a new user, test, along with a kerberos principal for this user
+3.  Create a separate principal, mapped-test
+4.  Create an auth_to_local rule to make sure that mapped-test is mapped to test
+5.  As the test user, connect to HS2 with beeline and create a simple table:
+
+
+CREATE TABLE permtest (field1 int);
+
+
+There is no need to load anything into this table.
+6.  Establish that it works as the test user:
+
+
+show create table permtest;
+
+
+7.  Drop the test identity and become mapped-test
+8.  Re-connect to HS2 with beeline, re-run the above command:
+
+
+show create table permtest;
+
+
+You will find that when this is done in HTTP mode, you will get an HDFS error (because of StorageBasedAuthorization doing a HDFS permissions check) and the user will be mapped-test and NOT test as it should be.
+ANALYSIS:  This appears to be HTTP specific and the problem seems to come in ThriftHttpServlet$HttpKerberosServerAction.getPrincipalWithoutRealmAndHost():
+
+
+      try {
+        fullKerberosName = ShimLoader.getHadoopShims().getKerberosNameShim(fullPrincipal);
+      } catch (IOException e) {
+        throw new HttpAuthenticationException(e);
+      }
+      return fullKerberosName.getServiceName();
+
+
+getServiceName applies no auth_to_local rules.  Seems like maybe this should be getShortName()?
+
+

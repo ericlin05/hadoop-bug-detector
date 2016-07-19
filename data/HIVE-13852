@@ -1,0 +1,25 @@
+Description
+
+
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.io.IOException: java.lang.NullPointerException
+at org.apache.hadoop.hive.ql.udf.generic.GenericUDTFGetSplits.process(GenericUDTFGetSplits.java:194)
+at org.apache.hadoop.hive.ql.exec.UDTFOperator.process(UDTFOperator.java:116)
+at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+at org.apache.hadoop.hive.ql.exec.SelectOperator.process(SelectOperator.java:95)
+at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+at org.apache.hadoop.hive.ql.exec.TableScanOperator.process(TableScanOperator.java:130)
+at org.apache.hadoop.hive.ql.exec.FetchOperator.pushRow(FetchOperator.java:434) 
+at org.apache.hadoop.hive.ql.exec.FetchOperator.pushRow(FetchOperator.java:426) 
+at org.apache.hadoop.hive.ql.exec.FetchTask.fetch(FetchTask.java:144)
+... 15 more
+Caused by: java.io.IOException: java.lang.NullPointerException
+at org.apache.hadoop.hive.ql.udf.generic.GenericUDTFGetSplits.getSplits(GenericUDTFGetSplits.java:366)
+at org.apache.hadoop.hive.ql.udf.generic.GenericUDTFGetSplits.process(GenericUDTFGetSplits.java:185)
+... 23 more
+Caused by: java.lang.NullPointerException: null
+at org.apache.hadoop.hive.ql.udf.generic.GenericUDTFGetSplits.getSplits(GenericUDTFGetSplits.java:344)
+... 24 more
+
+
+
+

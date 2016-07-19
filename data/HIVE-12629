@@ -1,0 +1,42 @@
+Description
+
+I am using hive1.2 on spark on yarn. 
+I found 
+select count(1) from 
+(select  user_id from xxx group by user_id ) a join
+(select  user_id from yyy lateral view json_tuple(u, 'h') v1 as h) b
+on a.user_id=b.user_id ;
+failed in hive on spark on yarn, but OK in hive on MR.
+I tried the following sql on spark. It was OK.
+select count(1) from 
+(select  user_id from xxx group by user_id ) a left join
+(select  user_id from yyy lateral view json_tuple(u, 'h') v1 as h) b
+on a.user_id=b.user_id ;
+When I turn hive.auto.convert.join from true to false. Everything goes OK.
+The error message in hive.log was :
+
+
+2015-12-09 21:10:17,190 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(569)) - 15/12/09 21:10:17 INFO log.PerfLogger: &amp;lt;PERFLOG method=serializePlan from=org.apache.hadoop.hive.ql.exec.Utilities&amp;gt;
+2015-12-09 21:10:17,190 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(569)) - 15/12/09 21:10:17 INFO exec.Utilities: Serializing ReduceWork via kryo
+2015-12-09 21:10:17,214 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(569)) - 15/12/09 21:10:17 INFO log.PerfLogger: &amp;lt;/PERFLOG method=serializePlan start=1449666617190 end=1449666617214 duration=24 from=org.apache.hadoop.hive.ql.exec.Utilities&amp;gt;
+2015-12-09 21:10:17,261 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(569)) - 15/12/09 21:10:17 INFO client.RemoteDriver: Failed to run job 8fed1ca8-834f-497f-b189-eab343440a9f
+2015-12-09 21:10:17,261 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(569)) - java.lang.IllegalStateException: Connection already exists
+2015-12-09 21:10:17,261 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(569)) - 	at org.apache.hadoop.hive.ql.exec.spark.SparkPlan.connect(SparkPlan.java:142)
+2015-12-09 21:10:17,261 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(569)) - 	at org.apache.hadoop.hive.ql.exec.spark.SparkPlanGenerator.generateParentTran(SparkPlanGenerator.java:142)
+2015-12-09 21:10:17,261 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(569)) - 	at org.apache.hadoop.hive.ql.exec.spark.SparkPlanGenerator.generate(SparkPlanGenerator.java:106)
+2015-12-09 21:10:17,261 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(569)) - 	at org.apache.hadoop.hive.ql.exec.spark.RemoteHiveSparkClient$JobStatusJob.call(RemoteHiveSparkClient.java:252)
+2015-12-09 21:10:17,261 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(569)) - 	at org.apache.hive.spark.client.RemoteDriver$JobWrapper.call(RemoteDriver.java:366)
+2015-12-09 21:10:17,261 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(569)) - 	at org.apache.hive.spark.client.RemoteDriver$JobWrapper.call(RemoteDriver.java:335)
+2015-12-09 21:10:17,261 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(569)) - 	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+2015-12-09 21:10:17,262 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(569)) - 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+2015-12-09 21:10:17,262 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(569)) - 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+2015-12-09 21:10:17,262 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(569)) - 	at java.lang.Thread.run(Thread.java:745)
+2015-12-09 21:10:17,266 INFO  [RPC-Handler-3]: client.SparkClientImpl (SparkClientImpl.java:handle(522)) - Received result for 8fed1ca8-834f-497f-b189-eab343440a9f
+2015-12-09 21:10:18,054 ERROR [HiveServer2-Background-Pool: Thread-43]: status.SparkJobMonitor (SessionState.java:printError(960)) - Status: Failed
+2015-12-09 21:10:18,055 INFO  [HiveServer2-Background-Pool: Thread-43]: log.PerfLogger (PerfLogger.java:PerfLogEnd(148)) - &amp;lt;/PERFLOG method=SparkRunJob start=1449666615051 end=1449666618055 duration=3004 from=org.apache.hadoop.hive.ql.exec.spark.status.SparkJobMonitor&amp;gt;
+2015-12-09 21:10:18,076 ERROR [HiveServer2-Background-Pool: Thread-43]: ql.Driver (SessionState.java:printError(960)) - FAILED: Execution Error, return code 3 from org.apache.hadoop.hive.ql.exec.spark.SparkTask
+
+
+Is it the bug of hive on spark?
+
+

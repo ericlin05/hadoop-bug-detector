@@ -1,0 +1,27 @@
+Description
+
+In a cluster with Kerberos authentication
+When a Hive metastore client (e.g. HS2, oozie) has been configured with a logical hostname (e.g. hiveserver/hiveserver_logical_hostname@EXAMPLE.COM), it still uses its physical hostname to try to connect to the hive metastore.
+For example, we specifiy, in hive-site.xml:
+
+&amp;lt;property&amp;gt;
+  &amp;lt;name&amp;gt;hive.server2.authentication.kerberos.principal&amp;lt;/name&amp;gt;
+  &amp;lt;value&amp;gt;hiveserver/hiveserver_logical_hostname@EXAMPLE.COM&amp;lt;/value&amp;gt;
+&amp;lt;/property&amp;gt;
+
+
+When the client tried to get a delegation token from the metastore, an exception occurred:
+
+2015-05-21 23:17:59,554 ERROR metadata.Hive (Hive.java:getDelegationToken(2638)) - MetaException(message:Unauthorized connection for super-user: hiveserver/hiveserver_logical_hostname@EXAMPLE.COM from IP 10.250.16.43)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$get_delegation_token_result$get_delegation_token_resultStandardScheme.read(ThriftHiveMetastore.java)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$get_delegation_token_result$get_delegation_token_resultStandardScheme.read(ThriftHiveMetastore.java)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$get_delegation_token_result.read(ThriftHiveMetastore.java)
+        at org.apache.thrift.TServiceClient.receiveBase(TServiceClient.java:78)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.recv_get_delegation_token(ThriftHiveMetastore.java:3293)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.get_delegation_token(ThriftHiveMetastore.java:3279)
+        at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.getDelegationToken(HiveMetaStoreClient.java:1559)
+
+
+We need to set the bind address when Hive metastore client tries to connect Hive metastore based on logical hostname of Kerberos.
+
+

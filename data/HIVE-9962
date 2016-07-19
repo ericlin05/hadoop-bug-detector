@@ -1,0 +1,69 @@
+Description
+
+To reproduce the limitation do the following. 
+Create a two tables the first with full schema and the second with partial schema. 
+
+
+add jar /opt/cloudera/parcels/CDH/lib/hive-hcatalog/share/hcatalog/hive-hcatalog-core.jar;
+
+CREATE TABLE json_full
+(autopolicy struct&amp;lt;is_active:boolean, policy_holder_name:string, policy_num:string, vehicle:struct&amp;lt;brand:struct&amp;lt;model:string, year:int&amp;gt;, price:double, vin:string&amp;gt;&amp;gt;)
+ROW FORMAT SERDE 'org.apache.hcatalog.data.JsonSerDe';
+
+CREATE TABLE json_part 
+(autopolicy struct&amp;lt;is_active:boolean, policy_holder_name:string, policy_num:string, vehicle:struct&amp;lt;brand:struct&amp;lt;model:string, year:int&amp;gt;, price:double&amp;gt;&amp;gt;)
+ROW FORMAT SERDE 'org.apache.hcatalog.data.JsonSerDe';
+
+
+The data for the table is below: 
+
+
+{"autopolicy": {"policy_holder_name": "someone", "policy_num": "20141012", "is_active": true, "vehicle": {"brand": {"model": "Lexus", "year": 2012}, "vin": "RANDOM123", "price": 23450.50}}}
+
+
+I put that data into a file and load it into the tables like this: 
+
+
+load data local inpath 'data.json' into table json_full;
+load data local inpath 'data.json' into table json_part;
+
+
+Then do a select against each table: 
+
+
+select * from json_full;
+select * from json_part;
+
+
+The second select should fail with an error simlar to that below: 
+
+
+15/03/12 23:19:30 [main]: ERROR CliDriver: Failed with exception java.io.IOException:java.lang.NullPointerException
+
+
+The code that throws this error is below: 
+
+
+172 private void populateRecord(List&amp;lt;Object&amp;gt; r, JsonToken token, JsonParser p, HCatSchema s) throws IOException { 
+173 if (token != JsonToken.FIELD_NAME) { 
+174 throw new IOException("Field name expected"); 
+175 } 
+176 String fieldName = p.getText(); 
+177 int fpos; 
+178 try { 
+179 fpos = s.getPosition(fieldName); 
+180 } catch (NullPointerException npe) { 
+181 fpos = getPositionFromHiveInternalColumnName(fieldName); 
+182 LOG.debug("NPE finding position for field [{}] in schema [{}]", fieldName, s); 
+183 if (!fieldName.equalsIgnoreCase(getHiveInternalColumnName(fpos))) { 
+184 LOG.error("Hive internal column name {} and position " 
+185 + "encoding {} for the column name are at odds", fieldName, fpos); 
+186 throw npe; 
+187 } 
+188 if (fpos == -1) { 
+189 return; // unknown field, we return. 
+190 } 
+
+
+
+

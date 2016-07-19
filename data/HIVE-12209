@@ -1,0 +1,11 @@
+Description
+
+CASE when (d_day_name='Sunday') then ss_sales_price else null end
+
+
+2015-10-18T03:28:37,911 INFO  [main]: physical.Vectorizer (Vectorizer.java:validateExprNodeDesc(1360)) - Failed to vectorize
+org.apache.hadoop.hive.ql.metadata.HiveException: Unable to vectorize custom UDF. Custom udf containing constant null argument cannot be currently vectorized.
+
+
+
+

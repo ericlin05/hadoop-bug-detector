@@ -1,0 +1,38 @@
+Description
+
+The following error is thrown when information about columns is changed on projectionPusher.pushProjectionsAndFilters. 
+
+2015-02-26 15:56:40,275 WARN [main] org.apache.hadoop.mapred.YarnChild: Exception running child : java.io.IOException: java.io.IOException: java.io.IOException: DeprecatedParquetHiveInput : size of object differs. Value size :  23, Current Object size : 29
+	at org.apache.hadoop.hive.io.HiveIOExceptionHandlerChain.handleRecordReaderNextException(HiveIOExceptionHandlerChain.java:121)
+	at org.apache.hadoop.hive.io.HiveIOExceptionHandlerUtil.handleRecordReaderNextException(HiveIOExceptionHandlerUtil.java:77)
+	at org.apache.hadoop.hive.shims.HadoopShimsSecure$CombineFileRecordReader.doNextWithExceptionHandler(HadoopShimsSecure.java:226)
+	at org.apache.hadoop.hive.shims.HadoopShimsSecure$CombineFileRecordReader.next(HadoopShimsSecure.java:136)
+	at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.moveToNext(MapTask.java:199)
+	at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.next(MapTask.java:185)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:52)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: java.io.IOException: java.io.IOException: DeprecatedParquetHiveInput : size of object differs. Value size :  23, Current Object size : 29
+	at org.apache.hadoop.hive.io.HiveIOExceptionHandlerChain.handleRecordReaderNextException(HiveIOExceptionHandlerChain.java:121)
+	at org.apache.hadoop.hive.io.HiveIOExceptionHandlerUtil.handleRecordReaderNextException(HiveIOExceptionHandlerUtil.java:77)
+	at org.apache.hadoop.hive.ql.io.HiveContextAwareRecordReader.doNext(HiveContextAwareRecordReader.java:355)
+	at org.apache.hadoop.hive.ql.io.CombineHiveRecordReader.doNext(CombineHiveRecordReader.java:105)
+	at org.apache.hadoop.hive.ql.io.CombineHiveRecordReader.doNext(CombineHiveRecordReader.java:41)
+	at org.apache.hadoop.hive.ql.io.HiveContextAwareRecordReader.next(HiveContextAwareRecordReader.java:116)
+	at org.apache.hadoop.hive.shims.HadoopShimsSecure$CombineFileRecordReader.doNextWithExceptionHandler(HadoopShimsSecure.java:224)
+	... 11 more
+Caused by: java.io.IOException: DeprecatedParquetHiveInput : size of object differs. Value size :  23, Current Object size : 29
+	at org.apache.hadoop.hive.ql.io.parquet.read.ParquetRecordReaderWrapper.next(ParquetRecordReaderWrapper.java:199)
+	at org.apache.hadoop.hive.ql.io.parquet.read.ParquetRecordReaderWrapper.next(ParquetRecordReaderWrapper.java:52)
+	at org.apache.hadoop.hive.ql.io.HiveContextAwareRecordReader.doNext(HiveContextAwareRecordReader.java:350)
+	... 15 more
+
+
+The bug is in ParquetRecordReaderWrapper. We store metastore such as the list of columns in the Configuration/JobConf. The issue is that this metadata is incorrect until the call to projectionPusher.pushProjectionsAndFilters. In the current codebase we don't use the configuration object returned from projectionPusher.pushProjectionsAndFilters in other sections of code such as creation and initialization of realReader. The end result is that parquet is given an empty read schema and returns all nulls. Since the join key is null, no records are joined.
+
+

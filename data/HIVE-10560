@@ -1,0 +1,23 @@
+Description
+
+Lots of those in Query 1 logs; ran just now on 8 daemons on recent version.
+
+java.lang.NullPointerException
+        at org.apache.hadoop.hive.llap.shufflehandler.ShuffleHandler.unregisterDag(ShuffleHandler.java:437)
+        at org.apache.hadoop.hive.llap.daemon.impl.QueryTracker.queryComplete(QueryTracker.java:81)
+        at org.apache.hadoop.hive.llap.daemon.impl.ContainerRunnerImpl.queryComplete(ContainerRunnerImpl.java:214)
+        at org.apache.hadoop.hive.llap.daemon.impl.LlapDaemon.queryComplete(LlapDaemon.java:271)
+        at org.apache.hadoop.hive.llap.daemon.impl.LlapDaemonProtocolServerImpl.queryComplete(LlapDaemonProtocolServerImpl.java:94)
+        at org.apache.hadoop.hive.llap.daemon.rpc.LlapDaemonProtocolProtos$LlapDaemonProtocol$2.callBlockingMethod(LlapDaemonProtocolProtos.java:12278)
+        at org.apache.hadoop.ipc.ProtobufRpcEngine$Server$ProtoBufRpcInvoker.call(ProtobufRpcEngine.java:616)
+        at org.apache.hadoop.ipc.RPC$Server.call(RPC.java:972)
+        at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2088)
+        at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2084)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:422)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+        at org.apache.hadoop.ipc.Server$Handler.run(Server.java:2082)
+
+
+
+

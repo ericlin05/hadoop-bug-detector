@@ -1,0 +1,34 @@
+Description
+
+Following query will fail if the file format is ORC 
+select tj1rnum, tj2rnum, tjoin3.rnum as rnumt3 from   (select tjoin1.rnum tj1rnum, tjoin2.rnum tj2rnum, tjoin2.c1 tj2c1  from tjoin1 left outer join tjoin2 on tjoin1.c1 = tjoin2.c1 ) tj  left outer join tjoin3 on tj2c1 = tjoin3.c1 
+aused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.vector.VectorCopyRow$LongCopyRow.copy(VectorCopyRow.java:60)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorCopyRow.copyByReference(VectorCopyRow.java:260)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinGenerateResultOperator.generateHashMapResultMultiValue(VectorMapJoinGenerateResultOperator.java:238)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinOuterGenerateResultOperator.finishOuter(VectorMapJoinOuterGenerateResultOperator.java:495)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinOuterLongOperator.process(VectorMapJoinOuterLongOperator.java:430)
+	... 22 more
+]], Vertex did not succeed due to OWN_TASK_FAILURE, failedTasks:1 killedTasks:0, Vertex vertex_1437788144883_0004_2_02 [Map 1] killed/failed due to:null]DAG did not succeed due to VERTEX_FAILURE. failedVertices:1 killedVertices:0
+SQLState:  08S01
+ErrorCode: 2
+getDatabaseProductName	Apache Hive
+getDatabaseProductVersion	1.2.1.2.3.0.0-2557
+getDriverName	Hive JDBC
+getDriverVersion	1.2.1.2.3.0.0-2557
+getDriverMajorVersion	1
+getDriverMinorVersion	2
+create table  if not exists TJOIN1 (RNUM int , C1 int, C2 int)
+– ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' 
+ STORED AS orc 					;
+create table  if not exists TJOIN2 (RNUM int , C1 int, C2 char(2))
+– ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' 
+ STORED AS orc ;
+create table  if not exists TJOIN3 (RNUM int , C1 int, C2 char(2))
+– ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' 
+ STORED AS orc ;
+create table  if not exists TJOIN4 (RNUM int , C1 int, C2 char(2))
+– ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' 
+ STORED AS orc ;
+
+

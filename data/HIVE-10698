@@ -1,0 +1,22 @@
+Description
+
+To reproduce it, 
+
+
+use bugtest;
+create table basetb(id int, name string);
+create view testv1 as
+with subtb as (select id, name from bugtest.basetb)
+select id from subtb;
+use castest;
+explain select * from bugtest.testv1;
+hive&amp;gt; explain select * from bugtest.testv1;
+FAILED: SemanticException Line 2:15 Table not found 'subtb' in definition of VIEW testv1 [
+with subtb as (select id, name from bugtest.basetb)
+select id from `bugtest`.`subtb`
+] used as testv1 at Line 1:22
+Note that there is a database prefix `bugtest`.`subtb`
+
+
+
+

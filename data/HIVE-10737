@@ -1,0 +1,22 @@
+Description
+
+LLAP AppMasters die with 
+
+
+2015-05-17 20:22:44,513 FATAL [Thread-97] yarn.YarnUncaughtExceptionHandler: Thread Thread[Thread-97,5,main] threw an Error.  Shutting down now...
+java.lang.OutOfMemoryError: unable to create new native thread
+	at java.lang.Thread.start0(Native Method)
+	at java.lang.Thread.start(Thread.java:714)
+	at java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:950)
+	at java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1357)
+	at java.util.concurrent.AbstractExecutorService.submit(AbstractExecutorService.java:134)
+	at java.util.concurrent.Executors$DelegatedExecutorService.submit(Executors.java:681)
+	at org.apache.tez.dag.app.rm.TaskSchedulerAppCallbackWrapper.taskAllocated(TaskSchedulerAppCallbackWrapper.java:60)
+	at org.apache.tez.dag.app.rm.LocalTaskSchedulerService$AsyncDelegateRequestHandler.allocateTask(LocalTaskSchedulerService.java:410)
+	at org.apache.tez.dag.app.rm.LocalTaskSchedulerService$AsyncDelegateRequestHandler.processRequest(LocalTaskSchedulerService.java:394)
+	at org.apache.tez.dag.app.rm.LocalTaskSchedulerService$AsyncDelegateRequestHandler.run(LocalTaskSchedulerService.java:386)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+

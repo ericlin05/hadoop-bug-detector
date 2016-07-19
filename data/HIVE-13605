@@ -1,0 +1,27 @@
+Description
+
+A quick google search on "hive qa TestDbTxnManager fail" comes up with the following links:
+http://mail-archives.apache.org/mod_mbox/hive-issues/201604.mbox/%3CJIRA.12955359.1459531017000.134177.1459824865721@Atlassian.JIRA%3E
+http://mail-archives.apache.org/mod_mbox/hive-issues/201604.mbox/%3CJIRA.12823187.1429740172000.123748.1459755385470@Atlassian.JIRA%3E
+http://mail-archives.apache.org/mod_mbox/hive-issues/201604.mbox/%3CJIRA.12957774.1460395463000.231973.1460652445490@Atlassian.JIRA%3E
+https://www.mail-archive.com/issues@hive.apache.org/msg36448.html
+https://www.mail-archive.com/issues@hive.apache.org/msg35865.html
+Seeing the following stack trace:
+
+java.sql.SQLException: Table/View 'TXNS' already exists in Schema 'APP'.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.duplicateDescriptorException(Unknown Source)
+	at org.apache.derby.impl.sql.catalog.DataDictionaryImpl.addDescriptor(Unknown Source)
+	at org.apache.derby.impl.sql.execute.CreateTableConstantAction.executeConstantAction(Unknown Source)
+	at org.apache.derby.impl.sql.execute.MiscResultSet.open(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.executeStmt(Unknown Source)
+	at org.apache.derby.impl.sql.GenericPreparedStatement.execute(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.executeStatement(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+	at org.apache.derby.impl.jdbc.EmbedStatement.execute(Unknown Source)
+	at org.apache.hadoop.hive.metastore.txn.TxnDbUtil.prepDb(TxnDbUtil.java:73)
+	at org.apache.hadoop.hive.ql.lockmgr.TestDbTxnManager.setUp(TestDbTxnManager.java:448)
+
+
+
+

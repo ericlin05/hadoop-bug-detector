@@ -1,0 +1,28 @@
+Description
+
+现在使用的hive版本0.12.0 hadoop版本是1.1.2     hive升级到1.2.1  之后select报错，我看官网说支持hadoop 1.x.y    但是在网上查了下说 hive和hadoop版本不兼容问题，求解答
+
+Exception in thread "main" java.lang.NoSuchMethodError: org.apache.hadoop.mapred.JobConf.unset(Ljava/lang/String;)V
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushFilters(HiveInputFormat.java:438)
+	at org.apache.hadoop.hive.ql.exec.FetchTask.initialize(FetchTask.java:77)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:456)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:308)
+	at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1122)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1170)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1059)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1049)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:213)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:165)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:376)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:736)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:681)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:621)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:156)
+
+
+
+

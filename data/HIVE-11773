@@ -1,0 +1,16 @@
+Description
+
+HIVE-11642 is throwing this exception
+
+
+Caused by: java.io.FileNotFoundException: webapps/llap not found in CLASSPATH
+	at org.apache.hadoop.http.HttpServer2.getWebAppsPath(HttpServer2.java:759) ~[hadoop-common-2.6.0.jar:?]
+	at org.apache.hadoop.http.HttpServer2.&amp;lt;init&amp;gt;(HttpServer2.java:340) ~[hadoop-common-2.6.0.jar:?]
+	at org.apache.hadoop.http.HttpServer2.&amp;lt;init&amp;gt;(HttpServer2.java:105) ~[hadoop-common-2.6.0.jar:?]
+	at org.apache.hadoop.http.HttpServer2$Builder.build(HttpServer2.java:293) ~[hadoop-common-2.6.0.jar:?]
+	at org.apache.hadoop.yarn.webapp.WebApps$Builder.start(WebApps.java:260) ~[hadoop-yarn-common-2.6.0.jar:?]
+	... 37 more
+
+
+
+

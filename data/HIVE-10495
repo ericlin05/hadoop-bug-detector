@@ -1,0 +1,14 @@
+Description
+
+The stack trace would be:
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.add_index(HiveMetaStore.java:2870)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:60)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:37)
+        at java.lang.reflect.Method.invoke(Method.java:611)
+        at org.apache.hadoop.hive.metastore.RetryingHMSHandler.invoke(RetryingHMSHandler.java:102)
+        at $Proxy9.add_index(Unknown Source)
+        at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.createIndex(HiveMetaStoreClient.java:962)
+
+

@@ -1,0 +1,69 @@
+Description
+
+I've created a custom implementation of the `PasswdAuthenticationProvider` interface, based on OAuth2. I think the code is irrelevant for the problem I'm experiencing, nevertheless, it can be found here .
+I've configured `hive-site.xml` with the following properties:
+
+
+    &amp;lt;property&amp;gt;
+       &amp;lt;name&amp;gt;hive.server2.authentication&amp;lt;/name&amp;gt;
+       &amp;lt;value&amp;gt;CUSTOM&amp;lt;/value&amp;gt;
+    &amp;lt;/property&amp;gt;
+    &amp;lt;property&amp;gt;
+       &amp;lt;name&amp;gt;hive.server2.custom.authentication.class&amp;lt;/name&amp;gt;
+       &amp;lt;value&amp;gt;com.telefonica.iot.cosmos.hive.authprovider.OAuth2AuthenticationProviderImpl&amp;lt;/value&amp;gt;
+    &amp;lt;/property&amp;gt;
+
+
+Then I've restarted the Hive service and I've connected a JDBC based remote client with success. This is an example of a successful run found in `/var/log/hive/hiveserver2.log`:
+
+
+    2016-02-01 11:52:44,515 INFO  [pool-5-thread-5]: authprovider.HttpClientFactory (HttpClientFactory.java:&amp;lt;init&amp;gt;(66)) - Setting max total connections (500)
+    2016-02-01 11:52:44,515 INFO  [pool-5-thread-5]: authprovider.HttpClientFactory (HttpClientFactory.java:&amp;lt;init&amp;gt;(67)) - Setting default max connections per route (100)
+    2016-02-01 11:52:44,799 INFO  [pool-5-thread-5]: authprovider.HttpClientFactory (OAuth2AuthenticationProviderImpl.java:Authenticate(65)) - Doing request: GET https://account.lab.fiware.org/user?access_token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx HTTP/1.1
+    2016-02-01 11:52:44,800 INFO  [pool-5-thread-5]: authprovider.HttpClientFactory (OAuth2AuthenticationProviderImpl.java:Authenticate(76)) - Response received: {"organizations": [], "displayName": "frb", "roles": [{"name": "provider", "id": "106"}], "app_id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "email": "frb@tid.es", "id": "frb"}
+    2016-02-01 11:52:44,801 INFO  [pool-5-thread-5]: authprovider.HttpClientFactory (OAuth2AuthenticationProviderImpl.java:Authenticate(104)) - User frb authenticated
+    2016-02-01 11:52:44,868 INFO  [pool-5-thread-5]: thrift.ThriftCLIService (ThriftCLIService.java:OpenSession(188)) - Client protocol version: HIVE_CLI_SERVICE_PROTOCOL_V6
+    2016-02-01 11:52:44,871 INFO  [pool-5-thread-5]: session.SessionState (SessionState.java:start(358)) - No Tez session required at this point. hive.execution.engine=mr.
+    2016-02-01 11:52:44,873 INFO  [pool-5-thread-5]: session.SessionState (SessionState.java:start(358)) - No Tez session required at this point. hive.execution.engine=mr.
+
+
+The problem is after that the following error appears in a recurrent manner:
+
+
+    2016-02-01 11:52:48,227 ERROR [pool-5-thread-4]: server.TThreadPoolServer (TThreadPoolServer.java:run(215)) - Error occurred during processing of message.
+    java.lang.RuntimeException: org.apache.thrift.transport.TTransportException
+    	at org.apache.thrift.transport.TSaslServerTransport$Factory.getTransport(TSaslServerTransport.java:219)
+    	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:189)
+    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+    	at java.lang.Thread.run(Thread.java:745)
+    Caused by: org.apache.thrift.transport.TTransportException
+    	at org.apache.thrift.transport.TIOStreamTransport.read(TIOStreamTransport.java:132)
+    	at org.apache.thrift.transport.TTransport.readAll(TTransport.java:84)
+    	at org.apache.thrift.transport.TSaslTransport.receiveSaslMessage(TSaslTransport.java:182)
+    	at org.apache.thrift.transport.TSaslServerTransport.handleSaslStartMessage(TSaslServerTransport.java:125)
+    	at org.apache.thrift.transport.TSaslTransport.open(TSaslTransport.java:253)
+    	at org.apache.thrift.transport.TSaslServerTransport.open(TSaslServerTransport.java:41)
+    	at org.apache.thrift.transport.TSaslServerTransport$Factory.getTransport(TSaslServerTransport.java:216)
+    	... 4 more
+    2016-02-01 11:53:18,323 ERROR [pool-5-thread-5]: server.TThreadPoolServer (TThreadPoolServer.java:run(215)) - Error occurred during processing of message.
+    java.lang.RuntimeException: org.apache.thrift.transport.TTransportException
+    	at org.apache.thrift.transport.TSaslServerTransport$Factory.getTransport(TSaslServerTransport.java:219)
+    	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:189)
+    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+    	at java.lang.Thread.run(Thread.java:745)
+    Caused by: org.apache.thrift.transport.TTransportException
+    	at org.apache.thrift.transport.TIOStreamTransport.read(TIOStreamTransport.java:132)
+    	at org.apache.thrift.transport.TTransport.readAll(TTransport.java:84)
+    	at org.apache.thrift.transport.TSaslTransport.receiveSaslMessage(TSaslTransport.java:182)
+    	at org.apache.thrift.transport.TSaslServerTransport.handleSaslStartMessage(TSaslServerTransport.java:125)
+    	at org.apache.thrift.transport.TSaslTransport.open(TSaslTransport.java:253)
+    	at org.apache.thrift.transport.TSaslServerTransport.open(TSaslServerTransport.java:41)
+    	at org.apache.thrift.transport.TSaslServerTransport$Factory.getTransport(TSaslServerTransport.java:216)
+    	... 4 more
+
+
+Why? I've seen in several other questions this occurs when using the default value of `hive.server2.authentication`, i.e. `SASL`, and the client is not doing the handshake. But in my case, the value of such a property is `CUSTOM`. I cannot understand it, and any help would be really appreciated.
+
+

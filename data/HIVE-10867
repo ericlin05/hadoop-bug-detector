@@ -1,0 +1,158 @@
+Description
+
+Hi, 
+The following query runs fine on map reduce engine but when setting the hive.exection.engine to tez it produces an ArrayIndexOutOfBoundsException.
+Query
+
+
+create external table table_1 (id string, date string, amount bigint);
+insert into table table_1 values (305,'2013-03-02',3790);
+
+create external table table_2 (id string);
+insert into table table_2 VALUES (305);
+
+create external table table_3 (id string, date_3 string, amount_3 bigint);
+insert into table table_3 values (305,'2013-03-01',-1600);
+
+create external table table_4 (id bigint, str_4 string, amount_4 bigint);
+
+create table table_5
+as
+  SELECT
+    c.diff
+  FROM (
+    SELECT
+      id AS id,
+      date AS create_date,
+      -amount AS diff
+    FROM table_1
+    UNION ALL
+    SELECT
+      p.id AS id,
+      p.str_4 AS create_date,
+      -p.amount_4 AS diff
+    FROM table_4 p
+    UNION ALL
+    SELECT
+      id,
+      create_date,
+      diff
+    FROM (
+      SELECT
+        i.id AS id,
+        tp.date_3 AS create_date,
+        cast(amount_3 as double) AS diff
+      FROM table_3 tp
+      INNER JOIN table_2 i ON cast(tp.id as string) = cast(i.id as string)
+    ) fees
+  ) c
+INNER JOIN table_2 i ON cast(c.id as string) = cast(i.id as string);
+
+
+Results with map reduce engine:
+
+
+hive&amp;gt; select * from table_5;
+OK
+-1600.0
+-3790.0
+Time taken: 0.061 seconds, Fetched: 2 row(s)
+
+
+Exception with tez engine:
+
+
+Status: Failed
+Vertex failed, vertexName=Reducer 4, vertexId=vertex_1432809678493_0891_4_06, diagnostics=[Task failed, taskId=task_1432809678493_0891_4_06_000000, diagnostics=[TaskAttempt 0 failed, info=[Error: Failure while running task:java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row (tag=0) {"key":{"reducesinkkey0":"305"},"value":{"_col1":-1600.0}}
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:186)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:138)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:324)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:176)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:168)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:168)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:163)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row (tag=0) {"key":{"reducesinkkey0":"305"},"value":{"_col1":-1600.0}}
+	at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordSource$GroupIterator.next(ReduceRecordSource.java:337)
+	at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordSource.pushRecord(ReduceRecordSource.java:218)
+	at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordProcessor.run(ReduceRecordProcessor.java:168)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:163)
+	... 13 more
+Caused by: java.lang.ArrayIndexOutOfBoundsException: 6
+	at org.apache.hadoop.hive.serde2.lazybinary.LazyBinaryUtils.byteArrayToLong(LazyBinaryUtils.java:84)
+	at org.apache.hadoop.hive.serde2.lazybinary.LazyBinaryDouble.init(LazyBinaryDouble.java:43)
+	at org.apache.hadoop.hive.serde2.lazybinary.LazyBinaryStruct.uncheckedGetField(LazyBinaryStruct.java:264)
+	at org.apache.hadoop.hive.serde2.lazybinary.LazyBinaryStruct.getField(LazyBinaryStruct.java:201)
+	at org.apache.hadoop.hive.serde2.lazybinary.objectinspector.LazyBinaryStructObjectInspector.getStructFieldData(LazyBinaryStructObjectInspector.java:64)
+	at org.apache.hadoop.hive.ql.exec.ExprNodeColumnEvaluator._evaluate(ExprNodeColumnEvaluator.java:98)
+	at org.apache.hadoop.hive.ql.exec.ExprNodeEvaluator.evaluate(ExprNodeEvaluator.java:77)
+	at org.apache.hadoop.hive.ql.exec.ExprNodeEvaluator.evaluate(ExprNodeEvaluator.java:65)
+	at org.apache.hadoop.hive.ql.exec.JoinUtil.computeValues(JoinUtil.java:193)
+	at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.getFilteredValue(CommonJoinOperator.java:408)
+	at org.apache.hadoop.hive.ql.exec.CommonMergeJoinOperator.processOp(CommonMergeJoinOperator.java:162)
+	at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordSource$GroupIterator.next(ReduceRecordSource.java:328)
+	... 16 more
+
+
+Secondly, adding a column to table_5 gets rid of the Exception, but instead the result set is corrupted when using the tez engine. This is even more scary! 
+Query
+
+
+create table table_5
+as
+  SELECT
+    c.create_date,
+    c.diff
+  FROM (
+    SELECT
+      id AS id,
+      date AS create_date,
+      -amount AS diff
+    FROM table_1
+    UNION ALL
+    SELECT
+      p.id AS id,
+      p.str_4 AS create_date,
+      -p.amount_4 AS diff
+    FROM table_4 p
+    UNION ALL
+    SELECT
+      id,
+      create_date,
+      diff
+    FROM (
+      SELECT
+        i.id AS id,
+        tp.date_3 AS create_date,
+        cast(amount_3 as double) AS diff
+      FROM table_3 tp
+      INNER JOIN table_2 i ON cast(tp.id as string) = cast(i.id as string)
+    ) fees
+  ) c
+INNER JOIN table_2 i ON cast(c.id as string) = cast(i.id as string);
+
+
+Result:
+
+
+hive&amp;gt; select * from with_mr.table_5;
+OK
+2013-03-02	-3790.0
+2013-03-01	-1600.0
+Time taken: 8.107 seconds, Fetched: 2 row(s)
+hive&amp;gt; select * from with_tez.table_5;
+OK
+2013-03-01	-1600.0
+2013-03-02	-1.6968199793927886E-279
+Time taken: 0.047 seconds, Fetched: 2 row(s)
+
+
+This ticket could possibly be related to https://issues.apache.org/jira/browse/HIVE-9517?
+
+

@@ -1,0 +1,134 @@
+Description
+
+I have a query case with group by and UDF defined : 
+
+
+select
+  tx.a, tx.b, tx.c
+from
+(
+  select t.*
+  from dual
+  lateral view explode_json_array(
+    named_struct(
+      'json', '[{"a":"a1", "b":"b1", "c":"c1"}, {"a":"a2", "b":"b2", "c":"c2"}]',
+      'paths', array('$..a', '$..b', '$..c')
+    )
+  ) t as a,b,c
+) tx
+group by tx.a, tx.b, tx.c
+
+
+I use "create function explode_json_array 
+as 'com.baidu.dft.ymir.hadoop.hive.udf.UDTFExpldeJsonArray' 
+using jar 'hdfs:///hadoop-tools/hadoop-tools-0.0.1-SNAPSHOT.jar'; " to create udf.
+It works fine on both mr and spark cluster mode without "group by" clause, but fails when running on spark cluster mode with "group by" clause defined.
+Detail error message is below 
+
+
+WARN scheduler.DAGScheduler: Creating new stage failed due to exception - job: 3
+java.lang.RuntimeException: Failed to load plan: hdfs://cq01-mcp-master.epc.baidu.com:8020/tmp/hive/mcpweb/4f7216b8-b5f2-443c-a0f1-8520841c1caf/hive_2016-04-21_04-15-39_787_4732405294118301221-15/-mr-10004/8e110379-9b0a-4c0f-b99f-6ecde63369f6/map.xml: org.apache.hive.com.esotericsoftware.kryo.KryoException: Unable to find class: com.baidu.dft.ymir.hadoop.hive.udf.UDTFExpldeJsonArray
+Serialization trace:
+genericUDTF (org.apache.hadoop.hive.ql.plan.UDTFDesc)
+conf (org.apache.hadoop.hive.ql.exec.UDTFOperator)
+parentOperators (org.apache.hadoop.hive.ql.exec.LateralViewJoinOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.SelectOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.LateralViewForwardOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.TableScanOperator)
+aliasToWork (org.apache.hadoop.hive.ql.plan.MapWork)
+	at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:462)
+	at org.apache.hadoop.hive.ql.exec.Utilities.getMapWork(Utilities.java:301)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.init(HiveInputFormat.java:268)
+	at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getSplits(CombineHiveInputFormat.java:505)
+	at org.apache.spark.rdd.HadoopRDD.getPartitions(HadoopRDD.scala:207)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:219)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:217)
+	at scala.Option.getOrElse(Option.scala:120)
+	at org.apache.spark.rdd.RDD.partitions(RDD.scala:217)
+	at org.apache.spark.rdd.MapPartitionsRDD.getPartitions(MapPartitionsRDD.scala:32)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:219)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:217)
+	at scala.Option.getOrElse(Option.scala:120)
+	at org.apache.spark.rdd.RDD.partitions(RDD.scala:217)
+	at org.apache.spark.ShuffleDependency.&amp;lt;init&amp;gt;(Dependency.scala:82)
+	at org.apache.spark.rdd.ShuffledRDD.getDependencies(ShuffledRDD.scala:78)
+	at org.apache.spark.rdd.RDD$$anonfun$dependencies$2.apply(RDD.scala:206)
+	at org.apache.spark.rdd.RDD$$anonfun$dependencies$2.apply(RDD.scala:204)
+	at scala.Option.getOrElse(Option.scala:120)
+	at org.apache.spark.rdd.RDD.dependencies(RDD.scala:204)
+	at org.apache.spark.scheduler.DAGScheduler.visit$1(DAGScheduler.scala:321)
+	at org.apache.spark.scheduler.DAGScheduler.getParentStages(DAGScheduler.scala:333)
+	at org.apache.spark.scheduler.DAGScheduler.getParentStagesAndId(DAGScheduler.scala:234)
+	at org.apache.spark.scheduler.DAGScheduler.newResultStage(DAGScheduler.scala:270)
+	at org.apache.spark.scheduler.DAGScheduler.handleJobSubmitted(DAGScheduler.scala:768)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:1426)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:1418)
+	at org.apache.spark.util.EventLoop$$anon$1.run(EventLoop.scala:48)
+Caused by: org.apache.hive.com.esotericsoftware.kryo.KryoException: Unable to find class: com.baidu.dft.ymir.hadoop.hive.udf.UDTFExpldeJsonArray
+Serialization trace:
+genericUDTF (org.apache.hadoop.hive.ql.plan.UDTFDesc)
+conf (org.apache.hadoop.hive.ql.exec.UDTFOperator)
+parentOperators (org.apache.hadoop.hive.ql.exec.LateralViewJoinOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.SelectOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.LateralViewForwardOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.TableScanOperator)
+aliasToWork (org.apache.hadoop.hive.ql.plan.MapWork)
+	at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readName(DefaultClassResolver.java:138)
+	at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readClass(DefaultClassResolver.java:115)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClass(Kryo.java:656)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:99)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:139)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:17)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:672)
+	at org.apache.hadoop.hive.ql.exec.Utilities.deserializeObjectByKryo(Utilities.java:1081)
+	at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:972)
+	at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:986)
+	at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:422)
+	... 27 more
+Caused by: java.lang.ClassNotFoundException: com.baidu.dft.ymir.hadoop.hive.udf.UDTFExpldeJsonArray
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:423)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:356)
+	at java.lang.Class.forName0(Native Method)
+	at java.lang.Class.forName(Class.java:264)
+	at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readName(DefaultClassResolver.java:136)
+	... 69 more
+
+
+
+

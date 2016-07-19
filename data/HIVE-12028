@@ -1,0 +1,19 @@
+Description
+
+How to reproduce:
+```sql
+SELECT ARRAY(ARRAY(1),ARRAY()) ;
+FAILED: SemanticException [Error 10016]: Line 1:22 Argument type mismatch 'ARRAY': Argument type "array&amp;lt;string&amp;gt;" is different from preceding arguments. Previous type was "array&amp;lt;int&amp;gt;"
+SELECT COALESCE(ARRAY(1),ARRAY()) ;
+FAILED: SemanticException [Error 10016]: Line 1:25 Argument type mismatch 'ARRAY': The expressions after COALESCE should all have the same type: "array&amp;lt;int&amp;gt;" is expected but "array&amp;lt;string&amp;gt;" is found
+```
+This is especially painful for COALESCE, as we cannot
+remove NULLS after doing a JOIN.
+The same problem holds with maps.
+The only workaround I could think of (except adding my own UDF)
+is quite ugly :
+```sql
+SELECT ARRAY(ARRAY(1),empty.arr) FROM (SELECT collect_set(id) as arr FROM (SELECT 1 as id) T WHERE id=0) empty ;
+```
+
+

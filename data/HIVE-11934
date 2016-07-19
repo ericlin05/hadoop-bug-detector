@@ -1,0 +1,15 @@
+Description
+
+We reset the deadlock count to 0 every time the lock() method is called in org.apache.hadoop.hive.metastore.txn.TxnHandler, so the ten count is never reached in checkRetryable().
+We should let checkRetryable handle the deadlock count.
+  public LockResponse lock(LockRequest rqst)
+    throws NoSuchTxnException, TxnAbortedException, MetaException
+  {
+&amp;gt;&amp;gt;&amp;gt;    this.deadlockCnt = 0; &amp;lt;&amp;lt;&amp;lt;
+    try
+    {
+      Connection dbConn = null;
+      try
+      {
+
+

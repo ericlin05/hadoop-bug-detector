@@ -1,0 +1,182 @@
+Description
+
+sample hql:
+select  A.state_date, 
+           A.customer, 
+           A.channel_2,
+           A.id,
+           A.pid,
+           A.type,
+           A.pv,
+           A.uv,
+           A.visits,
+           if(C.stay_visits is null,0,C.stay_visits) as stay_visits,
+           A.stay_time,
+           if(B.bounce is null,0,B.bounce) as bounce
+ from
+     (select a.state_date, 
+            a.customer, 
+            b.url as channel_2,
+            b.id,
+            b.pid,
+            b.type,
+            count(1) as pv,
+            count(distinct a.gid) uv,
+            count(distinct a.session_id) as visits,
+            sum(a.stay_time) as stay_time
+       from       
+               ( select state_date, 
+                           customer, 
+                           gid,
+                           session_id,
+                           ep,
+                           stay_time
+                    from bdi_fact.mid_pageview_dt0
+                    where l_date ='$v_date'
+                  )a
+                  join
+                  (select l_date as state_date ,
+                          url,
+                          id,
+                          pid,
+                          type,
+                          cid
+                   from bdi_fact.frequency_channel
+                   where l_date ='$v_date'
+                   and type ='2'
+                   and dr='0'
+                  )b
+                   on  a.customer=b.cid  
+                   where a.ep  rlike b.url
+                   group by a.state_date, a.customer, b.url,b.id,b.pid,b.type
+       )A
+        left outer join
+       (   select 
+                   c.state_date ,
+                   c.customer ,
+                   d.url as channel_2,
+                   d.id,
+                   sum(pagedepth) as bounce
+            from
+                  ( select 
+                              t1.state_date ,
+                              t1.customer ,
+                              t1.session_id,
+                              t1.ep,
+                              t2.pagedepth
+                    from           
+                         ( select 
+                                     state_date ,
+                                     customer ,
+                                     session_id,
+                                     exit_url as ep
+                          from ods.mid_session_enter_exit_dt0
+                          where l_date ='$v_date'
+                          )t1
+                         join
+                          ( select 
+                                    state_date ,
+                                    customer ,
+                                    session_id,
+                                    pagedepth
+                            from ods.mid_session_action_dt0
+                            where l_date ='$v_date'
+                            and  pagedepth='1'
+                          )t2
+                         on t1.customer=t2.customer
+                         and t1.session_id=t2.session_id
+                   )c
+                   join
+                   (select *
+                   from bdi_fact.frequency_channel
+                   where l_date ='$v_date'
+                   and type ='2'
+                   and dr='0'
+                   )d
+                   on c.customer=d.cid
+                   where c.ep  rlike d.url
+                   group by  c.state_date,c.customer,d.url,d.id
+             )B
+             on 
+             A.customer=B.customer
+             and A.channel_2=B.channel_2 
+             and A.id=B.id
+      left outer join
+     ( 
+             select e.state_date, 
+            e.customer, 
+            f.url as channel_2,
+            f.id,
+            f.pid,
+            f.type,
+            count(distinct e.session_id) as stay_visits
+       from       
+               ( select state_date, 
+                           customer, 
+                           gid,
+                           session_id,
+                           ep,
+                           stay_time
+                    from bdi_fact.mid_pageview_dt0
+                    where l_date ='$v_date'
+                  )e
+                  join
+                  (select l_date as state_date,
+                          url,
+                          id,
+                          pid,
+                          type,
+                          cid
+                   from bdi_fact.frequency_channel
+                   where l_date ='$v_date'
+                   and type ='2'
+                   and dr='0'
+                  )f
+                   on  e.customer=f.cid  
+                   where e.ep  rlike f.url
+                   and e.stay_time is not null
+                   and e.stay_time &amp;lt;&amp;gt;'0'
+                   group by e.state_date, e.customer, f.url,f.id,f.pid,f.type
+           )C
+        on
+        A.customer=C.customer
+        and   A.channel_2=C.channel_2
+        and   A.id=C.id
+        and   A.pid=C.pid
+        and   A.type=C.type 
+ where A.customer='Cdianyingwang' and A.channel_2='http://www.1905.com/film/filmnews/jk/' and A.id='127';"
+exception:
+2015-11-26 15:10:53,607 Stage-14 map = 67%,  reduce = 0%, Cumulative CPU 8.65 sec
+2015-11-26 15:11:23,193 Stage-14 map = 100%,  reduce = 0%, Cumulative CPU 8.65 sec
+MapReduce Total cumulative CPU time: 8 seconds 650 msec
+Ended Job = job_1448437287773_0686 with errors
+Error during job, obtaining debugging information...
+Examining task ID: task_1448437287773_0686_m_000001 (and more) from job job_1448437287773_0686
+Task with the most failures(4): 
+
+Task ID:
+  task_1448437287773_0686_m_000001
+URL:
+http://0.0.0.0:8088/taskdetails.jsp?jobid=job_1448437287773_0686&amp;amp;tipid=task_1448437287773_0686_m_000001
+
+Diagnostic Messages for this Task:
+Error: java.lang.RuntimeException: Hive Runtime Error while closing operators
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.close(ExecMapper.java:232)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:61)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.exec.MapJoinOperator.closeOp(MapJoinOperator.java:317)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:598)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:610)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:610)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.close(ExecMapper.java:205)
+        ... 8 more
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+
+

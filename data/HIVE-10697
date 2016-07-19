@@ -1,0 +1,22 @@
+Description
+
+Currently the UnionConvertor in the ObjectInspectorConvertors class has an issue with the convert method where it attempts to convert the objectinspector itself instead of converting the field.[1]. This should be changed to convert the field itself. This could result in a ClassCastException as shown below:
+
+
+Caused by: java.lang.ClassCastException: org.apache.hadoop.hive.serde2.lazy.objectinspector.LazyUnionObjectInspector cannot be cast to org.apache.hadoop.hive.serde2.lazy.LazyString
+	at org.apache.hadoop.hive.serde2.lazy.objectinspector.primitive.LazyStringObjectInspector.getPrimitiveWritableObject(LazyStringObjectInspector.java:51)
+	at org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorConverter$TextConverter.convert(PrimitiveObjectInspectorConverter.java:391)
+	at org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorConverter$TextConverter.convert(PrimitiveObjectInspectorConverter.java:338)
+	at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorConverters$UnionConverter.convert(ObjectInspectorConverters.java:456)
+	at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorConverters$StructConverter.convert(ObjectInspectorConverters.java:395)
+	at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorConverters$MapConverter.convert(ObjectInspectorConverters.java:539)
+	at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorConverters$StructConverter.convert(ObjectInspectorConverters.java:395)
+	at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.readRow(MapOperator.java:154)
+	at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.access$200(MapOperator.java:127)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:518)
+	... 9 more
+
+
+[1] https://github.com/apache/hive/blob/master/serde/src/java/org/apache/hadoop/hive/serde2/objectinspector/ObjectInspectorConverters.java#L466
+
+

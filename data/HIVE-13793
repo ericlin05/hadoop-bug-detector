@@ -1,0 +1,51 @@
+Description
+
+I've found that Hive sometimes automatically gives an alias to
+the columns that are in a group by.
+I'm not sure if this is a bug or a feature but it seems to be inconsistent
+with the way it usually resolves column names :
+How to reproduce:
+This query is ok :
+
+
+SELECT 
+s.foo
+FROM (SELECT NAMED_STRUCT("foo", 2) as s) T 
+;
++------+--+
+| foo  |
++------+--+
+| 2    |
++------+--+
+
+
+This query fails (and it's normal) because the column 'foo' does not exist (but 's.foo' does).
+
+
+SELECT 
+foo
+FROM (SELECT NAMED_STRUCT("foo", 2) as s) T 
+;
+Error: Error while compiling statement: FAILED: SemanticException [Error 10004]: Line 2:0 Invalid table alias or column reference 'foo': (possible column names are: s) (state=42000,code=10004)
+
+
+But adding a GROUP BY seems to make Hive rename 's.foo' into 'foo',
+and the following query works (which seems less normal to me) . 
+
+
+SELECT 
+foo
+FROM (SELECT NAMED_STRUCT("foo", 2) as s) T 
+GROUP BY s.foo
+;
++------+--+
+| foo  |
++------+--+
+| 2    |
++------+--+
+
+
+Is this a bug or a feature ?
+In this example it is mostly harmless, but I though perhaps it might help finding a flaw in the query processor.
+
+

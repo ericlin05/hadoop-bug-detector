@@ -1,0 +1,48 @@
+Description
+
+When Hive table schema contains a portion of the schema of a Parquet file, then the access to the values should work if the field names match the schema. This does not work when a struct&amp;lt;&amp;gt; data type is in the schema, and the Hive schema contains just a portion of the struct elements. Hive throws an error instead.
+This is the example and how to reproduce:
+First, create a parquet table, and add some values on it:
+
+
+CREATE TABLE test1 (id int, name string, address struct&amp;lt;number:int,street:string,zip:string&amp;gt;) STORED AS PARQUET;
+
+INSERT INTO TABLE test1 SELECT 1, 'Roger', named_struct('number',8600,'street','Congress Ave.','zip','87366') FROM srcpart LIMIT 1;
+
+
+Note: srcpart could be any table. It is just used to leverage the INSERT statement.
+The above table example generates the following Parquet file schema:
+
+
+message hive_schema {
+  optional int32 id;
+  optional binary name (UTF8);
+  optional group address {
+    optional int32 number;
+    optional binary street (UTF8);
+    optional binary zip (UTF8);
+  }
+}
+
+
+Afterwards, I create a table that contains just a portion of the schema, and load the Parquet file generated above, a query will fail on that table:
+
+
+CREATE TABLE test1 (name string, address struct&amp;lt;street:string&amp;gt;) STORED AS PARQUET;
+
+LOAD DATA LOCAL INPATH '/tmp/HiveGroup.parquet' OVERWRITE INTO TABLE test1;
+
+hive&amp;gt; SELECT name FROM test1;
+OK
+Roger
+Time taken: 0.071 seconds, Fetched: 1 row(s)
+
+hive&amp;gt; SELECT address FROM test1;
+OK
+Failed with exception java.io.IOException:org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.UnsupportedOperationException: Cannot inspect org.apache.hadoop.io.IntWritable
+Time taken: 0.085 seconds
+
+
+I would expect that Parquet can access the matched names, but Hive throws an error instead.
+
+

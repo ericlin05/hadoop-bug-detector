@@ -1,0 +1,10 @@
+Description
+
+I apply the RCFileProtobufInputFormat from twitter's elephantbird project into hive to handle Protobuf records which are written in a RCFile file format. What I have done is belowing:
+1. compile the soure code of RCFileProtobufInputFormat and make a jar
+2. add the jar to hive_aux_jar_path and update the config of server and client
+3. create table using inputformat "com.twitter.elephantbird.mapreduce.input.RCFileProtobufInputFormat"
+Creating table is ok.but when I excute a query like "select * from table test"(there is no data in table test),I got these mistake: FAILED: SemanticException 1:14 Input format must implement InputFormat. Error encountered near token test. 
+I found some cases in stackoverflow,someones said that's because the custom inputformat class implement the new API(org.apache.hadoop.marpreduce) and RCFileProtobufInputFormat class indeed extends the new API. I'm wondering if a custom inputformat must extend the old API(org.apache.hadoop.marpred)? Could this be the reason of my problem?
+
+

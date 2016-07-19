@@ -1,0 +1,31 @@
+Description
+
+set hive.execution.engine=mr; 
+set hive.mapred.supports.subdirectories=true; 
+set hive.optimize.skewjoin.compiletime = true; 
+ALTER TABLE tandem.fct_traffic_navpage_path_detl SKEWED BY (ordr_code,cart_prod_id) ON (('','NULL')); 
+Vertex failed, vertexName=initialmap, vertexId=vertex_1419300485749_1514787_1_00, diagnostics=[Task failed, taskId=task_1419300485749_1514787_1_00_000245, diagnostics=[TaskAttempt 0 failed, info=[Error: Failure while running task:java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row 
+{"parnt_ordr_id":3715999535959,"parnt_ordr_code":"3715999535959","end_user_id":163846959,"comb_prod_id":7873715,"sale_amt":99.0,"actl_sale_amt":99.0,"sale_num":1,"updt_time":"2015-05-11 03:58:13","etl_batch_id":0,"ds":"2015-05-10"}
+ 
+at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:179) 
+at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54) 
+at org.apache.tez.mapreduce.processor.map.MapProcessor.runOldMapper(MapProcessor.java:183) 
+at org.apache.tez.mapreduce.processor.map.MapProcessor.run(MapProcessor.java:126) 
+at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:324) 
+at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:176) 
+at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:168) 
+I think this is the error,cart_prod_id col not exist in table univ_parnt_tranx_comb_detl 
+TableScan 
+alias: o 
+Statistics: Num rows: 109845709 Data size: 14499651703 Basic stats: PARTIAL Column stats: NONE 
+Filter Operator 
+predicate: (not ((ordr_code = '') and (cart_prod_id = null))) (type: boolean) 
+Statistics: Num rows: 0 Data size: 0 Basic stats: NONE Column stats: NONE 
+Reduce Output Operator 
+key expressions: parnt_ordr_code (type: string), comb_prod_id (type: bigint) 
+sort order: ++ 
+Map-reduce partition columns: parnt_ordr_code (type: string), comb_prod_id (type: bigint) 
+Statistics: Num rows: 0 Data size: 0 Basic stats: NONE Column stats: NONE 
+value expressions: end_user_id (type: bigint), actl_sale_amt (type: double), sale_num (type: bigint), ds (type: string) 
+
+

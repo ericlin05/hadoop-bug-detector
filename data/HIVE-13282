@@ -1,0 +1,16 @@
+Description
+
+The group by and select operators run into the ArrayIndexOutOfBoundsException when they incorrectly initialize themselves with tag 0 but the incoming tag id is different.
+
+
+select count(*) from
+(select rt1.id from
+(select t1.key as id, t1.value as od from tab t1 group by key, value) rt1) vt1
+join
+(select rt2.id from
+(select t2.key as id, t2.value as od from tab_part t2 group by key, value) rt2) vt2
+where vt1.id=vt2.id;
+
+
+
+

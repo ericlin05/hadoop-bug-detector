@@ -1,0 +1,8 @@
+Description
+
+When i am trying to load the data from the partitioned table in RC format to a partitioned table in ORC format.Using the below command to load the data.
+create table ORC_Table stored as ORC as select * from RC_Table;
+Facing the issue:
+ArrayIndexOutofBoundsException:26
+
+

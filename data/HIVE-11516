@@ -1,0 +1,7 @@
+Description
+
+There are several methods in JDBC driver implementation that still throw UnSupportedException. This and other jdbc spec non compliant behavior causes issues when JDBC driver is used with external tools and libraries.
+For example, Jmeter calls HiveStatement.setQueryTimeout and this was resulting in an exception. HIVE-10726 makes it possible to have a workaround for this.
+Creating this jira for ease of tracking such issues. Please mark new jiras as blocking this one.
+
+

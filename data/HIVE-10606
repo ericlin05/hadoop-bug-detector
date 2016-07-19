@@ -1,0 +1,36 @@
+Description
+
+Happened when keyCount for the table is 0 (hit this while trying to test some local changes). This is a very unlikely scenario, but this shouldn't happen.
+
+], TaskAttempt 3 failed, info=[Error: Failure while running task:java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.ArithmeticException: / by zero
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:324)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:176)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:168)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:168)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:163)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:744)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.ArithmeticException: / by zero
+	at org.apache.hadoop.hive.ql.exec.tez.HashTableLoader.load(HashTableLoader.java:184)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.loadHashTable(MapJoinOperator.java:292)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.initializeOp(MapJoinOperator.java:183)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:362)
+	at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordProcessor.init(ReduceRecordProcessor.java:148)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:147)
+	... 13 more
+Caused by: java.lang.ArithmeticException: / by zero
+	at org.apache.hadoop.hive.ql.exec.persistence.HybridHashTableContainer.&amp;lt;init&amp;gt;(HybridHashTableContainer.java:241)
+	at org.apache.hadoop.hive.ql.exec.persistence.HybridHashTableContainer.&amp;lt;init&amp;gt;(HybridHashTableContainer.java:221)
+	at org.apache.hadoop.hive.ql.exec.tez.HashTableLoader.load(HashTableLoader.java:170)
+	... 18 more
+
+
+
+

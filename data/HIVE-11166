@@ -1,0 +1,26 @@
+Description
+
+ I create a hbase table with HBaseStorageHandler in JDBCServer of spark, then execute the insert into sql statement, ClassCastException occurs.
+
+Error: org.apache.spark.SparkException: Job aborted due to stage failure: Task 1 in stage 3.0 failed 4 times, most recent failure: Lost task 1.3 in stage 3.0 (TID 12, vm-17): java.lang.ClassCastException: org.apache.hadoop.hive.hbase.HiveHBaseTableOutputFormat cannot be cast to org.apache.hadoop.hive.ql.io.HiveOutputFormat
+        at org.apache.spark.sql.hive.SparkHiveWriterContainer.outputFormat$lzycompute(hiveWriterContainers.scala:72)
+        at org.apache.spark.sql.hive.SparkHiveWriterContainer.outputFormat(hiveWriterContainers.scala:71)
+        at org.apache.spark.sql.hive.SparkHiveWriterContainer.getOutputName(hiveWriterContainers.scala:91)
+        at org.apache.spark.sql.hive.SparkHiveWriterContainer.initWriters(hiveWriterContainers.scala:115)
+        at org.apache.spark.sql.hive.SparkHiveWriterContainer.executorSideSetup(hiveWriterContainers.scala:84)
+        at org.apache.spark.sql.hive.execution.InsertIntoHiveTable.org$apache$spark$sql$hive$execution$InsertIntoHiveTable$$writeToFile$1(InsertIntoHiveTable.scala:112)
+        at org.apache.spark.sql.hive.execution.InsertIntoHiveTable$$anonfun$saveAsHiveFile$3.apply(InsertIntoHiveTable.scala:93)
+        at org.apache.spark.sql.hive.execution.InsertIntoHiveTable$$anonfun$saveAsHiveFile$3.apply(InsertIntoHiveTable.scala:93)
+        at org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:61)
+        at org.apache.spark.scheduler.Task.run(Task.scala:56)
+        at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:197)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+It's because the code in spark below. To hbase table, the outputFormat is HiveHBaseTableOutputFormat, it isn't instanceOf[HiveOutputForm
+at].
+
+@transient private lazy val outputFormat=conf.value.getOutputFormat.asInstanceOf[HiveOutputForm
+at[AnyRef, Writable]]
+val extension = Utilities.getFileExtension(conf.value, fileSinkConf.getCompressed, outputFormat)
+
+

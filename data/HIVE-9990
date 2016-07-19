@@ -1,0 +1,22 @@
+Description
+
+At least sometimes. I can reproduce it with "mvn test -Dtest=TestMultiSessionsHS2WithLocalClusterSpark -Phadoop-2" consistently on my local box (both trunk and spark branch).
+
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running org.apache.hive.jdbc.TestMultiSessionsHS2WithLocalClusterSpark
+Tests run: 2, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 92.438 sec &amp;lt;&amp;lt;&amp;lt; FAILURE! - in org.apache.hive.jdbc.TestMultiSessionsHS2WithLocalClusterSpark
+testSparkQuery(org.apache.hive.jdbc.TestMultiSessionsHS2WithLocalClusterSpark)  Time elapsed: 21.514 sec  &amp;lt;&amp;lt;&amp;lt; ERROR!
+java.util.concurrent.ExecutionException: java.sql.SQLException: Error while processing statement: FAILED: Execution Error, return code 3 from org.apache.hadoop.hive.ql.exec.spark.SparkTask
+	at org.apache.hive.jdbc.HiveStatement.execute(HiveStatement.java:296)
+	at org.apache.hive.jdbc.HiveStatement.executeQuery(HiveStatement.java:392)
+	at org.apache.hive.jdbc.TestMultiSessionsHS2WithLocalClusterSpark.verifyResult(TestMultiSessionsHS2WithLocalClusterSpark.java:244)
+	at org.apache.hive.jdbc.TestMultiSessionsHS2WithLocalClusterSpark.testKvQuery(TestMultiSessionsHS2WithLocalClusterSpark.java:220)
+	at org.apache.hive.jdbc.TestMultiSessionsHS2WithLocalClusterSpark.access$000(TestMultiSessionsHS2WithLocalClusterSpark.java:53)
+
+
+The error was also seen in HIVE-9934 test run.
+
+

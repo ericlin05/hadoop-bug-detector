@@ -1,0 +1,45 @@
+Description
+
+Periodically Hiveserver2 will become unresponsive and looking in the logs there is the following error:
+
+2:28:22.965 PM	ERROR	org.apache.hadoop.hive.ql.io.orc.OrcInputFormat	
+Unexpected Exception
+java.lang.OutOfMemoryError: PermGen space
+2:28:22.969 PM	WARN	org.apache.hive.service.cli.thrift.ThriftCLIService	
+Error fetching results: 
+org.apache.hive.service.cli.HiveSQLException: java.io.IOException: java.lang.RuntimeException: serious problem
+	at org.apache.hive.service.cli.operation.SQLOperation.getNextRowSet(SQLOperation.java:343)
+	at org.apache.hive.service.cli.operation.OperationManager.getOperationNextRowSet(OperationManager.java:250)
+	at org.apache.hive.service.cli.session.HiveSessionImpl.fetchResults(HiveSessionImpl.java:656)
+	at org.apache.hive.service.cli.CLIService.fetchResults(CLIService.java:451)
+	at org.apache.hive.service.cli.thrift.ThriftCLIService.FetchResults(ThriftCLIService.java:672)
+	at org.apache.hive.service.cli.thrift.TCLIService$Processor$FetchResults.getResult(TCLIService.java:1553)
+	at org.apache.hive.service.cli.thrift.TCLIService$Processor$FetchResults.getResult(TCLIService.java:1538)
+	at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+	at org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:39)
+	at org.apache.hadoop.hive.thrift.HadoopThriftAuthBridge$Server$TUGIAssumingProcessor.process(HadoopThriftAuthBridge.java:692)
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.io.IOException: java.lang.RuntimeException: serious problem
+	at org.apache.hadoop.hive.ql.exec.FetchOperator.getNextRow(FetchOperator.java:507)
+	at org.apache.hadoop.hive.ql.exec.FetchOperator.pushRow(FetchOperator.java:414)
+	at org.apache.hadoop.hive.ql.exec.FetchTask.fetch(FetchTask.java:138)
+	at org.apache.hadoop.hive.ql.Driver.getResults(Driver.java:1655)
+	at org.apache.hive.service.cli.operation.SQLOperation.getNextRowSet(SQLOperation.java:338)
+	... 13 more
+Caused by: java.lang.RuntimeException: serious problem
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$Context.waitForTasks(OrcInputFormat.java:478)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.generateSplitsInfo(OrcInputFormat.java:944)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getSplits(OrcInputFormat.java:969)
+	at org.apache.hadoop.hive.ql.exec.FetchOperator.getNextSplits(FetchOperator.java:362)
+	at org.apache.hadoop.hive.ql.exec.FetchOperator.getRecordReader(FetchOperator.java:294)
+	at org.apache.hadoop.hive.ql.exec.FetchOperator.getNextRow(FetchOperator.java:445)
+	... 17 more
+Caused by: java.lang.OutOfMemoryError: PermGen space
+
+
+There does not appear to be an obvious trigger for this (other than the fact that the error mentions ORC). If further details would be helpful in diagnosing the issue please let me know and I'll supply them.
+
+

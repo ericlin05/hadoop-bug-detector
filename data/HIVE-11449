@@ -1,0 +1,68 @@
+Description
+
+Currently it only logs a warning message:
+
+
+  public static int calcNumPartitions(long memoryThreshold, long dataSize, int minNumParts,
+      int minWbSize, HybridHashTableConf nwayConf) throws IOException {
+    int numPartitions = minNumParts;
+
+    if (memoryThreshold &amp;lt; minNumParts * minWbSize) {
+      LOG.warn("Available memory is not enough to create a HybridHashTableContainer!");
+    }
+
+
+Because we only log a warning, processing continues and hits a hard-to-diagnose error (log below also includes extra logging I added to help track this down). We should probably just fail the query a useful logging message instead.
+
+2015-07-30 18:49:29,696 [pool-1269-thread-8()] WARN org.apache.hadoop.hive.ql.exec.persistence.HybridHashTableContainer: Available memory is not enough to create HybridHashTableContainers consistently!
+2015-07-30 18:49:29,696 [pool-1269-thread-8()] ERROR org.apache.hadoop.hive.ql.exec.persistence.BytesBytesMultiHashMap: *** initialCapacity 1: 100000
+2015-07-30 18:49:29,696 [pool-1269-thread-8()] ERROR org.apache.hadoop.hive.ql.exec.persistence.BytesBytesMultiHashMap: *** initialCapacity 2: 131072
+2015-07-30 18:49:29,696 [pool-1269-thread-8()] ERROR org.apache.hadoop.hive.ql.exec.persistence.BytesBytesMultiHashMap: *** maxCapacity: 0
+2015-07-30 18:49:29,696 [pool-1269-thread-8()] ERROR org.apache.hadoop.hive.ql.exec.persistence.BytesBytesMultiHashMap: *** initialCapacity 3: 0
+2015-07-30 18:49:29,699 [TezTaskRunner_attempt_1437197396589_0685_1_49_000000_2(attempt_1437197396589_0685_1_49_000000_2)] ERROR org.apache.hadoop.hive.ql.exec.tez.TezProcessor: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:258)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:168)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:157)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:349)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:71)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:60)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:60)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:35)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Async initialization failed
+	at org.apache.hadoop.hive.ql.exec.Operator.completeInitialization(Operator.java:419)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:389)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:514)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:467)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:379)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:243)
+	... 15 more
+Caused by: java.util.concurrent.ExecutionException: java.lang.AssertionError: Capacity must be a power of two
+	at java.util.concurrent.FutureTask.report(FutureTask.java:122)
+	at java.util.concurrent.FutureTask.get(FutureTask.java:188)
+	at org.apache.hadoop.hive.ql.exec.Operator.completeInitialization(Operator.java:409)
+	... 20 more
+Caused by: java.lang.AssertionError: Capacity must be a power of two
+	at org.apache.hadoop.hive.ql.exec.persistence.BytesBytesMultiHashMap.validateCapacity(BytesBytesMultiHashMap.java:573)
+	at org.apache.hadoop.hive.ql.exec.persistence.BytesBytesMultiHashMap.&amp;lt;init&amp;gt;(BytesBytesMultiHashMap.java:178)
+	at org.apache.hadoop.hive.ql.exec.persistence.HybridHashTableContainer$HashPartition.&amp;lt;init&amp;gt;(HybridHashTableContainer.java:120)
+	at org.apache.hadoop.hive.ql.exec.persistence.HybridHashTableContainer.&amp;lt;init&amp;gt;(HybridHashTableContainer.java:296)
+	at org.apache.hadoop.hive.ql.exec.persistence.HybridHashTableContainer.&amp;lt;init&amp;gt;(HybridHashTableContainer.java:222)
+	at org.apache.hadoop.hive.ql.exec.tez.HashTableLoader.load(HashTableLoader.java:188)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.loadHashTable(MapJoinOperator.java:295)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator$1.call(MapJoinOperator.java:178)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator$1.call(MapJoinOperator.java:174)
+	at org.apache.hadoop.hive.ql.exec.tez.LlapObjectCache.retrieve(LlapObjectCache.java:105)
+	at org.apache.hadoop.hive.ql.exec.tez.LlapObjectCache$1.call(LlapObjectCache.java:132)
+	... 4 more
+
+
+
+

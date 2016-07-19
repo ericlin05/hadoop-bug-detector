@@ -1,0 +1,88 @@
+Description
+
+I was trying to perform some column statistics using hive as per the documentation https://cwiki.apache.org/confluence/display/Hive/Column+Statistics+in+Hive and was encountering the following errors:
+Seems like a bug. Can you look into this? Thanks in advance.
+– HIVE table
+
+hive&amp;gt; create table people_part(
+name string,
+address string) PARTITIONED BY (dob string, nationality varchar(2))
+row format delimited fields terminated by '\t';
+
+
+--Analyze table with partition dob and nationality with FOR COLUMNS
+
+hive&amp;gt; ANALYZE TABLE people_part PARTITION(dob='2015-10-2',nationality) COMPUTE STATISTICS FOR COLUMNS;
+NoViableAltException(-1@[])
+        at org.apache.hadoop.hive.ql.parse.HiveParser_IdentifiersParser.identifier(HiveParser_IdentifiersParser.java:11627)
+        at org.apache.hadoop.hive.ql.parse.HiveParser.identifier(HiveParser.java:40215)
+        at org.apache.hadoop.hive.ql.parse.HiveParser.columnName(HiveParser.java:33351)
+        at org.apache.hadoop.hive.ql.parse.HiveParser.columnNameList(HiveParser.java:33219)
+        at org.apache.hadoop.hive.ql.parse.HiveParser.analyzeStatement(HiveParser.java:17764)
+        at org.apache.hadoop.hive.ql.parse.HiveParser.ddlStatement(HiveParser.java:2369)
+        at org.apache.hadoop.hive.ql.parse.HiveParser.execStatement(HiveParser.java:1398)
+        at org.apache.hadoop.hive.ql.parse.HiveParser.statement(HiveParser.java:1036)
+        at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:199)
+        at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:166)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:404)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:322)
+        at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:975)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1040)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:911)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:901)
+        at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:275)
+        at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:227)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:430)
+        at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:803)
+        at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:697)
+        at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:636)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:212)
+FAILED: ParseException line 1:95 cannot recognize input near '&amp;lt;EOF&amp;gt;' '&amp;lt;EOF&amp;gt;' '&amp;lt;EOF&amp;gt;' in column name
+
+
+--Analyze table with partition dob and nationality values specified with FOR COLUMNS
+
+hive&amp;gt; ANALYZE TABLE people_part PARTITION(dob='2015-10-2',nationality='IE') COMPUTE STATISTICS FOR COLUMNS;
+NoViableAltException(-1@[])
+        at org.apache.hadoop.hive.ql.parse.HiveParser_IdentifiersParser.identifier(HiveParser_IdentifiersParser.java:11627)
+        at org.apache.hadoop.hive.ql.parse.HiveParser.identifier(HiveParser.java:40215)
+        at org.apache.hadoop.hive.ql.parse.HiveParser.columnName(HiveParser.java:33351)
+        at org.apache.hadoop.hive.ql.parse.HiveParser.columnNameList(HiveParser.java:33219)
+        at org.apache.hadoop.hive.ql.parse.HiveParser.analyzeStatement(HiveParser.java:17764)
+        at org.apache.hadoop.hive.ql.parse.HiveParser.ddlStatement(HiveParser.java:2369)
+        at org.apache.hadoop.hive.ql.parse.HiveParser.execStatement(HiveParser.java:1398)
+        at org.apache.hadoop.hive.ql.parse.HiveParser.statement(HiveParser.java:1036)
+        at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:199)
+        at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:166)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:404)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:322)
+        at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:975)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1040)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:911)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:901)
+        at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:275)
+        at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:227)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:430)
+        at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:803)
+        at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:697)
+        at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:636)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:212)
+FAILED: ParseException line 1:100 cannot recognize input near '&amp;lt;EOF&amp;gt;' '&amp;lt;EOF&amp;gt;' '&amp;lt;EOF&amp;gt;' in column name
+
+
+--Analyze table with partition dob and nationality values specified with FOR COLUMNS with column name specified
+
+hive&amp;gt; ANALYZE TABLE people_part PARTITION(dob='2015-10-2',nationality='IE') COMPUTE STATISTICS FOR COLUMNS name;
+FAILED: SemanticException [Error 10004]: Line 1:92 Invalid table alias or column reference 'IE': (possible column names are: name, address, dob, nationality)
+
+
+
+

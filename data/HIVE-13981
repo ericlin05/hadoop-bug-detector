@@ -1,0 +1,29 @@
+Description
+
+Operation.toSQLException eats half of the exception stack and make debug hard. For example, we saw an exception:
+
+
+org.apache.hive.service.cli.HiveSQL Exception : Error while compiling statement: FAILED : NullPointer Exception null
+at org.apache.hive.service.cli.operation.Operation.toSQL Exception (Operation.java:336)
+at org.apache.hive.service.cli.operation.SQLOperation.prepare(SQLOperation.java:113)
+at org.apache.hive.service.cli.operation.SQLOperation.runInternal(SQLOperation.java:182)
+at org.apache.hive.service.cli.operation.Operation.run(Operation.java:278)
+at org.apache.hive.service.cli.session.HiveSessionImpl.executeStatementInternal(HiveSessionImpl.java:421)
+at org.apache.hive.service.cli.session.HiveSessionImpl.executeStatementAsync(HiveSessionImpl.java:408)
+at org.apache.hive.service.cli.CLIService.executeStatementAsync(CLIService.java:276)
+at org.apache.hive.service.cli.thrift.ThriftCLIService.ExecuteStatement(ThriftCLIService.java:505)
+at org.apache.hive.service.cli.thrift.TCLIService$Processor$ExecuteStatement.getResult(TCLIService.java:1317)
+at org.apache.hive.service.cli.thrift.TCLIService$Processor$ExecuteStatement.getResult(TCLIService.java:1302)
+at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+at org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:39)
+at org.apache.hadoop.hive.thrift.HadoopThriftAuthBridge$Server$TUGIAssumingProcessor.process(HadoopThriftAuthBridge.java:562)
+at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:286)
+at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang. NullPointer Exception
+
+
+The real stack causing the NPE is lost.
+
+

@@ -1,0 +1,24 @@
+Description
+
+When HCatalog calls to table with "org.apache.hadoop.hive.serde2.RegexSerDe", when doing Hcatalog call to get read the table, it throws exception:
+
+15/04/21 14:07:31 INFO security.TokenCache: Got dt for hdfs://hdpsecahdfs; Kind: HDFS_DELEGATION_TOKEN, Service: ha-hdfs:hdpsecahdfs, Ident: (HDFS_DELEGATION_TOKEN token 1478 for haha)
+15/04/21 14:07:31 INFO mapred.FileInputFormat: Total input paths to process : 1
+Splits len : 1
+SplitInfo : [hdpseca03.seca.hwxsup.com, hdpseca04.seca.hwxsup.com, hdpseca05.seca.hwxsup.com]
+15/04/21 14:07:31 INFO mapreduce.InternalUtil: Initializing org.apache.hadoop.hive.serde2.RegexSerDe with properties {name=casetest.regex_table, numFiles=1, columns.types=string,string, serialization.format=1, columns=id,name, rawDataSize=0, numRows=0, output.format.string=%1$s %2$s, serialization.lib=org.apache.hadoop.hive.serde2.RegexSerDe, COLUMN_STATS_ACCURATE=true, totalSize=25, serialization.null.format=\N, input.regex=([^ ]*) ([^ ]*), transient_lastDdlTime=1429590172}
+15/04/21 14:07:31 WARN serde2.RegexSerDe: output.format.string has been deprecated
+Exception in thread "main" java.lang.NullPointerException
+	at com.google.common.base.Preconditions.checkNotNull(Preconditions.java:187)
+	at com.google.common.base.Splitter.split(Splitter.java:371)
+	at org.apache.hadoop.hive.serde2.RegexSerDe.initialize(RegexSerDe.java:155)
+	at org.apache.hadoop.hive.serde2.AbstractSerDe.initialize(AbstractSerDe.java:49)
+	at org.apache.hadoop.hive.serde2.SerDeUtils.initializeSerDe(SerDeUtils.java:518)
+	at org.apache.hive.hcatalog.mapreduce.InternalUtil.initializeDeserializer(InternalUtil.java:156)
+	at org.apache.hive.hcatalog.mapreduce.HCatRecordReader.createDeserializer(HCatRecordReader.java:127)
+	at org.apache.hive.hcatalog.mapreduce.HCatRecordReader.initialize(HCatRecordReader.java:92)
+	at HCatalogSQLMR.main(HCatalogSQLMR.java:81)
+
+
+
+

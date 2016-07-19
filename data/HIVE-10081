@@ -1,0 +1,21 @@
+Description
+
+The LLAP low level reader thread-pool is hard-limited to 10-threads, which is not sufficient to max out the network bandwidth on a 10GigE network.
+These threads are often seen in IOWAIT, since they are reading remote data.
+A dumb fix for my 12-core instance was to use a higher thread-pool count for the IO read-ahead.
+
+
+diff --git a/llap-server/src/java/org/apache/hadoop/hive/llap/io/api/impl/LlapIoImpl.java b/llap-server/src/java/org/apache/hadoop/hive/llap/io/api/impl/LlapIoImpl.java
+index 3f9ddfb..b7cd177 100644
+--- a/llap-server/src/java/org/apache/hadoop/hive/llap/io/api/impl/LlapIoImpl.java
++++ b/llap-server/src/java/org/apache/hadoop/hive/llap/io/api/impl/LlapIoImpl.java
+@@ -105,7 +105,7 @@ private LlapIoImpl(Configuration conf) throws IOException {
+       cachePolicy.setEvictionListener(metadataCache);
+     }
+     // Arbitrary thread pool. Listening is used for unhandled errors for now (TODO: remove?)
+-    executor = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(10));
++    executor = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(24));
+
+
+
+

@@ -1,0 +1,21 @@
+Description
+
+
+2016-04-06 20:04:14.430 o.a.s.h.t.HiveState [WARN] unable to close hive connections. 
+java.lang.IndexOutOfBoundsException: Index: 10, Size: 10
+	at java.util.ArrayList.rangeCheck(ArrayList.java:653) ~[?:1.8.0_45]
+	at java.util.ArrayList.get(ArrayList.java:429) ~[?:1.8.0_45]
+	at org.apache.hive.hcatalog.streaming.HiveEndPoint$TransactionBatchImpl.getCurrentTxnId(HiveEndPoint.java:647) ~[stormjar.jar:?]
+	at org.apache.storm.hive.common.HiveWriter.abortTxn(HiveWriter.java:304) ~[stormjar.jar:?]
+	at org.apache.storm.hive.common.HiveWriter.abort(HiveWriter.java:294) ~[stormjar.jar:?]
+	at org.apache.storm.hive.trident.HiveState.abortAllWriters(HiveState.java:148) ~[stormjar.jar:?]
+	at org.apache.storm.hive.trident.HiveState.abortAndCloseWriters(HiveState.java:136) [stormjar.jar:?]
+	at org.apache.storm.hive.trident.HiveState.updateState(HiveState.java:112) [stormjar.jar:?]
+	at org.apache.storm.hive.trident.HiveUpdater.updateState(HiveUpdater.java:12) [stormjar.jar:?]
+	at org.apache.storm.hive.trident.HiveUpdater.updateState(HiveUpdater.java:9) [stormjar.jar:?]
+	at 
+
+
+This can happen after all transaction in the batch have been processed (i.e. there is no current txn).  Also, id there is an error and the Batch automatically closes all remaining errors.  This is a problem since Storm is written to call getCurrentTxnId() in a lot of its logging/error handling routines which ends up hiding the original error.
+
+

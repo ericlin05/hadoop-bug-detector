@@ -1,0 +1,80 @@
+Description
+
+Hi,
+I have one table with VARCHAR and CHAR datatypes.My target table has structure like this :--
+
+
+CREATE EXTERNAL TABLE test_table(
+dob string COMMENT '',
+version_nbr int COMMENT '',
+record_status string COMMENT '',
+creation_timestamp timestamp COMMENT '')
+PARTITIONED BY (
+src_sys_cd varchar(10) COMMENT '',batch_id string COMMENT '')
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '|'
+STORED AS ORC
+LOCATION
+'/test/test_table';
+My source table has structure like below :--
+CREATE EXTERNAL TABLE test_staging_table(
+dob string COMMENT '',
+version_nbr int COMMENT '',
+record_status string COMMENT '',
+creation_timestamp timestamp COMMENT ''
+src_sys_cd varchar(10) COMMENT '',
+batch_id string COMMENT '')
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '|'
+STORED AS ORC
+LOCATION
+'/test/test_staging_table';
+
+
+We were loading data using pig script. Its a direct load, no transformation needed. But when i was checking test_table's data in hive. It is giving belowmentioned error:
+
+
+Diagnostic Messages for this Task:
+Error: java.io.IOException: java.io.IOException: java.lang.RuntimeException: java.lang.ClassCastException: org.apache.hadoop.hive.common.type.HiveVarchar cannot be cast to java.lang.String
+at org.apache.hadoop.hive.io.HiveIOExceptionHandlerChain.handleRecordReaderNextException(HiveIOExceptionHandlerChain.java:121)
+at org.apache.hadoop.hive.io.HiveIOExceptionHandlerUtil.handleRecordReaderNextException(HiveIOExceptionHandlerUtil.java:77)
+at org.apache.hadoop.hive.shims.HadoopShimsSecure$CombineFileRecordReader.doNextWithExceptionHandler(HadoopShimsSecure.java:273)
+at org.apache.hadoop.hive.shims.HadoopShimsSecure$CombineFileRecordReader.next(HadoopShimsSecure.java:183)
+at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.moveToNext(MapTask.java:199)
+at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.next(MapTask.java:185)
+at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:52)
+at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+at java.security.AccessController.doPrivileged(Native Method)
+at javax.security.auth.Subject.doAs(Subject.java:415)
+at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: java.io.IOException: java.lang.RuntimeException: java.lang.ClassCastException: org.apache.hadoop.hive.common.type.HiveVarchar cannot be cast to java.lang.String
+at org.apache.hadoop.hive.io.HiveIOExceptionHandlerChain.handleRecordReaderNextException(HiveIOExceptionHandlerChain.java:121)
+at org.apache.hadoop.hive.io.HiveIOExceptionHandlerUtil.handleRecordReaderNextException(HiveIOExceptionHandlerUtil.java:77)
+at org.apache.hadoop.hive.ql.io.HiveContextAwareRecordReader.doNext(HiveContextAwareRecordReader.java:352)
+at org.apache.hadoop.hive.ql.io.CombineHiveRecordReader.doNext(CombineHiveRecordReader.java:101)
+at org.apache.hadoop.hive.ql.io.CombineHiveRecordReader.doNext(CombineHiveRecordReader.java:41)
+at org.apache.hadoop.hive.ql.io.HiveContextAwareRecordReader.next(HiveContextAwareRecordReader.java:115)
+at org.apache.hadoop.hive.shims.HadoopShimsSecure$CombineFileRecordReader.doNextWithExceptionHandler(HadoopShimsSecure.java:271)
+... 11 more
+Caused by: java.lang.RuntimeException: java.lang.ClassCastException: org.apache.hadoop.hive.common.type.HiveVarchar cannot be cast to java.lang.String
+at org.apache.hadoop.hive.ql.io.orc.VectorizedOrcInputFormat$VectorizedOrcRecordReader.next(VectorizedOrcInputFormat.java:95)
+at org.apache.hadoop.hive.ql.io.orc.VectorizedOrcInputFormat$VectorizedOrcRecordReader.next(VectorizedOrcInputFormat.java:49)
+at org.apache.hadoop.hive.ql.io.HiveContextAwareRecordReader.doNext(HiveContextAwareRecordReader.java:347)
+... 15 more
+Caused by: java.lang.ClassCastException: org.apache.hadoop.hive.common.type.HiveVarchar cannot be cast to java.lang.String
+at org.apache.hadoop.hive.ql.exec.vector.VectorizedRowBatchCtx.addPartitionColsToBatch(VectorizedRowBatchCtx.java:566)
+at org.apache.hadoop.hive.ql.io.orc.VectorizedOrcInputFormat$VectorizedOrcRecordReader.next(VectorizedOrcInputFormat.java:90)
+... 17 more
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+MapReduce Jobs Launched:
+Stage-Stage-1: Map: 1 Reduce: 1 HDFS Read: 0 HDFS Write: 0 FAIL
+Total MapReduce CPU Time Spent: 0 msec
+hive&amp;gt;
+
+
+Please do the needful.
+
+

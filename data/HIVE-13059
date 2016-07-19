@@ -1,0 +1,18 @@
+Description
+
+I want to clean robots entries from log file. One of the way to identify crawlers by the user agent field in weblog.I've stored raw logs in one folder and token of the popular crawlers in crawler table. TO clean logs those have user agent matched with token i made this query
+CREATE TABLE temp 
+AS
+SELECT host,time,method,url,protocol,status,size,referer,agent 
+FROM raw_logs
+WHERE 
+agent NOT RLIKE (SELECT concat_ws("|",collect_set(concat("(.",token,".)"))) FROM crawler) ; 
+It gives me parseException cannot recognize input near 'SELECT' 'concat_ws' '(' in expression specification.
+If i replace result of sub query manually then it works perfect.
+CREATE TABLE temp 
+AS
+SELECT host,time,method,url,protocol,status,size,referer,agent 
+FROM raw_logs
+WHERE agent NOT RLIKE '(.Googlebot.)|(.bingbot.)'  ;
+
+

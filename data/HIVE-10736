@@ -1,0 +1,30 @@
+Description
+
+The shutdown process throws concurrent modification exceptions and fails to clean up the app masters per queue.
+
+
+2015-05-17 20:24:00,464 INFO  [Thread-6()]: service.AbstractService (AbstractService.java:stop(125)) - Service:OperationManager is stopped.
+2015-05-17 20:24:00,464 INFO  [Thread-6()]: service.AbstractService (AbstractService.java:stop(125)) - Service:SessionManager is stopped.
+2015-05-17 20:24:00,464 INFO  [Thread-9()]: tez.TezSessionPoolManager (TezSessionPoolManager.java:close(175)) - Closing tez session default? true
+2015-05-17 20:24:00,465 INFO  [Thread-9()]: tez.TezSessionPoolManager (TezSessionPoolManager.java:close(175)) - Closing tez session default? true
+2015-05-17 20:24:00,465 INFO  [Thread-9()]: tez.TezSessionPoolManager (TezSessionPoolManager.java:close(175)) - Closing tez session default? true
+2015-05-17 20:24:00,465 INFO  [Thread-9()]: tez.TezSessionPoolManager (TezSessionPoolManager.java:close(175)) - Closing tez session default? true
+2015-05-17 20:24:00,465 INFO  [Thread-9()]: tez.TezSessionPoolManager (TezSessionPoolManager.java:close(175)) - Closing tez session default? true
+2015-05-17 20:24:00,465 INFO  [Thread-9()]: tez.TezSessionPoolManager (TezSessionPoolManager.java:close(175)) - Closing tez session default? true
+2015-05-17 20:24:00,465 INFO  [Thread-9()]: tez.TezSessionPoolManager (TezSessionPoolManager.java:close(175)) - Closing tez session default? true
+2015-05-17 20:24:00,465 INFO  [Thread-9()]: tez.TezSessionPoolManager (TezSessionPoolManager.java:close(175)) - Closing tez session default? true
+2015-05-17 20:24:00,465 INFO  [Thread-6()]: service.AbstractService (AbstractService.java:stop(125)) - Service:CLIService is stopped.
+2015-05-17 20:24:00,465 INFO  [Thread-6()]: service.AbstractService (AbstractService.java:stop(125)) - Service:HiveServer2 is stopped.
+2015-05-17 20:24:00,465 INFO  [Thread-6()]: tez.TezSessionState (TezSessionState.java:close(332)) - Closing Tez Session
+2015-05-17 20:24:00,466 INFO  [Thread-6()]: client.TezClient (TezClient.java:stop(495)) - Shutting down Tez Session, sessionName=HIVE-94cc629d-63bc-490a-a135-af85c0cc0f2e, applicationId=application_1431919257083_0012
+2015-05-17 20:24:00,570 ERROR [Thread-6()]: server.HiveServer2 (HiveServer2.java:stop(322)) - Tez session pool manager stop had an error during stop of HiveServer2. Shutting down HiveServer2 anyway.
+java.util.ConcurrentModificationException
+        at java.util.LinkedList$ListItr.checkForComodification(LinkedList.java:966)
+        at java.util.LinkedList$ListItr.next(LinkedList.java:888)
+        at org.apache.hadoop.hive.ql.exec.tez.TezSessionPoolManager.stop(TezSessionPoolManager.java:187)
+        at org.apache.hive.service.server.HiveServer2.stop(HiveServer2.java:320)
+        at org.apache.hive.service.server.HiveServer2$1.run(HiveServer2.java:107)
+
+
+
+

@@ -1,0 +1,9 @@
+Description
+
+When running a large insert statement through beeline or pyhs2, a thrift error is returned and hiveserver2 crashes.
+I ran into this with large insert statements – my initial failing query was around 6million characters. After further testing however it seems like the failure threshold is based on number of inserted rows rather than the query's size in characters. My testing shows the failure threshold between 199,000 and 230,000 inserted rows.
+The thrift error is as follows:
+Error: org.apache.thrift.transport.TTransportException: java.net.SocketException: Broken pipe (state=08S01,code=0)
+Also note for anyone that tests this issue - when testing different queries I ran into https://issues.apache.org/jira/browse/HIVE-10836
+
+

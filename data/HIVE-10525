@@ -1,0 +1,79 @@
+Description
+
+I'm trying to load data into a list bucketing table.
+The insert statement fails when there are nulls going into the skew column.
+If this is the expected behavior, there is no mention of this restriction in the doc.
+has-null.csv
+
+1
+2
+\N
+3
+
+
+no-null.csv
+
+1
+2
+3
+
+
+hive cli
+
+set hive.mapred.supports.subdirectories=true;
+set hive.optimize.listbucketing=true;
+set mapred.input.dir.recursive=true;	
+set hive.input.format=org.apache.hadoop.hive.ql.io.HiveInputFormat;
+
+create table src_with_null (x int);
+load data local inpath 'has-null.csv' overwrite into table src_with_null;
+
+create table src_no_null (x int);
+load data local inpath 'no-null.csv' overwrite into table src_no_null;
+
+create table lb (x int) partitioned by (p string) 
+skewed by ( x ) on (1) STORED AS DIRECTORIES
+stored as rcfile;
+
+insert overwrite table lb partition (p = 'foo') select * from src_with_null;
+--fails
+
+insert overwrite table lb partition (p = 'foo') select * from src_no_null;
+--succeeds
+
+
+I see this in ${hive.log.dir}/hive.log
+2015-04-28 13:43:47,646 WARN  [Thread-82]: mapred.LocalJobRunner (LocalJobRunner.java:run(560)) - job_local402607316_0001
+java.lang.Exception: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row 
+{"x":null}
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.runTasks(LocalJobRunner.java:462)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:522)
+Caused by: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row 
+{"x":null}
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:179)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:453)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job$MapTaskRunnable.run(LocalJobRunner.java:243)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:334)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:166)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)
+	at java.lang.Thread.run(Thread.java:722)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row 
+{"x":null}
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:507)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:170)
+	... 10 more
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.FileSinkOperator.generateListBucketingDirName(FileSinkOperator.java:833)
+	at org.apache.hadoop.hive.ql.exec.FileSinkOperator.processOp(FileSinkOperator.java:615)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+	at org.apache.hadoop.hive.ql.exec.SelectOperator.processOp(SelectOperator.java:84)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:95)
+	at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:157)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:497)
+
+

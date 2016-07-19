@@ -1,0 +1,67 @@
+Description
+
+having hive.auto.convert.join set to true works in the CLI with no issue, but fails in HiveServer2 when jmx options are passed to the service on startup. This (in hive-env.sh) is enough to make it fail: 
+
+-Dcom.sun.management.jmxremote
+-Dcom.sun.management.jmxremote.authenticate=false
+-Dcom.sun.management.jmxremote.ssl=false
+-Dcom.sun.management.jmxremote.port=8009
+
+
+As soon as I remove the line, it works properly. I have *no*idea...
+Here's the log from the service:
+
+2015-07-24 17:19:27,457 INFO  [HiveServer2-Handler-Pool: Thread-22]: ql.Driver (SessionState.java:printInfo(912)) - Query ID = hive_20150724171919_aaa88a89-dc6d-490b-821c-4eec6d4c0421
+2015-07-24 17:19:27,457 INFO  [HiveServer2-Handler-Pool: Thread-22]: ql.Driver (SessionState.java:printInfo(912)) - Total jobs = 1
+2015-07-24 17:19:27,465 INFO  [HiveServer2-Handler-Pool: Thread-22]: ql.Driver (Driver.java:launchTask(1638)) - Starting task [Stage-4:MAPREDLOCAL] in serial mode
+2015-07-24 17:19:27,467 INFO  [HiveServer2-Handler-Pool: Thread-22]: mr.MapredLocalTask (MapredLocalTask.java:executeInChildVM(159)) - Generating plan file file:/tmp/hive/8932c206-5420-4b6f-9f1f-5f1706f30df8/hive_2015-07-24_17-19-26_552_5082133674120283907-1/-local-10005/plan.xml
+2015-07-24 17:19:27,625 WARN  [HiveServer2-Handler-Pool: Thread-22]: conf.HiveConf (HiveConf.java:initialize(2620)) - HiveConf of name hive.files.umask.value does not exist
+2015-07-24 17:19:27,708 INFO  [HiveServer2-Handler-Pool: Thread-22]: mr.MapredLocalTask (MapredLocalTask.java:executeInChildVM(288)) - Executing: /usr/lib/hadoop/bin/hadoop jar /usr/lib/hive/lib/hive-common-1.1.0-cdh5.4.3.jar org.apache.hadoop.hive.ql.exec.mr.ExecDriver -localtask -plan file:/tmp/hive/8932c206-5420-4b6f-9f1f-5f1706f30df8/hive_2015-07-24_17-19-26_552_5082133674120283907-1/-local-10005/plan.xml   -jobconffile file:/tmp/hive/8932c206-5420-4b6f-9f1f-5f1706f30df8/hive_2015-07-24_17-19-26_552_5082133674120283907-1/-local-10006/jobconf.xml
+2015-07-24 17:19:28,499 ERROR [HiveServer2-Handler-Pool: Thread-22]: exec.Task (SessionState.java:printError(921)) - Execution failed with exit status: 1
+2015-07-24 17:19:28,500 ERROR [HiveServer2-Handler-Pool: Thread-22]: exec.Task (SessionState.java:printError(921)) - Obtaining error information
+2015-07-24 17:19:28,500 ERROR [HiveServer2-Handler-Pool: Thread-22]: exec.Task (SessionState.java:printError(921)) -
+Task failed!
+Task ID:
+  Stage-4
+
+Logs:
+
+2015-07-24 17:19:28,501 ERROR [HiveServer2-Handler-Pool: Thread-22]: exec.Task (SessionState.java:printError(921)) - /tmp/hiveserver2_manual/hive-server2.log
+2015-07-24 17:19:28,501 ERROR [HiveServer2-Handler-Pool: Thread-22]: mr.MapredLocalTask (MapredLocalTask.java:executeInChildVM(308)) - Execution failed with exit status: 1
+2015-07-24 17:19:28,518 ERROR [HiveServer2-Handler-Pool: Thread-22]: ql.Driver (SessionState.java:printError(921)) - FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.mr.MapredLocalTask
+2015-07-24 17:19:28,599 WARN  [HiveServer2-Handler-Pool: Thread-22]: security.UserGroupInformation (UserGroupInformation.java:doAs(1674)) - PriviledgedActionException as:hive (auth:SIMPLE) cause:org.apache.hive.service.cli.HiveSQLException: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.mr.MapredLocalTask
+2015-07-24 17:19:28,600 WARN  [HiveServer2-Handler-Pool: Thread-22]: thrift.ThriftCLIService (ThriftCLIService.java:ExecuteStatement(496)) - Error executing statement:
+org.apache.hive.service.cli.HiveSQLException: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.mr.MapredLocalTask
+	at org.apache.hive.service.cli.operation.Operation.toSQLException(Operation.java:315)
+	at org.apache.hive.service.cli.operation.SQLOperation.runQuery(SQLOperation.java:146)
+	at org.apache.hive.service.cli.operation.SQLOperation.runInternal(SQLOperation.java:173)
+	at org.apache.hive.service.cli.operation.Operation.run(Operation.java:257)
+	at org.apache.hive.service.cli.session.HiveSessionImpl.executeStatementInternal(HiveSessionImpl.java:398)
+	at org.apache.hive.service.cli.session.HiveSessionImpl.executeStatement(HiveSessionImpl.java:379)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hive.service.cli.session.HiveSessionProxy.invoke(HiveSessionProxy.java:78)
+	at org.apache.hive.service.cli.session.HiveSessionProxy.access$000(HiveSessionProxy.java:36)
+	at org.apache.hive.service.cli.session.HiveSessionProxy$1.run(HiveSessionProxy.java:63)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+	at org.apache.hive.service.cli.session.HiveSessionProxy.invoke(HiveSessionProxy.java:59)
+	at com.sun.proxy.$Proxy23.executeStatement(Unknown Source)
+	at org.apache.hive.service.cli.CLIService.executeStatement(CLIService.java:258)
+	at org.apache.hive.service.cli.thrift.ThriftCLIService.ExecuteStatement(ThriftCLIService.java:490)
+	at org.apache.hive.service.cli.thrift.TCLIService$Processor$ExecuteStatement.getResult(TCLIService.java:1313)
+	at org.apache.hive.service.cli.thrift.TCLIService$Processor$ExecuteStatement.getResult(TCLIService.java:1298)
+	at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+	at org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:39)
+	at org.apache.hive.service.auth.TSetIpAddressProcessor.process(TSetIpAddressProcessor.java:56)
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+

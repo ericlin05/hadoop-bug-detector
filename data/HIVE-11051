@@ -1,0 +1,79 @@
+Description
+
+I tried to apply: HIVE-10729 which did not solve the issue.
+The following exception is thrown on a Tez MapJoin with Hive 1.2.0 and Tez 0.5.4/0.5.3
+
+
+Status: Running (Executing on YARN cluster with App id application_1434641270368_1038)
+
+--------------------------------------------------------------------------------
+        VERTICES      STATUS  TOTAL  COMPLETED  RUNNING  PENDING  FAILED  KILLED
+--------------------------------------------------------------------------------
+Map 1 ..........   SUCCEEDED      3          3        0        0       0       0
+Map 2 ...             FAILED      3          1        0        2       7       0
+--------------------------------------------------------------------------------
+VERTICES: 01/02  [=================&amp;gt;&amp;gt;---------] 66%   ELAPSED TIME: 7.39 s     
+--------------------------------------------------------------------------------
+Status: Failed
+Vertex failed, vertexName=Map 2, vertexId=vertex_1434641270368_1038_2_01, diagnostics=[Task failed, taskId=task_1434641270368_1038_2_01_000002, diagnostics=[TaskAttempt 0 failed, info=[Error: Failure while running task:java.lang.RuntimeException: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"cnctevn_id":"002245282386","svcrqst_id":"0000003627217285","svcrqst_crt_dts":"2015-04-23 11:54:39.238357","subject_seq_no":1,"plan_component":"HMOM1     ","cust_segment":"RM ","cnctyp_cd":"001","cnctmd_cd":"D02","cnctevs_cd":"007","svcrtyp_cd":"335","svrstyp_cd":"088","cmpltyp_cd":" ","catsrsn_cd":"        ","apealvl_cd":" ","cnstnty_cd":"001","svcrqst_asrqst_ind":"Y","svcrqst_rtnorig_in":"N","svcrqst_vwasof_dt":"null","sum_reason_cd":"98","sum_reason":"Exclude","crsr_master_claim_index":null,"svcrqct_cds":["   "],"svcrqst_lupdt":"2015-04-23 22:14:01.288132","crsr_lupdt":null,"cntevsds_lupdt":"2015-04-23 11:54:40.740061","ignore_me":1,"notes":null}
+        at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+        at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+        at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:324)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:176)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:168)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1556)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:168)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:163)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:744)
+Caused by: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"cnctevn_id":"002245282386","svcrqst_id":"0000003627217285","svcrqst_crt_dts":"2015-04-23 11:54:39.238357","subject_seq_no":1,"plan_component":"HMOM1     ","cust_segment":"RM ","cnctyp_cd":"001","cnctmd_cd":"D02","cnctevs_cd":"007","svcrtyp_cd":"335","svrstyp_cd":"088","cmpltyp_cd":" ","catsrsn_cd":"        ","apealvl_cd":" ","cnstnty_cd":"001","svcrqst_asrqst_ind":"Y","svcrqst_rtnorig_in":"N","svcrqst_vwasof_dt":"null","sum_reason_cd":"98","sum_reason":"Exclude","crsr_master_claim_index":null,"svcrqct_cds":["   "],"svcrqst_lupdt":"2015-04-23 22:14:01.288132","crsr_lupdt":null,"cntevsds_lupdt":"2015-04-23 11:54:40.740061","ignore_me":1,"notes":null}
+        at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:91)
+        at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.pushRecord(MapRecordSource.java:68)
+        at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.run(MapRecordProcessor.java:290)
+        at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:148)
+        ... 13 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"cnctevn_id":"002245282386","svcrqst_id":"0000003627217285","svcrqst_crt_dts":"2015-04-23 11:54:39.238357","subject_seq_no":1,"plan_component":"HMOM1     ","cust_segment":"RM ","cnctyp_cd":"001","cnctmd_cd":"D02","cnctevs_cd":"007","svcrtyp_cd":"335","svrstyp_cd":"088","cmpltyp_cd":" ","catsrsn_cd":"        ","apealvl_cd":" ","cnstnty_cd":"001","svcrqst_asrqst_ind":"Y","svcrqst_rtnorig_in":"N","svcrqst_vwasof_dt":"null","sum_reason_cd":"98","sum_reason":"Exclude","crsr_master_claim_index":null,"svcrqct_cds":["   "],"svcrqst_lupdt":"2015-04-23 22:14:01.288132","crsr_lupdt":null,"cntevsds_lupdt":"2015-04-23 11:54:40.740061","ignore_me":1,"notes":null}
+        at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:518)
+        at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:83)
+        ... 16 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Unexpected exception: org.apache.hadoop.hive.serde2.lazybinary.LazyBinaryArray cannot be cast to [Ljava.lang.Object;
+        at org.apache.hadoop.hive.ql.exec.MapJoinOperator.process(MapJoinOperator.java:426)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+        at org.apache.hadoop.hive.ql.exec.FilterOperator.process(FilterOperator.java:122)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+        at org.apache.hadoop.hive.ql.exec.TableScanOperator.process(TableScanOperator.java:97)
+        at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:162)
+        at org.apache.hadoop.hive.ql.exec.Map
+
+
+To Recreate the issue:
+
+
+import table service_request_clean from  '/user/user/service_request_clean';
+
+import table ct_events_clean from  '/user/user/ct_events_clean';
+
+
+drop table ct_events1_test;
+create table ct_events1_test
+as select  a.*,
+b.svcrqst_id,
+b.svcrqct_cds,
+b.svcrtyp_cd,
+b.cmpltyp_cd,
+b.sum_reason_cd as src,
+b.cnctmd_cd,
+b.notes
+from ct_events_clean a
+inner join
+service_request_clean b
+on a.contact_event_id = b.cnctevn_id;
+
+
+
+
+

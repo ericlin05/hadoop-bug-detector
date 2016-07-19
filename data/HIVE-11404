@@ -1,0 +1,11 @@
+Description
+
+
+ql/src/java/org/apache/hadoop/hive/ql/optimizer/ColumnPrunerProcCtx.java:[216,28] cannot find symbol
+[ERROR] symbol:   class UnionOperator
+[ERROR] location: class org.apache.hadoop.hive.ql.optimizer.ColumnPrunerProcCtx
+
+
+Looks like HIVE-11271 broke this. Missing an import of UnionOperator, which was added to ColumnPrunerProcCtx.java as part of HIVE-11333, however that Jira has not yet been added to branch-1.
+
+

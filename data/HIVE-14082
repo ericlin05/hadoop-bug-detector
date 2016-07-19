@@ -1,0 +1,143 @@
+Description
+
+The following MULTI-INSERT Query Fails in Hive. I've listed the query required to re-produce this failure, as well as a few similar queries that work properly.
+Setup Queries:
+
+
+DROP SCHEMA IF EXISTS multi_table_insert_bug CASCADE;
+CREATE SCHEMA multi_table_insert_bug;
+USE multi_table_insert_bug;
+
+DROP TABLE IF EXISTS multi_table_insert_source;
+DROP TABLE IF EXISTS multi_table_insert_test;
+
+CREATE TABLE multi_table_insert_source (
+  date_column DATE,
+  column_1 STRING,
+  column_2 STRING,
+  column_3 STRING,
+  column_4 STRING
+);
+
+CREATE TABLE multi_table_insert_test (
+  column_1 STRING,
+  column_2 STRING,
+  line_count INT,
+  distinct_count_by_1_column INT,
+  distinct_count_by_2_columns INT
+)
+PARTITIONED BY (partition_column INT);
+
+INSERT OVERWRITE TABLE multi_table_insert_source VALUES
+  ('2016-01-22', 'value_1_1', 'value_1_2', 'value_1_3', 'value_1_4'),
+  ('2016-01-22', 'value_2_1', 'value_2_2', 'value_2_3', 'value_2_4'),
+  ('2016-01-22', 'value_3_1', 'value_3_2', 'value_3_3', 'value_3_4'),
+  ('2016-01-22', 'value_4_1', 'value_4_2', 'value_4_3', 'value_4_4'),
+  ('2016-01-22', 'value_5_1', 'value_5_2', 'value_5_3', 'value_5_4');
+
+
+The following queries run successfully:
+Query 1:
+
+
+FROM multi_table_insert_source
+  INSERT OVERWRITE TABLE multi_table_insert_test PARTITION (partition_column = 365)
+  SELECT
+    column_1,
+    column_2,
+    COUNT(*) AS line_count,
+    COUNT(DISTINCT column_3) AS distinct_count_by_1_column,
+    COUNT(DISTINCT date_column, column_3) AS distinct_count_by_2_columns
+  WHERE date_column &amp;gt;= DATE_SUB(FROM_UNIXTIME(UNIX_TIMESTAMP()), 365)
+  GROUP BY
+    column_1,
+    column_2;
+
+
+Query 2:
+
+
+FROM multi_table_insert_source
+  INSERT OVERWRITE TABLE multi_table_insert_test PARTITION (partition_column = 365)
+  SELECT
+    column_1,
+    column_2,
+    COUNT(*) AS line_count,
+    COUNT(DISTINCT column_3) AS distinct_count_by_1_column,
+    COUNT(DISTINCT date_column, column_3) AS distinct_count_by_2_columns
+--  WHERE date_column &amp;gt;= DATE_SUB(FROM_UNIXTIME(UNIX_TIMESTAMP()), 365)
+  GROUP BY
+    column_1,
+    column_2
+  INSERT OVERWRITE TABLE multi_table_insert_test PARTITION (partition_column = 1096)
+  SELECT
+    column_1,
+    column_2,
+    COUNT(*) AS line_count,
+    COUNT(DISTINCT column_3) AS distinct_count_by_1_column,
+    COUNT(DISTINCT date_column, column_3) AS distinct_count_by_2_columns
+--  WHERE date_column &amp;gt;= DATE_SUB(FROM_UNIXTIME(UNIX_TIMESTAMP()), 1096)
+  GROUP BY
+    column_1,
+    column_2;
+
+
+The following query fails with a ClassCastException:
+Query 3:
+
+
+FROM multi_table_insert_source
+  INSERT OVERWRITE TABLE multi_table_insert_test PARTITION (partition_column = 365)
+  SELECT
+    column_1,
+    column_2,
+    COUNT(*) AS line_count,
+    COUNT(DISTINCT column_3) AS distinct_count_by_1_column,
+    COUNT(DISTINCT date_column, column_3) AS distinct_count_by_2_columns
+  WHERE date_column &amp;gt;= DATE_SUB(FROM_UNIXTIME(UNIX_TIMESTAMP()), 365)
+  GROUP BY
+    column_1,
+    column_2
+  INSERT OVERWRITE TABLE multi_table_insert_test PARTITION (partition_column = 1096)
+  SELECT
+    column_1,
+    column_2,
+    COUNT(*) AS line_count,
+    COUNT(DISTINCT column_3) AS distinct_count_by_1_column,
+    COUNT(DISTINCT date_column, column_3) AS distinct_count_by_2_columns
+  WHERE date_column &amp;gt;= DATE_SUB(FROM_UNIXTIME(UNIX_TIMESTAMP()), 1096)
+  GROUP BY
+    column_1,
+    column_2;
+
+
+Here is the full stack-trace of the exception:
+Exception 1:
+
+
+java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row (tag=0) {"key":{"_col0":"value_1_1","_col1":"value_1_2","_col2":{0:{"_col0":"value_1_3"}}},"value":null}
+	at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.reduce(ExecReducer.java:257)
+	at org.apache.hadoop.mapred.ReduceTask.runOldReducer(ReduceTask.java:506)
+	at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:447)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:449)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row (tag=0) {"key":{"_col0":"value_1_1","_col1":"value_1_2","_col2":{0:{"_col0":"value_1_3"}}},"value":null}
+	at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.reduce(ExecReducer.java:245)
+	... 3 more
+Caused by: java.lang.ClassCastException: org.apache.hadoop.io.Text cannot be cast to org.apache.hadoop.hive.serde2.io.DateWritable
+	at org.apache.hadoop.hive.serde2.objectinspector.primitive.WritableDateObjectInspector.getPrimitiveWritableObject(WritableDateObjectInspector.java:38)
+	at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils.compare(ObjectInspectorUtils.java:938)
+	at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils.compare(ObjectInspectorUtils.java:818)
+	at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils.compare(ObjectInspectorUtils.java:809)
+	at org.apache.hadoop.hive.ql.udf.generic.GenericUDFOPEqualOrGreaterThan.evaluate(GenericUDFOPEqualOrGreaterThan.java:141)
+	at org.apache.hadoop.hive.ql.exec.ExprNodeGenericFuncEvaluator._evaluate(ExprNodeGenericFuncEvaluator.java:186)
+	at org.apache.hadoop.hive.ql.exec.ExprNodeEvaluator.evaluate(ExprNodeEvaluator.java:77)
+	at org.apache.hadoop.hive.ql.exec.ExprNodeEvaluator.evaluate(ExprNodeEvaluator.java:65)
+	at org.apache.hadoop.hive.ql.exec.FilterOperator.process(FilterOperator.java:112)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:878)
+	at org.apache.hadoop.hive.ql.exec.ForwardOperator.process(ForwardOperator.java:38)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.reduce(ExecReducer.java:236)
+	... 3 more
+
+
+
+

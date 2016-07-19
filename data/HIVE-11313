@@ -1,0 +1,19 @@
+Description
+
+Using union with dynamic partition insert will fail if there is a null partition name.
+hive&amp;gt; select * from testDynamicTezPartitionWithUnionSource;
+OK
+jay	18	20150101	NULL	NULL
+jack	20	20150101	NULL	NULL
+linda	25	20150102	BJ	NULL
+nancy	33	20150103	BJ	NC
+hive&amp;gt; set hive.execution.engine=tez;
+hive&amp;gt; set hive.exec.dynamic.partition=true;
+hive&amp;gt; insert into table testDynamicTezPartitionWithUnion partition(birthday=20150101, city, school) select name, age, city, school from testDynamicTezPartitionWithUnionSource where name="jay" union all select name, age, city, school from testDynamicTezPartitionWithUnionSource where name="jack";
+...
+Loading data to table test.testdynamictezpartitionwithunion partition (birthday=20150101, city=null, school=null)
+Failed with exception MetaException(message:Invalid partition key &amp;amp; values; keys [birthday, city, school, ], values [20150101, NULL, ])
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.MoveTask
+When change engine to mr, every thing just works fine.
+
+

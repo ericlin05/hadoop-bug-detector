@@ -1,0 +1,25 @@
+Description
+
+The following query fails:
+
+create table tb1 (year string, month string);
+create table tb2(month string);
+select unix_timestamp(a.year) 
+from (select * from tb1 where year='2001') a join tb2 b on (a.month=b.month);
+
+
+with the exception 
+
+Caused by: java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
+        at java.util.ArrayList.rangeCheck(ArrayList.java:635)
+        at java.util.ArrayList.get(ArrayList.java:411)
+        at org.apache.hadoop.hive.serde2.objectinspector.StandardStructObjectInspector.init(StandardStructObjectInspector.java:118)
+        at org.apache.hadoop.hive.serde2.objectinspector.StandardStructObjectInspector.&amp;lt;init&amp;gt;(StandardStructObjectInspector.java:109)
+        at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory.getStandardStructObjectInspector(ObjectInspectorFactory.java:290)
+        at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory.getStandardStructObjectInspector(ObjectInspectorFactory.java:275)
+        at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.getJoinOutputObjectInspector(CommonJoinOperator.java:175)
+
+
+The issue seems to be: during the query compilation, the field in the select should be replaced with the constant when some UDFs are used.
+
+

@@ -1,0 +1,21 @@
+Description
+
+This problem was exposed by HIVE-10284, when testing vectorized_context.q
+Below is the query and backtrace:
+
+
+select store.s_city, ss_net_profit
+from store_sales
+JOIN store ON store_sales.ss_store_sk = store.s_store_sk
+JOIN household_demographics ON store_sales.ss_hdemo_sk = household_demographics.hd_demo_sk
+limit 100
+
+
+Caused by: java.lang.ClassCastException: org.apache.hadoop.hive.ql.exec.vector.BytesColumnVector cannot be cast to org.apache.hadoop.hive.ql.exec.vector.LongColumnVector
+	at org.apache.hadoop.hive.ql.exec.vector.expressions.VectorExpressionWriterFactory$VectorExpressionWriterLong.writeValue(VectorExpressionWriterFactory.java:175)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorMapJoinOperator.getRowObject(VectorMapJoinOperator.java:347)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorMapJoinOperator.spillBigTableRow(VectorMapJoinOperator.java:306)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.process(MapJoinOperator.java:390)
+	... 24 more
+
+

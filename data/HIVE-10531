@@ -1,0 +1,5 @@
+Description
+
+HiveQueryResultSet can implement isClosed() method by isClosed field, but remains as SQLException("Method not supported") from HiveBaseResultSet.
+
+

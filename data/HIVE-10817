@@ -1,0 +1,9 @@
+Description
+
+    During a reliability test ,when one of MetaStore 's machine power down ,HiveServer2 then never submit jobs to YARN.
+    There are 100 JDBC clients (Beeline)  running concurrently.And all the 100 JDBC clients hangs.
+    After checking HiveServer2's thread stack,i find that most of the threads waiting to lock AbstractService while the one holding it is trying to connect to 
+the bad MetaStore which has been power down.When the thread which hold this lock finally return SocketTimeoutException and release this lock,another thread will hold this lock and again stuck until  socket time out.
+    Adding a new blacklist mechanism finally solved this issue. 
+
+

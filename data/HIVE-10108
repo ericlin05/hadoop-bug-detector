@@ -1,0 +1,8 @@
+Description
+
+Index#getIndexTableName() used to just returns index table name. Now it returns a qualified table name.  This change was introduced in HIVE-3781.
+As a result:
+IMetaStoreClient#getTable(index.getDbName(), index.getIndexTableName())
+throws ObjectNotFoundException.
+
+

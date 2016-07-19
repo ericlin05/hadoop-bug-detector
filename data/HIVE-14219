@@ -1,0 +1,21 @@
+Description
+
+
+2016-07-07T23:10:35,249 INFO  [TaskHeartbeatThread[]]: task.TezTaskRunner2 (:()) - TaskReporter reporter error which will cause the task to fail
+org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.security.authorize.AuthorizationException): Protocol interface org.apache.hadoop.hive.llap.protocol.LlapTaskUmbilicalProtocol is not known.
+	at org.apache.hadoop.ipc.Client.getRpcResponse(Client.java:1551)
+	at org.apache.hadoop.ipc.Client.call(Client.java:1495)
+	at org.apache.hadoop.ipc.Client.call(Client.java:1395)
+	at org.apache.hadoop.ipc.WritableRpcEngine$Invoker.invoke(WritableRpcEngine.java:241)
+	at com.sun.proxy.$Proxy39.heartbeat(Unknown Source)
+	at org.apache.hadoop.hive.llap.daemon.impl.LlapTaskReporter$HeartbeatCallable.heartbeat(LlapTaskReporter.java:280)
+	at org.apache.hadoop.hive.llap.daemon.impl.LlapTaskReporter$HeartbeatCallable.call(LlapTaskReporter.java:202)
+	at org.apache.hadoop.hive.llap.daemon.impl.LlapTaskReporter$HeartbeatCallable.call(LlapTaskReporter.java:139)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+

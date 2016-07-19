@@ -1,0 +1,49 @@
+Description
+
+Got this when executing a simple query with latest hive build + tez latest version.
+
+Error: Failure while running task: attempt_1439860407967_0291_2_03_000045_0:java.lang.RuntimeException: java.lang.RuntimeException: Hive Runtime Error while closing operators: java.lang.RuntimeException: java.io.IOException: Please check if you are invoking moveToNext() even after it returned false.
+at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:349)
+at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:71)
+at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:60)
+at java.security.AccessController.doPrivileged(Native Method)
+at javax.security.auth.Subject.doAs(Subject.java:422)
+at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:60)
+at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:35)
+at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Hive Runtime Error while closing operators: java.lang.RuntimeException: java.io.IOException: Please check if you are invoking moveToNext() even after it returned false.
+at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordProcessor.close(ReduceRecordProcessor.java:316)
+at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:162)
+... 14 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.RuntimeException: java.io.IOException: Please check if you are invoking moveToNext() even after it returned false.
+at org.apache.hadoop.hive.ql.exec.CommonMergeJoinOperator.fetchOneRow(CommonMergeJoinOperator.java:412)
+at org.apache.hadoop.hive.ql.exec.CommonMergeJoinOperator.fetchNextGroup(CommonMergeJoinOperator.java:375)
+at org.apache.hadoop.hive.ql.exec.CommonMergeJoinOperator.doFirstFetchIfNeeded(CommonMergeJoinOperator.java:482)
+at org.apache.hadoop.hive.ql.exec.CommonMergeJoinOperator.joinFinalLeftData(CommonMergeJoinOperator.java:434)
+at org.apache.hadoop.hive.ql.exec.CommonMergeJoinOperator.closeOp(CommonMergeJoinOperator.java:384)
+at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:616)
+at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordProcessor.close(ReduceRecordProcessor.java:292)
+... 15 more
+Caused by: java.lang.RuntimeException: java.io.IOException: Please check if you are invoking moveToNext() even after it returned false.
+at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordSource.pushRecord(ReduceRecordSource.java:291)
+at org.apache.hadoop.hive.ql.exec.CommonMergeJoinOperator.fetchOneRow(CommonMergeJoinOperator.java:400)
+... 21 more
+Caused by: java.io.IOException: Please check if you are invoking moveToNext() even after it returned false.
+at org.apache.tez.runtime.library.common.ValuesIterator.hasCompletedProcessing(ValuesIterator.java:223)
+at org.apache.tez.runtime.library.common.ValuesIterator.moveToNext(ValuesIterator.java:105)
+at org.apache.tez.runtime.library.input.OrderedGroupedKVInput$OrderedGroupedKeyValuesReader.next(OrderedGroupedKVInput.java:308)
+at org.apache.hadoop.hive.ql.exec.tez.KeyValuesFromKeyValues.next(KeyValuesFromKeyValues.java:46)
+at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordSource.pushRecord(ReduceRecordSource.java:249)
+... 22 more
+
+
+Not sure if this is related to HIVE-11016. 
+
+

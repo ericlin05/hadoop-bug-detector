@@ -1,0 +1,27 @@
+Description
+
+For every row x column
+
+
+        int len = (int) lengths.next();
+        int offset = 0;
+        byte[] bytes = new byte[len];
+        while (len &amp;gt; 0) {
+          int written = stream.read(bytes, offset, len);
+          if (written &amp;lt; 0) {
+            throw new EOFException("Can't finish byte read from " + stream);
+          }
+
+
+https://github.com/apache/hive/blob/master/ql/src/java/org/apache/hadoop/hive/ql/io/orc/TreeReaderFactory.java#L1552
+This is not a big issue until it misses the GC TLAB.
+From hadoop-2.6.x (HADOOP-10855) you can read into a Text directly. 
+Possibly can create a different TreeReader from the factory for 2.6.x &amp;amp; use a DataInputStream per stream and prevent an allocation in the inner loop.
+
+
+        int len = (int) lengths.next();
+        result.readWithKnownLength(datastream, len);
+
+
+
+

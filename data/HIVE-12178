@@ -1,0 +1,29 @@
+Description
+
+
+Caused by: java.lang.NullPointerException
+at org.apache.hadoop.hive.llap.cache.LowLevelLrfuCachePolicy.removeFromListUnderLock(LowLevelLrfuCachePolicy.java:346)
+at org.apache.hadoop.hive.llap.cache.LowLevelLrfuCachePolicy.removeFromListAndUnlock(LowLevelLrfuCachePolicy.java:335)
+at org.apache.hadoop.hive.llap.cache.LowLevelLrfuCachePolicy.notifyUnlock(LowLevelLrfuCachePolicy.java:133)
+at org.apache.hadoop.hive.llap.cache.LowLevelCacheImpl.unlockBuffer(LowLevelCacheImpl.java:354)
+at org.apache.hadoop.hive.llap.cache.LowLevelCacheImpl.releaseBuffers(LowLevelCacheImpl.java:344)
+at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.returnData(OrcEncodedDataReader.java:662)
+at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.returnData(OrcEncodedDataReader.java:74)
+at org.apache.hadoop.hive.llap.io.decode.EncodedDataConsumer.returnSourceData(EncodedDataConsumer.java:131)
+at org.apache.hadoop.hive.llap.io.decode.EncodedDataConsumer.consumeData(EncodedDataConsumer.java:122)
+at org.apache.hadoop.hive.llap.io.decode.EncodedDataConsumer.consumeData(EncodedDataConsumer.java:36)
+at org.apache.hadoop.hive.ql.io.orc.encoded.EncodedReaderImpl.readEncodedColumns(EncodedReaderImpl.java:405)
+at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.performDataRead(OrcEncodedDataReader.java:413)
+at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader$4.run(OrcEncodedDataReader.java:194)
+at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader$4.run(OrcEncodedDataReader.java:191)
+at java.security.AccessController.doPrivileged(Native Method)
+at javax.security.auth.Subject.doAs(Subject.java:422)
+at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1655)
+at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:191)
+at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:74)
+at org.apache.hadoop.hive.common.CallableWithNdc.call(CallableWithNdc.java:37)
+... 4 more
+
+
+
+

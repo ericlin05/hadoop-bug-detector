@@ -1,0 +1,49 @@
+Description
+
+
+
+EXPLAIN
+SELECT * FROM
+(SELECT a, b, count(*) from T1 where a &amp;lt; 3 group by a, b with cube) subq1
+join
+(SELECT a, b, count(*) from T1 where a &amp;lt; 3 group by a, b with cube) subq2
+on subq1.a = subq2.a
+
+
+Stack trace:
+
+
+java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.optimizer.ColumnPrunerProcFactory.pruneJoinOperator(ColumnPrunerProcFactory.java:1110)
+        at org.apache.hadoop.hive.ql.optimizer.ColumnPrunerProcFactory.access$400(ColumnPrunerProcFactory.java:85)
+        at org.apache.hadoop.hive.ql.optimizer.ColumnPrunerProcFactory$ColumnPrunerJoinProc.process(ColumnPrunerProcFactory.java:941)
+        at org.apache.hadoop.hive.ql.lib.DefaultRuleDispatcher.dispatch(DefaultRuleDispatcher.java:90)
+        at org.apache.hadoop.hive.ql.lib.DefaultGraphWalker.dispatchAndReturn(DefaultGraphWalker.java:105)
+        at org.apache.hadoop.hive.ql.lib.DefaultGraphWalker.dispatch(DefaultGraphWalker.java:89)
+        at org.apache.hadoop.hive.ql.optimizer.ColumnPruner$ColumnPrunerWalker.walk(ColumnPruner.java:172)
+        at org.apache.hadoop.hive.ql.lib.DefaultGraphWalker.startWalking(DefaultGraphWalker.java:120)
+        at org.apache.hadoop.hive.ql.optimizer.ColumnPruner.transform(ColumnPruner.java:135)
+        at org.apache.hadoop.hive.ql.optimizer.Optimizer.optimize(Optimizer.java:237)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:10176)
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner.analyzeInternal(CalcitePlanner.java:229)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:239)
+        at org.apache.hadoop.hive.ql.parse.ExplainSemanticAnalyzer.analyzeInternal(ExplainSemanticAnalyzer.java:74)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:239)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:472)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:312)
+        at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1168)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1256)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1094)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1082)
+        at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:233)
+        at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:184)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:400)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:336)
+        at org.apache.hadoop.hive.ql.QTestUtil.executeClientInternal(QTestUtil.java:1129)
+        at org.apache.hadoop.hive.ql.QTestUtil.executeClient(QTestUtil.java:1103)
+        at org.apache.hadoop.hive.cli.TestCliDriver.runTest(TestCliDriver.java:10444)
+        at org.apache.hadoop.hive.cli.TestCliDriver.testCliDriver_groupby_grouping_sets4(TestCliDriver.java:3313)
+
+
+
+

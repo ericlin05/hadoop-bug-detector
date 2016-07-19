@@ -1,0 +1,18 @@
+Description
+
+I was incrementally updating my setup on some VM and didn't have the logger config file, so the packaged one was picked up apparently, which caused this:
+
+java.lang.IllegalArgumentException: java.net.URISyntaxException: Relative path in absolute URI: jar:file:/home/vagrant/llap/apache-hive-2.0.0-SNAPSHOT-bin/lib/hive-llap-server-2.0.0-SNAPSHOT.jar!/llap-daemon-log4j2.properties
+	at org.apache.hadoop.fs.Path.initialize(Path.java:205)
+	at org.apache.hadoop.fs.Path.&amp;lt;init&amp;gt;(Path.java:171)
+	at org.apache.hadoop.hive.llap.cli.LlapServiceDriver.run(LlapServiceDriver.java:234)
+	at org.apache.hadoop.hive.llap.cli.LlapServiceDriver.main(LlapServiceDriver.java:58)
+Caused by: java.net.URISyntaxException: Relative path in absolute URI: jar:file:/home/vagrant/llap/apache-hive-2.0.0-SNAPSHOT-bin/lib/hive-llap-server-2.0.0-SNAPSHOT.jar!/llap-daemon-log4j2.properties
+	at java.net.URI.checkPath(URI.java:1823)
+	at java.net.URI.&amp;lt;init&amp;gt;(URI.java:745)
+	at org.apache.hadoop.fs.Path.initialize(Path.java:202)
+	... 3 more
+
+
+
+

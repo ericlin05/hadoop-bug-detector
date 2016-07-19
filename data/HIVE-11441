@@ -1,0 +1,50 @@
+Description
+
+If user makes a mistake, hive should either correct it in the first place, or allow user a chance to correct it. 
+STEPS TO REPRODUCE:
+create table testwrongloc(id int);
+alter table testwrongloc set location "hdfs://a-valid-hostname/tmp/testwrongloc";
+--at this time, hive should throw error, as hdfs://a-valid-hostname is not a valid path, it either needs to be hdfs://namenode-hostname:8020/ or hdfs://hdfs-nameservice for HA
+alter table testwrongloc set location "hdfs://correct-host:8020/tmp/testwrongloc"
+or 
+drop table testwrongloc;
+upon this hive throws error, that host 'a-valid-hostname' is not reachable
+
+
+2015-07-30 12:19:43,573 DEBUG [main]: transport.TSaslTransport (TSaslTransport.java:readFrame(429)) - CLIENT: reading data length: 293
+2015-07-30 12:19:43,720 ERROR [main]: ql.Driver (SessionState.java:printError(833)) - FAILED: SemanticException Unable to fetch table testloc. java.net.ConnectException: Call From hdpsecb02.secb.hwxsup.com/172.25.16.178 to hdpsecb02.secb.hwxsup.com:8020 failed on connection exception: java.net.ConnectException: Connection refused; For more details see:  http://wiki.apache.org/hadoop/ConnectionRefused
+org.apache.hadoop.hive.ql.parse.SemanticException: Unable to fetch table testloc. java.net.ConnectException: Call From hdpsecb02.secb.hwxsup.com/172.25.16.178 to hdpsecb02.secb.hwxsup.com:8020 failed on connection exception: java.net.ConnectException: Connection refused; For more details see:  http://wiki.apache.org/hadoop/ConnectionRefused
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.getTable(BaseSemanticAnalyzer.java:1323)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.getTable(BaseSemanticAnalyzer.java:1309)
+        at org.apache.hadoop.hive.ql.parse.DDLSemanticAnalyzer.addInputsOutputsAlterTable(DDLSemanticAnalyzer.java:1387)
+        at org.apache.hadoop.hive.ql.parse.DDLSemanticAnalyzer.analyzeAlterTableLocation(DDLSemanticAnalyzer.java:1452)
+        at org.apache.hadoop.hive.ql.parse.DDLSemanticAnalyzer.analyzeInternal(DDLSemanticAnalyzer.java:295)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:221)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:417)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:305)
+        at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1069)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1131)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1006)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:996)
+        at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:247)
+        at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:199)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:410)
+        at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:783)
+        at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:677)
+        at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:616)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Unable to fetch table testloc. java.net.ConnectException: Call From hdpsecb02.secb.hwxsup.com/172.25.16.178 to hdpsecb02.secb.hwxsup.com:8020 failed on connection exception: java.net.ConnectException: Connection refused; For more details see:  http://wiki.apache.org/hadoop/ConnectionRefused
+        at org.apache.hadoop.hive.ql.metadata.Hive.getTable(Hive.java:1072)
+        at org.apache.hadoop.hive.ql.metadata.Hive.getTable(Hive.java:1019)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.getTable(BaseSemanticAnalyzer.java:1316)
+        ... 23 more
+
+
+Note this only happens when StorageBasedAuthorizationProvider is enabled.
+
+

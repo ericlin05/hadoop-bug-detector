@@ -1,0 +1,17 @@
+Description
+
+Hey Guys,
+I created the following table:
+CREATE TABLE t1 (id int, key string, value string) partitioned by (dt int);
+And after that i created a view on that table as follow:
+create view v1 PARTITIONED ON (dt)
+as
+SELECT * FROM (
+SELECT row_number() over (partition by key order by value asc) as row_n, * FROM t1 
+) t WHERE row_n = 1;
+We are working with hive.mapred.mode=strict and when I try to do the  query select * from v1 where dt = 2 , I'm getting the following error:
+FAILED: SemanticException [Error 10041]: No partition predicate found for Alias "v1:t:t1" Table "t1"
+Is this a bug or a limitation of Hive when you use analytic functions in partitioned views? If i remove the row_number function it works without problems. 
+Thanks in advance, any help will be appreciated. 
+
+

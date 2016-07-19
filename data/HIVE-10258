@@ -1,0 +1,8 @@
+Description
+
+
+Caused by: java.io.IOException: java.io.IOException: java.io.IOException: Corruption in ORC data encountered. To skip reading corrupted data, set hive.exec.orc.skip.corrupt.data to true
+
+llap_partitioned passes
+
+

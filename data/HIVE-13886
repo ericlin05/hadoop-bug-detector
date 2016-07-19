@@ -1,0 +1,5 @@
+Description
+
+In src/java/org/apache/hadoop/hive/ql/exec/tez/HiveSplitGenerator.java, it uses conf.getLong() to read "dfs.blocksize". This results in Exception if one configures it to something like "256m". It should use conf.getLongBytes() to read it.
+
+

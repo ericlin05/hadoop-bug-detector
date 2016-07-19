@@ -1,0 +1,12 @@
+Description
+
+
+
+[Fatal Error] log4j2.xml:79:3: The element type "Loggers" must be terminated by the matching end-tag "&amp;lt;/Loggers&amp;gt;".
+ERROR StatusLogger Error parsing jar:file:/var/lib/jenkins/jobs/PreCommit-HIVE-TRUNK-Build/workspace/hive/build/hive/testutils/ptest2/target/hive-ptest-1.0-classes.jar!/log4j2.xml org.xml.sax.SAXParseException; systemId: jar:file:/var/lib/jenkins/jobs/PreCommit-HIVE-TRUNK-Build/workspace/hive/build/hive/testutils/ptest2/target/hive-ptest-1.0-classes.jar!/log4j2.xml; lineNumber: 79; columnNumber: 3; The element type "Loggers" must be terminated by the matching end-tag "&amp;lt;/Loggers&amp;gt;".
+	at com.sun.org.apache.xerces.internal.parsers.DOMParser.parse(DOMParser.java:257)
+
+
+NO PRECOMMIT TESTS
+
+

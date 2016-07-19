@@ -1,0 +1,13 @@
+Description
+
+If the specific location does not exist while creating table,It'll try to make a directory which matches the location.  In the process ,if the location's upper paths also don't exist,It'll find a path "PRTPATH" which is the  specific location's forward path,and then create the missing paths under the PRTPATH.  But It'll check all files' privilege  under the PRTPATH,so even though current user has privilege on the PRTPATH,it'll fail on privilege check
+[root@xxx opt]# hdfs dfs -ls /tmp
+drwxr-xr-x   - user1  hadoop          0 2015-11-03 19:14 /tmp/user1
+[root@xxx opt]# hdfs dfs -ls /tmp/user1
+Found 2 items
+drwxr-xr-x   - admin hadoop          0 2015-11-03 19:14 /tmp/user1/admin_t2
+drwxr-xr-x   - user1 hadoop          0 2015-11-03 19:13 /tmp/user1/user1_t1
+0: jdbc:hive2://167.52.0.81:21066/&amp;gt; create external table user1_t3(id int, name string) row format delimited fields terminated by ',' stored as textfile location '/tmp/user1/user1_t3';
+Error: Error while compiling statement: FAILED: HiveAccessControlException Permission denied: Principal [name=user1, type=USER] does not have following privileges for operation CREATETABLE [[INSERT, DELETE, OBJECT OWNERSHIP] on Object [type=DFS_URI, name=hdfs://hacluster/tmp/user1/user1_t3]] (state=42000,code=40000) 
+
+

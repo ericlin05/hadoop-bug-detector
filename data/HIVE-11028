@@ -1,0 +1,57 @@
+Description
+
+
+create table tez_self_join1(id1 int, id2 string, id3 string);
+insert into table tez_self_join1 values(1, 'aa','bb'), (2, 'ab','ab'), (3,'ba','ba');
+
+create table tez_self_join2(id1 int);
+insert into table tez_self_join2 values(1),(2),(3);
+
+explain
+select s.id2, s.id3
+from
+(
+ select self1.id1, self1.id2, self1.id3
+ from tez_self_join1 self1 join tez_self_join1 self2
+ on self1.id2=self2.id3 ) s
+join tez_self_join2
+on s.id1=tez_self_join2.id1
+where s.id2='ab';
+
+
+fails with error:
+
+2015-06-16 15:41:55,759 ERROR [main]: ql.Driver (SessionState.java:printError(979)) - FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.tez.TezTask. Vertex failed, vertexName=Reducer 3, vertexId=vertex_1434494327112_0002_4_04, diagnostics=[Task failed, taskId=task_1434494327112_0002_4_04_000000, diagnostics=[TaskAttempt 0 failed, info=[Error: Failure while running task:java.lang.RuntimeException: java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
+        at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+        at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+        at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:324)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:176)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:168)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:168)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:163)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:744)
+Caused by: java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
+        at java.util.ArrayList.rangeCheck(ArrayList.java:635)
+        at java.util.ArrayList.get(ArrayList.java:411)
+        at org.apache.hadoop.hive.serde2.objectinspector.StandardStructObjectInspector.init(StandardStructObjectInspector.java:118)
+        at org.apache.hadoop.hive.serde2.objectinspector.StandardStructObjectInspector.&amp;lt;init&amp;gt;(StandardStructObjectInspector.java:109)
+        at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory.getStandardStructObjectInspector(ObjectInspectorFactory.java:290)
+        at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory.getStandardStructObjectInspector(ObjectInspectorFactory.java:275)
+        at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.getJoinOutputObjectInspector(CommonJoinOperator.java:175)
+        at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.initializeOp(CommonJoinOperator.java:313)
+        at org.apache.hadoop.hive.ql.exec.AbstractMapJoinOperator.initializeOp(AbstractMapJoinOperator.java:71)
+        at org.apache.hadoop.hive.ql.exec.CommonMergeJoinOperator.initializeOp(CommonMergeJoinOperator.java:99)
+        at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:362)
+        at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordProcessor.init(ReduceRecordProcessor.java:146)
+        at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:147)
+        ... 13 more
+
+
+
+

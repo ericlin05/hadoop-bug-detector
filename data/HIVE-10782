@@ -1,0 +1,12 @@
+Description
+
+Support a EXCEPT operation  as &amp;lt;qb1&amp;gt; EXCEPT &amp;lt;qb2&amp;gt; .
+Common requirement of queries to project two sets where you want result set which contains distinct rows from the left input query that aren’t output by the right input query.
+The following sample statement combines the results with the EXCEPT operator, which returns distinct rows from the left input query that aren’t output by the right input query:
+SELECT * FROM tableA
+EXCEPT
+SELECT * FROM tableB;
+current exception:
+FAILED: ParseException line :* missing EOF at 'SELECT' near 'EXCEPT'
+
+

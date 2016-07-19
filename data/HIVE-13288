@@ -1,0 +1,67 @@
+Description
+
+I got the following exception when query through hive server2. And check the source code, it it due to some error when copying data from local to hdfs. But the IOException is ignored and assume that it is due to another thread is also writing. I don't think it make sense to assume that, at least should log the IOException. 
+
+
+LOG.info("Localizing resource because it does not exist: " + src + " to dest: " + dest);
+      try {
+        destFS.copyFromLocalFile(false, false, src, dest);
+      } catch (IOException e) {
+        LOG.info("Looks like another thread is writing the same file will wait.");
+        int waitAttempts =
+            conf.getInt(HiveConf.ConfVars.HIVE_LOCALIZE_RESOURCE_NUM_WAIT_ATTEMPTS.varname,
+                HiveConf.ConfVars.HIVE_LOCALIZE_RESOURCE_NUM_WAIT_ATTEMPTS.defaultIntVal);
+        long sleepInterval = HiveConf.getTimeVar(
+            conf, HiveConf.ConfVars.HIVE_LOCALIZE_RESOURCE_WAIT_INTERVAL,
+            TimeUnit.MILLISECONDS);
+        LOG.info("Number of wait attempts: " + waitAttempts + ". Wait interval: "
+            + sleepInterval);
+        boolean found = false;
+
+
+
+2016-03-15 11:25:39,921 INFO  [HiveServer2-Background-Pool: Thread-249]: tez.DagUtils (DagUtils.java:getHiveJarDirectory(876)) - Jar dir is null/directory doesn't exist. Choosing HIVE_INSTALL_DIR - /user/jeff/.hiveJars
+2016-03-15 11:25:40,058 INFO  [HiveServer2-Background-Pool: Thread-249]: tez.DagUtils (DagUtils.java:localizeResource(952)) - Localizing resource because it does not exist: file:/usr/hdp/2.3.2.0-2950/hive/lib/hive-exec-1.2.1.2.3.2.0-2950.jar to dest: hdfs://sandbox.hortonworks.com:8020/user/jeff/.hiveJars/hive-exec-1.2.1.2.3.2.0-2950-a97c953db414a4f792d868e2b0417578a61ccfa368048016926117b641b07f34.jar
+2016-03-15 11:25:40,063 INFO  [HiveServer2-Background-Pool: Thread-249]: tez.DagUtils (DagUtils.java:localizeResource(956)) - Looks like another thread is writing the same file will wait.
+2016-03-15 11:25:40,064 INFO  [HiveServer2-Background-Pool: Thread-249]: tez.DagUtils (DagUtils.java:localizeResource(963)) - Number of wait attempts: 5. Wait interval: 5000
+2016-03-15 11:25:53,548 INFO  [HiveServer2-Handler-Pool: Thread-48]: thrift.ThriftCLIService (ThriftCLIService.java:OpenSession(294)) - Client protocol version: HIVE_CLI_SERVICE_PROTOCOL_V8
+2016-03-15 11:25:53,548 INFO  [HiveServer2-Handler-Pool: Thread-48]: metastore.HiveMetaStore (HiveMetaStore.java:logInfo(747)) - 1: Shutting down the object store...
+2016-03-15 11:25:53,549 INFO  [HiveServer2-Handler-Pool: Thread-48]: HiveMetaStore.audit (HiveMetaStore.java:logAuditEvent(372)) - ugi=hive/sandbox.hortonworks.com@EXAMPLE.COM	ip=unknown-ip-addr	cmd=Shutting down the object store...
+2016-03-15 11:25:53,549 INFO  [HiveServer2-Handler-Pool: Thread-48]: metastore.HiveMetaStore (HiveMetaStore.java:logInfo(747)) - 1: Metastore shutdown complete.
+2016-03-15 11:25:53,549 INFO  [HiveServer2-Handler-Pool: Thread-48]: HiveMetaStore.audit (HiveMetaStore.java:logAuditEvent(372)) - ugi=hive/sandbox.hortonworks.com@EXAMPLE.COM	ip=unknown-ip-addr	cmd=Metastore shutdown complete.
+2016-03-15 11:25:53,573 INFO  [HiveServer2-Handler-Pool: Thread-48]: session.SessionState (SessionState.java:createPath(641)) - Created local directory: /tmp/e43fbaab-a659-4331-90cb-0ea0b2098e25_resources
+2016-03-15 11:25:53,577 INFO  [HiveServer2-Handler-Pool: Thread-48]: session.SessionState (SessionState.java:createPath(641)) - Created HDFS directory: /tmp/hive/ambari-qa/e43fbaab-a659-4331-90cb-0ea0b2098e25
+2016-03-15 11:25:53,582 INFO  [HiveServer2-Handler-Pool: Thread-48]: session.SessionState (SessionState.java:createPath(641)) - Created local directory: /tmp/hive/e43fbaab-a659-4331-90cb-0ea0b2098e25
+2016-03-15 11:25:53,587 INFO  [HiveServer2-Handler-Pool: Thread-48]: session.SessionState (SessionState.java:createPath(641)) - Created HDFS directory: /tmp/hive/ambari-qa/e43fbaab-a659-4331-90cb-0ea0b2098e25/_tmp_space.db
+2016-03-15 11:25:53,592 INFO  [HiveServer2-Handler-Pool: Thread-48]: session.HiveSessionImpl (HiveSessionImpl.java:setOperationLogSessionDir(236)) - Operation log session directory is created: /home/hive/${system:java.io.tmpdir}/${system:user.name}/operation_logs/e43fbaab-a659-4331-90cb-0ea0b2098e25
+2016-03-15 11:26:05,077 ERROR [HiveServer2-Background-Pool: Thread-249]: tez.DagUtils (DagUtils.java:localizeResource(979)) - Could not find the jar that was being uploaded
+2016-03-15 11:26:05,077 ERROR [HiveServer2-Background-Pool: Thread-249]: exec.Task (TezTask.java:execute(198)) - Failed to execute tez graph.
+java.io.IOException: Previous writer likely failed to write hdfs://sandbox.hortonworks.com:8020/user/jeff/.hiveJars/hive-exec-1.2.1.2.3.2.0-2950-a97c953db414a4f792d868e2b0417578a61ccfa368048016926117b641b07f34.jar. Failing because I am unlikely to write too.
+	at org.apache.hadoop.hive.ql.exec.tez.DagUtils.localizeResource(DagUtils.java:980)
+	at org.apache.hadoop.hive.ql.exec.tez.TezSessionState.createJarLocalResource(TezSessionState.java:350)
+	at org.apache.hadoop.hive.ql.exec.tez.TezSessionState.open(TezSessionState.java:152)
+	at org.apache.hadoop.hive.ql.exec.tez.TezTask.updateSession(TezTask.java:257)
+	at org.apache.hadoop.hive.ql.exec.tez.TezTask.execute(TezTask.java:140)
+	at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:89)
+	at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1655)
+	at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1414)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1195)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1059)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1054)
+	at org.apache.hive.service.cli.operation.SQLOperation.runQuery(SQLOperation.java:154)
+	at org.apache.hive.service.cli.operation.SQLOperation.access$100(SQLOperation.java:71)
+	at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:206)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:218)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+

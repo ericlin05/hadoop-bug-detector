@@ -1,0 +1,49 @@
+Description
+
+I am using current_date() in my query where clause along with table column of type date for comparison using artihmatic operator "-" (minus) and "&amp;lt;" / "&amp;gt;" operators - for example:
+SELECT DISTINCT customerid FROM Customer_date WHERE 
+   ((Customer_date.my_date_mmdyyyy - CURRENT_DATE()) &amp;gt;= 7) 
+It results in error as:
+====================================================
+ERROR : Vertex failed, vertexName=Map 1, vertexId=vertex_1449057948397_0330_1_00, diagnostics=[Task failed, taskId=task_1449057948397_0330_1_00_000000, diagnostics=[TaskAttempt 0 failed, info=[Error: Failure while running task:java.lang.RuntimeException: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row 
+{"customerid":1,"my_date_mmdyyyy":"1982-01-01","my_date_ddmmyy":"1982-01-01","my_date_ddmmyyyy":"1982-01-01","my_date_mdyyyy":"1982-01-01","my_date_mdyyyyhh":"1982-01-01 00:00:00","my_date_mdyyyyhh24":"1982-01-01 00:00:00"}
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:344)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:179)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:171)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:171)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:167)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row 
+{"customerid":1,"my_date_mmdyyyy":"1982-01-01","my_date_ddmmyy":"1982-01-01","my_date_ddmmyyyy":"1982-01-01","my_date_mdyyyy":"1982-01-01","my_date_mdyyyyhh":"1982-01-01 00:00:00","my_date_mdyyyyhh24":"1982-01-01 00:00:00"}
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:91)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.pushRecord(MapRecordSource.java:68)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.run(MapRecordProcessor.java:310)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:148)
+	... 14 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row 
+{"customerid":1,"my_date_mmdyyyy":"1982-01-01","my_date_ddmmyy":"1982-01-01","my_date_ddmmyyyy":"1982-01-01","my_date_mdyyyy":"1982-01-01","my_date_mdyyyyhh":"1982-01-01 00:00:00","my_date_mdyyyyhh24":"1982-01-01 00:00:00"}
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:545)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:83)
+	... 17 more
+Caused by: java.lang.RuntimeException: Hive 2 Internal error: unsupported conversion from type: interval_day_time
+	at org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils.getDouble(PrimitiveObjectInspectorUtils.java:779)
+	at org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorConverter$DoubleConverter.convert(PrimitiveObjectInspectorConverter.java:240)
+=====================================================
+As a alternative I can use query as:
+   SELECT DISTINCT customerid FROM Customer_date WHERE 
+   (current_date() - my_date_mmdyyyy ) = interval '0 0:0:0' day to second
+I cant use this query all the time with interval type attached for the comparison. Is there any way original query can be fixed to serve the results without specifying Interval:
+Original query:
+SELECT DISTINCT customerid FROM Customer_date WHERE 
+   ((Customer_date.my_date_mmdyyyy - CURRENT_DATE()) &amp;gt;= 7) 
+
+

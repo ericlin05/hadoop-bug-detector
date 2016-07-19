@@ -1,0 +1,24 @@
+Description
+
+
+
+2015-05-19 19:48:42,827 [Wait-Queue-Scheduler-0(null)] ERROR org.apache.hadoop.hive.llap.daemon.impl.TaskExecutorService: Wait queue scheduler worker exited with failure!
+java.lang.NullPointerException
+  at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.abort(TezProcessor.java:177)
+  at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.abortTask(LogicalIOProcessorRuntimeTask.java:698)
+  at org.apache.tez.runtime.task.TaskRunner2Callable.interruptTask(TaskRunner2Callable.java:118)
+  at org.apache.tez.runtime.task.TezTaskRunner2.killTask(TezTaskRunner2.java:261)
+  at org.apache.hadoop.hive.llap.daemon.impl.TaskRunnerCallable.killTask(TaskRunnerCallable.java:240)
+  at org.apache.hadoop.hive.llap.daemon.impl.TaskExecutorService.trySchedule(TaskExecutorService.java:262)
+  at org.apache.hadoop.hive.llap.daemon.impl.TaskExecutorService.access$700(TaskExecutorService.java:64)
+  at org.apache.hadoop.hive.llap.daemon.impl.TaskExecutorService$WaitQueueWorker.run(TaskExecutorService.java:162)
+  at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+  at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+  at java.lang.Thread.run(Thread.java:745)
+
+
+rrProc should be volatile. There likely need to be some checks around it to ensure it's setup.
+
+

@@ -1,0 +1,39 @@
+Description
+
+In the hive when the clients to execute HQL, occasionally the following exception, please help solve, thank you
+Error: java.lang.RuntimeException: org.apache.hive.com.esotericsoftware.kryo.KryoException: Encountered unregistered class ID: 73
+Serialization trace:
+colExprMap (org.apache.hadoop.hive.ql.exec.TableScanOperator)
+aliasToWork (org.apache.hadoop.hive.ql.plan.MapWork)
+        at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:366)
+        at org.apache.hadoop.hive.ql.exec.Utilities.getMapWork(Utilities.java:277)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.init(HiveInputFormat.java:258)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:451)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:444)
+        at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getRecordReader(CombineHiveInputFormat.java:588)
+        at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.&amp;lt;init&amp;gt;(MapTask.java:169)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:429)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:168)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1642)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:163)
+Caused by: org.apache.hive.com.esotericsoftware.kryo.KryoException: Encountered unregistered class ID: 73
+Serialization trace:
+colExprMap (org.apache.hadoop.hive.ql.exec.TableScanOperator)
+aliasToWork (org.apache.hadoop.hive.ql.plan.MapWork)
+        at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readClass(DefaultClassResolver.java:119)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClass(Kryo.java:656)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:99)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:139)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:17)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:672)
+        at org.apache.hadoop.hive.ql.exec.Utilities.deserializeObjectByKryo(Utilities.java:943)
+
+

@@ -1,0 +1,45 @@
+Description
+
+Here are the steps to reproduce. Please setup two hive warehouses with hive.metastore.event.listeners set to org.apache.hive.hcatalog.listener.DbNotificationListener. On warehouse 1, please do the following as user hive.
+
+
+## create table
+CREATE TABLE page_view4(viewTime INT, userid BIGINT,
+     page_url STRING, referrer_url STRING,
+     ip STRING COMMENT 'IP Address of the User')
+ COMMENT 'This is the page view table'
+ PARTITIONED BY(dt STRING, country STRING)
+ STORED AS SEQUENCEFILE;
+
+## Add partitions
+alter table page_view4 add partition (dt="1", country="usa");
+alter table page_view4 add partition (dt="2", country="india");
+insert into table page_view4 PARTITION (dt="1", country="usa") VALUES (1, 1, "url1", "referurl1", "ip1");
+
+## Export table
+export table page_view4 to '/tmp/export4' for replication('foo');
+
+
+'/tmp/export4' is created with owner as hive and group hdfs. The 
+'/apps/hive/warehouse/page_view4/' is created with owner hive and group users. 
+Copy the exported data in  '/tmp/export4' to hdfs in warehouse 2. The data is still owned by hive and belongs to group hdfs. Please change the group for dir '/tmp/export4' to users. 
+
+
+bash# su - hdfs
+hdfs : bash# hadoop fs -chown -R hive:users /tmp/export4
+
+
+As user hive, do the following
+
+
+hive&amp;gt; import table page_view4 from '/tmp/export4' ;
+Copying data from hdfs://node-4.example.com:8020/tmp/export4/dt=1/country=usa
+....
+Loading data to table default.page_view4 partition (country=usa, dt=1)
+Failed with exception org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.thrift.protocol.TProtocolException: Required field 'filesAdded' is unset! Struct:InsertEventRequestData(filesAdded:null)
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.MoveTask
+
+
+The import failed. Attaching the logs from /tmp/hive/hive.log for further debugging. 
+
+

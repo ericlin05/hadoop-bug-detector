@@ -1,0 +1,19 @@
+Description
+
+Map join set HADOOP_USER_NAME should be realuser's username.
+Current, hive set HADOOP_USER_NAME env for mapjoin local process according:
+
+   String endUserName = Utils.getUGI().getShortUserName();
+suppose set HADOOP_PROXY_USER=abc in shell.
+map join local job will have following env:
+
+HADOOP_USER_NAME=abc
+HADOOP_PROXY_NAME=abc
+this will cause such exception:
+
+java.io.IOException: org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.security.authorize.AuthorizationException): User: abc is not allowed to impersonate 
+I think we should set HADOOP_USER_NAME to realuser:
+
+   String endUserName = Utils.getUGI().getRealUser().getShortUserName();
+
+

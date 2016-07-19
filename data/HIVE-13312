@@ -1,0 +1,11 @@
+Description
+
+FAILED: SemanticException 1:68 Percentage sampling is not supported in org.apache.hadoop.hive.ql.io.HiveInputFormat. Error encountered near token '20'
+when I execute
+SELECT * FROM tablename TABLESAMPLE(20 percent);
+tried with ORC and TEXT tables. Confirmed with Gopal, a temporary workaround is
+set hive.tez.input.format=$
+{hive.input.format}
+;
+
+

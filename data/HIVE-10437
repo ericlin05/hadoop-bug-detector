@@ -1,0 +1,71 @@
+Description
+
+On a table with partitions, whenever I try to do a simple query which tells hive not to execute mapreduce but just read data straight from hdfs, it raises an exception:
+
+
+create external table jsonbug(
+a int,
+b string
+)
+    PARTITIONED BY (
+    `c` string)
+ROW FORMAT SERDE
+  'org.openx.data.jsonserde.JsonSerDe'
+WITH SERDEPROPERTIES (
+      'ignore.malformed.json'='true')
+STORED AS INPUTFORMAT
+  'org.apache.hadoop.mapred.TextInputFormat'
+OUTPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+LOCATION
+  '/tmp/jsonbug';
+
+ALTER TABLE jsonbug ADD PARTITION(c='1');
+
+
+Runnin simple 
+
+
+select * from jsonbug;
+
+
+Raises the following exception:
+
+
+FAILED: RuntimeException org.apache.hadoop.hive.ql.metadata.HiveException: Failed with exception nulljava.lang.NullPointerException
+    at org.apache.hadoop.hive.ql.exec.FetchOperator.needConversion(FetchOperator.java:607)
+    at org.apache.hadoop.hive.ql.exec.FetchOperator.setupOutputObjectInspector(FetchOperator.java:578)
+    at org.apache.hadoop.hive.ql.exec.FetchOperator.initialize(FetchOperator.java:172)
+    at org.apache.hadoop.hive.ql.exec.FetchOperator.&amp;lt;init&amp;gt;(FetchOperator.java:140)
+    at org.apache.hadoop.hive.ql.exec.FetchTask.initialize(FetchTask.java:79)
+    at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:455)
+    at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:307)
+    at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1112)
+    at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1160)
+    at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1049)
+    at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1039)
+    at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:207)
+    at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:159)
+    at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:370)
+    at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:754)
+    at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:675)
+    at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:615)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:606)
+    at org.apache.hadoop.util.RunJar.main(RunJar.java:160)
+
+
+It works fine if I execute a query involving map/reduce job though.
+This problem occurs only when using SerDe's created for hive versions pre 1.1.0, those which do not have @SerDeSpec annotation specified. Most of the third party SerDE's, including hcat's JsonSerde have this problem as well. 
+It seems like changes made in HIVE-7977 introduce this bug. See org.apache.hadoop.hive.ql.exec.FetchOperator.needConversion(FetchOperator.java:607)
+
+
+Class&amp;lt;?&amp;gt; tableSerDe = tableDesc.getDeserializerClass();
+String[] schemaProps = AnnotationUtils.getAnnotation(tableSerDe, SerDeSpec.class).schemaProps();
+
+
+And it also seems like a relatively easy fix.
+
+

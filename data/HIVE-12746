@@ -1,0 +1,11 @@
+Description
+
+1 user1 has readonly permission on hdfs path '/user/www/seller_shop_info';
+2 user1 create external table seller_shop_info on the hdfs path;
+3 user1 drop the exernal table seller_shop_info
+then problem occurred!
+hive&amp;gt; drop table seller_shop_info;
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. MetaException(message:Table metadata not deleted since hdfs://argo/user/www/seller_shop_info is not writable by user1)
+because when dropping external table,hive doesnot delete hdfs path,so hive metastore should not check the hdfs write permission
+
+

@@ -1,0 +1,22 @@
+Description
+
+
+
+hive&amp;gt; select count(1) from store_sales where ss_sold_time_sk = 1;
+...
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.io.orc.EncodedTreeReaderFactory.createEncodedTreeReader(EncodedTreeReaderFactory.java:1764)
+	at org.apache.hadoop.hive.llap.io.decode.OrcEncodedDataConsumer.decodeBatch(OrcEncodedDataConsumer.java:92)
+	at org.apache.hadoop.hive.llap.io.decode.OrcEncodedDataConsumer.decodeBatch(OrcEncodedDataConsumer.java:39)
+	at org.apache.hadoop.hive.llap.io.decode.EncodedDataConsumer.consumeData(EncodedDataConsumer.java:116)
+	at org.apache.hadoop.hive.llap.io.decode.EncodedDataConsumer.consumeData(EncodedDataConsumer.java:36)
+	at org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl.readEncodedColumns(EncodedReaderImpl.java:329)
+	at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:294)
+	at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:56)
+	at org.apache.hadoop.hive.common.CallableWithNdc.call(CallableWithNdc.java:37)
+	... 4 more
+
+
+This was observed with the 10Tb scale data-set, because the PPD filtering can remove all row-groups from a given split.
+
+

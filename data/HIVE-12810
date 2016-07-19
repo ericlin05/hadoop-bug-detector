@@ -1,0 +1,117 @@
+Description
+
+Hadoop HDP 2.3 (Hadoop 2.7.1.2.3.0.0-2557)
+Hive 1.2.1.2.3.0.0-2557
+We are loading orc tables in hive with sqoop from hana db.
+Everything works fine, count and select with ie. 16.000.000 entries in the table, but when we load 34.000.000 entries query select does not work anymore and we get the followong error (select count is working in both cases):
+
+
+select count(*) from tablename;
+INFO  : Session is already open
+INFO  :
+
+INFO  : Status: Running (Executing on YARN cluster with App id application_1452091205505_0032)
+
+INFO  : Map 1: -/-      Reducer 2: 0/1
+INFO  : Map 1: 0/96     Reducer 2: 0/1
+.
+.
+.
+INFO  : Map 1: 96/96    Reducer 2: 0(+1)/1
+INFO  : Map 1: 96/96    Reducer 2: 1/1
++-----------+--+
+|    _c0    |
++-----------+--+
+| 34146816  |
++-----------+--+
+1 row selected (45.455 seconds)
+
+
+
+
+
+"select originalxml from tablename where messageid = 'd0b3c872-435d-499b-a65c-619d9e732bbb'
+
+0: jdbc:hive2://10.4.zz.xx:10000/default&amp;gt; select originalxml from tablename where messageid = 'd0b3c872-435d-499b-a65c-619d9e732bbb';
+INFO  : Session is already open
+INFO  : Tez session was closed. Reopening...
+INFO  : Session re-established.
+INFO  :
+
+INFO  : Status: Running (Executing on YARN cluster with App id application_1452091205505_0032)
+
+INFO  : Map 1: -/-
+ERROR : Status: Failed
+ERROR : Vertex failed, vertexName=Map 1, vertexId=vertex_1452091205505_0032_1_00, diagnostics=[Vertex vertex_1452091205505_0032_1_00 [Map 1] killed/failed due to:ROOT_INPUT_INIT_FAILURE, Vertex Input: tablename initializer failed, vertex=vertex_1452091205505_0032_1_00 [Map 1], java.lang.RuntimeException: serious problem
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.generateSplitsInfo(OrcInputFormat.java:1021)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getSplits(OrcInputFormat.java:1048)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.addSplitsForGroup(HiveInputFormat.java:306)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.getSplits(HiveInputFormat.java:408)
+        at org.apache.hadoop.hive.ql.exec.tez.HiveSplitGenerator.initialize(HiveSplitGenerator.java:155)
+        at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable$1.run(RootInputInitializerManager.java:245)
+        at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable$1.run(RootInputInitializerManager.java:239)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:422)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+        at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable.call(RootInputInitializerManager.java:239)
+        at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable.call(RootInputInitializerManager.java:226)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+        at java.lang.Thread.run(Thread.java:745)
+Caused by: java.util.concurrent.ExecutionException: java.lang.IndexOutOfBoundsException: Index: 0
+        at java.util.concurrent.FutureTask.report(FutureTask.java:122)
+        at java.util.concurrent.FutureTask.get(FutureTask.java:192)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.generateSplitsInfo(OrcInputFormat.java:1016)
+        ... 15 more
+Caused by: java.lang.IndexOutOfBoundsException: Index: 0
+        at java.util.Collections$EmptyList.get(Collections.java:4454)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$Type.getSubtypes(OrcProto.java:12240)
+        at org.apache.hadoop.hive.ql.io.orc.ReaderImpl.getColumnIndicesFromNames(ReaderImpl.java:649)
+        at org.apache.hadoop.hive.ql.io.orc.ReaderImpl.getRawDataSizeOfColumns(ReaderImpl.java:632)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$SplitGenerator.populateAndCacheStripeDetails(OrcInputFormat.java:927)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$SplitGenerator.call(OrcInputFormat.java:836)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$SplitGenerator.call(OrcInputFormat.java:702)
+        ... 4 more
+]
+ERROR : DAG did not succeed due to VERTEX_FAILURE. failedVertices:1 killedVertices:0
+Error: Error while processing statement: FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.tez.TezTask. Vertex failed, vertexName=Map 1, vertexId=vertex_1452091205505_0032_1_00, diagnostics=[Vertex vertex_1452091205505_0032_1_00 [Map 1] killed/failed due to:ROOT_INPUT_INIT_FAILURE, Vertex Input: tablename initializer failed, vertex=vertex_1452091205505_0032_1_00 [Map 1], java.lang.RuntimeException: serious problem
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.generateSplitsInfo(OrcInputFormat.java:1021)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getSplits(OrcInputFormat.java:1048)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.addSplitsForGroup(HiveInputFormat.java:306)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.getSplits(HiveInputFormat.java:408)
+        at org.apache.hadoop.hive.ql.exec.tez.HiveSplitGenerator.initialize(HiveSplitGenerator.java:155)
+        at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable$1.run(RootInputInitializerManager.java:245)
+        at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable$1.run(RootInputInitializerManager.java:239)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:422)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+        at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable.call(RootInputInitializerManager.java:239)
+        at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable.call(RootInputInitializerManager.java:226)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+        at java.lang.Thread.run(Thread.java:745)
+Caused by: java.util.concurrent.ExecutionException: java.lang.IndexOutOfBoundsException: Index: 0
+        at java.util.concurrent.FutureTask.report(FutureTask.java:122)
+        at java.util.concurrent.FutureTask.get(FutureTask.java:192)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.generateSplitsInfo(OrcInputFormat.java:1016)
+        ... 15 more
+Caused by: java.lang.IndexOutOfBoundsException: Index: 0
+        at java.util.Collections$EmptyList.get(Collections.java:4454)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$Type.getSubtypes(OrcProto.java:12240)
+        at org.apache.hadoop.hive.ql.io.orc.ReaderImpl.getColumnIndicesFromNames(ReaderImpl.java:649)
+        at org.apache.hadoop.hive.ql.io.orc.ReaderImpl.getRawDataSizeOfColumns(ReaderImpl.java:632)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$SplitGenerator.populateAndCacheStripeDetails(OrcInputFormat.java:927)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$SplitGenerator.call(OrcInputFormat.java:836)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$SplitGenerator.call(OrcInputFormat.java:702)
+        ... 4 more
+]DAG did not succeed due to VERTEX_FAILURE. failedVertices:1 killedVertices:0 (state=08S01,code=2)
+0: jdbc:hive2://10.4.zz.xx:10000/default&amp;gt;
+
+
+If anybody can help regarding this issue I will appreciate.
+thanks,
+maske
+
+

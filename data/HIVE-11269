@@ -1,0 +1,156 @@
+Description
+
+getting kryo serialization exception when running large queries, this works fine on hive 0.14, 
+and works fine on 1.3.0 with the following flags,
+set hive.plan.serialization.format=kryo;
+set hive.exec.parallel=false;
+set hive.limit.optimize.enable=false;
+set hive.optimize.metadataonly=false;
+set hive.optimize.reducededuplication=false;
+set hive.optimize.sort.dynamic.partition=false;
+set hive.stats.fetch.partition.stats=false;
+set hive.vectorized.execution.enabled=false;
+set hive.vectorized.execution.reduce.enabled=false;
+set hive.cbo.enable=false;
+set hive.compute.query.using.stats=false;
+set hive.multigroupby.singlereducer=false;
+set hive.optimize.ppd=false;
+set hive.optimize.skewjoin.compiletime=false;
+set hive.optimize.skewjoin=false;
+set hive.optimize.union.remove=false;
+set hive.mapred.mode=nonstrict;
+set hive.auto.convert.join.noconditionaltask=false;
+set hive.optimize.sort.dynamic.partition=false;
+set hive.rpc.query.plan=true;
+StackTrace
+  colExprMap (org.apache.hadoop.hive.ql.exec.SelectOperator)
+  childOperators (org.apache.hadoop.hive.ql.exec.JoinOperator)
+  reducer (org.apache.hadoop.hive.ql.plan.ReduceWork)
+  	at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:462)
+  	at org.apache.hadoop.hive.ql.exec.Utilities.getReduceWork(Utilities.java:309)
+  	at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.configure(ExecReducer.java:112)
+  	... 14 more
+  Caused by: org.apache.hive.com.esotericsoftware.kryo.KryoException: java.lang.NullPointerException
+  Serialization trace:
+  chidren (org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc)
+  chidren (org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc)
+  chidren (org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc)
+  chidren (org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc)
+  chidren (org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc)
+  chidren (org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc)
+  chidren (org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc)
+  chidren (org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc)
+  chidren (org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc)
+  chidren (org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc)
+  chidren (org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc)
+  chidren (org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc)
+  chidren (org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc)
+  colExprMap (org.apache.hadoop.hive.ql.exec.SelectOperator)
+  childOperators (org.apache.hadoop.hive.ql.exec.JoinOperator)
+  reducer (org.apache.hadoop.hive.ql.plan.ReduceWork)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:125)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:139)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:17)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:672)
+  	at org.apache.hadoop.hive.ql.exec.Utilities.deserializeObjectByKryo(Utilities.java:1081)
+  	at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:972)
+  	at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:986)
+  	at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:435)
+  	... 16 more
+  Caused by: java.lang.NullPointerException
+  	at java.util.ArrayList$SubList.checkForComodification(ArrayList.java:1168)
+  	at java.util.ArrayList$SubList.size(ArrayList.java:998)
+  	at java.util.AbstractList.add(AbstractList.java:108)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+  	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+  	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+  	... 109 more
+
+

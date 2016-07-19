@@ -1,0 +1,33 @@
+Description
+
+1)Perform the following command for the first time:
+INSERT OVERWRITE TABLE dest PARTITION (dt='20151026') SELECT * FROM src;
+Once it fails while trying to add partition into meta data,though the data file has been copied to the table directory.
+hdfs dfs -ls -R /user/hive/warehouse/dest/dt=20151026
+rw------ 3 admin hive 65 2015-10-30 19:34 /user/hive/warehouse/dest/dt=20151026/000000_0
+0: jdbc:hive2://ha-cluster/default&amp;gt; show partitions dest;
+------------
+
+
+ partition 
+
+
+------------
+------------
+No rows selected (0.154 seconds)
+2)Perform the "insert overwrite" again:
+INSERT OVERWRITE TABLE dest PARTITION (dt='20151026') SELECT * FROM src;
+No matter if this time it succeeds or not,the partition directory will get redundant directory just like the following example:
+hdfs dfs -ls -R /user/hive/warehouse/dest/ 
+drwx------ - admin hive 0 2015-10-30 19:36 /user/hive/warehouse/dest/dt=20151026
+rw------ 3 admin hive 65 2015-10-30 19:34 /user/hive/warehouse/dest/dt=20151026/000000_0
+drwxrwxrwx - admin hive 0 2015-10-30 19:36 /user/hive/warehouse/dest/dt=20151026/-ext-10000
+rw------ 3 admin hive 65 2015-10-30 19:36 /user/hive/warehouse/dest/dt=20151026/-ext-10000/000000_0
+3)This will cause a issue while try to select data from it.
+0: jdbc:hive2://ha-cluster/default&amp;gt; select * from dest where dt='20151026';
+Error: java.io.IOException: java.io.IOException: Not a file: hdfs://hacluster/user/hive/warehouse/dest/dt=20151026/-ext-10000 (state=,code=0)
+4)This issue turns different result for Hive-0.13 and Hive-1.1.0.
+For Hive-0.13,it produces redundant directory.
+For Hive-1.10,it generates duplicated data.
+
+

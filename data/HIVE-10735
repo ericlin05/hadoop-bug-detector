@@ -1,0 +1,35 @@
+Description
+
+Looks like some state is mutated during execution across threads in LLAP. 
+Either we can't share the operator objects across threads, because they are tied to the data objects per invocation or this is missing a closeOp() which resets the common-setup between reuses.
+
+
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.ArrayIndexOutOfBoundsException
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerBigOnlyLongOperator.process(VectorMapJoinInnerBigOnlyLongOperator.java:380)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:850)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorFilterOperator.process(VectorFilterOperator.java:114)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:850)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.process(TableScanOperator.java:97)
+	at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:164)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:45)
+	... 18 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.ArrayIndexOutOfBoundsException
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerLongOperator.process(VectorMapJoinInnerLongOperator.java:379)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:850)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinGenerateResultOperator.forwardBigTableBatch(VectorMapJoinGenerateResultOperator.java:599)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerBigOnlyGenerateResultOperator.generateHashMultiSetResultRepeatedAll(VectorMapJoinInnerBigOnlyGenerateResultOperator.java:304)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerBigOnlyGenerateResultOperator.finishInnerBigOnlyRepeated(VectorMapJoinInnerBigOnlyGenerateResultOperator.java:328)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerBigOnlyLongOperator.process(VectorMapJoinInnerBigOnlyLongOperator.java:201)
+	... 24 more
+Caused by: java.lang.ArrayIndexOutOfBoundsException
+	at org.apache.hadoop.hive.ql.exec.vector.BytesColumnVector.setVal(BytesColumnVector.java:152)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorDeserializeRow$StringReaderByValue.apply(VectorDeserializeRow.java:349)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorDeserializeRow.deserializeByValue(VectorDeserializeRow.java:688)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinGenerateResultOperator.generateHashMapResultSingleValue(VectorMapJoinGenerateResultOperator.java:177)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerGenerateResultOperator.finishInner(VectorMapJoinInnerGenerateResultOperator.java:201)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerLongOperator.process(VectorMapJoinInnerLongOperator.java:359)
+	... 29 more
+
+
+
+

@@ -1,0 +1,46 @@
+Description
+
+select query on json table throws this error if table contains map type column:
+
+Failed with exception java.io.IOException:org.apache.hadoop.hive.serde2.SerDeException: org.codehaus.jackson.JsonParseException: Current token (FIELD_NAME) not numeric, can not use numeric value accessors
+ at [Source: java.io.ByteArrayInputStream@295f79b; line: 1, column: 26]
+
+
+steps to reproduce the issue:
+
+hive&amp;gt; create table c_complex(a array&amp;lt;string&amp;gt;,b map&amp;lt;string,int&amp;gt;) row format serde 'org.apache.hive.hcatalog.data.JsonSerDe';
+OK
+Time taken: 0.319 seconds
+hive&amp;gt; insert into table c_complex select array('aaa'),map('aaa',1) from studenttab10k limit 2;
+Query ID = hrt_qa_20150826183232_47deb33a-19c0-4d2b-a92f-726659eb9413
+Total jobs = 1
+Launching Job 1 out of 1
+
+
+Status: Running (Executing on YARN cluster with App id application_1440603993714_0010)
+
+--------------------------------------------------------------------------------
+        VERTICES      STATUS  TOTAL  COMPLETED  RUNNING  PENDING  FAILED  KILLED
+--------------------------------------------------------------------------------
+Map 1 ..........   SUCCEEDED      1          1        0        0       0       0
+Reducer 2 ......   SUCCEEDED      1          1        0        0       0       0
+--------------------------------------------------------------------------------
+VERTICES: 02/02  [==========================&amp;gt;&amp;gt;] 100%  ELAPSED TIME: 11.75 s    
+--------------------------------------------------------------------------------
+Loading data to table default.c_complex
+Table default.c_complex stats: [numFiles=1, numRows=2, totalSize=56, rawDataSize=0]
+OK
+Time taken: 13.706 seconds
+hive&amp;gt; select * from c_complex;
+OK
+Failed with exception java.io.IOException:org.apache.hadoop.hive.serde2.SerDeException: org.codehaus.jackson.JsonParseException: Current token (FIELD_NAME) not numeric, can not use numeric value accessors
+ at [Source: java.io.ByteArrayInputStream@295f79b; line: 1, column: 26]
+Time taken: 0.115 seconds
+hive&amp;gt; select count(*) from c_complex;
+OK
+2
+Time taken: 0.205 seconds, Fetched: 1 row(s)
+
+
+
+

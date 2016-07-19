@@ -1,0 +1,13 @@
+Description
+
+When I convert a timestamp value that is slightly wrong, the result is a NPE. Other queries correctly reject the timestamp:
+
+
+hive&amp;gt; select from_utc_timestamp('2015-04-11-12:24:34.535', 'UTC');
+FAILED: NullPointerException null
+hive&amp;gt; select TIMESTAMP '2015-04-11-12:24:34.535';
+FAILED: SemanticException Unable to convert time literal '2015-04-11-12:24:34.535' to time value.
+
+
+
+

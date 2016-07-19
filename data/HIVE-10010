@@ -1,0 +1,24 @@
+Description
+
+Doing an alter table results in:
+
+
+2015-03-18 10:45:54,189 ERROR [main]: exec.DDLTask (DDLTask.java:failed(512)) - java.lang.NullPointerException
+    at org.apache.hadoop.hive.metastore.api.StorageDescriptor.&amp;lt;init&amp;gt;(StorageDescriptor.java:239)
+    at org.apache.hadoop.hive.metastore.api.Table.&amp;lt;init&amp;gt;(Table.java:270)
+    at org.apache.hadoop.hive.metastore.api.Table.deepCopy(Table.java:310)
+    at org.apache.hadoop.hive.ql.metadata.Table.copy(Table.java:856)
+    at org.apache.hadoop.hive.ql.exec.DDLTask.alterTable(DDLTask.java:3329)
+    at org.apache.hadoop.hive.ql.exec.DDLTask.execute(DDLTask.java:329)
+    at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+    at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:88)
+    at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1644)
+    at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1403)
+    at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1189)
+    at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1055)
+    at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1045)
+    at org.apache.hadoop.hive.metastore.hbase.TestHBaseMetastoreSql.table(TestHBaseMetastoreSql.java:89)
+
+
+
+

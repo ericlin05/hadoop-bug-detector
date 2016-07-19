@@ -1,0 +1,222 @@
+Description
+
+NO PRECOMMIT TESTS
+Run the following via beeline:
+
+0: jdbc:hive2://localhost:10001&amp;gt; analyze table all100kjson compute statistics;
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;PERFLOG method=parse from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:11 INFO parse.ParseDriver: Parsing command: analyze table all100kjson compute statistics
+15/06/05 20:44:11 INFO parse.ParseDriver: Parse Completed
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;/PERFLOG method=parse start=1433537051075 end=1433537051077 duration=2 from=org.
+apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;PERFLOG method=semanticAnalyze from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:11 INFO parse.ColumnStatsSemanticAnalyzer: Invoking analyze on original query
+15/06/05 20:44:11 INFO parse.ColumnStatsSemanticAnalyzer: Starting Semantic Analysis
+15/06/05 20:44:11 INFO parse.ColumnStatsSemanticAnalyzer: Completed phase 1 of Semantic Analysis
+15/06/05 20:44:11 INFO parse.ColumnStatsSemanticAnalyzer: Get metadata for source tables
+15/06/05 20:44:11 INFO metastore.HiveMetaStore: 5: get_table : db=default tbl=all100kjson
+15/06/05 20:44:11 INFO HiveMetaStore.audit: ugi=hadoopqa        ip=unknown-ip-addr      cmd=get_table : db=default tbl=a
+ll100kjson
+15/06/05 20:44:11 INFO metastore.HiveMetaStore: 5: get_table : db=default tbl=all100kjson
+15/06/05 20:44:11 INFO HiveMetaStore.audit: ugi=hadoopqa        ip=unknown-ip-addr      cmd=get_table : db=default tbl=a
+ll100kjson
+15/06/05 20:44:11 INFO parse.ColumnStatsSemanticAnalyzer: Get metadata for subqueries
+15/06/05 20:44:11 INFO parse.ColumnStatsSemanticAnalyzer: Get metadata for destination tables
+15/06/05 20:44:11 INFO parse.ColumnStatsSemanticAnalyzer: Completed getting MetaData in Semantic Analysis
+15/06/05 20:44:11 INFO common.FileUtils: Creating directory if it doesn't exist: hdfs://dal-hs211:8020/user/hcat/tests/d
+ata/all100kjson/.hive-staging_hive_2015-06-05_20-44-11_075_4520028480897676073-5
+15/06/05 20:44:11 INFO parse.ColumnStatsSemanticAnalyzer: Set stats collection dir : hdfs://dal-hs211:8020/user/hcat/tes
+ts/data/all100kjson/.hive-staging_hive_2015-06-05_20-44-11_075_4520028480897676073-5/-ext-10000
+15/06/05 20:44:11 INFO ppd.OpProcFactory: Processing for TS(5)
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;PERFLOG method=partition-retrieving from=org.apache.hadoop.hive.ql.optimizer.ppr
+.PartitionPruner&amp;gt;
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;/PERFLOG method=partition-retrieving start=1433537051345 end=1433537051345 durat
+ion=0 from=org.apache.hadoop.hive.ql.optimizer.ppr.PartitionPruner&amp;gt;
+15/06/05 20:44:11 INFO metastore.HiveMetaStore: 5: get_indexes : db=default tbl=all100kjson
+15/06/05 20:44:11 INFO HiveMetaStore.audit: ugi=hadoopqa        ip=unknown-ip-addr      cmd=get_indexes : db=default tbl
+=all100kjson
+15/06/05 20:44:11 INFO metastore.HiveMetaStore: 5: get_indexes : db=default tbl=all100kjson
+15/06/05 20:44:11 INFO HiveMetaStore.audit: ugi=hadoopqa        ip=unknown-ip-addr      cmd=get_indexes : db=default tbl
+=all100kjson
+15/06/05 20:44:11 INFO physical.NullScanTaskDispatcher: Looking for table scans where optimization is applicable
+15/06/05 20:44:11 INFO physical.NullScanTaskDispatcher: Found 0 null table scans
+15/06/05 20:44:11 INFO physical.NullScanTaskDispatcher: Looking for table scans where optimization is applicable
+15/06/05 20:44:11 INFO physical.NullScanTaskDispatcher: Found 0 null table scans
+15/06/05 20:44:11 INFO physical.NullScanTaskDispatcher: Looking for table scans where optimization is applicable
+15/06/05 20:44:11 INFO physical.NullScanTaskDispatcher: Found 0 null table scans
+15/06/05 20:44:11 INFO physical.Vectorizer: Validating MapWork...
+15/06/05 20:44:11 INFO physical.Vectorizer: Input format: org.apache.hadoop.mapred.TextInputFormat, doesn't provide vect
+orized input
+15/06/05 20:44:11 INFO parse.ColumnStatsSemanticAnalyzer: Completed plan generation
+15/06/05 20:44:11 INFO ql.Driver: Semantic Analysis Completed
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;/PERFLOG method=semanticAnalyze start=1433537051077 end=1433537051367 duration=2
+90 from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:11 INFO ql.Driver: Returning Hive schema: Schema(fieldSchemas:[FieldSchema(name:all100kjson.s, type:strin
+g, comment:null), FieldSchema(name:all100kjson.i, type:int, comment:null), FieldSchema(name:all100kjson.d, type:double,
+comment:null), FieldSchema(name:all100kjson.m, type:map&amp;lt;string,string&amp;gt;, comment:null), FieldSchema(name:all100kjson.bb,
+type:array&amp;lt;struct&amp;lt;a:int,b:string&amp;gt;&amp;gt;, comment:null), FieldSchema(name:all100kjson.t, type:timestamp, comment:null)], prope
+rties:null)
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;/PERFLOG method=compile start=1433537051074 end=1433537051367 duration=293 from=
+org.apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;PERFLOG method=Driver.run from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;PERFLOG method=TimeToSubmit from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:11 INFO ql.Driver: Concurrency mode is disabled, not creating a lock manager
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;PERFLOG method=Driver.execute from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:11 INFO ql.Driver: Starting command(queryId=hadoop_20150605204411_2c72579d-2080-410e-981c-eaa00a0fb8f2):
+analyze table all100kjson compute statistics
+15/06/05 20:44:11 INFO hooks.ATSHook: Created ATS Hook
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;PERFLOG method=PreHook.org.apache.hadoop.hive.ql.hooks.ATSHook from=org.apache.h
+adoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;/PERFLOG method=PreHook.org.apache.hadoop.hive.ql.hooks.ATSHook start=1433537051
+371 end=1433537051372 duration=1 from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:11 INFO ql.Driver: Query ID = hadoop_20150605204411_2c72579d-2080-410e-981c-eaa00a0fb8f2
+15/06/05 20:44:11 INFO ql.Driver: Total jobs = 1
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;/PERFLOG method=TimeToSubmit start=1433537051370 end=1433537051372 duration=2 fr
+om=org.apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;PERFLOG method=runTasks from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;PERFLOG method=task.MAPRED.Stage-0 from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:11 INFO ql.Driver: Launching Job 1 out of 1
+15/06/05 20:44:11 INFO ql.Driver: Starting task [Stage-0:MAPRED] in serial mode
+15/06/05 20:44:11 INFO exec.Task: Number of reduce tasks is set to 0 since there's no reduce operator
+15/06/05 20:44:11 INFO ql.Context: New scratch dir is hdfs://dal-hs211:8020/tmp/hive/hadoopqa/d87d0c8a-3d02-42f5-b856-b3
+e82fddd099/hive_2015-06-05_20-44-11_075_4520028480897676073-7
+15/06/05 20:44:11 INFO mr.ExecDriver: Using org.apache.hadoop.hive.ql.io.CombineHiveInputFormat
+15/06/05 20:44:11 INFO exec.Utilities: Processing alias all100kjson
+15/06/05 20:44:11 INFO exec.Utilities: Adding input file hdfs://dal-hs211:8020/user/hcat/tests/data/all100kjson
+15/06/05 20:44:11 INFO exec.Utilities: Content Summary not cached for hdfs://dal-hs211:8020/user/hcat/tests/data/all100k
+json
+15/06/05 20:44:11 INFO ql.Context: New scratch dir is hdfs://dal-hs211:8020/tmp/hive/hadoopqa/d87d0c8a-3d02-42f5-b856-b3
+e82fddd099/hive_2015-06-05_20-44-11_075_4520028480897676073-7
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;PERFLOG method=serializePlan from=org.apache.hadoop.hive.ql.exec.Utilities&amp;gt;
+15/06/05 20:44:11 INFO exec.Utilities: Serializing MapWork via kryo
+15/06/05 20:44:11 INFO log.PerfLogger: &amp;lt;/PERFLOG method=serializePlan start=1433537051497 end=1433537051573 duration=76
+from=org.apache.hadoop.hive.ql.exec.Utilities&amp;gt;
+15/06/05 20:44:11 ERROR mr.ExecDriver: yarn
+15/06/05 20:44:11 INFO impl.TimelineClientImpl: Timeline service address: http://dal-hs211:8188/ws/v1/timeline/
+15/06/05 20:44:11 INFO client.RMProxy: Connecting to ResourceManager at dal-hs211/100.76.114.34:8032
+15/06/05 20:44:11 INFO fs.FSStatsPublisher: created : hdfs://dal-hs211:8020/user/hcat/tests/data/all100kjson/.hive-stagi
+ng_hive_2015-06-05_20-44-11_075_4520028480897676073-5/-ext-10000
+15/06/05 20:44:11 INFO impl.TimelineClientImpl: Timeline service address: http://dal-hs211:8188/ws/v1/timeline/
+15/06/05 20:44:11 INFO client.RMProxy: Connecting to ResourceManager at dal-hs211/100.76.114.34:8032
+15/06/05 20:44:11 INFO exec.Utilities: PLAN PATH = hdfs://dal-hs211:8020/tmp/hive/hadoopqa/d87d0c8a-3d02-42f5-b856-b3e82
+fddd099/hive_2015-06-05_20-44-11_075_4520028480897676073-7/-mr-10002/9ae2fc99-11a6-4257-8631-326f1bf007e2/map.xml
+15/06/05 20:44:11 INFO exec.Utilities: PLAN PATH = hdfs://dal-hs211:8020/tmp/hive/hadoopqa/d87d0c8a-3d02-42f5-b856-b3e82
+fddd099/hive_2015-06-05_20-44-11_075_4520028480897676073-7/-mr-10002/9ae2fc99-11a6-4257-8631-326f1bf007e2/reduce.xml
+15/06/05 20:44:11 INFO exec.Utilities: ***************non-local mode***************
+15/06/05 20:44:11 INFO exec.Utilities: local path = hdfs://dal-hs211:8020/tmp/hive/hadoopqa/d87d0c8a-3d02-42f5-b856-b3e8
+2fddd099/hive_2015-06-05_20-44-11_075_4520028480897676073-7/-mr-10002/9ae2fc99-11a6-4257-8631-326f1bf007e2/reduce.xml
+15/06/05 20:44:11 INFO exec.Utilities: Open file to read in plan: hdfs://dal-hs211:8020/tmp/hive/hadoopqa/d87d0c8a-3d02-
+42f5-b856-b3e82fddd099/hive_2015-06-05_20-44-11_075_4520028480897676073-7/-mr-10002/9ae2fc99-11a6-4257-8631-326f1bf007e2
+/reduce.xml
+15/06/05 20:44:11 INFO exec.Utilities: File not found: File does not exist: /tmp/hive/hadoopqa/d87d0c8a-3d02-42f5-b856-b
+3e82fddd099/hive_2015-06-05_20-44-11_075_4520028480897676073-7/-mr-10002/9ae2fc99-11a6-4257-8631-326f1bf007e2/reduce.xml
+
+        at org.apache.hadoop.hdfs.server.namenode.INodeFile.valueOf(INodeFile.java:71)
+        at org.apache.hadoop.hdfs.server.namenode.INodeFile.valueOf(INodeFile.java:61)
+        at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.getBlockLocationsInt(FSNamesystem.java:1820)
+        at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.getBlockLocations(FSNamesystem.java:1791)
+        at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.getBlockLocations(FSNamesystem.java:1704)
+        at org.apache.hadoop.hdfs.server.namenode.NameNodeRpcServer.getBlockLocations(NameNodeRpcServer.java:586)
+        at org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolServerSideTranslatorPB.getBlockLocations(ClientNameno
+deProtocolServerSideTranslatorPB.java:365)
+        at org.apache.hadoop.hdfs.protocol.proto.ClientNamenodeProtocolProtos$ClientNamenodeProtocol$2.callBlockingMetho
+d(ClientNamenodeProtocolProtos.java)
+        at org.apache.hadoop.ipc.ProtobufRpcEngine$Server$ProtoBufRpcInvoker.call(ProtobufRpcEngine.java:616)
+        at org.apache.hadoop.ipc.RPC$Server.call(RPC.java:969)
+        at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2081)
+        at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2077)
+        at java.security.AccessController.doPrivileged(Native Method)
+Getting log thread is interrupted, since query is done!
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+        at org.apache.hadoop.ipc.Server$Handler.run(Server.java:2075)
+
+15/06/05 20:44:11 INFO exec.Utilities: No plan file found: hdfs://dal-hs211:8020/tmp/hive/hadoopqa/d87d0c8a-3d02-42f5-b8
+56-b3e82fddd099/hive_2015-06-05_20-44-11_075_4520028480897676073-7/-mr-10002/9ae2fc99-11a6-4257-8631-326f1bf007e2/reduce
+.xml
+15/06/05 20:44:11 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the To
+ol interface and execute your application with ToolRunner to remedy this.
+15/06/05 20:44:12 INFO log.PerfLogger: &amp;lt;PERFLOG method=getSplits from=org.apache.hadoop.hive.ql.io.CombineHiveInputForma
+t&amp;gt;
+15/06/05 20:44:12 INFO exec.Utilities: PLAN PATH = hdfs://dal-hs211:8020/tmp/hive/hadoopqa/d87d0c8a-3d02-42f5-b856-b3e82
+fddd099/hive_2015-06-05_20-44-11_075_4520028480897676073-7/-mr-10002/9ae2fc99-11a6-4257-8631-326f1bf007e2/map.xml
+15/06/05 20:44:12 INFO io.CombineHiveInputFormat: Total number of paths: 1, launching 1 threads to check non-combinable
+ones.
+15/06/05 20:44:12 INFO io.CombineHiveInputFormat: CombineHiveInputSplit creating pool for hdfs://dal-hs211:8020/user/hca
+t/tests/data/all100kjson; using filter path hdfs://dal-hs211:8020/user/hcat/tests/data/all100kjson
+15/06/05 20:44:12 INFO input.FileInputFormat: Total input paths to process : 1
+15/06/05 20:44:12 INFO input.CombineFileInputFormat: DEBUG: Terminated node allocation with : CompletedNodes: 3, size le
+ft: 0
+15/06/05 20:44:12 INFO io.CombineHiveInputFormat: number of splits 1
+15/06/05 20:44:12 INFO io.CombineHiveInputFormat: Number of all splits 1
+15/06/05 20:44:12 INFO log.PerfLogger: &amp;lt;/PERFLOG method=getSplits start=1433537052313 end=1433537052326 duration=13 from
+=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat&amp;gt;
+15/06/05 20:44:12 INFO mapreduce.JobSubmitter: number of splits:1
+15/06/05 20:44:13 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1433486452546_0004
+15/06/05 20:44:13 INFO impl.YarnClientImpl: Submitted application application_1433486452546_0004
+15/06/05 20:44:13 INFO mapreduce.Job: The url to track the job: http://dal-hs211:8088/proxy/application_1433486452546_00
+04/
+15/06/05 20:44:13 INFO exec.Task: Starting Job = job_1433486452546_0004, Tracking URL = http://dal-hs211:8088/proxy/appl
+ication_1433486452546_0004/
+15/06/05 20:44:13 INFO exec.Task: Kill Command = D:\hdp\\hadoop-2.7.1.2.3.0.0-2245\bin\hadoop.cmd job  -kill job_1433486
+452546_0004
+15/06/05 20:44:20 INFO exec.Task: Hadoop job information for Stage-0: number of mappers: 1; number of reducers: 0
+15/06/05 20:44:20 WARN mapreduce.Counters: Group org.apache.hadoop.mapred.Task$Counter is deprecated. Use org.apache.had
+oop.mapreduce.TaskCounter instead
+15/06/05 20:44:20 INFO exec.Task: 2015-06-05 20:44:20,542 Stage-0 map = 0%,  reduce = 0%
+15/06/05 20:44:45 WARN mapreduce.Counters: Group org.apache.hadoop.mapred.Task$Counter is deprecated. Use org.apache.had
+oop.mapreduce.TaskCounter instead
+15/06/05 20:44:45 INFO exec.Task: 2015-06-05 20:44:45,669 Stage-0 map = 100%,  reduce = 0%
+15/06/05 20:44:47 WARN mapreduce.Counters: Group org.apache.hadoop.mapred.Task$Counter is deprecated. Use org.apache.had
+oop.mapreduce.TaskCounter instead
+15/06/05 20:44:47 ERROR exec.Task: Ended Job = job_1433486452546_0004 with errors
+15/06/05 20:44:47 INFO impl.YarnClientImpl: Killed application application_1433486452546_0004
+15/06/05 20:44:47 INFO hooks.ATSHook: Created ATS Hook
+15/06/05 20:44:47 INFO log.PerfLogger: &amp;lt;PERFLOG method=FailureHook.org.apache.hadoop.hive.ql.hooks.ATSHook from=org.apac
+he.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:47 INFO log.PerfLogger: &amp;lt;/PERFLOG method=FailureHook.org.apache.hadoop.hive.ql.hooks.ATSHook start=143353
+7087863 end=1433537087864 duration=1 from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:47 ERROR ql.Driver: FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedT
+ask
+15/06/05 20:44:47 INFO log.PerfLogger: &amp;lt;/PERFLOG method=Driver.execute start=1433537051370 end=1433537087865 duration=36
+495 from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:47 INFO ql.Driver: MapReduce Jobs Launched:
+15/06/05 20:44:47 WARN mapreduce.Counters: Group FileSystemCounters is deprecated. Use org.apache.hadoop.mapreduce.FileS
+ystemCounter instead
+15/06/05 20:44:47 INFO ql.Driver: Stage-Stage-0: Map: 1   HDFS Read: 0 HDFS Write: 0 FAIL
+15/06/05 20:44:47 INFO ql.Driver: Total MapReduce CPU Time Spent: 0 msec
+15/06/05 20:44:47 INFO log.PerfLogger: &amp;lt;PERFLOG method=releaseLocks from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:47 INFO log.PerfLogger: &amp;lt;/PERFLOG method=releaseLocks start=1433537087866 end=1433537087866 duration=0 fr
+om=org.apache.hadoop.hive.ql.Driver&amp;gt;
+15/06/05 20:44:47 ERROR operation.Operation: Error running hive query:
+org.apache.hive.service.cli.HiveSQLException: Error while processing statement: FAILED: Execution Error, return code 2 f
+rom org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+        at org.apache.hive.service.cli.operation.Operation.toSQLException(Operation.java:315)
+        at org.apache.hive.service.cli.operation.SQLOperation.runQuery(SQLOperation.java:156)
+        at org.apache.hive.service.cli.operation.SQLOperation.access$100(SQLOperation.java:71)
+        at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:206)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+        at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:218)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+Error: Error while processing statement: FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.M
+apRedTask (state=08S01,code=2)
+java.sql.SQLException: Error while processing statement: FAILED: Execution Error, return code 2 from org.apache.hadoop.h
+ive.ql.exec.mr.MapRedTask
+        at org.apache.hive.jdbc.HiveStatement.execute(HiveStatement.java:296)
+        at org.apache.hive.beeline.Commands.execute(Commands.java:848)
+        at org.apache.hive.beeline.Commands.sql(Commands.java:713)
+        at org.apache.hive.beeline.BeeLine.dispatch(BeeLine.java:973)
+        at org.apache.hive.beeline.BeeLine.execute(BeeLine.java:813)
+        at org.apache.hive.beeline.BeeLine.begin(BeeLine.java:771)
+        at org.apache.hive.beeline.BeeLine.mainWithInputRedirection(BeeLine.java:484)
+        at org.apache.hive.beeline.BeeLine.main(BeeLine.java:467)
+
+
+
+

@@ -1,0 +1,68 @@
+Description
+
+Create two empty tables t1 and t2
+
+
+CREATE TABLE t1(c1 STRING);
+CREATE TABLE t2(c1 STRING, c2 INT);
+
+
+Create a view on these two tables
+
+
+CREATE VIEW v1 AS 
+SELECT c1, c2 
+FROM (
+    SELECT c1, CAST(NULL AS INT) AS c2 FROM t1
+    UNION ALL
+    SELECT c1, c2 FROM t2
+) x;
+
+
+Then run
+
+
+SELECT COUNT(*) from v1 
+WHERE c2 = 0;
+
+
+We expect to get a result of zero, but instead the query fails with stack trace:
+
+
+Caused by: java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
+	at java.util.ArrayList.rangeCheck(ArrayList.java:635)
+	at java.util.ArrayList.get(ArrayList.java:411)
+	at org.apache.hadoop.hive.ql.exec.UnionOperator.initializeOp(UnionOperator.java:86)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:362)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:481)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:438)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:375)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:481)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:438)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:375)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.initializeMapOperator(MapOperator.java:442)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.configure(ExecMapper.java:119)
+	... 22 more
+
+
+Workarounds include disabling ppd,
+
+
+set hive.optimize.ppd=false;
+
+
+Or changing the view so that column c2 is null cast to double:
+
+
+CREATE VIEW v1_workaround AS 
+SELECT c1, c2 
+FROM (
+    SELECT c1, CAST(NULL AS DOUBLE) AS c2 FROM t1
+    UNION ALL
+    SELECT c1, c2 FROM t2
+) x;
+
+
+The problem seems to occur in branch-1.1, branch-1.2, branch-1 but seems to be resolved in master (2.0.0)
+
+

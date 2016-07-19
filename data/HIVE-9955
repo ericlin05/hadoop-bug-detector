@@ -1,0 +1,8 @@
+Description
+
+Found several issues with TestVectorizedRowBatchCtx:
+1. compares byte[] using equals() method
+2. creates RuntimeException but does not throw it
+3. uses assertEquals to compare String with boolean
+
+

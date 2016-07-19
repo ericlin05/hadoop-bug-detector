@@ -1,0 +1,18 @@
+Description
+
+It seems current fix for HIVE-9425 only uploads the Jar/Files to HDFS, however, they are not accessible by the Driver/Executor.
+I found below in the AM log:
+
+15/02/26 15:10:36 INFO Configuration.deprecation: mapred.min.split.size is deprecated. Instead, use mapreduce.input.fileinputformat.split.minsize
+15/02/26 15:10:36 INFO client.SparkClientUtilities: Added jar[file:/data/hadoop-devel/data/nm/usercache/user/appcache/application_1424933948132_0002/container_1424933948132_0002_01_000001/hdfs:/localhost:8020/tmp/hive/user/47040bca-1da4-49b6-b2c7-69be9bc92855/hive-exec-1.2.0-SNAPSHOT.jar] to classpath.
+15/02/26 15:10:36 INFO client.SparkClientUtilities: Added jar[file:/data/hadoop-devel/data/nm/usercache/user/appcache/application_1424933948132_0002/container_1424933948132_0002_01_000001/hdfs:/localhost:8020/tmp/hive/user/47040bca-1da4-49b6-b2c7-69be9bc92855/opennlp-maxent-3.0.3.jar] to classpath.
+15/02/26 15:10:36 INFO client.SparkClientUtilities: Added jar[file:/data/hadoop-devel/data/nm/usercache/user/appcache/application_1424933948132_0002/container_1424933948132_0002_01_000001/hdfs:/localhost:8020/tmp/hive/user/47040bca-1da4-49b6-b2c7-69be9bc92855/bigbenchqueriesmr.jar] to classpath.
+15/02/26 15:10:36 INFO client.SparkClientUtilities: Added jar[file:/data/hadoop-devel/data/nm/usercache/user/appcache/application_1424933948132_0002/container_1424933948132_0002_01_000001/hdfs:/localhost:8020/tmp/hive/user/47040bca-1da4-49b6-b2c7-69be9bc92855/opennlp-tools-1.5.3.jar] to classpath.
+15/02/26 15:10:36 INFO client.SparkClientUtilities: Added jar[file:/data/hadoop-devel/data/nm/usercache/user/appcache/application_1424933948132_0002/container_1424933948132_0002_01_000001/hdfs:/localhost:8020/tmp/hive/user/47040bca-1da4-49b6-b2c7-69be9bc92855/jcl-over-slf4j-1.7.5.jar] to classpath.
+15/02/26 15:10:36 INFO client.RemoteDriver: Failed to run job 6886df05-f430-456c-a0ff-c7621db712d6
+org.apache.hive.com.esotericsoftware.kryo.KryoException: Unable to find class: de.bankmark.bigbench.queries.q10.SentimentUDF 
+
+
+As above shows, the file path which was attempted to add to Classpath is invalid, so actually all uploaded Jars/Files are still not available for Driver/Executor.
+
+

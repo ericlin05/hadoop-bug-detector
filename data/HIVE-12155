@@ -1,0 +1,10 @@
+Description
+
+We run sqoop-hive import job via RunJar to harness parallelisms runnings. Sqoop hive import works very well but suddenly the sqoop-hive import job JVM exits with "Hive exited with status 5" error during hive import phrase which invokes HIVE CLI via java Process.  Futhermore, we can't find any related hive logs under /tmp/hive/hive_*.log. The error blocks all futher sqoop import jobs. As a result, we have to restart system and it works well again. The log detail is as follows,
+Encountered IOException running import job: java.io.IOException: Hive exited with status 5
+        at org.apache.sqoop.hive.HiveImport.executeExternalHiveScript(HiveImport.java:385)
+        at org.apache.sqoop.hive.HiveImport.executeScript(HiveImport.java:335)
+        at org.apache.sqoop.hive.HiveImport.importTable(HiveImport.java:239)
+        at org.apache.sqoop.tool.ImportTool.importTable(ImportTool.java:511)
+
+

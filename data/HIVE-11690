@@ -1,0 +1,48 @@
+Description
+
+set hive.auto.convert.join=false;
+set hive.optimize.skewjoin.compiletime=true;
+set hive.optimize.skewjoin=true;
+set hive.skewjoin.key=10;
+select a.val, b.val from a join b on a.key = b.key;
+There is charactor '/' in the column 'key' of table a or b.
+The MR error information is the following:
+2015-08-25 15:26:20,056 ERROR [main] org.apache.hadoop.hive.ql.exec.persistence.RowContainer: java.io.IOException: Unable to create temporary file, /opt/nm/localdir/usercache/admin/appcache/application_1440485400896_0023/container_1440485400896_0023_01_000005/tmp/hive-rowcontainer4368891223390088156/RowContainer5697872136958390123.[135kRk16m5l0ldmcvyZ1/Q6hA==, 2.0150515E7].tmp
+java.io.IOException: Unable to create temporary file, /opt/nm/localdir/usercache/admin/appcache/application_1440485400896_0023/container_1440485400896_0023_01_000005/tmp/hive-rowcontainer4368891223390088156/RowContainer5697872136958390123.[135kRk16m5l0ldmcvyZ1/Q6hA==, 2.0150515E7].tmp
+ at java.io.File$TempDirectory.generateFile(File.java:1921)
+ at java.io.File.createTempFile(File.java:2010)
+ at org.apache.hadoop.hive.ql.exec.persistence.RowContainer.setupWriter(RowContainer.java:528)
+ at org.apache.hadoop.hive.ql.exec.persistence.RowContainer.spillBlock(RowContainer.java:294)
+ at org.apache.hadoop.hive.ql.exec.persistence.RowContainer.copyToDFSDirecory(RowContainer.java:402)
+ at org.apache.hadoop.hive.ql.exec.SkewJoinHandler.endGroup(SkewJoinHandler.java:185)
+ at org.apache.hadoop.hive.ql.exec.JoinOperator.endGroup(JoinOperator.java:249)
+ at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.reduce(ExecReducer.java:195)
+ at org.apache.hadoop.mapred.ReduceTask.runOldReducer(ReduceTask.java:444)
+ at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:392)
+ at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:179)
+ at java.security.AccessController.doPrivileged(Native Method)
+ at javax.security.auth.Subject.doAs(Subject.java:422)
+ at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1672)
+ at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:174)
+2015-08-25 15:26:20,073 ERROR [main] org.apache.hadoop.hive.ql.exec.persistence.RowContainer: org.apache.hadoop.hive.ql.metadata.HiveException: java.io.IOException: Unable to create temporary file, /opt/nm/localdir/usercache/admin/appcache/application_1440485400896_0023/container_1440485400896_0023_01_000005/tmp/hive-rowcontainer4368891223390088156/RowContainer5697872136958390123.[135kRk16m5l0ldmcvyZ1/Q6hA==, 2.0150515E7].tmp
+org.apache.hadoop.hive.ql.metadata.HiveException: java.io.IOException: Unable to create temporary file, /opt/nm/localdir/usercache/admin/appcache/application_1440485400896_0023/container_1440485400896_0023_01_000005/tmp/hive-rowcontainer4368891223390088156/RowContainer5697872136958390123.[135kRk16m5l0ldmcvyZ1/Q6hA==, 2.0150515E7].tmp
+ at org.apache.hadoop.hive.ql.exec.persistence.RowContainer.setupWriter(RowContainer.java:546)
+ at org.apache.hadoop.hive.ql.exec.persistence.RowContainer.spillBlock(RowContainer.java:294)
+ at org.apache.hadoop.hive.ql.exec.persistence.RowContainer.copyToDFSDirecory(RowContainer.java:402)
+ at org.apache.hadoop.hive.ql.exec.SkewJoinHandler.endGroup(SkewJoinHandler.java:185)
+ at org.apache.hadoop.hive.ql.exec.JoinOperator.endGroup(JoinOperator.java:249)
+ at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.reduce(ExecReducer.java:195)
+ at org.apache.hadoop.mapred.ReduceTask.runOldReducer(ReduceTask.java:444)
+ at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:392)
+ at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:179)
+ at java.security.AccessController.doPrivileged(Native Method)
+ at javax.security.auth.Subject.doAs(Subject.java:422)
+ at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1672)
+ at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:174)
+Caused by: java.io.IOException: Unable to create temporary file, /opt/nm/localdir/usercache/admin/appcache/application_1440485400896_0023/container_1440485400896_0023_01_000005/tmp/hive-rowcontainer4368891223390088156/RowContainer5697872136958390123.[135kRk16m5l0ldmcvyZ1/Q6hA==, 2.0150515E7].tmp
+ at java.io.File$TempDirectory.generateFile(File.java:1921)
+ at java.io.File.createTempFile(File.java:2010)
+ at org.apache.hadoop.hive.ql.exec.persistence.RowContainer.setupWriter(RowContainer.java:528)
+ ... 12 more
+
+

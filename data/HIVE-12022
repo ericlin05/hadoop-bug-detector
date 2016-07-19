@@ -1,0 +1,25 @@
+Description
+
+Running the following query throws NPE during SARG creation
+Query
+
+select count(*) from alltypes_orc where ts1 between cast('1969-12-31' as timestamp) and cast('1970-12-31' as timestamp);
+
+
+Exception
+
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.io.sarg.SearchArgumentImpl$PredicateLeafImpl.toString(SearchArgumentImpl.java:148)
+	at org.apache.hadoop.hive.ql.io.sarg.SearchArgumentImpl.toString(SearchArgumentImpl.java:997)
+	at java.lang.String.valueOf(String.java:2854)
+	at java.lang.StringBuilder.append(StringBuilder.java:128)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.setSearchArgument(OrcInputFormat.java:319)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getReader(OrcInputFormat.java:1245)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getRecordReader(OrcInputFormat.java:1151)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.getRecordReader(HiveInputFormat.java:251)
+	... 26 more
+
+
+
+
+

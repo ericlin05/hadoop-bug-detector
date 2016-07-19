@@ -1,0 +1,8 @@
+Description
+
+Vulnerability in LdapAuthenticationProviderImpl enables HiveServer2 client to degrade the authentication mechanism to "none", allowing authentication without password.
+See: http://docs.oracle.com/javase/jndi/tutorial/ldap/security/simple.html
+“If you supply an empty string, an empty byte/char array, or null to the Context.SECURITY_CREDENTIALS environment property, then the authentication mechanism will be "none". This is because the LDAP requires the password to be nonempty for simple authentication. The protocol automatically converts the authentication to "none" if a password is not supplied.”
+Since the LdapAuthenticationProviderImpl.Authenticate method is relying on a NamingException being thrown during creation of initial context, it does not fail when the context result is an “unauthenticated” positive response from the LDAP server. The end result is, one can authenticate with HiveServer2 using the LdapAuthenticationProviderImpl with only a user name and an empty password.
+
+

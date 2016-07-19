@@ -1,0 +1,24 @@
+Description
+
+I recently ran into a problem in TaskCommitContextRegistry, when using dynamic-partitions.
+Consider a MapReduce program that reads HCatRecords from a table (using HCatInputFormat), and then writes to another table (with identical schema), using HCatOutputFormat. The Map-task fails with the following exception:
+
+
+Error: java.io.IOException: No callback registered for TaskAttemptID:attempt_1426589008676_509707_m_000000_0@hdfs://crystalmyth.myth.net:8020/user/mithunr/mythdb/target/_DYN0.6784154320609959/grid=__HIVE_DEFAULT_PARTITION__/dt=__HIVE_DEFAULT_PARTITION__
+        at org.apache.hive.hcatalog.mapreduce.TaskCommitContextRegistry.commitTask(TaskCommitContextRegistry.java:56)
+        at org.apache.hive.hcatalog.mapreduce.FileOutputCommitterContainer.commitTask(FileOutputCommitterContainer.java:139)
+        at org.apache.hadoop.mapred.Task.commit(Task.java:1163)
+        at org.apache.hadoop.mapred.Task.done(Task.java:1025)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:345)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1694)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+
+
+TaskCommitContextRegistry::commitTask() uses call-backs registered from DynamicPartitionFileRecordWriter. But in case HCatInputFormat and HCatOutputFormat are both used in the same job, the DynamicPartitionFileRecordWriter might only be exercised in the Reducer.
+I'm relaxing the IOException, and log a warning message instead of just failing.
+(I'll post the fix shortly.)
+
+

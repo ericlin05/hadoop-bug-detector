@@ -1,0 +1,52 @@
+Description
+
+my hive version  hive-1.1.0-cdh5.4.0
+follower this step, the exception throw
+use hive client
+
+
+CREATE TABLE test1 (name string) PARTITIONED BY (pt string);
+ALTER TABLE test1 ADD PARTITION (pt='1');
+ALTER TABLE test1 CHANGE name name1 string;
+ALTER TABLE test1 CHANGE name1 name string cascade;
+
+
+then throw exception,
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. Unable to alter table. java.lang.RuntimeException: commitTransaction was called but openTransactionCalls = 0. This probably indicates that there are unbalanced calls to openTransaction/commitTransaction
+metasotre log
+
+MetaException(message:java.lang.RuntimeException: commitTransaction was called but openTransactionCalls = 0. This probably indicates that there are unbalanced calls to openTransaction/commitTransaction)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.newMetaException(HiveMetaStore.java:5257)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.alter_table_core(HiveMetaStore.java:3338)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.alter_table_with_cascade(HiveMetaStore.java:3290)
+	at sun.reflect.GeneratedMethodAccessor8.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.hive.metastore.RetryingHMSHandler.invoke(RetryingHMSHandler.java:102)
+	at com.sun.proxy.$Proxy5.alter_table_with_cascade(Unknown Source)
+	at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Processor$alter_table_with_cascade.getResult(ThriftHiveMetastore.java:9131)
+	at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Processor$alter_table_with_cascade.getResult(ThriftHiveMetastore.java:9115)
+	at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+	at org.apache.hadoop.hive.metastore.TUGIBasedProcessor$1.run(TUGIBasedProcessor.java:110)
+	at org.apache.hadoop.hive.metastore.TUGIBasedProcessor$1.run(TUGIBasedProcessor.java:106)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+	at org.apache.hadoop.hive.metastore.TUGIBasedProcessor.process(TUGIBasedProcessor.java:118)
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: commitTransaction was called but openTransactionCalls = 0. This probably indicates that there are unbalanced calls to openTransaction/commitTransaction
+	at org.apache.hadoop.hive.metastore.ObjectStore.commitTransaction(ObjectStore.java:448)
+	at sun.reflect.GeneratedMethodAccessor5.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.hive.metastore.RawStoreProxy.invoke(RawStoreProxy.java:98)
+	at com.sun.proxy.$Proxy0.commitTransaction(Unknown Source)
+	at org.apache.hadoop.hive.metastore.HiveAlterHandler.alterTable(HiveAlterHandler.java:242)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.alter_table_core(HiveMetaStore.java:3318)
+	... 19 more
+I debug the code, may this function "private void updatePartColumnStatsForAlterColumns" wrong.some transaction rollback, but I don't known the exact error.
+
+

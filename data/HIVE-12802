@@ -1,0 +1,41 @@
+Description
+
+Discovered as part of running :
+mvn test -Dtest=TestMiniTezCliDriver -Dqfile_regex=vector.* -Dhive.cbo.returnpath.hiveop=true -Dtest.output.overwrite=true
+
+
+SELECT sum(hash(a.key,a.value,b.key,b.value)) from myinput1 a LEFT OUTER JOIN myinput1 b ON (a.value=b.value AND a.key &amp;gt; 40 AND a.value &amp;gt; 50 AND a.key = a.value AND b.key &amp;gt; 40 AND b.value &amp;gt; 50 AND b.key = b.value) RIGHT OUTER JOIN myinput1 c ON (b.value=c.value AND c.key &amp;gt; 40 AND c.value &amp;gt; 50 AND c.key = c.value AND b.key &amp;gt; 40 AND b.value &amp;gt; 50 AND b.key = b.value)
+
+
+
+
+2016-01-07T11:16:06,198 ERROR [657fd759-7643-467b-9bd0-17cb4958cb69 main[]]: parse.CalcitePlanner (CalcitePlanner.java:genOPTree(309)) - CBO failed, skipping CBO.
+java.lang.IndexOutOfBoundsException: index (10) must be less than size (6)
+        at com.google.common.base.Preconditions.checkElementIndex(Preconditions.java:305) ~[guava-14.0.1.jar:?]
+        at com.google.common.base.Preconditions.checkElementIndex(Preconditions.java:284) ~[guava-14.0.1.jar:?]
+        at com.google.common.collect.RegularImmutableList.get(RegularImmutableList.java:81) ~[guava-14.0.1.jar:?]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.ExprNodeConverter.visitInputRef(ExprNodeConverter.java:109) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.ExprNodeConverter.visitInputRef(ExprNodeConverter.java:79) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.calcite.rex.RexInputRef.accept(RexInputRef.java:112) ~[calcite-core-1.5.0.jar:1.5.0]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.ExprNodeConverter.visitCall(ExprNodeConverter.java:128) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.ExprNodeConverter.visitCall(ExprNodeConverter.java:79) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.calcite.rex.RexCall.accept(RexCall.java:107) ~[calcite-core-1.5.0.jar:1.5.0]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.HiveOpConverter.convertToExprNode(HiveOpConverter.java:1153) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.HiveOpConverter.translateJoin(HiveOpConverter.java:381) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.HiveOpConverter.visit(HiveOpConverter.java:313) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.HiveOpConverter.dispatch(HiveOpConverter.java:164) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.HiveOpConverter.visit(HiveOpConverter.java:268) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.HiveOpConverter.dispatch(HiveOpConverter.java:162) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.HiveOpConverter.visit(HiveOpConverter.java:397) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.HiveOpConverter.dispatch(HiveOpConverter.java:181) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.HiveOpConverter.convert(HiveOpConverter.java:154) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner.getOptimizedHiveOPDag(CalcitePlanner.java:688) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner.genOPTree(CalcitePlanner.java:266) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:10094) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner.analyzeInternal(CalcitePlanner.java:231) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:237) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:471) [hive-exec-2.1.0-SNAPSHOT.jar:?]
+
+
+
+

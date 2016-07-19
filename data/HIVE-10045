@@ -1,0 +1,74 @@
+Description
+
+
+hive&amp;gt; select count(*) from store_sales where ss_item_sk not in (select i_item_sk from item);
+Warning: Map Join MAPJOIN[32][bigTable=store_sales] in task 'Map 1' is a cross product
+Query ID = gunther_20150320161251_1fb94086-90aa-4fd2-b4b2-fca245850238
+Total jobs = 1
+Launching Job 1 out of 1
+
+
+Status: Running (Executing on YARN cluster with App id application_1424502260528_1355)
+
+--------------------------------------------------------------------------------
+        VERTICES      STATUS  TOTAL  COMPLETED  RUNNING  PENDING  FAILED  KILLED
+--------------------------------------------------------------------------------
+Map 1                 KILLED    174          0        0      174       0     174
+Map 3 ..........   SUCCEEDED      1          1        0        0       0       0
+Map 4                 FAILED      1          0        0        1       4       0
+Reducer 2             KILLED      1          0        0        1       0       1
+Reducer 5             KILLED      1          0        0        1       0       1
+--------------------------------------------------------------------------------
+VERTICES: 01/05  [&amp;gt;&amp;gt;--------------------------] 0%    ELAPSED TIME: 0.62 s
+--------------------------------------------------------------------------------
+Status: Failed
+Vertex failed, vertexName=Map 4, vertexId=vertex_1424502260528_1355_5_00, diagnostics=[Task failed, taskId=task_1424502260528_1355_5_00_000000, diagnostics=[TaskAttempt 0 failed, info=[Error: Failure while running task:java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: java.io.IOException: java.io.IOException: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:330)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:179)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:171)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:171)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:167)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.io.IOException: java.io.IOException: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.pushRecord(MapRecordSource.java:71)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.run(MapRecordProcessor.java:308)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:148)
+	... 14 more
+Caused by: java.io.IOException: java.io.IOException: java.lang.NullPointerException
+	at org.apache.hadoop.hive.io.HiveIOExceptionHandlerChain.handleRecordReaderNextException(HiveIOExceptionHandlerChain.java:121)
+	at org.apache.hadoop.hive.io.HiveIOExceptionHandlerUtil.handleRecordReaderNextException(HiveIOExceptionHandlerUtil.java:77)
+	at org.apache.hadoop.hive.ql.io.HiveContextAwareRecordReader.doNext(HiveContextAwareRecordReader.java:355)
+	at org.apache.hadoop.hive.ql.io.HiveRecordReader.doNext(HiveRecordReader.java:79)
+	at org.apache.hadoop.hive.ql.io.HiveRecordReader.doNext(HiveRecordReader.java:33)
+	at org.apache.hadoop.hive.ql.io.HiveContextAwareRecordReader.next(HiveContextAwareRecordReader.java:116)
+	at org.apache.hadoop.mapred.split.TezGroupedSplitsInputFormat$TezGroupedSplitsRecordReader.next(TezGroupedSplitsInputFormat.java:126)
+	at org.apache.tez.mapreduce.lib.MRReaderMapred.next(MRReaderMapred.java:113)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.pushRecord(MapRecordSource.java:61)
+	... 16 more
+Caused by: java.io.IOException: java.lang.NullPointerException
+	at org.apache.hadoop.hive.llap.io.api.impl.LlapInputFormat$LlapRecordReader.rethrowErrorIfAny(LlapInputFormat.java:249)
+	at org.apache.hadoop.hive.llap.io.api.impl.LlapInputFormat$LlapRecordReader.nextCvb(LlapInputFormat.java:201)
+	at org.apache.hadoop.hive.llap.io.api.impl.LlapInputFormat$LlapRecordReader.next(LlapInputFormat.java:140)
+	at org.apache.hadoop.hive.llap.io.api.impl.LlapInputFormat$LlapRecordReader.next(LlapInputFormat.java:96)
+	at org.apache.hadoop.hive.ql.io.HiveContextAwareRecordReader.doNext(HiveContextAwareRecordReader.java:350)
+	... 22 more
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.common.DiskRangeList$DiskRangeListMutateHelper.&amp;lt;init&amp;gt;(DiskRangeList.java:183)
+	at org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl.readEncodedColumns(EncodedReaderImpl.java:220)
+	at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:272)
+	at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:44)
+	at org.apache.hadoop.hive.common.CallableWithNdc.call(CallableWithNdc.java:37)
+	... 4 more
+
+
+
+

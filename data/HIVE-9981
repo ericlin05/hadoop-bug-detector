@@ -1,0 +1,30 @@
+Description
+
+Hadoop23Shims.createHdfsEncryptionShim() is throwing an exception for verions lower than 2.6.0 everytime a query is executed.
+Exceptions are expensive, so rather than throwing them every time, we can use this design pattern followed for some other functions in Hadoop23Shims -
+
+
+  protected static final Method accessMethod;
+  protected static final Method getPasswordMethod;
+
+  static {
+    Method m = null;
+    try {
+      m = FileSystem.class.getMethod("access", Path.class, FsAction.class);
+    } catch (NoSuchMethodException err) {
+      // This version of Hadoop does not support FileSystem.access().
+    }
+    accessMethod = m;
+
+    try {
+      m = Configuration.class.getMethod("getPassword", String.class);
+    } catch (NoSuchMethodException err) {
+      // This version of Hadoop does not support getPassword(), just retrieve password from conf.
+      m = null;
+    }
+    getPasswordMethod = m;
+  }
+
+
+
+

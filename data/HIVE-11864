@@ -1,0 +1,9 @@
+Description
+
+If the specific location does not exist while creating table, tip information is ambiguous.
+&amp;gt; create external table exttbl_bad(id int, name string) row format delimited fields terminated by ',' stored as textfile location '/tmp/tmptbl';
+Error: Error while compiling statement: FAILED: HiveAccessControlException Permission denied. Principal [name=admin, type=USER] does not have following privileges on Object [type=DFS_URI, name=/tmp/tmptbl] for operation CREATETABLE : [SELECT, INSERT, DELETE, OBJECT OWNERSHIP] (state=42000,code=40000)
+The error message explain that permission to access the path is not satisfied, however, the path does not exist at all.
+So it should be reasonable to show message like "path does not exists".
+
+

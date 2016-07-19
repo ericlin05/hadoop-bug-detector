@@ -1,0 +1,48 @@
+Description
+
+The following scenario of 2 tables with same locations cannot be used on a JOIN query:
+
+hive&amp;gt; create table t1 (a string, b string) location '/user/hive/warehouse/test1';
+OK
+hive&amp;gt; create table t2 (c string, d string) location '/user/hive/warehouse/test1';
+OK
+hive&amp;gt; select t1.a from t1 join t2 on t1.a = t2.c;
+...
+2016-05-23 16:39:57     Starting to launch local task to process map join;      maximum memory = 477102080
+Execution failed with exit status: 2
+Obtaining error information
+
+Task failed!
+Task ID:
+  Stage-4
+
+Logs:
+
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapredLocalTask
+
+
+The logs contain this error exception:
+
+2016-05-23T16:39:58,163 ERROR [main]: mr.MapredLocalTask (:()) - Hive Runtime Error: Map local work failed
+java.lang.RuntimeException: cannot find field a from [0:c, 1:d]
+        at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils.getStandardStructFieldRef(ObjectInspectorUtils.java:485)
+        at org.apache.hadoop.hive.serde2.BaseStructObjectInspector.getStructFieldRef(BaseStructObjectInspector.java:133)
+        at org.apache.hadoop.hive.ql.exec.ExprNodeColumnEvaluator.initialize(ExprNodeColumnEvaluator.java:55)
+        at org.apache.hadoop.hive.ql.exec.Operator.initEvaluators(Operator.java:973)
+        at org.apache.hadoop.hive.ql.exec.Operator.initEvaluatorsAndReturnStruct(Operator.java:999)
+        at org.apache.hadoop.hive.ql.exec.SelectOperator.initializeOp(SelectOperator.java:75)
+        at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:355)
+        at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:504)
+        at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:457)
+        at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:365)
+        at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:504)
+        at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:457)
+        at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:365)
+        at org.apache.hadoop.hive.ql.exec.mr.MapredLocalTask.initializeOperators(MapredLocalTask.java:499)
+        at org.apache.hadoop.hive.ql.exec.mr.MapredLocalTask.startForward(MapredLocalTask.java:403)
+        at org.apache.hadoop.hive.ql.exec.mr.MapredLocalTask.executeInProcess(MapredLocalTask.java:383)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecDriver.main(ExecDriver.java:751)
+
+
+
+

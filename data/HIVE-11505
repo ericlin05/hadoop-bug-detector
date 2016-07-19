@@ -1,0 +1,24 @@
+Description
+
+ORC refactorings probably broke something. I disabled cache direct allocation but still I am getting this exception
+
+
+Caused by: java.lang.UnsatisfiedLinkError: org.apache.hadoop.io.compress.zlib.ZlibDecompressor.$$YJP$$init(I)J
+	at org.apache.hadoop.io.compress.zlib.ZlibDecompressor.$$YJP$$init(Native Method)
+	at org.apache.hadoop.io.compress.zlib.ZlibDecompressor.init(ZlibDecompressor.java)
+	at org.apache.hadoop.io.compress.zlib.ZlibDecompressor.&amp;lt;init&amp;gt;(ZlibDecompressor.java:115)
+	at org.apache.hadoop.io.compress.zlib.ZlibDecompressor$ZlibDirectDecompressor.&amp;lt;init&amp;gt;(ZlibDecompressor.java:358)
+	at org.apache.hadoop.hive.shims.ZeroCopyShims.getDirectDecompressor(ZeroCopyShims.java:114)
+	at org.apache.hadoop.hive.shims.Hadoop23Shims.getDirectDecompressor(Hadoop23Shims.java:975)
+	at org.apache.hadoop.hive.ql.io.orc.ZlibCodec.directDecompress(ZlibCodec.java:128)
+	at org.apache.hadoop.hive.ql.io.orc.ZlibCodec.decompress(ZlibCodec.java:84)
+	at org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl.decompressChunk(EncodedReaderImpl.java:1128)
+	at org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl.readEncodedStream(EncodedReaderImpl.java:780)
+	at org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl.readEncodedColumns(EncodedReaderImpl.java:467)
+	at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:355)
+	at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:70)
+	at org.apache.hadoop.hive.common.CallableWithNdc.call(CallableWithNdc.java:37)
+
+
+
+

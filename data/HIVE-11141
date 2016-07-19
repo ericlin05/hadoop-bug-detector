@@ -1,0 +1,32 @@
+Description
+
+Hive occasionally gets bottlenecked on generating plans for large queries, the majority of the cases time is spent in fetching metadata, partitions and other optimizer transformation related rules
+I have attached the query for the test case which needs to be tested after we setup database as shown below.
+
+
+create database dataset_3;
+use database dataset_3;
+
+
+createtable.rtf - create table command
+SQLQuery10.sql.mssql - explain query
+It seems that the most problematic part of the code as the stack gets arbitrary long, in RuleRegExp.java
+
+
+  @Override
+  public int cost(Stack&amp;lt;Node&amp;gt; stack) throws SemanticException {
+    int numElems = (stack != null ? stack.size() : 0);
+    String name = "";
+    for (int pos = numElems - 1; pos &amp;gt;= 0; pos--) {
+      name = stack.get(pos).getName() + "%" + name;
+      Matcher m = pattern.matcher(name);
+      if (m.matches()) {
+        return m.group().length();
+      }
+    }
+    return -1;
+  }
+
+
+
+

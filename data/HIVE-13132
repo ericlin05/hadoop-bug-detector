@@ -1,0 +1,31 @@
+Description
+
+In Hive 0.13.1, we have noticed that as the number of databases increases, the start-up time of the Hive interactive shell increases. This is because during start-up, all databases are iterated over to fetch the permanent functions to display in the SHOW FUNCTIONS output.
+FunctionRegistry.java
+  private static Set&amp;lt;String&amp;gt; getFunctionNames(boolean searchMetastore) {
+    Set&amp;lt;String&amp;gt; functionNames = mFunctions.keySet();
+    if (searchMetastore) {
+      functionNames = new HashSet&amp;lt;String&amp;gt;(functionNames);
+      try {
+        Hive db = getHive();
+        List&amp;lt;String&amp;gt; dbNames = db.getAllDatabases();
+
+        for (String dbName : dbNames) {
+          List&amp;lt;String&amp;gt; funcNames = db.getFunctions(dbName, "*");
+          for (String funcName : funcNames) {
+            functionNames.add(FunctionUtils.qualifyFunctionName(funcName, dbName));
+          }
+        }
+      } catch (Exception e) {
+        LOG.error(e);
+        // Continue on, we can still return the functions we've gotten to this point.
+      }
+    }
+    return functionNames;
+  }
+
+
+Instead of eagerly loading all metastore functions, we should only load them the first time SHOW FUNCTIONS is invoked. We should also cache the results.
+Note that this issue may have been fixed by HIVE-2573, though I haven't verified this.
+
+

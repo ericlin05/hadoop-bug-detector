@@ -1,0 +1,21 @@
+Description
+
+Built off da1e0cf21aeff0a9501c5e220a6f66ba61f6da94 merge point
+
+
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.llap.cache.BuddyAllocator$Arena.allocateWithSplit(BuddyAllocator.java:331)
+        at org.apache.hadoop.hive.llap.cache.BuddyAllocator$Arena.allocateWithExpand(BuddyAllocator.java:399)
+        at org.apache.hadoop.hive.llap.cache.BuddyAllocator$Arena.access$300(BuddyAllocator.java:228)
+        at org.apache.hadoop.hive.llap.cache.BuddyAllocator.allocateMultiple(BuddyAllocator.java:156)
+        at org.apache.hadoop.hive.ql.io.orc.InStream.readEncodedStream(InStream.java:761)
+        at org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl.readEncodedColumns(EncodedReaderImpl.java:462)
+        at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:342)
+        at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:59)
+        at org.apache.hadoop.hive.common.CallableWithNdc.call(CallableWithNdc.java:37)
+        ... 4 more
+2015-07-08 01:17:42,798 [TezTaskRunner_attempt_1435700346116_1212_4_05_000080_0(attempt_1435700346116_1212_4_05_000080_0)] ERROR org.apache.hadoop.hive.ql.exec.tez.TezProcessor: org.apache.hadoop.hive.ql.metadata.HiveException: java.io.IOException: java.io.IOException: java.lang.NullPointerException
+
+
+
+

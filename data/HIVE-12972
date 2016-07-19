@@ -1,0 +1,78 @@
+Description
+
+Expressions
+
+Prefix expression ((((true) or true) or true) or true) takes 5 ms in parsing while
+Postfix expression (true or (true or (true or (true)))) takes 3 ms in parsing
+
+Given a sequence of expressions, which are to be OR-ed, they can be OR-ed in two ways. 
+Given a, b, c, d, I can make:
+
+(a) -&amp;gt; ((a) or b) -&amp;gt; (((a) or b) or c) -&amp;gt; ((((a) or b) or c) or d)
+(d) -&amp;gt; (c or (d)) -&amp;gt; (b or (c or (d))) -&amp;gt; (a or (b or (c or (d))))
+
+The first construction is slower than the second construction, regardless of the constituent sub-expressions. 
+A more important point is, as the number of sub-expressions grows, the performance gap increases. Just to emphasize, it takes 2 minutes to parse a pre-fix expression of 20, while it takes 3ms to parse post-fix expression of 20. 
+Have tried to instrument that by writing a test case in TestParseDriver:
+I hope it's easy enough to understand:
+
+  @Test
+  public void parseLongExpression() throws ParseException {
+    List&amp;lt;Long&amp;gt; preFixParseTime = new ArrayList&amp;lt;&amp;gt;();
+    List&amp;lt;Long&amp;gt; postFixParseTime = new ArrayList&amp;lt;&amp;gt;();
+    String preFixExpr = "(true)";
+    String postFixExpr = "(true)";
+    parseDriver.parseExpression(preFixExpr);
+    parseDriver.parseExpression(postFixExpr);
+    for (int j = 0; j &amp;lt; 50; j++) {
+      preFixExpr = "(" + preFixExpr + " or true)";
+      postFixExpr = "(true or " + postFixExpr + ")";
+      long startTime = System.currentTimeMillis();
+      parseDriver.parseExpression(preFixExpr);
+      preFixParseTime.add(System.currentTimeMillis() - startTime);
+      startTime = System.currentTimeMillis();
+      parseDriver.parseExpression(postFixExpr);
+      postFixParseTime.add(System.currentTimeMillis() - startTime);
+      System.out.println("i = " + j + " prefix expr: " + preFixExpr + " parseTime: " + preFixParseTime.get(j) + " postfix expr: " + postFixExpr + " parse time: " + postFixParseTime.get(j));
+    }
+    System.out.println("done");
+  }
+
+
+This was the output:
+
+i = 0 prefix expr: ((true) or true) parseTime: 3 postfix expr: (true or (true)) parse time: 2
+i = 1 prefix expr: (((true) or true) or true) parseTime: 5 postfix expr: (true or (true or (true))) parse time: 3
+i = 2 prefix expr: ((((true) or true) or true) or true) parseTime: 5 postfix expr: (true or (true or (true or (true)))) parse time: 3
+i = 3 prefix expr: (((((true) or true) or true) or true) or true) parseTime: 6 postfix expr: (true or (true or (true or (true or (true))))) parse time: 11
+i = 4 prefix expr: ((((((true) or true) or true) or true) or true) or true) parseTime: 11 postfix expr: (true or (true or (true or (true or (true or (true)))))) parse time: 7
+i = 5 prefix expr: (((((((true) or true) or true) or true) or true) or true) or true) parseTime: 17 postfix expr: (true or (true or (true or (true or (true or (true or (true))))))) parse time: 6
+i = 6 prefix expr: ((((((((true) or true) or true) or true) or true) or true) or true) or true) parseTime: 40 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true)))))))) parse time: 6
+i = 7 prefix expr: (((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 55 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true))))))))) parse time: 10
+i = 8 prefix expr: ((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 51 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true)))))))))) parse time: 5
+i = 9 prefix expr: (((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 18 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true))))))))))) parse time: 6
+i = 10 prefix expr: ((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 56 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true)))))))))))) parse time: 4
+i = 11 prefix expr: (((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 54 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true))))))))))))) parse time: 5
+i = 12 prefix expr: ((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 111 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true)))))))))))))) parse time: 5
+i = 13 prefix expr: (((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 266 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true))))))))))))))) parse time: 9
+i = 14 prefix expr: ((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 341 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true)))))))))))))))) parse time: 4
+i = 15 prefix expr: (((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 543 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true))))))))))))))))) parse time: 4
+i = 16 prefix expr: ((((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 259 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true)))))))))))))))))) parse time: 2
+i = 17 prefix expr: (((((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 273 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true))))))))))))))))))) parse time: 2
+i = 18 prefix expr: ((((((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 369 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true)))))))))))))))))))) parse time: 3
+i = 19 prefix expr: (((((((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 844 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true))))))))))))))))))))) parse time: 2
+i = 20 prefix expr: ((((((((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 841 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true)))))))))))))))))))))) parse time: 3
+i = 21 prefix expr: (((((((((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 1545 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true))))))))))))))))))))))) parse time: 1
+i = 22 prefix expr: ((((((((((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 1882 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true)))))))))))))))))))))))) parse time: 1
+i = 23 prefix expr: (((((((((((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 2533 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true))))))))))))))))))))))))) parse time: 2
+i = 24 prefix expr: ((((((((((((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 4516 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true)))))))))))))))))))))))))) parse time: 2
+i = 25 prefix expr: (((((((((((((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 6837 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true))))))))))))))))))))))))))) parse time: 1
+i = 26 prefix expr: ((((((((((((((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 12679 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true)))))))))))))))))))))))))))) parse time: 2
+i = 27 prefix expr: (((((((((((((((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 21823 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true))))))))))))))))))))))))))))) parse time: 2
+i = 28 prefix expr: ((((((((((((((((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 33731 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true)))))))))))))))))))))))))))))) parse time: 1
+i = 29 prefix expr: (((((((((((((((((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 73989 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true))))))))))))))))))))))))))))))) parse time: 3
+i = 30 prefix expr: ((((((((((((((((((((((((((((((((true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) or true) parseTime: 118986 postfix expr: (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true or (true)))))))))))))))))))))))))))))))) parse time: 3
+
+
+
+

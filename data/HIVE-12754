@@ -1,0 +1,50 @@
+Description
+
+I set hive.server2.authentication to be NONE
+After HS2 start, i see exception in log below:
+
+
+2015-12-29 16:58:42,339 ERROR [HiveServer2-Handler-Pool: Thread-31]: server.TThreadPoolServer (TThreadPoolServer.java:run(296)) - Error occurred during processing of message.
+java.lang.RuntimeException: org.apache.thrift.transport.TSaslTransportException: No data or no sasl data in the stream
+        at org.apache.thrift.transport.TSaslServerTransport$Factory.getTransport(TSaslServerTransport.java:219)
+        at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:268)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+        at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.thrift.transport.TSaslTransportException: No data or no sasl data in the stream
+        at org.apache.thrift.transport.TSaslTransport.open(TSaslTransport.java:328)
+        at org.apache.thrift.transport.TSaslServerTransport.open(TSaslServerTransport.java:41)
+        at org.apache.thrift.transport.TSaslServerTransport$Factory.getTransport(TSaslServerTransport.java:216)
+        ... 4 more
+
+
+IMO the problem is we use Sasl transport when authType is NONE, 
+HiveAuthFactory.java
+
+  public TTransportFactory getAuthTransFactory() throws LoginException {
+    TTransportFactory transportFactory;
+    if (authTypeStr.equalsIgnoreCase(AuthTypes.KERBEROS.getAuthName())) {
+      try {
+        transportFactory = saslServer.createTransportFactory(getSaslProperties());
+      } catch (TTransportException e) {
+        throw new LoginException(e.getMessage());
+      }
+    } else if (authTypeStr.equalsIgnoreCase(AuthTypes.NONE.getAuthName())) {
+      transportFactory = PlainSaslHelper.getPlainTransportFactory(authTypeStr);
+    } else if (authTypeStr.equalsIgnoreCase(AuthTypes.LDAP.getAuthName())) {
+      transportFactory = PlainSaslHelper.getPlainTransportFactory(authTypeStr);
+    } else if (authTypeStr.equalsIgnoreCase(AuthTypes.PAM.getAuthName())) {
+      transportFactory = PlainSaslHelper.getPlainTransportFactory(authTypeStr);
+    } else if (authTypeStr.equalsIgnoreCase(AuthTypes.NOSASL.getAuthName())) {
+      transportFactory = new TTransportFactory();
+    } else if (authTypeStr.equalsIgnoreCase(AuthTypes.CUSTOM.getAuthName())) {
+      transportFactory = PlainSaslHelper.getPlainTransportFactory(authTypeStr);
+    } else {
+      throw new LoginException("Unsupported authentication type " + authTypeStr);
+    }
+    return transportFactory;
+  }
+
+
+
+

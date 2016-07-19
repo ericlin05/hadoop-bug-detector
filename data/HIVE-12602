@@ -1,0 +1,91 @@
+Description
+
+Env: master branch
+
+Vertex failed, vertexName=Map 4, vertexId=vertex_1448526568607_12618_1_00, diagnostics=[Vertex vertex_1448526568607_12618_1_00 [Map 4] killed/failed due to:ROOT_INPUT_INIT_FAILURE, Vertex Input: at initializer failed, vertex=vertex_1448526568607_12618_1_00 [Map 4], java.lang.RuntimeException: ORC split generation failed with exception: java.lang.RuntimeException: Unable to instantiate org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.generateSplitsInfo(OrcInputFormat.java:1272)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getSplits(OrcInputFormat.java:1338)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.addSplitsForGroup(HiveInputFormat.java:366)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.getSplits(HiveInputFormat.java:478)
+        at org.apache.hadoop.hive.ql.exec.tez.HiveSplitGenerator.initialize(HiveSplitGenerator.java:183)
+        at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable$1.run(RootInputInitializerManager.java:246)
+        at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable$1.run(RootInputInitializerManager.java:240)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:422)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+        at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable.call(RootInputInitializerManager.java:240)
+        at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable.call(RootInputInitializerManager.java:227)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+        at java.lang.Thread.run(Thread.java:745)
+Caused by: java.util.concurrent.ExecutionException: java.lang.RuntimeException: Unable to instantiate org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient
+        at java.util.concurrent.FutureTask.report(FutureTask.java:122)
+        at java.util.concurrent.FutureTask.get(FutureTask.java:192)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.generateSplitsInfo(OrcInputFormat.java:1266)
+        ... 15 more
+Caused by: java.lang.RuntimeException: Unable to instantiate org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient
+        at org.apache.hadoop.hive.metastore.MetaStoreUtils.newInstance(MetaStoreUtils.java:1555)
+        at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.&amp;lt;init&amp;gt;(RetryingMetaStoreClient.java:86)
+        at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.getProxy(RetryingMetaStoreClient.java:132)
+        at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.getProxy(RetryingMetaStoreClient.java:104)
+        at org.apache.hadoop.hive.ql.metadata.Hive.createMetaStoreClient(Hive.java:3055)
+        at org.apache.hadoop.hive.ql.metadata.Hive.getMSC(Hive.java:3075)
+        at org.apache.hadoop.hive.ql.metadata.Hive.putFileMetadata(Hive.java:3382)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$MetastoreCache.put(OrcInputFormat.java:1913)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$SplitGenerator.populateAndCacheStripeDetails(OrcInputFormat.java:1143)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$SplitGenerator.call(OrcInputFormat.java:1046)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$SplitGenerator.call(OrcInputFormat.java:903)
+        ... 4 more
+Caused by: java.lang.reflect.InvocationTargetException
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
+        at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+        at java.lang.reflect.Constructor.newInstance(Constructor.java:422)
+        at org.apache.hadoop.hive.metastore.MetaStoreUtils.newInstance(MetaStoreUtils.java:1553)
+        ... 14 more
+Caused by: javax.jdo.JDOFatalUserException: Class org.datanucleus.api.jdo.JDOPersistenceManagerFactory was not found.
+Caused by: javax.jdo.JDOFatalUserException: Class org.datanucleus.api.jdo.JDOPersistenceManagerFactory was not found.
+NestedThrowables:
+java.lang.ClassNotFoundException: org.datanucleus.api.jdo.JDOPersistenceManagerFactory
+        at javax.jdo.JDOHelper.invokeGetPersistenceManagerFactoryOnImplementation(JDOHelper.java:1175)
+        at javax.jdo.JDOHelper.getPersistenceManagerFactory(JDOHelper.java:808)
+        at javax.jdo.JDOHelper.getPersistenceManagerFactory(JDOHelper.java:701)
+        at org.apache.hadoop.hive.metastore.ObjectStore.getPMF(ObjectStore.java:409)
+        at org.apache.hadoop.hive.metastore.ObjectStore.getPersistenceManager(ObjectStore.java:438)
+        at org.apache.hadoop.hive.metastore.ObjectStore.initialize(ObjectStore.java:332)
+        at org.apache.hadoop.hive.metastore.ObjectStore.setConf(ObjectStore.java:288)
+        at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:76)
+        at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:136)
+        at org.apache.hadoop.hive.metastore.RawStoreProxy.&amp;lt;init&amp;gt;(RawStoreProxy.java:55)
+        at org.apache.hadoop.hive.metastore.RawStoreProxy.getProxy(RawStoreProxy.java:64)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.newRawStore(HiveMetaStore.java:516)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.getMS(HiveMetaStore.java:481)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.createDefaultDB(HiveMetaStore.java:547)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.init(HiveMetaStore.java:370)
+        at org.apache.hadoop.hive.metastore.RetryingHMSHandler.&amp;lt;init&amp;gt;(RetryingHMSHandler.java:78)
+        at org.apache.hadoop.hive.metastore.RetryingHMSHandler.getProxy(RetryingHMSHandler.java:84)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore.newRetryingHMSHandler(HiveMetaStore.java:5749)
+        at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.&amp;lt;init&amp;gt;(HiveMetaStoreClient.java:219)
+        at org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient.&amp;lt;init&amp;gt;(SessionHiveMetaStoreClient.java:67)
+        ... 19 more
+Caused by: java.lang.ClassNotFoundException: org.datanucleus.api.jdo.JDOPersistenceManagerFactory
+        at java.net.URLClassLoader.findClass(URLClassLoader.java:381)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:424)
+        at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:331)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:357)
+        at java.lang.Class.forName0(Native Method)
+        at java.lang.Class.forName(Class.java:348)
+        at javax.jdo.JDOHelper$18.run(JDOHelper.java:2018)
+        at javax.jdo.JDOHelper$18.run(JDOHelper.java:2016)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.jdo.JDOHelper.forName(JDOHelper.java:2015)
+        at javax.jdo.JDOHelper.invokeGetPersistenceManagerFactoryOnImplementation(JDOHelper.java:1162)
+        ... 38 more
+]
+
+
+
+Ran a query by passing "--hiveconf hive.orc.splits.ms.footer.cache.enabled=true" in hive cli.  First time encountered this exception, when the same query got executed second in the same session, it worked fine without exception. 
+
+

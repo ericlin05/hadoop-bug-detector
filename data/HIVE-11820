@@ -1,0 +1,40 @@
+Description
+
+Tested a patch of HIVE-11607 and seeing the following exception:
+
+2015-09-14 21:44:16,817 ERROR [main]: exec.Task (SessionState.java:printError(960)) - Failed with exception Skip CRC is valid only with update options
+java.lang.IllegalArgumentException: Skip CRC is valid only with update options
+        at org.apache.hadoop.tools.DistCpOptions.validate(DistCpOptions.java:556)
+        at org.apache.hadoop.tools.DistCpOptions.setSkipCRC(DistCpOptions.java:311)
+        at org.apache.hadoop.hive.shims.Hadoop23Shims.runDistCp(Hadoop23Shims.java:1147)
+        at org.apache.hadoop.hive.common.FileUtils.copy(FileUtils.java:553)
+        at org.apache.hadoop.hive.ql.exec.CopyTask.execute(CopyTask.java:82)
+        at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+        at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:89)
+        at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1655)
+        at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1414)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1195)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1059)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1049)
+        at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:213)
+        at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:165)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:376)
+        at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:736)
+        at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:681)
+        at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:621)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:497)
+        at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+
+
+A possible resolution is to reverse the order of the following two lines from a patch of HIVE-11607:
+
++    options.setSkipCRC(true);
++    options.setSyncFolder(true);
+
+
+
+

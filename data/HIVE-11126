@@ -1,0 +1,39 @@
+Description
+
+When the select statement contains group by clause, multiple insert fails.
+Here is the sample sql.
+
+
+from test_src_table 
+insert overwrite table test_target_table partition(p)
+select src_id as id, "lala"  as p
+group by src_id
+
+insert overwrite table test_target_table partition(p)
+select id, p from
+select src_id as id, "papa" as p
+group by src_id
+
+
+The exception is like this
+
+
+java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"_col0":"1107625951@qq.com","_col1":"lala"}
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:195)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:50)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:417)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:332)
+	at org.apache.hadoop.mapred.Child$4.run(Child.java:268)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1614)
+	at org.apache.hadoop.mapred.Child.main(Child.java:262)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"_col0":"1107625951@qq.com","_col1":"lala"}
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:550)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(Ex
+
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+
+
+
+

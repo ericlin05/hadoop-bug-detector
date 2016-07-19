@@ -1,0 +1,66 @@
+Description
+
+alter1.q fail. Specifically, the following statement fail:
+create table alter1(a int, b int);
+add jar itests/test-serde/target/hive-it-test-serde-1.3.0-SNAPSHOT.jar;
+alter table alter1 set serde 'org.apache.hadoop.hive.serde2.TestSerDe' with serdeproperties('s1'='9');
+Error stack:
+
+
+org.apache.hadoop.hive.ql.metadata.HiveException: Unable to alter table. java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.metadata.Hive.alterTable(Hive.java:498)
+        at org.apache.hadoop.hive.ql.exec.DDLTask.alterTable(DDLTask.java:3418)
+        at org.apache.hadoop.hive.ql.exec.DDLTask.execute(DDLTask.java:338)
+        at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+        at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:89)
+        at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1660)
+        at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1419)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1200)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1067)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1057)
+        at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:213)
+        at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:165)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:376)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:311)
+        at org.apache.hadoop.hive.ql.QTestUtil.executeClientInternal(QTestUtil.java:1116)
+        at org.apache.hadoop.hive.ql.QTestUtil.executeClient(QTestUtil.java:1090)
+        at org.apache.hadoop.hive.cli.TestCliDriver.runTest(TestCliDriver.java:146)
+        at org.apache.hadoop.hive.cli.TestCliDriver.testCliDriver_alter1(TestCliDriver.java:130)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at junit.framework.TestCase.runTest(TestCase.java:176)
+        at junit.framework.TestCase.runBare(TestCase.java:141)
+        at junit.framework.TestResult$1.protect(TestResult.java:122)
+        at junit.framework.TestResult.runProtected(TestResult.java:142)
+        at junit.framework.TestResult.run(TestResult.java:125)
+        at junit.framework.TestCase.run(TestCase.java:129)
+        at junit.framework.TestSuite.runTest(TestSuite.java:255)
+        at junit.framework.TestSuite.run(TestSuite.java:250)
+        at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:84)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:264)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:153)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:124)
+        at org.apache.maven.surefire.booter.ForkedBooter.invokeProviderInSameClassLoader(ForkedBooter.java:200)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:153)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:103)
+Caused by: MetaException(message:java.lang.NullPointerException)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.newMetaException(HiveMetaStore.java:5301)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.alter_table_core(HiveMetaStore.java:3443)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.alter_table_with_cascade(HiveMetaStore.java:3395)
+        at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.alter_table(HiveMetaStoreClient.java:352)
+        at org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient.alter_table(SessionHiveMetaStoreClient.java:251)
+        at org.apache.hadoop.hive.ql.metadata.Hive.alterTable(Hive.java:496)
+        ... 36 more
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.metastore.HiveAlterHandler.updateTableColumnStatsForAlterTable(HiveAlterHandler.java:673)
+        at org.apache.hadoop.hive.metastore.HiveAlterHandler.alterTable(HiveAlterHandler.java:241)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.alter_table_core(HiveMetaStore.java:3423)
+
+
+If changing the alter statement to:
+alter table alter1 set serde 'org.apache.hadoop.hive.ql.io.orc.OrcSerde' with serdeproperties('s1'='9');
+The test pass. The difference is the former also changes the schema which trigger the NPE.
+
+

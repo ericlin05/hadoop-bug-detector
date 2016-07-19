@@ -1,0 +1,24 @@
+Description
+
+Queries with heavily nested filters can cause a StackOverflowError
+
+
+Exception in thread "main" java.lang.StackOverflowError
+at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$FilterStatsRule.evaluateExpression(StatsRulesProcFactory.java:301)
+at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$FilterStatsRule.evaluateChildExpr(StatsRulesProcFactory.java:525)
+at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$FilterStatsRule.evaluateExpression(StatsRulesProcFactory.java:326)
+at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$FilterStatsRule.evaluateChildExpr(StatsRulesProcFactory.java:525)
+at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$FilterStatsRule.evaluateExpression(StatsRulesProcFactory.java:326)
+at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$FilterStatsRule.evaluateChildExpr(StatsRulesProcFactory.java:525)
+at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$FilterStatsRule.evaluateExpression(StatsRulesProcFactory.java:326)
+at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$FilterStatsRule.evaluateChildExpr(StatsRulesProcFactory.java:525)
+at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$FilterStatsRule.evaluateExpression(StatsRulesProcFactory.java:326)
+at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$FilterStatsRule.evaluateChildExpr(StatsRulesProcFactory.java:525)
+at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$FilterStatsRule.evaluateExpression(StatsRulesProcFactory.java:326)
+at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$FilterStatsRule.evaluateChildExpr(StatsRulesProcFactory.java:525)
+at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$FilterStatsRule.evaluateExpression(StatsRulesProcFactory.java:326)
+at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$FilterStatsRule.evaluateChildExpr(StatsRulesProcFactory.java:525) 
+
+
+
+

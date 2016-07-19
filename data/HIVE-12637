@@ -1,0 +1,16 @@
+Description
+
+same for CompactionTxnHandler
+would be convenient if the user could specify some RegEx (perhaps by db type) which will tell TxnHandler.checkRetryable() that this is should be retried.
+The regex should probably apply to String produced by 
+
+  private static String getMessage(SQLException ex) {
+    return ex.getMessage() + "(SQLState=" + ex.getSQLState() + ",ErrorCode=" + ex.getErrorCode() + ")";
+  }
+
+
+This make it flexible.
+See if we need to add Db type (and possibly version) of the DB being used.
+With 5 different DBs supported this gives control end users.
+
+

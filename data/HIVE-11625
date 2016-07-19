@@ -1,0 +1,104 @@
+Description
+
+Hive allows maps with null keys:
+
+
+hive&amp;gt; select map(null, 'foo', 1, 'bar', null, 'baz');
+{null:"baz",1:"bar"}
+
+
+However, when written into Parquet tables, map entries with null as keys are either dropped or cause exceptions. Below is the result of Hive 0.14.0 and 0.13.1:
+
+
+hive&amp;gt; CREATE TABLE map_test STORED AS PARQUET
+    &amp;gt; AS SELECT MAP(null, 'foo', 1, 'bar', null, 'baz');
+...
+hive&amp;gt; SELECT * from map_test;
+{1:"bar"}
+
+
+And Hive 1.2.1 throws exception:
+
+java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing writable (null)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:172)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:50)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:430)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:366)
+	at org.apache.hadoop.mapred.Child$4.run(Child.java:255)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1190)
+	at org.apache.hadoop.mapred.Child.main(Child.java:249)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing writable (null)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:516)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:163)
+	... 8 more
+Caused by: java.lang.RuntimeException: Parquet record is malformed: empty fields are illegal, the field should be ommited completely instead
+	at org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriter.write(DataWritableWriter.java:64)
+	at org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriteSupport.write(DataWritableWriteSupport.java:59)
+	at org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriteSupport.write(DataWritableWriteSupport.java:31)
+	at parquet.hadoop.InternalParquetRecordWriter.write(InternalParquetRecordWriter.java:121)
+	at parquet.hadoop.ParquetRecordWriter.write(ParquetRecordWriter.java:123)
+	at parquet.hadoop.ParquetRecordWriter.write(ParquetRecordWriter.java:42)
+	at org.apache.hadoop.hive.ql.io.parquet.write.ParquetRecordWriterWrapper.write(ParquetRecordWriterWrapper.java:111)
+	at org.apache.hadoop.hive.ql.io.parquet.write.ParquetRecordWriterWrapper.write(ParquetRecordWriterWrapper.java:124)
+	at org.apache.hadoop.hive.ql.exec.FileSinkOperator.process(FileSinkOperator.java:753)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+	at org.apache.hadoop.hive.ql.exec.SelectOperator.process(SelectOperator.java:88)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.process(TableScanOperator.java:97)
+	at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:162)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:508)
+	... 9 more
+Caused by: parquet.io.ParquetEncodingException: empty fields are illegal, the field should be ommited completely instead
+	at parquet.io.MessageColumnIO$MessageColumnIORecordConsumer.endField(MessageColumnIO.java:244)
+	at org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriter.writeMap(DataWritableWriter.java:228)
+	at org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriter.writeValue(DataWritableWriter.java:116)
+	at org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriter.writeGroupFields(DataWritableWriter.java:89)
+	at org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriter.write(DataWritableWriter.java:60)
+	... 23 more
+
+java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing writable (null)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:172)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:50)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:430)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:366)
+	at org.apache.hadoop.mapred.Child$4.run(Child.java:255)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1190)
+	at org.apache.hadoop.mapred.Child.main(Child.java:249)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing writable (null)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:516)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:163)
+	... 8 more
+Caused by: java.lang.RuntimeException: Parquet record is malformed: empty fields are illegal, the field should be ommited completely instead
+	at org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriter.write(DataWritableWriter.java:64)
+	at org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriteSupport.write(DataWritableWriteSupport.java:59)
+	at org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriteSupport.write(DataWritableWriteSupport.java:31)
+	at parquet.hadoop.InternalParquetRecordWriter.write(InternalParquetRecordWriter.java:121)
+	at parquet.hadoop.ParquetRecordWriter.write(ParquetRecordWriter.java:123)
+	at parquet.hadoop.ParquetRecordWriter.write(ParquetRecordWriter.java:42)
+	at org.apache.hadoop.hive.ql.io.parquet.write.ParquetRecordWriterWrapper.write(ParquetRecordWriterWrapper.java:111)
+	at org.apache.hadoop.hive.ql.io.parquet.write.ParquetRecordWriterWrapper.write(ParquetRecordWriterWrapper.java:124)
+	at org.apache.hadoop.hive.ql.exec.FileSinkOperator.process(FileSinkOperator.java:753)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+	at org.apache.hadoop.hive.ql.exec.SelectOperator.process(SelectOperator.java:88)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.process(TableScanOperator.java:97)
+	at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:162)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:508)
+	... 9 more
+Caused by: parquet.io.ParquetEncodingException: empty fields are illegal, the field should be ommited completely instead
+	at parquet.io.MessageColumnIO$MessageColumnIORecordConsumer.endField(MessageColumnIO.java:244)
+	at org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriter.writeMap(DataWritableWriter.java:228)
+	at org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriter.writeValue(DataWritableWriter.java:116)
+	at org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriter.writeGroupFields(DataWritableWriter.java:89)
+	at org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriter.write(DataWritableWriter.java:60)
+	... 23 more
+
+
+The problematic method is DataWritableWriter.writeMap().  Although the key value entry is not null, either key or value can be null. And null keys are not properly handled.
+According to parquet-format spec, keys of a Parquet MAP must not be null.  Then I think the problem here is that, whether should we silently ignore null keys when writing a map to a Parquet table like what Hive 0.14.0 does, or throw an exception (probably a more descriptive one instead of the one mentioned in the ticket description) like Hive 1.2.1.
+
+

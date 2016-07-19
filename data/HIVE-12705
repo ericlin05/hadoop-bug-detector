@@ -1,0 +1,17 @@
+Description
+
+http://ec2-174-129-184-35.compute-1.amazonaws.com/jenkins/job/HIVE-TRUNK-JAVA8/
+ex: http://ec2-174-129-184-35.compute-1.amazonaws.com/jenkins/job/HIVE-TRUNK-JAVA8/144/console
+
+
++ java -cp 'target/hive-ptest-1.0-classes.jar:target/lib/*' org.apache.hive.ptest.api.client.PTestClient --endpoint http://ec2-174-129-184-35.compute-1.amazonaws.com:8181/hive-ptest-1.0/ --logsEndpoint http://ec2-174-129-184-35.compute-1.amazonaws.com/logs/ --command testStart --profile trunkjava8-mr2 --password c0mmit --outputDir target/ --testHandle HIVE-TRUNK-JAVA8-144
+2015-12-16 09:56:47,201 ERROR TestExecutor.run:138 Error executing HIVE-TRUNK-JAVA8-144 java.lang.NullPointerException: branch
+	at com.google.common.base.Preconditions.checkNotNull(Preconditions.java:209)
+	at org.apache.hive.ptest.execution.conf.TestConfiguration.&amp;lt;init&amp;gt;(TestConfiguration.java:101)
+	at org.apache.hive.ptest.execution.conf.TestConfiguration.fromInputStream(TestConfiguration.java:276)
+	at org.apache.hive.ptest.execution.conf.TestConfiguration.fromFile(TestConfiguration.java:284)
+	at org.apache.hive.ptest.api.server.TestExecutor.run(TestExecutor.java:110)
+
+
+
+

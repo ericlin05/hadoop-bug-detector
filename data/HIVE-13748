@@ -1,0 +1,6 @@
+Description
+
+hive&amp;gt; create table y(col struct&amp;lt;`a-b`:double&amp;gt; COMMENT 'type field has a dash');
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. java.lang.IllegalArgumentException: Error: : expected at the position 8 of 'struct&amp;lt;a-b:double&amp;gt;' but '-' is found.
+
+

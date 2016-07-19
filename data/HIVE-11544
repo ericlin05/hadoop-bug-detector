@@ -1,0 +1,16 @@
+Description
+
+LazyInteger#parseInt will throw a NumberFormatException under these conditions:
+
+bytes are null
+radix is invalid
+length is 0
+the string is '+' or '-'
+LazyInteger#parse throws a NumberFormatException
+
+Most of the time, such as in LazyInteger#init and LazyByte#init, the exception is caught, swallowed, and isNull is set to true.
+This is generally a bad workflow, as exception creation is a performance bottleneck, and potentially repeating for many rows in a query can have a drastic performance consequence.
+It would be better if this method returned an Optional&amp;lt;Integer&amp;gt;, which would provide similar functionality with a higher throughput rate.
+I've tested against 0.14.0, and saw that the logic is unchanged in 1.2.0, so I've marked those as affected. Any version in between would also suffer from this.
+
+

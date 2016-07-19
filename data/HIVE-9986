@@ -1,0 +1,21 @@
+Description
+
+From HIVE-9979
+
+2015-03-16 10:20:51,439 [pool-2-thread-3(container_222212222_1141_01_000192_gopal_20150316102020_c8c92488-6a61-401e-8298-401dace286dc:1_Map 1_191_0)] INFO org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl: Getting data for column 9 RG 112 stream DATA at 62278935, 1057137 index position 0: compressed [62614934, 63139228)
+2015-03-16 10:20:51,439 [pool-2-thread-6(container_222212222_1141_01_000211_gopal_20150316102020_c8c92488-6a61-401e-8298-401dace286dc:1_Map 1_210_0)] INFO org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl: Getting stripe-level stream [LENGTH, kind: DICTIONARY_V2
+dictionarySize: 3
+] for column 9 RG 91 at 64139927, 5
+...
+Caused by: java.io.EOFException
+        at org.apache.hadoop.hive.ql.io.orc.RecordReaderUtils.readDirect(RecordReaderUtils.java:286)
+        at org.apache.hadoop.hive.ql.io.orc.RecordReaderUtils.readDiskRanges(RecordReaderUtils.java:266)
+        at org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl.readEncodedColumns(EncodedReaderImpl.java:234)
+        at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:280)
+        at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:44)
+        at org.apache.hadoop.hive.common.CallableWithNdc.call(CallableWithNdc.java:37)
+        ... 4 more
+
+
+
+

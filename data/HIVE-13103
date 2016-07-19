@@ -1,0 +1,11 @@
+Description
+
+Today a user who only has READ permissions on HBase tried to create a hive table over an existing HBase table. The result was:
+
+
+Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. MetaException(message:org.apache.hadoop.hbase.security.AccessDeniedException: org.apache.hadoop.hbase.security.AccessDeniedException: Insufficient permissions (user=user_name, scope=default:table_name, params=[table=default:table_name],action=CREATE) at ...
+
+
+If the table exists in HBase already, I think that READ should be good enough to create the table in Hive.
+
+

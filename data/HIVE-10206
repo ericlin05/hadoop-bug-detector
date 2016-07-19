@@ -1,0 +1,60 @@
+Description
+
+Create an avro table with an external avsc file like:
+
+CREATE  TABLE test(...)
+ROW FORMAT SERDE 
+  'org.apache.hadoop.hive.serde2.avro.AvroSerDe' 
+STORED AS INPUTFORMAT 
+  'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat' 
+OUTPUTFORMAT 
+  'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'
+TBLPROPERTIES (
+  'avro.schema.url'='file:///Users/szehon/Temp/test.avsc', 
+  'kite.compression.type'='snappy', 
+  'transient_lastDdlTime'='1427996456')
+
+
+Delete test.avsc file.
+Try to modify the table properties:
+
+alter table test set tblproperties ('avro.schema.url'='file:///Users/szehon/Temp/test2.avsc');
+
+
+Will throw an exception like AvroSerdeException:
+
+  at org.apache.hadoop.hive.serde2.avro.AvroSerdeUtils.determineSchemaOrThrowException(AvroSerdeUtils.java:119)
+	  at org.apache.hadoop.hive.serde2.avro.AvroSerDe.determineSchemaOrReturnErrorSchema(AvroSerDe.java:163)
+	  at org.apache.hadoop.hive.serde2.avro.AvroSerDe.initialize(AvroSerDe.java:101)
+	  at org.apache.hadoop.hive.serde2.avro.AvroSerDe.initialize(AvroSerDe.java:78)
+	  at org.apache.hadoop.hive.serde2.SerDeUtils.initializeSerDe(SerDeUtils.java:520)
+	  at org.apache.hadoop.hive.metastore.MetaStoreUtils.getDeserializer(MetaStoreUtils.java:377)
+	  at org.apache.hadoop.hive.ql.metadata.Table.getDeserializerFromMetaStore(Table.java:274)
+	  at org.apache.hadoop.hive.ql.metadata.Table.getDeserializer(Table.java:256)
+	  at org.apache.hadoop.hive.ql.metadata.Table.getCols(Table.java:595)
+	  at org.apache.hadoop.hive.ql.exec.DDLTask.alterTableOrSinglePartition(DDLTask.java:3383)
+	  at org.apache.hadoop.hive.ql.exec.DDLTask.alterTable(DDLTask.java:3340)
+	  at org.apache.hadoop.hive.ql.exec.DDLTask.execute(DDLTask.java:332)
+	  at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+	  at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:88)
+	  at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1638)
+	  at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1397)
+	  at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1181)
+	  at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1047)
+	  at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1037)
+	  at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:207)
+	  at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:159)
+	  at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:370)
+	  at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:754)
+	  at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:675)
+	  at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:615)
+	  at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-1)
+	  at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	  at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	  at java.lang.reflect.Method.invoke(Method.java:606)
+	  at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	  at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+
+
+
+

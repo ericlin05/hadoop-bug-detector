@@ -1,0 +1,16 @@
+Description
+
+Method getAutocommit() always returns true. 
+This means your connection is transacted. Please change it to false, since HiveConnection does not support transactions.
+org.apache.hive.jdbc.HiveConnection
+class HiveConnection
+
+
+@Override
+  public boolean getAutoCommit() throws SQLException {
+    return true;
+  }
+
+
+
+

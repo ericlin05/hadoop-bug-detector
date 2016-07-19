@@ -1,0 +1,60 @@
+Description
+
+
+
+2015-11-30 20:55:30,361 [INFO] [Dispatcher thread {Central}] |history.HistoryEventHandler|: [HISTORY][DAG:dag_1448429572030_1224_7][Event:TASK_ATTEMPT_FINISHED]: vertexName=Map 2, taskAttemptId=attempt_1448429572030_1224_7_03_000005_0, creationTime=1448934722881, allocationTime=1448934726552, startTime=1448934726553, finishTime=1448934930360, timeTaken=203807, status=FAILED, errorEnum=FRAMEWORK_ERROR, diagnostics=Error: Failure while running task: attempt_1448429572030_1224_7_03_000005_0:java.lang.RuntimeException: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:195)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:160)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:348)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:71)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:60)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:60)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:35)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:289)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+	... 14 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Async initialization failed
+	at org.apache.hadoop.hive.ql.exec.Operator.completeInitialization(Operator.java:424)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:394)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:519)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:472)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:380)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:274)
+	... 15 more
+Caused by: java.util.concurrent.ExecutionException: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.NegativeArraySizeException
+	at java.util.concurrent.FutureTask.report(FutureTask.java:122)
+	at java.util.concurrent.FutureTask.get(FutureTask.java:192)
+	at org.apache.hadoop.hive.ql.exec.Operator.completeInitialization(Operator.java:414)
+	... 20 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.NegativeArraySizeException
+	at org.apache.hadoop.hive.ql.exec.tez.LlapObjectCache.retrieve(LlapObjectCache.java:106)
+	at org.apache.hadoop.hive.ql.exec.tez.LlapObjectCache$1.call(LlapObjectCache.java:131)
+	... 4 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.NegativeArraySizeException
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.fast.VectorMapJoinFastHashTableLoader.load(VectorMapJoinFastHashTableLoader.java:110)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.loadHashTable(MapJoinOperator.java:293)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator$1.call(MapJoinOperator.java:174)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator$1.call(MapJoinOperator.java:170)
+	at org.apache.hadoop.hive.ql.exec.tez.LlapObjectCache.retrieve(LlapObjectCache.java:104)
+	... 5 more
+Caused by: java.lang.NegativeArraySizeException
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.fast.VectorMapJoinFastBytesHashTable.expandAndRehash(VectorMapJoinFastBytesHashTable.java:125)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.fast.VectorMapJoinFastBytesHashTable.add(VectorMapJoinFastBytesHashTable.java:73)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.fast.VectorMapJoinFastBytesHashTable.putRow(VectorMapJoinFastBytesHashTable.java:53)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.fast.VectorMapJoinFastTableContainer.putRow(VectorMapJoinFastTableContainer.java:182)
+	at org.apache.hadoop.hive.ql.exec.vector.mapjoin.fast.VectorMapJoinFastHashTableLoader.load(VectorMapJoinFastHashTableLoader.java:97)
+	... 9 more
+
+
+Array size wraps around integer limits.
+
+

@@ -1,0 +1,43 @@
+Description
+
+I face a buffer underflow problem when inserting data to table from hive 1.1.0.
+the block size is 128 MB and the data size is only 10MB, but it gives me 891 mappers.
+Task with the most failures(4):
+
+Task ID:
+  task_1451989578563_0001_m_000008
+URL:
+http://0.0.0.0:8088/taskdetails.jsp?jobid=job_1451989578563_0001&amp;amp;tipid=task_1451989578563_0001_m_000008
+
+Diagnostic Messages for this Task:
+Error: java.lang.RuntimeException: Failed to load plan: hdfs://tpe-nn-3-1:8020/tmp/hive/alec.tu/af798488-dbf5-45da-8adb-e4f2ddde1242/hive_2016-01-05_18-34-26_864_3947114301988950007-1/-mr-10004/bb86c923-0dca-43cd-aa5d-ef575d764e06/map.xml: org.apache.hive.com.esotericsoftware.kryo.KryoException: Buffer underflow.
+        at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:450)
+        at org.apache.hadoop.hive.ql.exec.Utilities.getMapWork(Utilities.java:296)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.init(HiveInputFormat.java:268)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.getRecordReader(HiveInputFormat.java:234)
+        at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getRecordReader(CombineHiveInputFormat.java:701)
+        at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.&amp;lt;init&amp;gt;(MapTask.java:169)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:432)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: org.apache.hive.com.esotericsoftware.kryo.KryoException: Buffer underflow.
+        at org.apache.hive.com.esotericsoftware.kryo.io.Input.require(Input.java:181)
+        at org.apache.hive.com.esotericsoftware.kryo.io.Input.readBoolean(Input.java:783)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.UnsafeCacheFields$UnsafeBooleanField.read(UnsafeCacheFields.java:120)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:672)
+        at org.apache.hadoop.hive.ql.exec.Utilities.deserializeObjectByKryo(Utilities.java:1069)
+        at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:960)
+        at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:974)
+        at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:416)
+        ... 12 more
+Container killed by the ApplicationMaster.
+Container killed on request. Exit code is 143
+Container exited with a non-zero exit code 143
+Thank you.
+
+

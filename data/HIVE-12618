@@ -1,0 +1,21 @@
+Description
+
+import external table fails if table is already existing
+scenario :
+=======
+1. create a table and insert the data into the table, &amp;amp; then export the data to hdfs dir
+create table importtest(id Int, name String);
+insert into table tmporttest(5, 'hive');
+export table importtest to '/user/user5';
+2. create a new table importest5 with same schema.
+create table importtest5(id Int, name String);
+3. import the data into this new table
+import external table importtest5 from '/user/user5';
+ER: data should be imported successfully
+AR: getting following error:
+Error: Error while compiling statement: FAILED: SemanticException Error 10120: The existing table is not compatible with the import spec. External table cannot overwrite existing table. Drop existing table first. (state=42000,code=10120)
+Note:
+1. importtest5 table is empty
+2. use the same schema in both the table
+
+

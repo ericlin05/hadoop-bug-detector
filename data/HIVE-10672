@@ -1,0 +1,358 @@
+Description
+
+Found by Deepesh Khandelwal.
+Running analyze command on a table created using the following DDL:
+
+create external table all100kjson(
+            s string,
+            i int,
+            d double,
+            m map&amp;lt;string, string&amp;gt;,
+            bb array&amp;lt;struct&amp;lt;a: int, b: string&amp;gt;&amp;gt;)
+            row format serde 'org.apache.hive.hcatalog.data.JsonSerDe'
+            STORED AS TEXTFILE 
+            location '/user/hcat/tests/data/all100kjson';
+
+
+analyze command
+
+analyze table all100kjson compute statistics;
+
+
+throws the following error:
+
+Vertex failed, vertexName=Map 1, vertexId=vertex_1431071702167_0006_1_00, diagnostics=[Task failed, taskId=task_1431071702167_0006_1_00_000000, diagnostics=[TaskAttempt 0 failed, info=[Error: Failure while running task:java.lang.RuntimeException: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:331)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:179)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:171)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:171)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:167)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:229)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:147)
+	... 14 more
+Caused by: java.lang.NoClassDefFoundError: org/apache/hadoop/hive/metastore/IMetaStoreClient
+	at org.apache.hive.hcatalog.data.schema.HCatFieldSchema.&amp;lt;init&amp;gt;(HCatFieldSchema.java:225)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatFieldSchema(HCatSchemaUtils.java:122)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.constructHCatSchema(HCatSchemaUtils.java:154)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatSchema(HCatSchemaUtils.java:165)
+	at org.apache.hive.hcatalog.data.JsonSerDe.initialize(JsonSerDe.java:141)
+	at org.apache.hadoop.hive.serde2.SerDeUtils.initializeSerDe(SerDeUtils.java:527)
+	at org.apache.hadoop.hive.ql.plan.PartitionDesc.getDeserializer(PartitionDesc.java:143)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.getConvertedOI(MapOperator.java:302)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.setChildren(MapOperator.java:338)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:191)
+	... 15 more
+Caused by: java.lang.ClassNotFoundException: org.apache.hadoop.hive.metastore.IMetaStoreClient
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+	... 25 more
+], TaskAttempt 1 failed, info=[Error: Failure while running task:java.lang.RuntimeException: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:331)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:179)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:171)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:171)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:167)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:229)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:147)
+	... 14 more
+Caused by: java.lang.NoClassDefFoundError: org/apache/hadoop/hive/metastore/IMetaStoreClient
+	at org.apache.hive.hcatalog.data.schema.HCatFieldSchema.&amp;lt;init&amp;gt;(HCatFieldSchema.java:225)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatFieldSchema(HCatSchemaUtils.java:122)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.constructHCatSchema(HCatSchemaUtils.java:154)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatSchema(HCatSchemaUtils.java:165)
+	at org.apache.hive.hcatalog.data.JsonSerDe.initialize(JsonSerDe.java:141)
+	at org.apache.hadoop.hive.serde2.SerDeUtils.initializeSerDe(SerDeUtils.java:527)
+	at org.apache.hadoop.hive.ql.plan.PartitionDesc.getDeserializer(PartitionDesc.java:143)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.getConvertedOI(MapOperator.java:302)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.setChildren(MapOperator.java:338)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:191)
+	... 15 more
+Caused by: java.lang.ClassNotFoundException: org.apache.hadoop.hive.metastore.IMetaStoreClient
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+	... 25 more
+], TaskAttempt 2 failed, info=[Error: Failure while running task:java.lang.RuntimeException: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:331)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:179)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:171)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:171)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:167)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:229)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:147)
+	... 14 more
+Caused by: java.lang.NoClassDefFoundError: org/apache/hadoop/hive/metastore/IMetaStoreClient
+	at org.apache.hive.hcatalog.data.schema.HCatFieldSchema.&amp;lt;init&amp;gt;(HCatFieldSchema.java:225)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatFieldSchema(HCatSchemaUtils.java:122)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.constructHCatSchema(HCatSchemaUtils.java:154)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatSchema(HCatSchemaUtils.java:165)
+	at org.apache.hive.hcatalog.data.JsonSerDe.initialize(JsonSerDe.java:141)
+	at org.apache.hadoop.hive.serde2.SerDeUtils.initializeSerDe(SerDeUtils.java:527)
+	at org.apache.hadoop.hive.ql.plan.PartitionDesc.getDeserializer(PartitionDesc.java:143)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.getConvertedOI(MapOperator.java:302)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.setChildren(MapOperator.java:338)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:191)
+	... 15 more
+Caused by: java.lang.ClassNotFoundException: org.apache.hadoop.hive.metastore.IMetaStoreClient
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+	... 25 more
+], TaskAttempt 3 failed, info=[Error: Failure while running task:java.lang.RuntimeException: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:331)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:179)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:171)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:171)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:167)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:229)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:147)
+	... 14 more
+Caused by: java.lang.NoClassDefFoundError: org/apache/hadoop/hive/metastore/IMetaStoreClient
+	at org.apache.hive.hcatalog.data.schema.HCatFieldSchema.&amp;lt;init&amp;gt;(HCatFieldSchema.java:225)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatFieldSchema(HCatSchemaUtils.java:122)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.constructHCatSchema(HCatSchemaUtils.java:154)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatSchema(HCatSchemaUtils.java:165)
+	at org.apache.hive.hcatalog.data.JsonSerDe.initialize(JsonSerDe.java:141)
+	at org.apache.hadoop.hive.serde2.SerDeUtils.initializeSerDe(SerDeUtils.java:527)
+	at org.apache.hadoop.hive.ql.plan.PartitionDesc.getDeserializer(PartitionDesc.java:143)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.getConvertedOI(MapOperator.java:302)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.setChildren(MapOperator.java:338)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:191)
+	... 15 more
+Caused by: java.lang.ClassNotFoundException: org.apache.hadoop.hive.metastore.IMetaStoreClient
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+	... 25 more
+]], Vertex did not succeed due to OWN_TASK_FAILURE, failedTasks:1 killedTasks:2, Vertex vertex_1431071702167_0006_1_00 [Map 1] killed/failed due to:null]
+DAG did not succeed due to VERTEX_FAILURE. failedVertices:1 killedVertices:0
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.tez.TezTask. Vertex failed, vertexName=Map 1, vertexId=vertex_1431071702167_0006_1_00, diagnostics=[Task failed, taskId=task_1431071702167_0006_1_00_000000, diagnostics=[TaskAttempt 0 failed, info=[Error: Failure while running task:java.lang.RuntimeException: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:331)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:179)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:171)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:171)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:167)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:229)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:147)
+	... 14 more
+Caused by: java.lang.NoClassDefFoundError: org/apache/hadoop/hive/metastore/IMetaStoreClient
+	at org.apache.hive.hcatalog.data.schema.HCatFieldSchema.&amp;lt;init&amp;gt;(HCatFieldSchema.java:225)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatFieldSchema(HCatSchemaUtils.java:122)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.constructHCatSchema(HCatSchemaUtils.java:154)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatSchema(HCatSchemaUtils.java:165)
+	at org.apache.hive.hcatalog.data.JsonSerDe.initialize(JsonSerDe.java:141)
+	at org.apache.hadoop.hive.serde2.SerDeUtils.initializeSerDe(SerDeUtils.java:527)
+	at org.apache.hadoop.hive.ql.plan.PartitionDesc.getDeserializer(PartitionDesc.java:143)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.getConvertedOI(MapOperator.java:302)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.setChildren(MapOperator.java:338)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:191)
+	... 15 more
+Caused by: java.lang.ClassNotFoundException: org.apache.hadoop.hive.metastore.IMetaStoreClient
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+	... 25 more
+], TaskAttempt 1 failed, info=[Error: Failure while running task:java.lang.RuntimeException: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:331)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:179)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:171)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:171)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:167)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:229)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:147)
+	... 14 more
+Caused by: java.lang.NoClassDefFoundError: org/apache/hadoop/hive/metastore/IMetaStoreClient
+	at org.apache.hive.hcatalog.data.schema.HCatFieldSchema.&amp;lt;init&amp;gt;(HCatFieldSchema.java:225)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatFieldSchema(HCatSchemaUtils.java:122)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.constructHCatSchema(HCatSchemaUtils.java:154)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatSchema(HCatSchemaUtils.java:165)
+	at org.apache.hive.hcatalog.data.JsonSerDe.initialize(JsonSerDe.java:141)
+	at org.apache.hadoop.hive.serde2.SerDeUtils.initializeSerDe(SerDeUtils.java:527)
+	at org.apache.hadoop.hive.ql.plan.PartitionDesc.getDeserializer(PartitionDesc.java:143)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.getConvertedOI(MapOperator.java:302)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.setChildren(MapOperator.java:338)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:191)
+	... 15 more
+Caused by: java.lang.ClassNotFoundException: org.apache.hadoop.hive.metastore.IMetaStoreClient
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+	... 25 more
+], TaskAttempt 2 failed, info=[Error: Failure while running task:java.lang.RuntimeException: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:331)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:179)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:171)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:171)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:167)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:229)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:147)
+	... 14 more
+Caused by: java.lang.NoClassDefFoundError: org/apache/hadoop/hive/metastore/IMetaStoreClient
+	at org.apache.hive.hcatalog.data.schema.HCatFieldSchema.&amp;lt;init&amp;gt;(HCatFieldSchema.java:225)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatFieldSchema(HCatSchemaUtils.java:122)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.constructHCatSchema(HCatSchemaUtils.java:154)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatSchema(HCatSchemaUtils.java:165)
+	at org.apache.hive.hcatalog.data.JsonSerDe.initialize(JsonSerDe.java:141)
+	at org.apache.hadoop.hive.serde2.SerDeUtils.initializeSerDe(SerDeUtils.java:527)
+	at org.apache.hadoop.hive.ql.plan.PartitionDesc.getDeserializer(PartitionDesc.java:143)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.getConvertedOI(MapOperator.java:302)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.setChildren(MapOperator.java:338)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:191)
+	... 15 more
+Caused by: java.lang.ClassNotFoundException: org.apache.hadoop.hive.metastore.IMetaStoreClient
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+	... 25 more
+], TaskAttempt 3 failed, info=[Error: Failure while running task:java.lang.RuntimeException: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:331)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:179)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:171)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:171)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:167)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:229)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:147)
+	... 14 more
+Caused by: java.lang.NoClassDefFoundError: org/apache/hadoop/hive/metastore/IMetaStoreClient
+	at org.apache.hive.hcatalog.data.schema.HCatFieldSchema.&amp;lt;init&amp;gt;(HCatFieldSchema.java:225)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatFieldSchema(HCatSchemaUtils.java:122)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.constructHCatSchema(HCatSchemaUtils.java:154)
+	at org.apache.hive.hcatalog.data.schema.HCatSchemaUtils.getHCatSchema(HCatSchemaUtils.java:165)
+	at org.apache.hive.hcatalog.data.JsonSerDe.initialize(JsonSerDe.java:141)
+	at org.apache.hadoop.hive.serde2.SerDeUtils.initializeSerDe(SerDeUtils.java:527)
+	at org.apache.hadoop.hive.ql.plan.PartitionDesc.getDeserializer(PartitionDesc.java:143)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.getConvertedOI(MapOperator.java:302)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.setChildren(MapOperator.java:338)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:191)
+	... 15 more
+Caused by: java.lang.ClassNotFoundException: org.apache.hadoop.hive.metastore.IMetaStoreClient
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+	... 25 more
+]], Vertex did not succeed due to OWN_TASK_FAILURE, failedTasks:1 killedTasks:2, Vertex vertex_1431071702167_0006_1_00 [Map 1] killed/failed due to:null]DAG did not succeed due to VERTEX_FAILURE. failedVertices:1 killedVertices:0
+
+
+
+

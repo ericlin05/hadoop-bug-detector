@@ -1,0 +1,6 @@
+Description
+
+Column statistics in ORC are optional protobuf fields. Old ORC files might not have statistics for newly added types like decimal, date, timestamp etc. But column statistics merging assumes column statistics exists for these types and invokes merge. For example, merging of TimestampColumnStatistics directly casts the received ColumnStatistics object without doing instanceof check. If the ORC file contains time stamp column statistics then this will work else it will throw ClassCastException.
+Also, the file merge operator swallows the exception.
+
+

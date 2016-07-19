@@ -1,0 +1,21 @@
+Description
+
+
+
+ create temporary table cd_parquet stored as parquet as select * from customer_demographics;
+
+select count(1) from cd_parquet where cd_gender = 'F';
+
+
+
+
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.io.parquet.read.ParquetRecordReaderWrapper.next(ParquetRecordReaderWrapper.java:206)
+	at org.apache.hadoop.hive.ql.io.parquet.VectorizedParquetInputFormat$VectorizedParquetRecordReader.next(VectorizedParquetInputFormat.java:118)
+	at org.apache.hadoop.hive.ql.io.parquet.VectorizedParquetInputFormat$VectorizedParquetRecordReader.next(VectorizedParquetInputFormat.java:51)
+	at org.apache.hadoop.hive.ql.io.HiveContextAwareRecordReader.doNext(HiveContextAwareRecordReader.java:350)
+	... 17 more
+
+
+
+

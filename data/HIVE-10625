@@ -1,0 +1,12 @@
+Description
+
+Hive internally rewrites this 'select &amp;lt;expression&amp;gt;' query into 'select &amp;lt;expression&amp;gt; from _dummy_database._dummy_table', where these dummy db and table are temp entities for the current query.
+The SQL Standard Authorization  need to handle these special objects.
+Typing "select reverse("123");" in beeline,will get this error :
+
+
+Error: Error while compiling statement: FAILED: HiveAuthzPluginException Error getting object from metastore for Object [type=TABLE_OR_VIEW, name=_dummy_database._dummy_table] (state=42000,code=40000)
+
+
+
+

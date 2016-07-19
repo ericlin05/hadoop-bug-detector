@@ -1,0 +1,49 @@
+Description
+
+
+
+16/01/24 21:29:02 INFO service.AbstractService: Service LlapDaemon failed in state INITED; cause: java.lang.RuntimeException: Unable to instantiate org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient
+java.lang.RuntimeException: Unable to instantiate org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient
+	at org.apache.hadoop.hive.metastore.MetaStoreUtils.newInstance(MetaStoreUtils.java:1552)
+	at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.&amp;lt;init&amp;gt;(RetryingMetaStoreClient.java:86)
+	at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.getProxy(RetryingMetaStoreClient.java:132)
+	at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.getProxy(RetryingMetaStoreClient.java:104)
+	at org.apache.hadoop.hive.ql.metadata.Hive.createMetaStoreClient(Hive.java:3110)
+	at org.apache.hadoop.hive.ql.metadata.Hive.getMSC(Hive.java:3130)
+	at org.apache.hadoop.hive.ql.metadata.Hive.getAllFunctions(Hive.java:3355)
+	at org.apache.hadoop.hive.llap.daemon.impl.FunctionLocalizer.startLocalizeAllFunctions(FunctionLocalizer.java:88)
+	at org.apache.hadoop.hive.llap.daemon.impl.LlapDaemon.serviceInit(LlapDaemon.java:244)
+	at org.apache.hadoop.service.AbstractService.init(AbstractService.java:163)
+	at org.apache.hadoop.hive.llap.daemon.impl.LlapDaemon.main(LlapDaemon.java:323)
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:422)
+	at org.apache.hadoop.hive.metastore.MetaStoreUtils.newInstance(MetaStoreUtils.java:1550)
+	... 10 more
+Caused by: java.lang.NoClassDefFoundError: org/datanucleus/NucleusContext
+	at java.lang.Class.forName0(Native Method)
+	at java.lang.Class.forName(Class.java:348)
+	at org.apache.hadoop.hive.metastore.MetaStoreUtils.getClass(MetaStoreUtils.java:1517)
+	at org.apache.hadoop.hive.metastore.RawStoreProxy.getProxy(RawStoreProxy.java:61)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.newRawStore(HiveMetaStore.java:568)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.getMS(HiveMetaStore.java:533)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.createDefaultDB(HiveMetaStore.java:595)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.init(HiveMetaStore.java:387)
+	at org.apache.hadoop.hive.metastore.RetryingHMSHandler.&amp;lt;init&amp;gt;(RetryingHMSHandler.java:78)
+	at org.apache.hadoop.hive.metastore.RetryingHMSHandler.getProxy(RetryingHMSHandler.java:84)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore.newRetryingHMSHandler(HiveMetaStore.java:5935)
+	at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.&amp;lt;init&amp;gt;(HiveMetaStoreClient.java:221)
+	at org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient.&amp;lt;init&amp;gt;(SessionHiveMetaStoreClient.java:67)
+	... 15 more
+Caused by: java.lang.ClassNotFoundException: org.datanucleus.NucleusContext
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:381)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:424)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:331)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:357)
+
+
+Looks like the DataNucleus jar is not added to the LLAP classpath. This appears to be caused by HIVE-12853
+
+

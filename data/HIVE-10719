@@ -1,0 +1,19 @@
+Description
+
+
+
+create database newDB location "/tmp/";
+describe database extended newDB;
+use newDB;
+create table tab (name string);
+alter table tab rename to newName;
+
+
+Fails:
+
+
+InvalidOperationException(message:Unable to access old location hdfs://localhost:8020/tmp/tab for table x.tab)
+
+
+
+

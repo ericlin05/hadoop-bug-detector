@@ -1,0 +1,76 @@
+Description
+
+Getting the below exception using, ORC table format, the table has 250 files with one file size 14gb and rest 11mb, 
+table properties, TBLPROPERTIES (
+  'COLUMN_STATS_ACCURATE'='false',
+  'numFiles'='250',
+  'numRows'='-1',
+  'orc.compress'='SNAPPY',
+  'orc.compress.size'='262144',
+  'orc.create.index'='true',
+  'orc.row.index.stride'='10000',
+  'orc.stripe.size'='67108864',
+  'rawDataSize'='-1',
+  'totalSize'='16950715052',
+  'transient_lastDdlTime'='1436932029')
+Even a select * limit 1; on the table gives this exception, when I delete the 14gb file, the issues are gone, 
+Stack Trace,
+2015-07-15 21:28:29,435 ERROR [main]: CliDriver (SessionState.java:printError(979)) - Failed with exception java.io.IOException:com.google.protobuf.InvalidProtocolBufferException: Protocol message was too large.  May be malicious.  Use CodedInputStream.setSizeLimit() to increase the size limit.
+java.io.IOException: com.google.protobuf.InvalidProtocolBufferException: Protocol message was too large.  May be malicious.  Use CodedInputStream.setSizeLimit() to increase the size limit.
+        at org.apache.hadoop.hive.ql.exec.FetchOperator.getNextRow(FetchOperator.java:507)
+        at org.apache.hadoop.hive.ql.exec.FetchOperator.pushRow(FetchOperator.java:414)
+        at org.apache.hadoop.hive.ql.exec.FetchTask.fetch(FetchTask.java:140)
+        at org.apache.hadoop.hive.ql.Driver.getResults(Driver.java:1674)
+        at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:233)
+        at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:165)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:376)
+        at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:736)
+        at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:681)
+        at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:621)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+Caused by: com.google.protobuf.InvalidProtocolBufferException: Protocol message was too large.  May be malicious.  Use CodedInputStream.setSizeLimit() to increase the size limit.
+        at com.google.protobuf.InvalidProtocolBufferException.sizeLimitExceeded(InvalidProtocolBufferException.java:110)
+        at com.google.protobuf.CodedInputStream.refillBuffer(CodedInputStream.java:755)
+        at com.google.protobuf.CodedInputStream.readRawByte(CodedInputStream.java:769)
+        at com.google.protobuf.CodedInputStream.readRawLittleEndian64(CodedInputStream.java:493)
+        at com.google.protobuf.CodedInputStream.readDouble(CodedInputStream.java:178)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$DoubleStatistics.&amp;lt;init&amp;gt;(OrcProto.java:755)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$DoubleStatistics.&amp;lt;init&amp;gt;(OrcProto.java:705)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$DoubleStatistics$1.parsePartialFrom(OrcProto.java:798)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$DoubleStatistics$1.parsePartialFrom(OrcProto.java:793)
+        at com.google.protobuf.CodedInputStream.readMessage(CodedInputStream.java:309)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$ColumnStatistics.&amp;lt;init&amp;gt;(OrcProto.java:4884)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$ColumnStatistics.&amp;lt;init&amp;gt;(OrcProto.java:4813)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$ColumnStatistics$1.parsePartialFrom(OrcProto.java:5005)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$ColumnStatistics$1.parsePartialFrom(OrcProto.java:5000)
+        at com.google.protobuf.CodedInputStream.readMessage(CodedInputStream.java:309)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$StripeStatistics.&amp;lt;init&amp;gt;(OrcProto.java:14334)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$StripeStatistics.&amp;lt;init&amp;gt;(OrcProto.java:14281)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$StripeStatistics$1.parsePartialFrom(OrcProto.java:14370)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$StripeStatistics$1.parsePartialFrom(OrcProto.java:14365)
+        at com.google.protobuf.CodedInputStream.readMessage(CodedInputStream.java:309)
+ at org.apache.hadoop.hive.ql.io.orc.OrcProto$Metadata.&amp;lt;init&amp;gt;(OrcProto.java:15008)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$Metadata.&amp;lt;init&amp;gt;(OrcProto.java:14955)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$Metadata$1.parsePartialFrom(OrcProto.java:15044)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$Metadata$1.parsePartialFrom(OrcProto.java:15039)
+        at com.google.protobuf.AbstractParser.parsePartialFrom(AbstractParser.java:200)
+        at com.google.protobuf.AbstractParser.parseFrom(AbstractParser.java:217)
+        at com.google.protobuf.AbstractParser.parseFrom(AbstractParser.java:223)
+        at com.google.protobuf.AbstractParser.parseFrom(AbstractParser.java:49)
+        at org.apache.hadoop.hive.ql.io.orc.OrcProto$Metadata.parseFrom(OrcProto.java:15155)
+        at org.apache.hadoop.hive.ql.io.orc.ReaderImpl$MetaInfoObjExtractor.&amp;lt;init&amp;gt;(ReaderImpl.java:471)
+        at org.apache.hadoop.hive.ql.io.orc.ReaderImpl.&amp;lt;init&amp;gt;(ReaderImpl.java:317)
+        at org.apache.hadoop.hive.ql.io.orc.OrcFile.createReader(OrcFile.java:237)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getReader(OrcInputFormat.java:1220)
+        at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getRecordReader(OrcInputFormat.java:1129)
+        at org.apache.hadoop.hive.ql.exec.FetchOperator$FetchInputFormatSplit.getRecordReader(FetchOperator.java:673)
+        at org.apache.hadoop.hive.ql.exec.FetchOperator.getRecordReader(FetchOperator.java:323)
+        at org.apache.hadoop.hive.ql.exec.FetchOperator.getNextRow(FetchOperator.java:445)
+        ... 15 more
+
+

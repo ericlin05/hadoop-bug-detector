@@ -1,0 +1,33 @@
+Description
+
+Line numbers are shifted due to logging; the NPE is at 
+
+        hashMapRowGetters = new ReusableGetAdaptor[mapJoinTables.length];
+
+
+So looks like mapJoinTables is null.
+I added logging to see if they could be set to null from cache, but that doesn't seem to be the case.
+Looks like initializeOp is not called. 
+
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Unexpected exception from MapJoinOperator : null
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.process(MapJoinOperator.java:428)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:872)
+	at org.apache.hadoop.hive.ql.exec.SelectOperator.process(SelectOperator.java:87)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:872)
+	at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.internalForward(CommonJoinOperator.java:643)
+	at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.genUniqueJoinObject(CommonJoinOperator.java:656)
+	at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.genUniqueJoinObject(CommonJoinOperator.java:659)
+	at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.checkAndGenObject(CommonJoinOperator.java:755)
+	at org.apache.hadoop.hive.ql.exec.CommonMergeJoinOperator.joinObject(CommonMergeJoinOperator.java:315)
+	at org.apache.hadoop.hive.ql.exec.CommonMergeJoinOperator.joinOneGroup(CommonMergeJoinOperator.java:278)
+	at org.apache.hadoop.hive.ql.exec.CommonMergeJoinOperator.joinOneGroup(CommonMergeJoinOperator.java:271)
+	at org.apache.hadoop.hive.ql.exec.CommonMergeJoinOperator.process(CommonMergeJoinOperator.java:257)
+	at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordSource$GroupIterator.next(ReduceRecordSource.java:361)
+	... 17 more
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.process(MapJoinOperator.java:339)
+	... 29 more
+
+
+
+

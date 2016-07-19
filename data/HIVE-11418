@@ -1,0 +1,16 @@
+Description
+
+Here's the query that fails:
+
+hive&amp;gt; CREATE DATABASE db;
+hive&amp;gt; USE db;
+hive&amp;gt; CREATE TABLE a(id int);
+hive&amp;gt; SET fs.trash.interval=1;
+hive&amp;gt; DROP DATABASE db CASCADE;
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. MetaException(message:Unable to drop db.a because it is in an encryption zone and trash
+ is enabled.  Use PURGE option to skip trash.)
+
+
+DROP DATABASE does not support PURGE, so we have to remove the tables one by one, and then drop the database.
+
+

@@ -1,0 +1,60 @@
+Description
+
+HivePreparedStatement.setTimestamp(int parameterIndex, Timestamp x) does not quote the Timestamp value when generating the HQL statement, resulting in a HiveSqlException on execution.
+Reproducing
+If we add the following unit test to itests/hive-unit/src/test/java/org/apache/hive/jdbc/TestJdbcDriver2.java:
+
+
+  @Test
+  public void testPrepareSetTimestamp() throws SQLException, ParseException {
+    String sql = String.format("SELECT * FROM %s WHERE c20 = ?", dataTypeTableName);
+    try (PreparedStatement ps = con.prepareStatement(sql)) {
+      Timestamp timestamp = new Timestamp(new SimpleDateFormat("yyyy-MM-dd").parse("2013-01-01").getTime());
+      ps.setTimestamp(1, timestamp);
+      try (ResultSet resultSet = ps.executeQuery()) {
+        assertTrue(resultSet.next());
+        assertEquals("2013-01-01", resultSet.getString(20));
+      }
+    }
+  }
+
+
+The test fails:
+
+org.apache.hive.service.cli.HiveSQLException: Error while compiling statement: FAILED: ParseException line 1:55 cannot recognize input near '00' ':' '00' in expression specification
+  at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:205)
+  at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:166)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:401)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:310)
+	at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1150)
+	at org.apache.hadoop.hive.ql.Driver.compileAndRespond(Driver.java:1136)
+	at org.apache.hive.service.cli.operation.SQLOperation.prepare(SQLOperation.java:109)
+	at org.apache.hive.service.cli.operation.SQLOperation.runInternal(SQLOperation.java:180)
+	at org.apache.hive.service.cli.operation.Operation.run(Operation.java:257)
+	at org.apache.hive.service.cli.session.HiveSessionImpl.executeStatementInternal(HiveSessionImpl.java:405)
+	at org.apache.hive.service.cli.session.HiveSessionImpl.executeStatementAsync(HiveSessionImpl.java:392)
+	at org.apache.hive.service.cli.CLIService.executeStatementAsync(CLIService.java:261)
+	at org.apache.hive.service.cli.thrift.ThriftCLIService.ExecuteStatement(ThriftCLIService.java:509)
+	at sun.reflect.GeneratedMethodAccessor15.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hive.jdbc.HiveConnection$SynchronizedHandler.invoke(HiveConnection.java:1400)
+	at com.sun.proxy.$Proxy32.ExecuteStatement(Unknown Source)
+	at org.apache.hive.jdbc.HiveStatement.execute(HiveStatement.java:246)
+	at org.apache.hive.jdbc.HiveStatement.executeQuery(HiveStatement.java:378)
+	at org.apache.hive.jdbc.HivePreparedStatement.executeQuery(HivePreparedStatement.java:109)
+	at org.apache.hive.jdbc.TestJdbcDriver2.testPrepareSetTimestamp(TestJdbcDriver2.java:2395)
+
+
+The failure is because the following HQL is generated/executed by calling toString() on the Timestamp value:
+
+SELECT * FROM testdatatypetable WHERE c20 = 2013-01-01 00:00:00.0
+
+
+We should be quoting the value of Timestamp.toString(), so that the following HQL is generated/executed:
+
+SELECT * FROM testdatatypetable WHERE c20 = '2013-01-01 00:00:00.0'
+
+
+
+

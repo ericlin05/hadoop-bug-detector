@@ -1,0 +1,12 @@
+Description
+
+Support a MINUS operation  as &amp;lt;qb1&amp;gt; MINUS &amp;lt;qb2&amp;gt; .
+Common requirement of queries to project two sets where you want result set which contains only unique rows returned by the first query but not by the second.
+The following sample statement combines results with the MINUS operator, which returns only unique rows returned by the first query but not by the second:
+SELECT * FROM tableA
+MINUS
+SELECT * FROM tableB;
+current exception:
+FAILED: ParseException line :* missing EOF at 'SELECT' near 'MINUS'
+
+

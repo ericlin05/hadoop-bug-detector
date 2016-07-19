@@ -1,0 +1,70 @@
+Description
+
+Internal app ID application_1429683757595_0912, LLAP application_1429683757595_0911. If someone without access wants to investigate I'll get the logs.
+I've ran into this only once. Feel free to close as not repro, I'll reopen if I see again  I want to make sure some debug info is preserved just in case.
+Running Q1 - Map 1 w/1000 tasks (in this particular case), followed by Reducer 2 and Reducer 3, 1 task each, IIRC 3 is uber.
+Fetch failed with I'd assume some random disturbance in the force:
+
+2015-05-12 13:37:31,056 [fetcher [Map_1] #17()] WARN org.apache.tez.runtime.library.common.shuffle.orderedgrouped.FetcherOrderedGrouped: Failed to verify reply after connecting to cn047-10.l42scl.hortonworks.com:15551 with 1 inputs pending
+java.net.SocketTimeoutException: Read timed out
+       at java.net.SocketInputStream.$$YJP$$socketRead0(Native Method)
+       at java.net.SocketInputStream.socketRead0(SocketInputStream.java)
+       at java.net.SocketInputStream.read(SocketInputStream.java:150)
+       at java.net.SocketInputStream.read(SocketInputStream.java:121)
+       at java.io.BufferedInputStream.fill(BufferedInputStream.java:246)
+       at java.io.BufferedInputStream.read1(BufferedInputStream.java:286)
+       at java.io.BufferedInputStream.read(BufferedInputStream.java:345)
+       at sun.net.www.http.HttpClient.parseHTTPHeader(HttpClient.java:703)
+       at sun.net.www.http.HttpClient.parseHTTP(HttpClient.java:647)
+       at sun.net.www.http.HttpClient.parseHTTPHeader(HttpClient.java:787)
+       at sun.net.www.http.HttpClient.parseHTTP(HttpClient.java:647)
+       at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1534)
+       at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1439)
+       at org.apache.tez.runtime.library.common.shuffle.HttpConnection.getInputStream(HttpConnection.java:256)
+       at org.apache.tez.runtime.library.common.shuffle.orderedgrouped.FetcherOrderedGrouped.setupConnection(FetcherOrderedGrouped.java:339)
+       at org.apache.tez.runtime.library.common.shuffle.orderedgrouped.FetcherOrderedGrouped.copyFromHost(FetcherOrderedGrouped.java:257)
+       at org.apache.tez.runtime.library.common.shuffle.orderedgrouped.FetcherOrderedGrouped.fetchNext(FetcherOrderedGrouped.java:167)
+       at org.apache.tez.runtime.library.common.shuffle.orderedgrouped.FetcherOrderedGrouped.run(FetcherOrderedGrouped.java:182)
+
+
+AM registered this as Map 1 task failure
+
+2015-05-12 13:37:31,156 INFO [Dispatcher thread: Central] impl.TaskAttemptImpl: attempt_1429683757595_0912_1_00_000998_0 blamed for read error from attempt_1429683757595_0912_1_01_000000_0 at inputIndex 998
+...
+2015-05-12 13:37:31,174 INFO [Dispatcher thread: Central] impl.TaskImpl: Scheduling new attempt for task: task_1429683757595_0912_1_00_000998, currentFailedAttempts: 1, maxFailedAttempts: 4
+
+
+Eventually Map 1 completed
+
+2015-05-12 13:38:25,247 INFO [Dispatcher thread: Central] history.HistoryEventHandler: [HISTORY][DAG:dag_1429683757595_0912_1][Event:VERTEX_FINISHED]: vertexName=Map 1, vertexId=vertex_1429683757595_0912_1_00, initRequestedTime=1431462752913, initedTime=1431462754818, startRequestedTime=1431462754819, startedTime=1431462754819, finishTime=1431463105101, timeTaken=350282, status=SUCCEEDED, diagnostics=, counters=Counters: 29, org.apache.tez.common.counters.DAGCounter, DATA_LOCAL_TASKS=59, RACK_LOCAL_TASKS=941, File System Counters, FILE_BYTES_READ=2160704, FILE_BYTES_WRITTEN=20377550, FILE_READ_OPS=0, FILE_LARGE_READ_OPS=0, FILE_WRITE_OPS=0, HDFS_BYTES_READ=9798097828287, HDFS_BYTES_WRITTEN=0, HDFS_READ_OPS=406131, HDFS_LARGE_READ_OPS=0, HDFS_WRITE_OPS=0, org.apache.tez.common.counters.TaskCounter, SPILLED_RECORDS=4000, GC_TIME_MILLIS=73309, CPU_MILLISECONDS=0, PHYSICAL_MEMORY_BYTES=-1000, VIRTUAL_MEMORY_BYTES=-1000, COMMITTED_HEAP_BYTES=25769803776000, INPUT_RECORDS_PROCESSED=5861038, OUTPUT_RECORDS=4000, OUTPUT_BYTES=376000, OUTPUT_BYTES_WITH_OVERHEAD=0, OUTPUT_BYTES_PHYSICAL=0, ADDITIONAL_SPILLS_BYTES_WRITTEN=0, ADDITIONAL_SPILLS_BYTES_READ=0, ADDITIONAL_SPILL_COUNT=0, HIVE, DESERIALIZE_ERRORS=0, RECORDS_IN_Map_1=5999989709, RECORDS_OUT_INTERMEDIATE_Map_1=4000, vertexStats=firstTaskStartTime=1431462757804, firstTasksToStart=[ task_1429683757595_0912_1_00_000000 ], lastTaskFinishTime=1431463105085, lastTasksToFinish=[ task_1429683757595_0912_1_00_000999 ], minTaskDuration=1743, maxTaskDuration=236653, avgTaskDuration=6377.334000000002, numSuccessfulTasks=1000, shortestDurationTasks=[ task_1429683757595_0912_1_00_000472 ], longestDurationTasks=[ task_1429683757595_0912_1_00_000999 ], vertexTaskStats={numFailedTaskAttempts=1, numKilledTaskAttempts=0, numCompletedTasks=1000, numSucceededTasks=1000, numKilledTasks=0, numFailedTasks=0}
+
+
+Then AM logged this (not sure if it's relevant)
+
+2015-05-12 13:38:25,249 INFO [Dispatcher thread: Central] container.AMContainerImpl: AMContainer container_222212222_
+0912_01_001000 transitioned from RUNNING to IDLE via event C_TA_SUCCEEDED2015-05-12 13:38:25,250 INFO [Dispatcher thread: Central] history.HistoryEventHandler: [HISTORY][DAG:dag_142968375759
+5_0912_1][Event:CONTAINER_STOPPED]: containerId=container_222212222_0912_01_001000, stoppedTime=1431463105250, exitStatus=0
+2015-05-12 13:38:25,250 INFO [Dispatcher thread: Central] container.AMContainerImpl: AMContainer container_222212222_0912_01_001000 transitioned from IDLE to STOP_REQUESTED via event C_STOP_REQUEST
+2015-05-12 13:38:25,253 INFO [Dispatcher thread: Central] impl.VertexImpl: Source task attempt completed for vertex: vertex_1429683757595_0912_1_01 [Reducer 2] attempt: attempt_1429683757595_0912_1_00_000999_0 with state: SUCCEEDED vertexState: RUNNING
+2015-05-12 13:38:25,254 INFO [Dispatcher thread: Central] impl.DAGImpl: Vertex vertex_1429683757595_0912_1_00 [Map 1] completed., numCompletedVertices=1, numSuccessfulVertices=1, numFailedVertices=0, numKilledVertices=0, numVertices=3
+2015-05-12 13:38:25,254 INFO [Dispatcher thread: Central] impl.DAGImpl: Checking vertices for DAG completion, numCompletedVertices=1, numSuccessfulVertices=1, numFailedVertices=0, numKilledVertices=0, numVertices=3, commitInProgress=0, terminationCause=null
+2015-05-12 13:38:25,254 INFO [Dispatcher thread: Central] tezplugins.LlapContainerLauncher: DEBUG: Ignoring STOP_REQUEST for event: EventType: CONTAINER_STOP_REQUEST
+2015-05-12 13:38:25,254 INFO [Dispatcher thread: Central] container.AMContainerImpl: AMContainer container_222212222_0912_01_001000 transitioned from STOP_REQUESTED to STOPPING via event C_NM_STOP_SENT
+2015-05-12 13:38:35,086 INFO [LlapSchedulerNodeEnabler] impl.LlapYarnRegistryImpl: Starting to refresh ServiceInstanceSet 1959961953
+
+
+
+And nothing happened for 4+ minutes until I killed the job.
+Reducer 2 had a running attempt:
+
+2015-05-12 13:34:28,595 INFO [Dispatcher thread: Central] history.HistoryEventHandler: [HISTORY][DAG:dag_1429683757595_0912_1][Event:TASK_ATTEMPT_STARTED]: vertexName=Reducer 2, taskAttemptId=attempt_1429683757595_0912_1_01_000000_0, startTime=1431462868595, containerId=container_222212222_0912_01_001001, nodeId=cn041-10.l42scl.hortonworks.com:15001, inProgressLogs=hostname:0/node/containerlogs/container_222212222_0912_01_001001/sershe, completedLogs=http://cn042-10.l42scl.hortonworks.com:19888/jobhistory/logs/cn041-10.l42scl.hortonworks.com:15001/container_222212222_0912_01_001001/v_Reducer 2_attempt_1429683757595_0912_1_01_000000_0/sershe
+
+
+It looks like it actually completed on LLAP
+
+2015-05-12 13:38:25,608 [TezTaskRunner_attempt_1429683757595_0912_1_01_000000_0(container_222212222_0912_01_001001_sershe_20150512133230_d8191d4e-069c-4f39-a902-3ceee5efba03:1_Reducer 2_0_0)] INFO org.apache.hadoop.hive.ql.log.PerfLogger: &amp;lt;/PERFLOG method=TezRunProcessor start=1431462868796 end=1431463105608 duration=236812 from=org.apache.hadoop.hive.ql.exec.tez.TezProcessor&amp;gt;
+
+
+But AM never received the completion?
+
+

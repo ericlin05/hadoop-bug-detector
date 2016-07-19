@@ -1,0 +1,40 @@
+Description
+
+When trying to see the grants in Hive CLI the following NullPointerException bug occurs (despite "should use beeline", an NPE is still a bug):
+
+
+2015-10-22 16:36:31,535 INFO  [main]: ql.Driver (Driver.java:launchTask(1604)) - Starting task [Stage-0:DDL] in serial mode
+2015-10-22 16:36:31,536 ERROR [main]: exec.DDLTask (DDLTask.java:failed(511)) - org.apache.hadoop.hive.ql.security.authorization.plugin.HiveAuthzPluginException: Error showing privileges: null
+        at org.apache.hadoop.hive.ql.security.authorization.plugin.sqlstd.SQLAuthorizationUtils.getPluginException(SQLAuthorizationUtils.java:419)
+        at org.apache.hadoop.hive.ql.security.authorization.plugin.sqlstd.SQLStdHiveAccessController.showPrivileges(SQLStdHiveAccessController.java:445)
+        at org.apache.hadoop.hive.ql.security.authorization.plugin.sqlstd.SQLStdHiveAccessControllerWrapper.showPrivileges(SQLStdHiveAccessControllerWrapper.java:141)
+        at org.apache.hadoop.hive.ql.security.authorization.plugin.HiveAuthorizerImpl.showPrivileges(HiveAuthorizerImpl.java:96)
+        at org.apache.hadoop.hive.ql.exec.DDLTask.showGrants(DDLTask.java:649)
+        at org.apache.hadoop.hive.ql.exec.DDLTask.execute(DDLTask.java:465)
+        at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+        at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:85)
+        at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1606)
+        at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1367)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1179)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1006)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:996)
+        at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:247)
+        at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:199)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:410)
+        at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:783)
+        at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:677)
+        at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:616)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.security.authorization.plugin.sqlstd.SQLStdHiveAccessController.isUserAdmin(SQLStdHiveAccessController.java:561)
+        at org.apache.hadoop.hive.ql.security.authorization.plugin.sqlstd.SQLStdHiveAccessController.showPrivileges(SQLStdHiveAccessController.java:387)
+        ... 23 more
+
+
+
+

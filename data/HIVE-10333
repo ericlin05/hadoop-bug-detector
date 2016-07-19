@@ -1,0 +1,19 @@
+Description
+
+
+java.lang.NullPointerException 
+at org.apache.hadoop.hive.ql.io.orc.InStream.findCompressedPosition(InStream.java:793) 
+at org.apache.hadoop.hive.ql.io.orc.InStream.uncompressStream(InStream.java:611) 
+at org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl.readEncodedColumns(EncodedReaderImpl.java:346) 
+at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:290) 
+at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:48) 
+at org.apache.hadoop.hive.common.CallableWithNdc.call(CallableWithNdc.java:37) ... 4 more 
+
+
+Example query 
+
+select * from lineitem where l_orderkey = 1212000001;
+
+
+
+

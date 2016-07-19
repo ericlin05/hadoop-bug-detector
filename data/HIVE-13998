@@ -1,0 +1,52 @@
+Description
+
+When  job CompactorMR is running, we see NPE stack as follows,
+2016-06-12 14:20:34,463 INFO [Thread-51] org.apache.hadoop.mapreduce.v2.app.rm.RMContainerAllocator: Added attempt_1464322345445_83343_m_000003_1 to list of failed maps
+2016-06-12 14:20:34,597 INFO [IPC Server handler 7 on 40704] org.apache.hadoop.mapred.TaskAttemptListenerImpl: Progress of TaskAttempt attempt_1464322345445_83343_m_000002_0 is : 0.0
+2016-06-12 14:20:34,599 FATAL [IPC Server handler 12 on 40704] org.apache.hadoop.mapred.TaskAttemptListenerImpl: Task: attempt_1464322345445_83343_m_000002_0 - exited : java.lang.NullPointerException
+	at java.util.Hashtable.put(Hashtable.java:514)
+	at java.util.Hashtable.putAll(Hashtable.java:587)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR$StringableMap.toProperties(CompactorMR.java:608)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR$CompactorMap.getWriter(CompactorMR.java:541)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR$CompactorMap.map(CompactorMR.java:517)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR$CompactorMap.map(CompactorMR.java:491)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1656)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+2016-06-12 14:20:34,599 INFO [IPC Server handler 12 on 40704] org.apache.hadoop.mapred.TaskAttemptListenerImpl: Diagnostics report from attempt_1464322345445_83343_m_000002_0: Error: java.lang.NullPointerException
+	at java.util.Hashtable.put(Hashtable.java:514)
+	at java.util.Hashtable.putAll(Hashtable.java:587)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR$StringableMap.toProperties(CompactorMR.java:608)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR$CompactorMap.getWriter(CompactorMR.java:541)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR$CompactorMap.map(CompactorMR.java:517)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR$CompactorMap.map(CompactorMR.java:491)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1656)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+2016-06-12 14:20:34,599 INFO [AsyncDispatcher event handler] org.apache.hadoop.mapreduce.v2.app.job.impl.TaskAttemptImpl: Diagnostics report from attempt_1464322345445_83343_m_000002_0: Error: java.lang.NullPointerException
+	at java.util.Hashtable.put(Hashtable.java:514)
+	at java.util.Hashtable.putAll(Hashtable.java:587)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR$StringableMap.toProperties(CompactorMR.java:608)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR$CompactorMap.getWriter(CompactorMR.java:541)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR$CompactorMap.map(CompactorMR.java:517)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR$CompactorMap.map(CompactorMR.java:491)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1656)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+
+

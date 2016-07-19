@@ -1,0 +1,22 @@
+Description
+
+
+
+Exception in thread "main" org.apache.commons.cli.UnrecognizedOptionException:
+ Unrecognized option: --hiveconf
+at
+ org.apache.commons.cli.Parser.processOption(Parser.java:363)
+at
+ org.apache.commons.cli.Parser.parse(Parser.java:199)
+at
+ org.apache.commons.cli.Parser.parse(Parser.java:85)
+at
+ org.apache.hadoop.hive.llap.cli.LlapOptionsProcessor.processOptions(LlapOptionsProcessor.java:137)
+at
+ org.apache.hadoop.hive.llap.cli.LlapServiceDriver.run(LlapServiceDriver.java:92)
+at
+ org.apache.hadoop.hive.llap.cli.LlapServiceDriver.main(LlapServiceDriver.java:58)
+
+
+
+

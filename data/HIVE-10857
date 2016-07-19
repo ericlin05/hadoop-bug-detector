@@ -1,0 +1,64 @@
+Description
+
+create table Accumulo storage with Accumulo storage handler fails due to ACCUMULO-2815.
+
+create table accumulo_1(key string, age int) stored by 'org.apache.hadoop.hive.accumulo.AccumuloStorageHandler' with serdeproperties ( "accumulo.columns.mapping" = ":rowid,info:age");
+
+
+The error shows:
+
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. MetaException(message:org.apache.accumulo.core.client.AccumuloException: java.lang.IllegalArgumentException: Cannot determine SASL mechanism for token class: class org.apache.accumulo.core.client.security.tokens.PasswordToken
+	at org.apache.accumulo.core.client.impl.ServerClient.execute(ServerClient.java:67)
+	at org.apache.accumulo.core.client.impl.ConnectorImpl.&amp;lt;init&amp;gt;(ConnectorImpl.java:67)
+	at org.apache.accumulo.core.client.ZooKeeperInstance.getConnector(ZooKeeperInstance.java:248)
+	at org.apache.hadoop.hive.accumulo.AccumuloConnectionParameters.getConnector(AccumuloConnectionParameters.java:125)
+	at org.apache.hadoop.hive.accumulo.AccumuloConnectionParameters.getConnector(AccumuloConnectionParameters.java:111)
+	at org.apache.hadoop.hive.accumulo.AccumuloStorageHandler.preCreateTable(AccumuloStorageHandler.java:245)
+	at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.createTable(HiveMetaStoreClient.java:664)
+	at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.createTable(HiveMetaStoreClient.java:657)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.invoke(RetryingMetaStoreClient.java:156)
+	at com.sun.proxy.$Proxy5.createTable(Unknown Source)
+	at org.apache.hadoop.hive.ql.metadata.Hive.createTable(Hive.java:714)
+	at org.apache.hadoop.hive.ql.exec.DDLTask.createTable(DDLTask.java:4135)
+	at org.apache.hadoop.hive.ql.exec.DDLTask.execute(DDLTask.java:306)
+	at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:88)
+	at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1650)
+	at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1409)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1192)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1059)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1049)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:213)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:165)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:376)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:311)
+	at org.apache.hadoop.hive.cli.CliDriver.processReader(CliDriver.java:409)
+	at org.apache.hadoop.hive.cli.CliDriver.processFile(CliDriver.java:425)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:714)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:681)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:621)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+Caused by: java.lang.IllegalArgumentException: Cannot determine SASL mechanism for token class: class org.apache.accumulo.core.client.security.tokens.PasswordToken
+	at org.apache.accumulo.core.rpc.SaslConnectionParams.updateFromToken(SaslConnectionParams.java:155)
+	at org.apache.accumulo.core.rpc.SaslConnectionParams.&amp;lt;init&amp;gt;(SaslConnectionParams.java:143)
+	at org.apache.accumulo.core.client.impl.ClientContext.getSaslParams(ClientContext.java:134)
+	at org.apache.accumulo.core.client.impl.ThriftTransportKey.&amp;lt;init&amp;gt;(ThriftTransportKey.java:42)
+	at org.apache.accumulo.core.client.impl.ServerClient.getConnection(ServerClient.java:135)
+	at org.apache.accumulo.core.client.impl.ServerClient.getConnection(ServerClient.java:117)
+	at org.apache.accumulo.core.client.impl.ServerClient.getConnection(ServerClient.java:113)
+	at org.apache.accumulo.core.client.impl.ServerClient.executeRaw(ServerClient.java:95)
+	at org.apache.accumulo.core.client.impl.ServerClient.execute(ServerClient.java:61)
+	... 38 more
+
+
+
+

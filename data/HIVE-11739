@@ -1,0 +1,28 @@
+Description
+
+Below query works on Hive 0.11 while it fails on Hive 1.0. According to the wiki (https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Types#LanguageManualTypes-StringTypes) int should be implicitly converted to string, but somehow it is not converted in this case by Hive 1.0 and it fails with FAILED: SemanticException [Error 10014]: Line 1:21 Wrong arguments ''yyyyMMdd'': The function UNIX_TIMESTAMP takes only string/date/timestamp types
+Here is the the query:
+
+
+drop table t;
+create table t (x string) partitioned by (date_column int);
+INSERT INTO TABLE t partition(date_column=20150903) SELECT 'a'  from default.dual;
+
+select * from t;
+select from_unixtime(unix_timestamp(date_column ,'yyyyMMdd'), 'yyyy-MM-dd') AS date_column,
+max_date_column
+from t
+left outer join(
+  SELECT
+     MAX(date_column) AS max_date_column
+    FROM t
+    WHERE date_column &amp;gt; 1
+) U
+ON t.date_column = U.max_date_column
+where date_column &amp;gt; 1;
+drop table t;
+
+
+Any ideas Jason Dere?
+
+

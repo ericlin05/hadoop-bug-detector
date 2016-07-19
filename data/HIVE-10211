@@ -1,0 +1,8 @@
+Description
+
+In jdbc/src/java/org/apache/hive/jdbc/HiveConnection.java, the string returned when there is an exception includes the entire JDBC connection string. This can leak credential information if there is a problem like a network error.
+In our application (Looker) we have to capture every area where an exception can occur and filter out the password. It would be better if the driver took care of this by replacing the password with something like [FILTERED]. 
+Here is an example string:
+Java::JavaSql::SQLException: Could not open connection to jdbc:hive2://localhost:21050/;user=test;password=secret: java.net.ConnectException: Connection refused
+
+

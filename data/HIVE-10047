@@ -1,0 +1,30 @@
+Description
+
+Simple LLAP queries on constrained resources runs into an exception which suggests that the 
+
+
+Caused by: java.lang.ArrayIndexOutOfBoundsException: 1024
+        at org.apache.hadoop.hive.ql.exec.vector.VectorColumnAssignFactory$VectorLongColumnAssign.assignLong(VectorColumnAssignFactory.java:113)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorColumnAssignFactory$9.assignObjectValue(VectorColumnAssignFactory.java:293)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorMapJoinOperator.internalForward(VectorMapJoinOperator.java:196)
+        at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.genUniqueJoinObject(CommonJoinOperator.java:653)
+        at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.genUniqueJoinObject(CommonJoinOperator.java:656)
+        at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.checkAndGenObject(CommonJoinOperator.java:752)
+        at org.apache.hadoop.hive.ql.exec.MapJoinOperator.processOp(MapJoinOperator.java:316)
+        ... 22 more
+
+
+The relevant line is due to the check for a full output-batch being outside of the loop here - looks like it can be triggered during MxN joins where there are more values than there were input rows in the input batch.
+
+
+    for (int i=0; i&amp;lt;values.length; ++i) {
+      vcas[i].assignObjectValue(values[i], outputBatch.size);
+    }
+   ++outputBatch.size;
+    if (outputBatch.size == VectorizedRowBatch.DEFAULT_SIZE) {
+      flushOutput();
+    }
+
+
+
+

@@ -1,0 +1,76 @@
+Description
+
+I am using hive 1.2.1, while doing a analyze statistics command for columns. It was suppose to be fixed in HIVE-8062.
+
+
+hive &amp;gt; analyze table acnt_evnt_tx compute statistics for columns; 
+Query ID = biswajit_20160125133052_20017dcc-ca6b-4a5e-982b-cb22370b493d 
+Total jobs = 1 
+Launching Job 1 out of 1 
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.ColumnStatsTask 
+hive &amp;gt; Exception in thread "Thread-33" java.lang.RuntimeException: java.lang.reflect.UndeclaredThrowableException 
+at org.apache.hadoop.hive.ql.session.SessionState.start(SessionState.java:519) 
+at org.apache.hadoop.hive.ql.exec.TaskRunner.run(TaskRunner.java:74) 
+Caused by: java.lang.reflect.UndeclaredThrowableException 
+at com.sun.proxy.$Proxy20.getFileInfo(Unknown Source) 
+at org.apache.hadoop.hdfs.DFSClient.getFileInfo(DFSClient.java:2116) 
+at org.apache.hadoop.hdfs.DistributedFileSystem$22.doCall(DistributedFileSystem.java:1305) 
+at org.apache.hadoop.hdfs.DistributedFileSystem$22.doCall(DistributedFileSystem.java:1301) 
+at org.apache.hadoop.fs.FileSystemLinkResolver.resolve(FileSystemLinkResolver.java:81) 
+at org.apache.hadoop.hdfs.DistributedFileSystem.getFileStatus(DistributedFileSystem.java:1301) 
+at org.apache.hadoop.fs.FileSystem.exists(FileSystem.java:1424) 
+at org.apache.hadoop.hive.ql.session.SessionState.createRootHDFSDir(SessionState.java:593) 
+at org.apache.hadoop.hive.ql.session.SessionState.createSessionDirs(SessionState.java:551) 
+at org.apache.hadoop.hive.ql.session.SessionState.start(SessionState.java:505) 
+... 1 more 
+Caused by: java.lang.InterruptedException: sleep interrupted 
+at java.lang.Thread.sleep(Native Method) 
+at org.apache.hadoop.io.retry.RetryInvocationHandler.invoke(RetryInvocationHandler.java:151) 
+... 11 more
+
+
+
+If i do a reset of hive.exec.dynamic.partition.mode, which does not changes the mode from strict, the job gets launched and succeeds. 
+
+
+&amp;gt; reset hive.exec.dynamic.partition.mode;
+hive&amp;gt; set hive.exec.dynamic.partition.mode;
+hive.exec.dynamic.partition.mode=strict
+hive&amp;gt; analyze table acnt_evnt_tx compute statistics for columns;
+Query ID = biswajit_20160125145855_fdb6cafd-0786-473f-8598-3501500286e7
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+set hive.exec.reducers.bytes.per.reducer=&amp;lt;number&amp;gt;
+In order to limit the maximum number of reducers:
+set hive.exec.reducers.max=&amp;lt;number&amp;gt;
+In order to set a constant number of reducers:
+set mapreduce.job.reduces=&amp;lt;number&amp;gt;
+Starting Job = job_1452563717759_0970, Tracking URL = http://XXXXX:8088/proxy/application_1452563717759_0970/
+Kill Command = /opt/hadoop/bin/hadoop job -kill job_1452563717759_0970
+Hadoop job information for Stage-0: number of mappers: 6; number of reducers: 1
+2016-01-25 14:59:07,565 Stage-0 map = 0%, reduce = 0%
+2016-01-25 14:59:52,870 Stage-0 map = 17%, reduce = 0%, Cumulative CPU 358.08 sec
+2016-01-25 15:00:22,694 Stage-0 map = 28%, reduce = 0%, Cumulative CPU 575.34 sec
+2016-01-25 15:00:23,741 Stage-0 map = 33%, reduce = 0%, Cumulative CPU 592.11 sec
+2016-01-25 15:00:26,889 Stage-0 map = 44%, reduce = 0%, Cumulative CPU 612.79 sec
+2016-01-25 15:01:20,504 Stage-0 map = 56%, reduce = 0%, Cumulative CPU 947.82 sec
+2016-01-25 15:01:21,550 Stage-0 map = 67%, reduce = 0%, Cumulative CPU 953.65 sec
+2016-01-25 15:01:22,597 Stage-0 map = 78%, reduce = 0%, Cumulative CPU 956.7 sec
+2016-01-25 15:01:24,687 Stage-0 map = 89%, reduce = 0%, Cumulative CPU 966.91 sec
+2016-01-25 15:01:25,732 Stage-0 map = 100%, reduce = 0%, Cumulative CPU 970.39 sec
+2016-01-25 15:01:31,998 Stage-0 map = 100%, reduce = 100%, Cumulative CPU 972.35 sec
+MapReduce Total cumulative CPU time: 16 minutes 12 seconds 350 msec
+Ended Job = job_1452563717759_0970
+MapReduce Jobs Launched: 
+Stage-Stage-0: Map: 6 Reduce: 1 Cumulative CPU: 972.35 sec HDFS Read: 1401863645 HDFS Write: 1508 SUCCESS
+Total MapReduce CPU Time Spent: 16 minutes 12 seconds 350 msec
+OK
+Time taken: 159.182 seconds
+hive&amp;gt; 
+
+
+Spare me if I missed anything and let me know if you need any more information. 
+
+

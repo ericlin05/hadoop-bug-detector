@@ -1,0 +1,24 @@
+Description
+
+For the following query, with hive.groupby.orderby.position.alias set to true
+Query
+
+SELECT Avg(`t0`.`x_measure__0`) AS `avg_calculation_270497503505567749_ok` 
+FROM   (SELECT `store_sales`.`ss_ticket_number` AS `ss_ticket_number`, 
+               Sum(`store_sales`.`ss_net_paid`) AS `x_measure__0` 
+        FROM   `store_sales` `store_sales` 
+               JOIN `item` `item` 
+                 ON ( `store_sales`.`ss_item_sk` = `item`.`i_item_sk` ) 
+        GROUP  BY `store_sales`.`ss_ticket_number`) `t0` 
+GROUP  BY 1 
+HAVING ( Count(1) &amp;gt; 0 );
+
+
+it throws the following exception
+Exception
+
+FAILED: SemanticException [Error 10128]: Line 2:7 Not yet supported place for UDAF 'Avg’
+
+
+
+

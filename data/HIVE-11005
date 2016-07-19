@@ -1,0 +1,27 @@
+Description
+
+Test cbo_join.q and cbo_views.q on return path failed. Part of the stack trace is 
+
+
+2015-06-15 09:51:53,377 ERROR [main]: parse.CalcitePlanner (CalcitePlanner.java:genOPTree(282)) - CBO failed, skipping CBO.
+java.lang.IndexOutOfBoundsException: index (0) must be less than size (0)
+        at com.google.common.base.Preconditions.checkElementIndex(Preconditions.java:305)
+        at com.google.common.base.Preconditions.checkElementIndex(Preconditions.java:284)
+        at com.google.common.collect.EmptyImmutableList.get(EmptyImmutableList.java:80)
+        at org.apache.hadoop.hive.ql.optimizer.calcite.rules.HiveInsertExchange4JoinRule.onMatch(HiveInsertExchange4JoinRule.java:101)
+        at org.apache.calcite.plan.AbstractRelOptPlanner.fireRule(AbstractRelOptPlanner.java:326)
+        at org.apache.calcite.plan.hep.HepPlanner.applyRule(HepPlanner.java:515)
+        at org.apache.calcite.plan.hep.HepPlanner.applyRules(HepPlanner.java:392)
+        at org.apache.calcite.plan.hep.HepPlanner.executeInstruction(HepPlanner.java:255)
+        at org.apache.calcite.plan.hep.HepInstruction$RuleInstance.execute(HepInstruction.java:125)
+        at org.apache.calcite.plan.hep.HepPlanner.executeProgram(HepPlanner.java:207)
+        at org.apache.calcite.plan.hep.HepPlanner.findBestExp(HepPlanner.java:194)
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner$CalcitePlannerAction.apply(CalcitePlanner.java:888)
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner$CalcitePlannerAction.apply(CalcitePlanner.java:771)
+        at org.apache.calcite.tools.Frameworks$1.apply(Frameworks.java:109)
+        at org.apache.calcite.prepare.CalcitePrepareImpl.perform(CalcitePrepareImpl.java:876)
+        at org.apache.calcite.tools.Frameworks.withPrepare(Frameworks.java:145)
+
+
+
+

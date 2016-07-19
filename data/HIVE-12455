@@ -1,0 +1,10 @@
+Description
+
+Insert Into local Directory fails if partition directory doesnot exist.
+Command
+Insert into Local Directory '/abc' select * from abc;
+Above command fails but when i query the table like "select * from abc", it runs fine with no error.
+Logs below :
+Vertex failed, vertexName=Map 1, vertexId=vertex_1446903211205_3914_3_00, diagnostics=[Vertex vertex_1446903211205_3914_3_00 [Map 1] killed/failed due to:ROOT_INPUT_INIT_FAILURE, Vertex Input: claim initializer failed, vertex=vertex_1446903211205_3914_3_00 [Map 1], org.apache.hadoop.mapred.InvalidInputException: Input path does not exist: hdfs://abc/
+
+

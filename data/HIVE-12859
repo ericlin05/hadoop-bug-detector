@@ -1,0 +1,11 @@
+Description
+
+Hi,
+For large number of partitions (specifically, when number of present directories is higher than 1.000.000) msck repair table gives the error from hive cli:
+"FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask"
+The exception is taken from also beeline cli:
+Getting log thread is interrupted, since query is done!
+Error: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask (state=08S01, code=1)
+java.sql.SQLException: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask
+
+

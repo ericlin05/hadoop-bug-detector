@@ -1,0 +1,19 @@
+Description
+
+This error is happening on Jenkins when running the HMS upgrade tests. 
+The class used to publish the results is not found on any directory.
++ cd /var/lib/jenkins/jobs/PreCommit-HIVE-METASTORE-Test/workspace
++ set +x
+Exception in thread "main" java.lang.NoClassDefFoundError: org/apache/hive/ptest/execution/JIRAService
+Caused by: java.lang.ClassNotFoundException: org.apache.hive.ptest.execution.JIRAService
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:202)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:190)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:306)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:301)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:247)
+Could not find the main class: org.apache.hive.ptest.execution.JIRAService.  Program will exit.
++ ret=0
+The problem is because the jenkins-execute-hms-test.sh is downloading the code to another directory.
+
+

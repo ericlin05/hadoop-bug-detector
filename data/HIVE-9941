@@ -1,0 +1,46 @@
+Description
+
+sql std authorization works as expected.
+However if a table is partitioned any user can truncate it
+User foo:
+
+
+create table bla (a string) partitioned by (b string);
+#.. loading values ...
+
+
+Admin:
+
+
+0: jdbc:hive2://localhost:10000/default&amp;gt; set role admin;
+No rows affected (0,074 seconds)
+0: jdbc:hive2://localhost:10000/default&amp;gt; show grant on bla;
++-----------+--------+------------+---------+-----------------+-----------------+------------+---------------+----------------+----------+--+
+| database  | table  | partition  | column  | principal_name  | principal_type  | privilege  | grant_option  |   grant_time   | grantor  |
++-----------+--------+------------+---------+-----------------+-----------------+------------+---------------+----------------+----------+--+
+| default   | bla    |            |         | foo             | USER            | DELETE     | true          | 1426158997000  | foo      |
+| default   | bla    |            |         | foo             | USER            | INSERT     | true          | 1426158997000  | foo      |
+| default   | bla    |            |         | foo             | USER            | SELECT     | true          | 1426158997000  | foo      |
+| default   | bla    |            |         | foo             | USER            | UPDATE     | true          | 1426158997000  | foo      |
++-----------+--------+------------+---------+-----------------+-----------------+------------+---------------+----------------+----------+--+
+
+
+now user olaf
+
+
+0: jdbc:hive2://localhost:10000/default&amp;gt; select * from bla;
+Error: Error while compiling statement: FAILED: HiveAccessControlException Permission denied: Principal [name=olaf, type=USER] does not have following privileges for operation QUERY [[SELECT] on Object [type=TABLE_OR_VIEW, name=default.bla]] (state=42000,code=40000)
+
+
+works as expected.
+BUT
+
+
+0: jdbc:hive2://localhost:10000/default&amp;gt; truncate table bla;
+No rows affected (0,18 seconds)
+
+
+And table is empty afterwards.
+Similarily: insert into table works, too.
+
+

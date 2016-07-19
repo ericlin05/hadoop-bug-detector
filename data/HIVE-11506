@@ -1,0 +1,25 @@
+Description
+
+It's not defined in vectorization context.
+
+
+explain 
+select cast(cast(cstring1 as varchar(10)) as string) x from alltypesorc order by x;
+
+
+Mapper is not vectorized by exception,
+
+015-08-10 17:02:08,003 INFO  [main]: physical.Vectorizer (Vectorizer.java:validateExprNodeDesc(1299)) - Failed to vectorize
+org.apache.hadoop.hive.ql.metadata.HiveException: Unhandled cast input type: varchar(10)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getCastToString(VectorizationContext.java:1543)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getGenericUDFBridgeVectorExpression(VectorizationContext.java:1379)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getGenericUdfVectorExpression(VectorizationContext.java:1177)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getVectorExpression(VectorizationContext.java:440)
+        at org.apache.hadoop.hive.ql.optimizer.physical.Vectorizer.validateExprNodeDesc(Vectorizer.java:1293)
+        at org.apache.hadoop.hive.ql.optimizer.physical.Vectorizer.validateExprNodeDesc(Vectorizer.java:1284)
+        at org.apache.hadoop.hive.ql.optimizer.physical.Vectorizer.validateSelectOperator(Vectorizer.java:1116)
+        at org.apache.hadoop.hive.ql.optimizer.physical.Vectorizer.validateMapWorkOperator(Vectorizer.java:906)
+
+
+
+

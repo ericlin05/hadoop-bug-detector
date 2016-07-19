@@ -1,0 +1,19 @@
+Description
+
+Cross product in HiveJoinToMultiJoinRule needs to be reconsidered. Now the following explain query will fail at L1116 StatsRulesProcFactory : FAILED: IndexOutOfBoundsException Index: 0, Size: 0 because the key in one of the branches of the join is empty.
+
+
+explain select *  from src 
+where src.key not in (select key  from src1);
+
+
+If we run
+
+
+select *  from src 
+where src.key not in (select key  from src1);
+
+
+we will have "FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask". The root cause is the same. Other queries that will also fail include cbo_subq_not_in.q etc.
+
+

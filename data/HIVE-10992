@@ -1,0 +1,53 @@
+Description
+
+TempletonControllerJob.run() method does
+
+      Token&amp;lt;DelegationTokenIdentifier&amp;gt; mrdt = jc.getDelegationToken(new Text("mr token"));
+      job.getCredentials().addToken(new Text("mr token"), mrdt);
+
+
+it should only do this if UserGroupInformation.isSecurityEnabled().
+For long running jobs submitted via WebHCat (&amp;gt; 24 hours), this token is cancelled automatically (see YARN-2964) for the LaunchMapper while the child job may still be running.
+Then errors like this may happen
+
+2015-05-25 20:49:38,026 WARN [main] org.apache.hadoop.ipc.Client: Exception encountered while connecting to the server : org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.security.token.SecretManager$InvalidToken): token (owner=btbig3, renewer=mr token, realUser=hdp, issueDate=1432399326562, maxDate=1433004126562, sequenceNumber=3, masterKeyId=4) can't be found in cache2015-05-25 20:49:38,058 WARN [main] org.apache.hadoop.mapred.YarnChild: Exception running child : 
+java.lang.RuntimeException: Exception occurred while finding child jobs 
+ at org.apache.hadoop.mapred.WebHCatJTShim23.getYarnChildJobs(WebHCatJTShim23.java:204) 
+ at org.apache.hadoop.mapred.WebHCatJTShim23.killJobs(WebHCatJTShim23.java:158) 
+ at org.apache.hive.hcatalog.templeton.tool.LaunchMapper.killLauncherChildJobs(LaunchMapper.java:156) 
+ at org.apache.hive.hcatalog.templeton.tool.LaunchMapper.startJob(LaunchMapper.java:124) 
+ at org.apache.hive.hcatalog.templeton.tool.LaunchMapper.run(LaunchMapper.java:261) 
+ at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:784) 
+ at org.apache.hadoop.mapred.MapTask.run(MapTask.java:341) 
+ at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163) 
+ at java.security.AccessController.doPrivileged(Native Method) 
+ at javax.security.auth.Subject.doAs(Subject.java:415) 
+ at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628) 
+ at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)Caused by: org.apache.hadoop.security.token.SecretManager$InvalidToken: token (owner=btbig3, renewer=mr token, realUser=hdp, issueDate=1432399326562, maxDate=1433004126562, sequenceNumber=3, masterKeyId=4) can't be found in cache 
+ at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) 
+ at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:57) 
+ at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) 
+ at java.lang.reflect.Constructor.newInstance(Constructor.java:526) 
+ at org.apache.hadoop.yarn.ipc.RPCUtil.instantiateException(RPCUtil.java:53) 
+ at org.apache.hadoop.yarn.ipc.RPCUtil.unwrapAndThrowException(RPCUtil.java:104) 
+ at org.apache.hadoop.yarn.api.impl.pb.client.ApplicationClientProtocolPBClientImpl.getApplications(ApplicationClientProtocolPBClientImpl.java:250) 
+ at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) 
+ at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57) 
+ at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) 
+ at java.lang.reflect.Method.invoke(Method.java:606) 
+ at org.apache.hadoop.io.retry.RetryInvocationHandler.invokeMethod(RetryInvocationHandler.java:187) 
+ at org.apache.hadoop.io.retry.RetryInvocationHandler.invoke(RetryInvocationHandler.java:102) 
+ at com.sun.proxy.$Proxy26.getApplications(Unknown Source) 
+ at org.apache.hadoop.mapred.WebHCatJTShim23.getYarnChildJobs(WebHCatJTShim23.java:198) ... 11 more
+ 
+ Caused by: org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.security.token.SecretManager$InvalidToken): token (owner=btbig3, renewer=mr token, realUser=hdp, issueDate=1432399326562, maxDate=1433004126562, sequenceNumber=3, masterKeyId=4) can't be found in cache 
+ at org.apache.hadoop.ipc.Client.call(Client.java:1469) 
+ at org.apache.hadoop.ipc.Client.call(Client.java:1400) 
+ at org.apache.hadoop.ipc.ProtobufRpcEngine$Invoker.invoke(ProtobufRpcEngine.java:232) 
+ at com.sun.proxy.$Proxy25.getApplications(Unknown Source) 
+ at org.apache.hadoop.yarn.api.impl.pb.client.ApplicationClientProtocolPBClientImpl.getApplications(ApplicationClientProtocolPBClientImpl.java:247) ... 19 more
+
+
+Thanks Jian He for the analysis
+
+

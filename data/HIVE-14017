@@ -1,0 +1,112 @@
+Description
+
+Create an ACID table, insert some data into the table. Then we extend the schema of the table by adding a column at the end, and add data to the table with the extended schema.
+
+
+drop table if exists test purge;
+
+create table test (
+  a int,
+  b int
+)
+clustered by (a) into 10 buckets
+stored as orc
+tblproperties ('transactional' = 'true');
+
+insert into test values (1, 1), (2, 2), (3, 3);
+insert into test values (4, 4), (5, 5), (6, 6);
+
+
+alter table test add columns (c int);
+
+insert into test values (10, 10, 10), (11, 11, 11), (12, 12, 12);
+
+
+We then run compaction on the table:
+
+alter table test compact 'major';
+
+However, the compaction job fails with the following exception:
+
+
+2016-06-15 09:54:52,517 INFO [IPC Server handler 5 on 25906] org.apache.hadoop.mapred.TaskAttemptListenerImpl: Progress of TaskAttempt attempt_1465960802609_0030_m_000008_0 is : 0.0
+2016-06-15 09:54:52,525 FATAL [IPC Server handler 4 on 25906] org.apache.hadoop.mapred.TaskAttemptListenerImpl: Task: attempt_1465960802609_0030_m_000008_0 - exited : java.io.IOException: subtype 9 exceeds the included array size 9 fileTypes [kind: STRUCT
+subtypes: 1
+subtypes: 2
+subtypes: 3
+subtypes: 4
+subtypes: 5
+subtypes: 6
+fieldNames: "operation"
+fieldNames: "originalTransaction"
+fieldNames: "bucket"
+fieldNames: "rowId"
+fieldNames: "currentTransaction"
+fieldNames: "row"
+, kind: INT
+, kind: LONG
+, kind: INT
+, kind: LONG
+, kind: LONG
+, kind: STRUCT
+subtypes: 7
+subtypes: 8
+subtypes: 9
+fieldNames: "_col0"
+fieldNames: "_col1"
+fieldNames: "_col2"
+, kind: INT
+, kind: INT
+, kind: INT
+] schemaTypes [kind: STRUCT
+subtypes: 1
+subtypes: 2
+subtypes: 3
+subtypes: 4
+subtypes: 5
+subtypes: 6
+fieldNames: "operation"
+fieldNames: "originalTransaction"
+fieldNames: "bucket"
+fieldNames: "rowId"
+fieldNames: "currentTransaction"
+fieldNames: "row"
+, kind: INT
+, kind: LONG
+, kind: INT
+, kind: LONG
+, kind: LONG
+, kind: STRUCT
+subtypes: 7
+subtypes: 8
+subtypes: 9
+fieldNames: "_col0"
+fieldNames: "_col1"
+fieldNames: "_col2"
+, kind: INT
+, kind: INT
+, kind: INT
+] innerStructSubtype -1
+	at org.apache.hadoop.hive.ql.io.orc.TreeReaderFactory$StructTreeReader.&amp;lt;init&amp;gt;(TreeReaderFactory.java:2066)
+	at org.apache.hadoop.hive.ql.io.orc.TreeReaderFactory.createTreeReader(TreeReaderFactory.java:2492)
+	at org.apache.hadoop.hive.ql.io.orc.TreeReaderFactory$StructTreeReader.&amp;lt;init&amp;gt;(TreeReaderFactory.java:2072)
+	at org.apache.hadoop.hive.ql.io.orc.TreeReaderFactory.createTreeReader(TreeReaderFactory.java:2492)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.&amp;lt;init&amp;gt;(RecordReaderImpl.java:219)
+	at org.apache.hadoop.hive.ql.io.orc.ReaderImpl.rowsOptions(ReaderImpl.java:598)
+	at org.apache.hadoop.hive.ql.io.orc.OrcRawRecordMerger$ReaderPair.&amp;lt;init&amp;gt;(OrcRawRecordMerger.java:179)
+	at org.apache.hadoop.hive.ql.io.orc.OrcRawRecordMerger.&amp;lt;init&amp;gt;(OrcRawRecordMerger.java:476)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getRawReader(OrcInputFormat.java:1463)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR$CompactorMap.map(CompactorMR.java:573)
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR$CompactorMap.map(CompactorMR.java:552)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:453)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:168)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1709)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:162)
+
+
+
+

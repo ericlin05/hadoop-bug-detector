@@ -1,0 +1,25 @@
+Description
+
+[pool-3-thread-10]: Error occurred during processing of message.
+java.lang.RuntimeException: org.apache.thrift.transport.TTransportException: Invalid status -128
+	at org.apache.thrift.transport.TSaslServerTransport$Factory.getTransport(TSaslServerTransport.java:219)
+	at org.apache.hadoop.hive.thrift.HadoopThriftAuthBridge$Server$TUGIAssumingTransportFactory$1.run(HadoopThriftAuthBridge.java:739)
+	at org.apache.hadoop.hive.thrift.HadoopThriftAuthBridge$Server$TUGIAssumingTransportFactory$1.run(HadoopThriftAuthBridge.java:736)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:356)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1651)
+	at org.apache.hadoop.hive.thrift.HadoopThriftAuthBridge$Server$TUGIAssumingTransportFactory.getTransport(HadoopThriftAuthBridge.java:736)
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:268)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.thrift.transport.TTransportException: Invalid status -128
+	at org.apache.thrift.transport.TSaslTransport.sendAndThrowMessage(TSaslTransport.java:232)
+	at org.apache.thrift.transport.TSaslTransport.receiveSaslMessage(TSaslTransport.java:184)
+	at org.apache.thrift.transport.TSaslServerTransport.handleSaslStartMessage(TSaslServerTransport.java:125)
+	at org.apache.thrift.transport.TSaslTransport.open(TSaslTransport.java:271)
+	at org.apache.thrift.transport.TSaslServerTransport.open(TSaslServerTransport.java:41)
+	at org.apache.thrift.transport.TSaslServerTransport$Factory.getTransport(TSaslServerTransport.java:216)
+	... 10 more
+
+

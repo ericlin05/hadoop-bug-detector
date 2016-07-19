@@ -1,0 +1,6 @@
+Description
+
+https://github.com/apache/hive/blob/master/service/src/java/org/apache/hive/service/cli/session/HiveSessionImpl.java#L408
+We catch HiveSQLException and close the operation. However, we should also close the operation when getting a RuntimeException from underlying execution.
+
+

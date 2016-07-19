@@ -1,0 +1,39 @@
+Description
+
+get_table_objects_by_name() function in HiveMetaStore.java right now will pass all the tables of one database to ObjectStore to retrieve the table objects, which will cause java.sql.SQLSyntaxErrorException: ORA-01795: maximum number of expressions in a list is 1000 in Oracle database. We should break the table list into multiple sublists similar as the drop database op.
+
+2015-06-29 13:36:00,093 ERROR org.apache.hadoop.hive.metastore.RetryingHMSHandler: Retrying HMSHandler after 1000 ms (attempt 1 of 1) with error: javax.jdo.JDOException: Exception thrown when executing query
+at org.datanucleus.api.jdo.NucleusJDOHelper.getJDOExceptionForNucleusException(NucleusJDOHelper.java:596)
+at org.datanucleus.api.jdo.JDOQuery.execute(JDOQuery.java:275)
+at org.apache.hadoop.hive.metastore.ObjectStore.getTableObjectsByName(ObjectStore.java:945)
+at sun.reflect.GeneratedMethodAccessor73.invoke(Unknown Source)
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.lang.reflect.Method.invoke(Method.java:606)
+at org.apache.hadoop.hive.metastore.RawStoreProxy.invoke(RawStoreProxy.java:108)
+at com.sun.proxy.$Proxy0.getTableObjectsByName(Unknown Source)
+at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.get_table_objects_by_name(HiveMetaStore.java:1618)
+at sun.reflect.GeneratedMethodAccessor72.invoke(Unknown Source)
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.lang.reflect.Method.invoke(Method.java:606)
+at org.apache.hadoop.hive.metastore.RetryingHMSHandler.invoke(RetryingHMSHandler.java:106)
+at com.sun.proxy.$Proxy5.get_table_objects_by_name(Unknown Source)
+at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Processor$get_table_objects_by_name.getResult(ThriftHiveMetastore.java:8172)
+at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Processor$get_table_objects_by_name.getResult(ThriftHiveMetastore.java:8156)
+at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+at org.apache.hadoop.hive.metastore.TUGIBasedProcessor$1.run(TUGIBasedProcessor.java:110)
+at org.apache.hadoop.hive.metastore.TUGIBasedProcessor$1.run(TUGIBasedProcessor.java:107)
+at java.security.AccessController.doPrivileged(Native Method)
+at javax.security.auth.Subject.doAs(Subject.java:415)
+at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1642)
+at org.apache.hadoop.hive.shims.HadoopShimsSecure.doAs(HadoopShimsSecure.java:502)
+at org.apache.hadoop.hive.metastore.TUGIBasedProcessor.process(TUGIBasedProcessor.java:118)
+at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:244)
+at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+at java.lang.Thread.run(Thread.java:745)
+NestedThrowablesStackTrace:
+java.sql.SQLSyntaxErrorException: ORA-01795: maximum number of expressions in a list is 1000
+
+
+
+

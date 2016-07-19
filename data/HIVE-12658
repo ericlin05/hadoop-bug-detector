@@ -1,0 +1,6 @@
+Description
+
+The execution queue throws a RejectedExecutionException - which is logged by the hadoop IPC layer.
+Instead of relying on an Exception in the protocol - move to sending back an explicit response to indicate a rejected fragment.
+
+

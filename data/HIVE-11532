@@ -1,0 +1,60 @@
+Description
+
+This hive UDTF works fine in Hive 0.12 but this fails starting in Hive 0.13 with below stacktrace:
+
+
+
+Task with the most failures(4):
+-----
+Task ID:
+  task_1436218099233_0158_m_000000
+
+-----
+Diagnostic Messages for this Task:
+Error: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"a":"abc","b":"xyz"}
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:195)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:435)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:347)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:168)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1566)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:163)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"a":"abc","b":"xyz"}
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:550)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:177)
+	... 8 more
+Caused by: java.lang.ClassCastException: org.apache.hadoop.hive.serde2.lazy.LazyString cannot be cast to org.apache.hadoop.io.Text
+	at org.apache.hadoop.hive.serde2.objectinspector.primitive.WritableStringObjectInspector.getPrimitiveJavaObject(WritableStringObjectInspector.java:46)
+	at org.apache.hadoop.hive.serde2.objectinspector.primitive.WritableStringObjectInspector.getPrimitiveJavaObject(WritableStringObjectInspector.java:26)
+	at openkb.hive.udtf.DoubleColumn.process(DoubleColumn.java:64)
+	at org.apache.hadoop.hive.ql.exec.UDTFOperator.processOp(UDTFOperator.java:107)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:793)
+	at org.apache.hadoop.hive.ql.exec.SelectOperator.processOp(SelectOperator.java:87)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:793)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:92)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:793)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:540)
+	... 9 more
+
+
+Basically this sample UDTF just duplicates the first input column.
+It works fine in Hive 0.12:
+
+
+select * from testudtf;
+abc	xyz
+
+ADD JAR ~/target/DoubleColumn-1.0.0.jar;
+CREATE TEMPORARY FUNCTION double_column AS 'openkb.hive.udtf.DoubleColumn'; 
+
+SELECT double_column(a,b) as (a1,a2,b) FROM testudtf;
+abc	abc	xyz
+
+
+The source code is here:
+https://github.com/viadea/HiveUDTF
+Is there any change between Hive 0.12 and 0.13 which may cause this to fail?
+
+

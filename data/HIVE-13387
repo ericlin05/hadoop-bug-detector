@@ -1,0 +1,60 @@
+Description
+
+Beeline fails to connect because HiveSqlException dependency is not on classpath:
+
+
+java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hive.beeline.ReflectiveCommandHandler.execute(ReflectiveCommandHandler.java:52)
+	at org.apache.hive.beeline.BeeLine.execCommandWithPrefix(BeeLine.java:1077)
+	at org.apache.hive.beeline.BeeLine.dispatch(BeeLine.java:1116)
+	at org.apache.hive.beeline.BeeLine.initArgs(BeeLine.java:762)
+	at org.apache.hive.beeline.BeeLine.begin(BeeLine.java:841)
+	at org.apache.hive.beeline.BeeLine.mainWithInputRedirection(BeeLine.java:493)
+	at org.apache.hive.beeline.BeeLine.main(BeeLine.java:476)
+Caused by: java.lang.NoClassDefFoundError: org/apache/hive/service/cli/HiveSQLException
+	at org.apache.hive.jdbc.HiveConnection.&amp;lt;init&amp;gt;(HiveConnection.java:131)
+	at org.apache.hive.jdbc.HiveDriver.connect(HiveDriver.java:107)
+	at java.sql.DriverManager.getConnection(DriverManager.java:571)
+	at java.sql.DriverManager.getConnection(DriverManager.java:187)
+	at org.apache.hive.beeline.DatabaseConnection.connect(DatabaseConnection.java:141)
+	at org.apache.hive.beeline.DatabaseConnection.getConnection(DatabaseConnection.java:205)
+	at org.apache.hive.beeline.Commands.connect(Commands.java:1393)
+	at org.apache.hive.beeline.Commands.connect(Commands.java:1314)
+	... 11 more
+Caused by: java.lang.ClassNotFoundException: org.apache.hive.service.cli.HiveSQLException
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+	... 19 more
+
+
+This happens when trying to run beeline as a standalone java application:
+
+
+sircodesalot@excalibur:~/Dev/Cloudera/hive/beeline$ mvn exec:java -Dexec.args='-u jdbc:hive2://localhost:10000 sircodesalot' -Dexec.mainClass="org.apache.hive.beeline.BeeLine"
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Hive Beeline 2.1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- exec-maven-plugin:1.4.0:java (default-cli) @ hive-beeline ---
+Connecting to jdbc:hive2://localhost:10000
+ERROR StatusLogger No log4j2 configuration file found. Using default configuration: logging only errors to the console.
+org/apache/hive/service/cli/HiveSQLException
+Beeline version ??? by Apache Hive
+
+// HERE: This will never connect because of ClassNotFoundException. 
+0: jdbc:hive2://localhost:10000 (closed)&amp;gt;
+
+
+
+

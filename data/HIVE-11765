@@ -1,0 +1,89 @@
+Description
+
+SMB join on Hive 1.2 fails with the following stack trace :
+
+
+java.io.IOException: java.lang.reflect.InvocationTargetException
+    at
+org.apache.hadoop.hive.io.HiveIOExceptionHandlerChain.handleRecordReaderCreationException(HiveIOExceptionHandlerChain.java:97)
+    at
+org.apache.hadoop.hive.io.HiveIOExceptionHandlerUtil.handleRecordReaderCreationException(HiveIOExceptionHandlerUtil.java:57)
+    at
+org.apache.hadoop.hive.shims.HadoopShimsSecure$CombineFileRecordReader.initNextRecordReader(HadoopShimsSecure.java:266)
+    at
+org.apache.hadoop.hive.shims.HadoopShimsSecure$CombineFileRecordReader.&amp;lt;init&amp;gt;(HadoopShimsSecure.java:213)
+    at
+org.apache.hadoop.hive.shims.HadoopShimsSecure$CombineFileInputFormatShim.getRecordReader(HadoopShimsSecure.java:333)
+    at
+org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getRecordReader(CombineHiveInputFormat.java:719)
+    at
+org.apache.hadoop.mapred.MapTask$TrackedRecordReader.&amp;lt;init&amp;gt;(MapTask.java:173)
+    at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:437)
+    at org.apache.hadoop.mapred.MapTask.run(MapTask.java:348)
+    at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at javax.security.auth.Subject.doAs(Subject.java:422)
+    at
+org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1595)
+    at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: java.lang.reflect.InvocationTargetException
+    at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+    at
+sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
+    at
+sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+    at java.lang.reflect.Constructor.newInstance(Constructor.java:408)
+    at
+org.apache.hadoop.hive.shims.HadoopShimsSecure$CombineFileRecordReader.initNextRecordReader(HadoopShimsSecure.java:252)
+    ... 11 more
+Caused by: java.lang.IndexOutOfBoundsException: toIndex = 5
+    at java.util.ArrayList.subListRangeCheck(ArrayList.java:1004)
+    at java.util.ArrayList.subList(ArrayList.java:996)
+    at
+org.apache.hadoop.hive.ql.io.orc.RecordReaderFactory.getSchemaOnRead(RecordReaderFactory.java:161)
+    at
+org.apache.hadoop.hive.ql.io.orc.RecordReaderFactory.createTreeReader(RecordReaderFactory.java:66)
+    at
+org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.&amp;lt;init&amp;gt;(RecordReaderImpl.java:202)
+    at
+org.apache.hadoop.hive.ql.io.orc.ReaderImpl.rowsOptions(ReaderImpl.java:539)
+    at
+org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.createReaderFromFile(OrcInputFormat.java:230)
+    at
+org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$OrcRecordReader.&amp;lt;init&amp;gt;(OrcInputFormat.java:163)
+    at
+org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getRecordReader(OrcInputFormat.java:1104)
+    at
+org.apache.hadoop.hive.ql.io.CombineHiveRecordReader.&amp;lt;init&amp;gt;(CombineHiveRecordReader.java:67)
+
+
+
+This error happens after adding the patch of HIVE-10591. Reverting HIVE-10591 fixes this exception. 
+Steps to reproduce:
+
+
+SET hive.enforce.sorting=true;
+SET hive.enforce.bucketing=true;
+SET hive.exec.dynamic.partition=true;
+SET mapreduce.reduce.import.limit=-1;
+SET hive.optimize.bucketmapjoin=true;
+SET hive.optimize.bucketmapjoin.sortedmerge=true;
+SET hive.auto.convert.join=true;
+SET hive.auto.convert.sortmerge.join=true;
+
+create Table table1 (empID int, name varchar(64), email varchar(64), company varchar(64), age int) clustered by (age) sorted by (age ASC) INTO 384 buckets stored as ORC;
+
+create Table table2 (empID int, name varchar(64), email varchar(64), company varchar(64), age int) clustered by (age) sorted by (age ASC) into 384 buckets stored as ORC;
+
+create Table table_tmp (empID int, name varchar(64), email varchar(64), company varchar(64), age int);
+
+load data local inpath '/tmp/employee.csv’ into table table_tmp;
+
+INSERT OVERWRITE table  table1 select * from table_tmp;
+INSERT OVERWRITE table  table2 select * from table_tmp;
+
+SELECT table1.age, table2.age from table1 inner join table2 on table1.age=table2.age;
+
+
+
+

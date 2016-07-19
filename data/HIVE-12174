@@ -1,0 +1,103 @@
+Description
+
+kryo serde error:
+insert overwrite table portrait.test1 select iid, feedback_15day, feedback_7day, feedback_5day, feedback_3day, feedback_1day from portrait.rec_feature_feedback a where l_date = '2015-09-09' and bid in ('949722CF_12F7_523A_EE21_E3D591B7E755');
+Query ID = hadoop_20151014180148_6aa9392a-8564-49b4-a538-a7fd1ba18911
+Total jobs = 3
+Launching Job 1 out of 3
+Number of reduce tasks is set to 0 since there's no reduce operator
+Starting Job = job_1442984792179_5081, Tracking URL = http://bjlg-112p13-hadoop03.bfdabc.com:8088/proxy/application_1442984792179_5081/
+Kill Command = /opt/hadoop/hadoop-2.6.0/bin/hadoop job  -kill job_1442984792179_5081
+Hadoop job information for Stage-1: number of mappers: 4; number of reducers: 0
+2015-10-14 18:02:16,315 Stage-1 map = 0%,  reduce = 0%
+2015-10-14 18:02:29,112 Stage-1 map = 50%,  reduce = 0%, Cumulative CPU 18.05 sec
+2015-10-14 18:02:50,403 Stage-1 map = 75%,  reduce = 0%, Cumulative CPU 21.65 sec
+2015-10-14 18:02:55,720 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 25.87 sec
+MapReduce Total cumulative CPU time: 25 seconds 870 msec
+Ended Job = job_1442984792179_5081
+Stage-4 is filtered out by condition resolver.
+Stage-3 is selected by condition resolver.
+Stage-5 is filtered out by condition resolver.
+Launching Job 3 out of 3
+Number of reduce tasks is set to 0 since there's no reduce operator
+Starting Job = job_1442984792179_5082, Tracking URL = http://bjlg-112p13-hadoop03.bfdabc.com:8088/proxy/application_1442984792179_5082/
+Kill Command = /opt/hadoop/hadoop-2.6.0/bin/hadoop job  -kill job_1442984792179_5082
+Hadoop job information for Stage-3: number of mappers: 1; number of reducers: 0
+2015-10-14 18:03:20,847 Stage-3 map = 0%,  reduce = 0%
+2015-10-14 18:03:52,505 Stage-3 map = 100%,  reduce = 0%
+Ended Job = job_1442984792179_5082 with errors
+Error during job, obtaining debugging information...
+Examining task ID: task_1442984792179_5082_m_000000 (and more) from job job_1442984792179_5082
+Task with the most failures(4): 
+
+Task ID:
+  task_1442984792179_5082_m_000000
+URL:
+http://0.0.0.0:8088/taskdetails.jsp?jobid=job_1442984792179_5082&amp;amp;tipid=task_1442984792179_5082_m_000000
+
+Diagnostic Messages for this Task:
+Error: java.lang.RuntimeException: org.apache.hive.com.esotericsoftware.kryo.KryoException: java.lang.IndexOutOfBoundsException: Index: 112, Size: 11
+Serialization trace:
+writeType (org.apache.hadoop.hive.ql.plan.FileSinkDesc)
+conf (org.apache.hadoop.hive.ql.exec.FileSinkOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.TableScanOperator)
+aliasToWork (org.apache.hadoop.hive.ql.plan.MapWork)
+	at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:423)
+	at org.apache.hadoop.hive.ql.exec.Utilities.getMapWork(Utilities.java:286)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.init(HiveInputFormat.java:263)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:478)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:471)
+	at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getRecordReader(CombineHiveInputFormat.java:648)
+	at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.&amp;lt;init&amp;gt;(MapTask.java:169)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:429)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: org.apache.hive.com.esotericsoftware.kryo.KryoException: java.lang.IndexOutOfBoundsException: Index: 112, Size: 11
+Serialization trace:
+writeType (org.apache.hadoop.hive.ql.plan.FileSinkDesc)
+conf (org.apache.hadoop.hive.ql.exec.FileSinkOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.TableScanOperator)
+aliasToWork (org.apache.hadoop.hive.ql.plan.MapWork)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:125)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:139)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:17)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:672)
+	at org.apache.hadoop.hive.ql.exec.Utilities.deserializeObjectByKryo(Utilities.java:1025)
+	at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:933)
+	at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:947)
+	at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:390)
+	... 13 more
+Caused by: java.lang.IndexOutOfBoundsException: Index: 112, Size: 11
+	at java.util.ArrayList.rangeCheck(ArrayList.java:635)
+	at java.util.ArrayList.get(ArrayList.java:411)
+	at org.apache.hive.com.esotericsoftware.kryo.util.MapReferenceResolver.getReadObject(MapReferenceResolver.java:42)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readReferenceOrNull(Kryo.java:820)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObjectOrNull(Kryo.java:743)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:113)
+	... 34 more
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+MapReduce Jobs Launched: 
+Stage-Stage-1: Map: 4   Cumulative CPU: 25.87 sec   HDFS Read: 48575 HDFS Write: 25098 SUCCESS
+Stage-Stage-3: Map: 1   HDFS Read: 0 HDFS Write: 0 FAIL
+Total MapReduce CPU Time Spent: 25 seconds 870 msec
+hive&amp;gt; 
+
+

@@ -1,0 +1,36 @@
+Description
+
+when i have a partitioned table a with partition "day",in metadata a have partition day: 20160501,20160502,but partition 20160501's dir didnt exits.
+so when i use tez engine to run hive -e "select day,count from a where xx=xx group by day"
+hive throws FileNotFoundException.
+but mr work.
+repo eg:
+CREATE EXTERNAL TABLE `a`(
+  `a` string)
+PARTITIONED BY ( 
+  `l_date` string);
+insert overwrite table a partition(l_date='2016-04-08') values (1),(2);
+insert overwrite table a partition(l_date='2016-04-09') values (1),(2);
+hadoop dfs -rm -r -f /warehouse/a/l_date=2016-04-09
+select l_date,count from a where a='1' group by l_date;
+error:
+ut: a initializer failed, vertex=vertex_1463493135662_10445_1_00 [Map 1], org.apache.hadoop.mapred.InvalidInputException: Input path does not exist: hdfs://bfdhadoopcool/warehouse/test.db/a/l_date=2015-04-09
+	at org.apache.hadoop.mapred.FileInputFormat.singleThreadedListStatus(FileInputFormat.java:285)
+	at org.apache.hadoop.mapred.FileInputFormat.listStatus(FileInputFormat.java:228)
+	at org.apache.hadoop.mapred.FileInputFormat.getSplits(FileInputFormat.java:313)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.addSplitsForGroup(HiveInputFormat.java:300)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.getSplits(HiveInputFormat.java:402)
+	at org.apache.hadoop.hive.ql.exec.tez.HiveSplitGenerator.initialize(HiveSplitGenerator.java:129)
+	at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable$1.run(RootInputInitializerManager.java:245)
+	at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable$1.run(RootInputInitializerManager.java:239)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+	at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable.call(RootInputInitializerManager.java:239)
+	at org.apache.tez.dag.app.dag.RootInputInitializerManager$InputInitializerCallable.call(RootInputInitializerManager.java:226)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+

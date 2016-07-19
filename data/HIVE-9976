@@ -1,0 +1,14 @@
+Description
+
+Race condition in the DynamicPartitionPruner between DynamicPartitionPruner::processVertex() and DynamicPartitionpruner::addEvent() for tasks which respond with both the result and success in a single heartbeat sequence.
+
+
+2015-03-16 07:05:01,589 ERROR [InputInitializer [Map 1] #0] tez.DynamicPartitionPruner: Expecting: 1, received: 0
+2015-03-16 07:05:01,590 ERROR [Dispatcher thread: Central] impl.VertexImpl: Vertex Input: store_sales initializer failed, vertex=vertex_1424502260528_1113_4_04 [Map 1]
+org.apache.tez.dag.app.dag.impl.AMUserCodeException: org.apache.hadoop.hive.ql.metadata.HiveException: Incorrect event count in dynamic parition pruning
+
+
+
+All 4 upstream vertices of Map 1 need to finish within ~200ms to trigger this, which seems to be consistently happening with LLAP.
+
+

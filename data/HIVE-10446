@@ -1,0 +1,287 @@
+Description
+
+TPC-DS Q85 fails with Kryo exception when spilling big table data.
+Query 
+
+
+select  substr(r_reason_desc,1,20) as r
+       ,avg(wr_return_ship_cost) wq
+       ,avg(wr_refunded_cash) ref
+       ,avg(wr_fee) fee
+ from web_returns, customer_demographics cd1,
+      customer_demographics cd2, customer_address, date_dim, reason 
+ where 
+   cd1.cd_demo_sk = web_returns.wr_refunded_cdemo_sk 
+   and cd2.cd_demo_sk = web_returns.wr_returning_cdemo_sk
+   and customer_address.ca_address_sk = web_returns.wr_refunded_addr_sk
+   and reason.r_reason_sk = web_returns.wr_reason_sk
+   and cd1.cd_marital_status = cd2.cd_marital_status
+   and cd1.cd_education_status = cd2.cd_education_status
+group by r_reason_desc
+order by r, wq, ref, fee
+limit 100
+
+
+Plan 
+
+
+OK
+STAGE DEPENDENCIES:
+  Stage-1 is a root stage
+  Stage-0 depends on stages: Stage-1
+
+STAGE PLANS:
+  Stage: Stage-1
+    Tez
+      Edges:
+        Map 1 &amp;lt;- Map 4 (BROADCAST_EDGE), Map 5 (BROADCAST_EDGE), Map 6 (BROADCAST_EDGE), Map 7 (BROADCAST_EDGE)
+        Reducer 2 &amp;lt;- Map 1 (SIMPLE_EDGE)
+        Reducer 3 &amp;lt;- Reducer 2 (SIMPLE_EDGE)
+      DagName: mmokhtar_20150422165209_d8eb5634-c19f-4576-9525-cad248c7ca37:5
+      Vertices:
+        Map 1
+            Map Operator Tree:
+                TableScan
+                  alias: web_returns
+                  filterExpr: (((wr_refunded_addr_sk is not null and wr_reason_sk is not null) and wr_refunded_cdemo_sk is not null) and wr_returning_cdemo_sk is not null) (type: boolean)
+                  Statistics: Num rows: 2062802370 Data size: 185695406284 Basic stats: COMPLETE Column stats: COMPLETE
+                  Filter Operator
+                    predicate: (((wr_refunded_addr_sk is not null and wr_reason_sk is not null) and wr_refunded_cdemo_sk is not null) and wr_returning_cdemo_sk is not null) (type: boolean)
+                    Statistics: Num rows: 1875154723 Data size: 51267313780 Basic stats: COMPLETE Column stats: COMPLETE
+                    Select Operator
+                      expressions: wr_refunded_cdemo_sk (type: int), wr_refunded_addr_sk (type: int), wr_returning_cdemo_sk (type: int), wr_reason_sk (type: int), wr_fee (type: float), wr_return_ship_cost (type: float), wr_refunded_cash (type: float)
+                      outputColumnNames: _col0, _col1, _col2, _col3, _col4, _col5, _col6
+                      Statistics: Num rows: 1875154723 Data size: 51267313780 Basic stats: COMPLETE Column stats: COMPLETE
+                      Map Join Operator
+                        condition map:
+                             Inner Join 0 to 1
+                        keys:
+                          0 _col1 (type: int)
+                          1 _col0 (type: int)
+                        outputColumnNames: _col0, _col2, _col3, _col4, _col5, _col6
+                        input vertices:
+                          1 Map 4
+                        Statistics: Num rows: 1875154688 Data size: 45003712512 Basic stats: COMPLETE Column stats: COMPLETE
+                        HybridGraceHashJoin: true
+                        Map Join Operator
+                          condition map:
+                               Inner Join 0 to 1
+                          keys:
+                            0 _col3 (type: int)
+                            1 _col0 (type: int)
+                          outputColumnNames: _col0, _col2, _col4, _col5, _col6, _col9
+                          input vertices:
+                            1 Map 5
+                          Statistics: Num rows: 1875154688 Data size: 219393098496 Basic stats: COMPLETE Column stats: COMPLETE
+                          HybridGraceHashJoin: true
+                          Map Join Operator
+                            condition map:
+                                 Inner Join 0 to 1
+                            keys:
+                              0 _col0 (type: int)
+                              1 _col0 (type: int)
+                            outputColumnNames: _col2, _col4, _col5, _col6, _col9, _col11, _col12
+                            input vertices:
+                              1 Map 6
+                            Statistics: Num rows: 1875154688 Data size: 547545168896 Basic stats: COMPLETE Column stats: COMPLETE
+                            HybridGraceHashJoin: true
+                            Map Join Operator
+                              condition map:
+                                   Inner Join 0 to 1
+                              keys:
+                                0 _col2 (type: int), _col11 (type: string), _col12 (type: string)
+                                1 _col0 (type: int), _col1 (type: string), _col2 (type: string)
+                              outputColumnNames: _col4, _col5, _col6, _col9
+                              input vertices:
+                                1 Map 7
+                              Statistics: Num rows: 402058172 Data size: 43824340748 Basic stats: COMPLETE Column stats: COMPLETE
+                              HybridGraceHashJoin: true
+                              Select Operator
+                                expressions: _col9 (type: string), _col5 (type: float), _col6 (type: float), _col4 (type: float)
+                                outputColumnNames: _col0, _col1, _col2, _col3
+                                Statistics: Num rows: 402058172 Data size: 43824340748 Basic stats: COMPLETE Column stats: COMPLETE
+                                Group By Operator
+                                  aggregations: avg(_col1), avg(_col2), avg(_col3)
+                                  keys: _col0 (type: string)
+                                  mode: hash
+                                  outputColumnNames: _col0, _col1, _col2, _col3
+                                  Statistics: Num rows: 10975 Data size: 1064575 Basic stats: COMPLETE Column stats: COMPLETE
+                                  Reduce Output Operator
+                                    key expressions: _col0 (type: string)
+                                    sort order: +
+                                    Map-reduce partition columns: _col0 (type: string)
+                                    Statistics: Num rows: 10975 Data size: 1064575 Basic stats: COMPLETE Column stats: COMPLETE
+                                    value expressions: _col1 (type: struct&amp;lt;count:bigint,sum:double,input:float&amp;gt;), _col2 (type: struct&amp;lt;count:bigint,sum:double,input:float&amp;gt;), _col3 (type: struct&amp;lt;count:bigint,sum:double,input:float&amp;gt;)
+            Execution mode: vectorized
+        Map 4
+            Map Operator Tree:
+                TableScan
+                  alias: customer_address
+                  filterExpr: ca_address_sk is not null (type: boolean)
+                  Statistics: Num rows: 40000000 Data size: 40595195284 Basic stats: COMPLETE Column stats: COMPLETE
+                  Filter Operator
+                    predicate: ca_address_sk is not null (type: boolean)
+                    Statistics: Num rows: 40000000 Data size: 160000000 Basic stats: COMPLETE Column stats: COMPLETE
+                    Select Operator
+                      expressions: ca_address_sk (type: int)
+                      outputColumnNames: _col0
+                      Statistics: Num rows: 40000000 Data size: 160000000 Basic stats: COMPLETE Column stats: COMPLETE
+                      Reduce Output Operator
+                        key expressions: _col0 (type: int)
+                        sort order: +
+                        Map-reduce partition columns: _col0 (type: int)
+                        Statistics: Num rows: 40000000 Data size: 160000000 Basic stats: COMPLETE Column stats: COMPLETE
+            Execution mode: vectorized
+        Map 5
+            Map Operator Tree:
+                TableScan
+                  alias: reason
+                  filterExpr: r_reason_sk is not null (type: boolean)
+                  Statistics: Num rows: 72 Data size: 14400 Basic stats: COMPLETE Column stats: COMPLETE
+                  Filter Operator
+                    predicate: r_reason_sk is not null (type: boolean)
+                    Statistics: Num rows: 72 Data size: 7272 Basic stats: COMPLETE Column stats: COMPLETE
+                    Select Operator
+                      expressions: r_reason_sk (type: int), r_reason_desc (type: string)
+                      outputColumnNames: _col0, _col1
+                      Statistics: Num rows: 72 Data size: 7272 Basic stats: COMPLETE Column stats: COMPLETE
+                      Reduce Output Operator
+                        key expressions: _col0 (type: int)
+                        sort order: +
+                        Map-reduce partition columns: _col0 (type: int)
+                        Statistics: Num rows: 72 Data size: 7272 Basic stats: COMPLETE Column stats: COMPLETE
+                        value expressions: _col1 (type: string)
+            Execution mode: vectorized
+        Map 6
+            Map Operator Tree:
+                TableScan
+                  alias: cd1
+                  filterExpr: ((cd_demo_sk is not null and cd_marital_status is not null) and cd_education_status is not null) (type: boolean)
+                  Statistics: Num rows: 1920800 Data size: 718379200 Basic stats: COMPLETE Column stats: COMPLETE
+                  Filter Operator
+                    predicate: ((cd_demo_sk is not null and cd_marital_status is not null) and cd_education_status is not null) (type: boolean)
+                    Statistics: Num rows: 1920800 Data size: 351506400 Basic stats: COMPLETE Column stats: COMPLETE
+                    Select Operator
+                      expressions: cd_demo_sk (type: int), cd_marital_status (type: string), cd_education_status (type: string)
+                      outputColumnNames: _col0, _col1, _col2
+                      Statistics: Num rows: 1920800 Data size: 351506400 Basic stats: COMPLETE Column stats: COMPLETE
+                      Reduce Output Operator
+                        key expressions: _col0 (type: int)
+                        sort order: +
+                        Map-reduce partition columns: _col0 (type: int)
+                        Statistics: Num rows: 1920800 Data size: 351506400 Basic stats: COMPLETE Column stats: COMPLETE
+                        value expressions: _col1 (type: string), _col2 (type: string)
+            Execution mode: vectorized
+        Map 7
+            Map Operator Tree:
+                TableScan
+                  alias: cd1
+                  filterExpr: ((cd_demo_sk is not null and cd_marital_status is not null) and cd_education_status is not null) (type: boolean)
+                  Statistics: Num rows: 1920800 Data size: 718379200 Basic stats: COMPLETE Column stats: COMPLETE
+                  Filter Operator
+                    predicate: ((cd_demo_sk is not null and cd_marital_status is not null) and cd_education_status is not null) (type: boolean)
+                    Statistics: Num rows: 1920800 Data size: 351506400 Basic stats: COMPLETE Column stats: COMPLETE
+                    Select Operator
+                      expressions: cd_demo_sk (type: int), cd_marital_status (type: string), cd_education_status (type: string)
+                      outputColumnNames: _col0, _col1, _col2
+                      Statistics: Num rows: 1920800 Data size: 351506400 Basic stats: COMPLETE Column stats: COMPLETE
+                      Reduce Output Operator
+                        key expressions: _col0 (type: int), _col1 (type: string), _col2 (type: string)
+                        sort order: +++
+                        Map-reduce partition columns: _col0 (type: int), _col1 (type: string), _col2 (type: string)
+                        Statistics: Num rows: 1920800 Data size: 351506400 Basic stats: COMPLETE Column stats: COMPLETE
+            Execution mode: vectorized
+        Reducer 2
+            Reduce Operator Tree:
+              Group By Operator
+                aggregations: avg(VALUE._col0), avg(VALUE._col1), avg(VALUE._col2)
+                keys: KEY._col0 (type: string)
+                mode: mergepartial
+                outputColumnNames: _col0, _col1, _col2, _col3
+                Statistics: Num rows: 25 Data size: 3025 Basic stats: COMPLETE Column stats: COMPLETE
+                Select Operator
+                  expressions: substr(_col0, 1, 20) (type: string), _col1 (type: double), _col2 (type: double), _col3 (type: double)
+                  outputColumnNames: _col0, _col1, _col2, _col3
+                  Statistics: Num rows: 25 Data size: 5200 Basic stats: COMPLETE Column stats: COMPLETE
+                  Reduce Output Operator
+                    key expressions: _col0 (type: string), _col1 (type: double), _col2 (type: double), _col3 (type: double)
+                    sort order: ++++
+                    Statistics: Num rows: 25 Data size: 5200 Basic stats: COMPLETE Column stats: COMPLETE
+                    TopN Hash Memory Usage: 0.04
+        Reducer 3
+            Reduce Operator Tree:
+              Select Operator
+                expressions: KEY.reducesinkkey0 (type: string), KEY.reducesinkkey1 (type: double), KEY.reducesinkkey2 (type: double), KEY.reducesinkkey3 (type: double)
+                outputColumnNames: _col0, _col1, _col2, _col3
+                Statistics: Num rows: 25 Data size: 5200 Basic stats: COMPLETE Column stats: COMPLETE
+                Limit
+                  Number of rows: 100
+                  Statistics: Num rows: 25 Data size: 5200 Basic stats: COMPLETE Column stats: COMPLETE
+                  File Output Operator
+                    compressed: false
+                    Statistics: Num rows: 25 Data size: 5200 Basic stats: COMPLETE Column stats: COMPLETE
+                    table:
+                        input format: org.apache.hadoop.mapred.TextInputFormat
+                        output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                        serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+
+  Stage: Stage-0
+    Fetch Operator
+      limit: 100
+      Processor Tree:
+        ListSink
+
+
+Exception 
+
+
+], TaskAttempt 3 failed, info=[Error: Failure while running task:java.lang.RuntimeException: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:337)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:179)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:171)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:171)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:167)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:91)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.pushRecord(MapRecordSource.java:68)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.run(MapRecordProcessor.java:290)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:148)
+	... 14 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row
+	at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:52)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:83)
+	... 17 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Unexpected exception: output cannot be null.
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.process(MapJoinOperator.java:411)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorMapJoinOperator.process(VectorMapJoinOperator.java:287)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorSelectOperator.process(VectorSelectOperator.java:138)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorFilterOperator.process(VectorFilterOperator.java:114)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.process(TableScanOperator.java:97)
+	at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:162)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:45)
+	... 18 more
+Caused by: java.lang.IllegalArgumentException: output cannot be null.
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.writeClassAndObject(Kryo.java:601)
+	at org.apache.hadoop.hive.ql.exec.persistence.ObjectContainer.add(ObjectContainer.java:101)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.spillBigTableRow(MapJoinOperator.java:425)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorMapJoinOperator.spillBigTableRow(VectorMapJoinOperator.java:307)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.process(MapJoinOperator.java:390)
+	... 27 more
+]], Vertex failed as one or more tasks failed. failedTasks:1, Vertex vertex_1426707664723_3652_3_04 [Map 1] killed/failed due to:null]Vertex killed, vertexName=Reducer 3, vertexId=vertex_1426707664723_3652_3_06, diagnostics=[Vertex received Kill while in RUNNING state., Vertex killed as other vertex failed. failedTasks:0, Vertex vertex_1426707664723_3652_3_06 [Reducer 3] killed/failed due to:null]Vertex killed, vertexName=Reducer 2, vertexId=vertex_1426707664
+
+
+
+

@@ -1,0 +1,58 @@
+Description
+
+
+2015-06-02 12:21:57,909 [TezTaskRunner_attempt_1431919257083_3340_1_02_000012_0(attempt_1431919257083_3340_1_02_000012_0)] ERROR org.apache.hadoop.hive.ql.exec.tez.TezProcessor: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row
+        at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:95)
+        at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.pushRecord(MapRecordSource.java:70)
+        at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.run(MapRecordProcessor.java:316)
+        at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:158)
+        at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:146)
+        at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:349)
+        at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:71)
+        at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:60)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:422)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1654)
+        at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:60)
+        at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:35)
+        at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+        at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row
+        at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:52)
+        at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:86)
+        ... 17 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.ArrayIndexOutOfBoundsException
+        at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerBigOnlyLongOperator.process(VectorMapJoinInnerBigOnlyLongOperator.java:371)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:850)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorSelectOperator.process(VectorSelectOperator.java:138)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:850)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorFilterOperator.process(VectorFilterOperator.java:114)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:850)
+        at org.apache.hadoop.hive.ql.exec.TableScanOperator.process(TableScanOperator.java:97)
+        at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:164)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:45)
+        ... 18 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.ArrayIndexOutOfBoundsException
+        at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerLongOperator.process(VectorMapJoinInnerLongOperator.java:368)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:850)
+        at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinGenerateResultOperator.forwardBigTableBatch(VectorMapJoinGenerateResultOperator.java:603)
+        at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerBigOnlyGenerateResultOperator.generateHashMultiSetResultRepeatedAll(VectorMapJoinInnerBigOnlyGenerateResultOperator.java:289)
+        at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerBigOnlyGenerateResultOperator.finishInnerBigOnlyRepeated(VectorMapJoinInnerBigOnlyGenerateResultOperator.java:311)
+        at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerBigOnlyLongOperator.process(VectorMapJoinInnerBigOnlyLongOperator.java:198)
+        ... 26 more
+Caused by: java.lang.ArrayIndexOutOfBoundsException
+        at org.apache.hadoop.hive.ql.exec.vector.BytesColumnVector.setVal(BytesColumnVector.java:161)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorDeserializeRow$StringReaderByValue.apply(VectorDeserializeRow.java:349)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorDeserializeRow.deserializeByValue(VectorDeserializeRow.java:688)
+        at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinGenerateResultOperator.generateHashMapResultSingleValue(VectorMapJoinGenerateResultOperator.java:177)
+        at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerGenerateResultOperator.finishInner(VectorMapJoinInnerGenerateResultOperator.java:180)
+        at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinInnerLongOperator.process(VectorMapJoinInnerLongOperator.java:356)
+        ... 31 more
+
+
+Happens in single-threaded case for me. Seems to go away on retry, though.
+
+

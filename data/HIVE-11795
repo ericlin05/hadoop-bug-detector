@@ -1,0 +1,17 @@
+Description
+
+When input command: "mvn clean install -Phadoop-2,dist -DskipTests -Dhadoop-23.version=2.7.1 -Dspark.version=1.5.0" to compile hadoo-2.7.1 spark-1.5.0, system output an error, as follows:
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.1:compile (default-compile) on project spark-client: Compilation failure
+[ERROR] /opt/modules/apache-hive-1.2.1-src/spark-client/src/main/java/org/apache/hive/spark/client/RemoteDriver.java:[441,11] org.apache.hive.spark.client.RemoteDriver.ClientListener is not abstract and does not override abstract method onBlockUpdated(org.apache.spark.scheduler.SparkListenerBlockUpdated) in org.apache.spark.scheduler.SparkListener
+[ERROR] -&amp;gt; [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn &amp;lt;goals&amp;gt; -rf :spark-client
+
+

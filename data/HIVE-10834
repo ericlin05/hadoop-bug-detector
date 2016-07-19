@@ -1,0 +1,28 @@
+Description
+
+Currently the following query
+
+select ts, f, first_value(f) over (partition by ts order by t rows between 2 preceding and 1 preceding) from over10k limit 100;
+
+
+throws exception:
+
+java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row (tag=0) {"key":{"reducesinkkey0":"2013-03-01 09:11:58.703071","reducesinkkey1":-3},"value":{"_col3":0.83}}
+        at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.reduce(ExecReducer.java:256)
+        at org.apache.hadoop.mapred.ReduceTask.runOldReducer(ReduceTask.java:506)
+        at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:447)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:449)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row (tag=0) {"key":{"reducesinkkey0":"2013-03-01 09:11:58.703071","reducesinkkey1":-3},"value":{"_col3":0.83}}
+        at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.reduce(ExecReducer.java:244)
+        ... 3 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Internal Error: cannot generate all output rows for a Partition
+        at org.apache.hadoop.hive.ql.udf.ptf.WindowingTableFunction.finishPartition(WindowingTableFunction.java:519)
+        at org.apache.hadoop.hive.ql.exec.PTFOperator$PTFInvocation.finishPartition(PTFOperator.java:337)
+        at org.apache.hadoop.hive.ql.exec.PTFOperator.process(PTFOperator.java:114)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+        at org.apache.hadoop.hive.ql.exec.SelectOperator.process(SelectOperator.java:88)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.reduce(ExecReducer.java:235)
+
+
+
+

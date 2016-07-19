@@ -1,0 +1,19 @@
+Description
+
+Current version of kryo (2.22) has some issue (refer exception below and in HIVE-12174) with serializing ArrayLists generated using Arrays.asList(). We need to either replace all occurrences of  Arrays.asList() or change the current StdInstantiatorStrategy. This issue is fixed in later versions and kryo community recommends using DefaultInstantiatorStrategy with fallback to StdInstantiatorStrategy. More discussion about this issue is here https://github.com/EsotericSoftware/kryo/issues/216. Alternatively, custom serilization/deserilization class can be provided for Arrays.asList.
+Also, kryo 3.0 introduced unsafe based serialization which claims to have much better performance for certain types of serialization. 
+Exception:
+
+
+Caused by: java.lang.NullPointerException
+	at java.util.Arrays$ArrayList.size(Arrays.java:2847)
+	at java.util.AbstractList.add(AbstractList.java:108)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+	... 57 more
+
+
+
+

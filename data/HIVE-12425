@@ -1,0 +1,23 @@
+Description
+
+
+public void close(boolean abort) throws IOException {
+    if (abort) {
+      if (flushLengths == null) {
+        fs.delete(path, false);
+      }
+    } else {
+      if (writer != null) writer.close();
+    }
+    if (flushLengths != null) {
+      flushLengths.close();
+      fs.delete(getSideFile(path), false);
+    }
+    writer = null;
+  }
+
+
+While the assumption is that the last txn writing to this file to commit would have called flush(), this still leaves the file open.
+cc Owen O'Malley
+
+

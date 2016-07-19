@@ -1,0 +1,10 @@
+Description
+
+It failed with:
+java.lang.NullPointerException: null
+	at org.apache.hadoop.hive.metastore.HiveMetaStore.getDelegationToken(HiveMetaStore.java:5752)
+	at org.apache.hadoop.hive.thrift.TestHadoop20SAuthBridge.getDelegationTokenStr(TestHadoop20SAuthBridge.java:318)
+	at org.apache.hadoop.hive.thrift.TestHadoop20SAuthBridge.obtainTokenAndAddIntoUGI(TestHadoop20SAuthBridge.java:339)
+	at org.apache.hadoop.hive.thrift.TestHadoop20SAuthBridge.testSaslWithHiveMetaStore(TestHadoop20SAuthBridge.java:231)
+
+

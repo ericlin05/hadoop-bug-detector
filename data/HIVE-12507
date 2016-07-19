@@ -1,0 +1,39 @@
+Description
+
+throws exception:
+2015-11-24 18:27:45,257 Stage-16 map = 33%,  reduce = 0%, Cumulative CPU 2.84 sec
+2015-11-24 18:27:48,411 Stage-16 map = 67%,  reduce = 0%, Cumulative CPU 6.64 sec
+2015-11-24 18:28:16,959 Stage-16 map = 100%,  reduce = 0%, Cumulative CPU 6.64 sec
+MapReduce Total cumulative CPU time: 6 seconds 640 msec
+Ended Job = job_1448345967158_0062 with errors
+Error during job, obtaining debugging information...
+Examining task ID: task_1448345967158_0062_m_000002 (and more) from job job_1448345967158_0062
+Task with the most failures(4): 
+
+Task ID:
+  task_1448345967158_0062_m_000001
+URL:
+http://0.0.0.0:8088/taskdetails.jsp?jobid=job_1448345967158_0062&amp;amp;tipid=task_1448345967158_0062_m_000001
+
+Diagnostic Messages for this Task:
+Error: java.lang.RuntimeException: java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:185)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.exec.MapJoinOperator.loadHashTable(MapJoinOperator.java:189)
+        at org.apache.hadoop.hive.ql.exec.MapJoinOperator.cleanUpInputFileChangedOp(MapJoinOperator.java:216)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1051)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+        at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:486)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:176)
+        ... 8 more
+
+

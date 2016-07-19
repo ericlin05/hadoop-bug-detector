@@ -1,0 +1,55 @@
+Description
+
+Step to reproduce:
+mvn test -Dtest=TestMiniTezCliDriver -Dqfile=vector_auto_smb_mapjoin_14.q -Dhive.cbo.returnpath.hiveop=true -Dtest.output.overwrite=true
+Query :
+
+
+select count(*) from (
+  select a.key as key, a.value as val1, b.value as val2 from tbl1 a join tbl2 b on a.key = b.key
+) subq1
+
+
+Stack trace :
+
+
+2016-01-07T14:08:04,803 ERROR [da534038-d792-4d16-86e9-87b9f971adda main[]]: SessionState (SessionState.java:printError(1010)) - Vertex failed, vertexName=Map 1, vertexId=vertex_1452204324051_0001_33_00, diagnostics=[Vertex vertex_1452204324051_0001_33_00 [Map 1] k\
+illed/failed due to:AM_USERCODE_FAILURE, Exception in VertexManager, vertex:vertex_1452204324051_0001_33_00 [Map 1], java.lang.RuntimeException: java.lang.RuntimeException: Failed to load plan: null: java.lang.IllegalArgumentException: java.net.URISyntaxException: \
+Relative path in absolute URI: subq1:amerge.xml
+        at org.apache.hadoop.hive.ql.exec.tez.CustomPartitionVertex.onRootVertexInitialized(CustomPartitionVertex.java:314)
+        at org.apache.tez.dag.app.dag.impl.VertexManager$VertexManagerEventRootInputInitialized.invoke(VertexManager.java:624)
+        at org.apache.tez.dag.app.dag.impl.VertexManager$VertexManagerEvent$1.run(VertexManager.java:645)
+        at org.apache.tez.dag.app.dag.impl.VertexManager$VertexManagerEvent$1.run(VertexManager.java:640)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+        at org.apache.tez.dag.app.dag.impl.VertexManager$VertexManagerEvent.call(VertexManager.java:640)
+        at org.apache.tez.dag.app.dag.impl.VertexManager$VertexManagerEvent.call(VertexManager.java:629)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Failed to load plan: null: java.lang.IllegalArgumentException: java.net.URISyntaxException: Relative path in absolute URI: subq1:amerge.xml
+        at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:451)
+        at org.apache.hadoop.hive.ql.exec.Utilities.getMergeWork(Utilities.java:339)
+        at org.apache.hadoop.hive.ql.exec.tez.SplitGrouper.populateMapWork(SplitGrouper.java:260)
+        at org.apache.hadoop.hive.ql.exec.tez.SplitGrouper.generateGroupedSplits(SplitGrouper.java:172)
+        at org.apache.hadoop.hive.ql.exec.tez.CustomPartitionVertex.onRootVertexInitialized(CustomPartitionVertex.java:277)
+        ... 12 more
+Caused by: java.lang.IllegalArgumentException: java.net.URISyntaxException: Relative path in absolute URI: subq1:amerge.xml
+        at org.apache.hadoop.fs.Path.initialize(Path.java:206)
+        at org.apache.hadoop.fs.Path.&amp;lt;init&amp;gt;(Path.java:172)
+        at org.apache.hadoop.fs.Path.&amp;lt;init&amp;gt;(Path.java:94)
+        at org.apache.hadoop.hive.ql.exec.Utilities.getPlanPath(Utilities.java:588)
+        at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:387)
+        ... 16 more
+Caused by: java.net.URISyntaxException: Relative path in absolute URI: subq1:amerge.xml
+        at java.net.URI.checkPath(URI.java:1804)
+        at java.net.URI.&amp;lt;init&amp;gt;(URI.java:752)
+        at org.apache.hadoop.fs.Path.initialize(Path.java:203)
+        ... 20 more
+]
+
+
+
+

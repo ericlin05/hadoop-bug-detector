@@ -1,0 +1,26 @@
+Description
+
+Calling setString on a prepared statement with a string containing a '\' will cause the SQL construction to fail.
+I believe the slash should be escaped by the setString function.
+There may be other characters that require escaping during the same call.
+Failure from the unittest without the patch:
+
+
+Running org.apache.hive.jdbc.TestJdbcDriver2
+Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 9.738 sec &amp;lt;&amp;lt;&amp;lt; FAILURE! - in org.apache.hive.jdbc.TestJdbcDriver2
+testSlashPreparedStatement(org.apache.hive.jdbc.TestJdbcDriver2)  Time elapsed: 3.867 sec  &amp;lt;&amp;lt;&amp;lt; FAILURE!
+java.lang.AssertionError: java.lang.StringIndexOutOfBoundsException: String index out of range: -1
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.apache.hive.jdbc.TestJdbcDriver2.testSlashPreparedStatement(TestJdbcDriver2.java:522)
+
+
+Results :
+
+Failed tests: 
+  TestJdbcDriver2.testSlashPreparedStatement:522 java.lang.StringIndexOutOfBoundsException: String index out of range: -1
+
+Tests run: 1, Failures: 1, Errors: 0, Skipped: 0
+
+
+
+

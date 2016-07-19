@@ -1,0 +1,13 @@
+Description
+
+
+[org.apache.hadoop.hive.common.JvmPauseMonitor$Monitor@8b91134]: WARN common.JvmPauseMonitor: Error Reporting JvmPauseMonitor to Metrics system
+java.lang.NullPointerException
+        at org.apache.hadoop.hive.common.JvmPauseMonitor$Monitor.incrementMetricsCounter(JvmPauseMonitor.java:203)
+        at org.apache.hadoop.hive.common.JvmPauseMonitor$Monitor.run(JvmPauseMonitor.java:195)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+This error is continuously thrown in HS2.
+
+

@@ -1,0 +1,39 @@
+Description
+
+0
+down vote
+favorite
+I have been trying to install hive on windows. I have 64 bit windows 8 on which HADOOP and SPARK are running. I have
+1.HADOOP_HOME
+2.HIVE_HOME
+3.SPARK_HOME
+4.Platform
+5.PATH
+all these variables set up on my system. Also, I was getting these error before
+Missing Hive Execution Jar: C:\hadoop1\hadoop-2.7.2\apache-hive-1.2.1-bin/lib/hive-exec-*.jar
+I solved these error by editing the Hive file inside bin folder of HIVE. These errors are because of the forward slash"/" in environment variables in HIVE file. I replace them with "\" and those errors are gone. But now I am facing another problem. I am getting these error
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/C:/spark/spark-1.6.1-bin-hadoop2.6/lib/spark-assembly-1.6.1-hadoop2.6.0.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/C:/hadoop2.7/hadoop-2.7.1/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+Beeline version 1.6.1 by Apache Hive
+Exception in thread "main" java.lang.NoSuchMethodError: org.fusesource.jansi.internal.Kernel32.GetConsoleOutputCP()I
+    at jline.WindowsTerminal.getConsoleOutputCodepage(WindowsTerminal.java:293)
+    at jline.WindowsTerminal.getOutputEncoding(WindowsTerminal.java:186)
+    at jline.console.ConsoleReader.&amp;lt;init&amp;gt;(ConsoleReader.java:230)
+    at jline.console.ConsoleReader.&amp;lt;init&amp;gt;(ConsoleReader.java:221)
+    at jline.console.ConsoleReader.&amp;lt;init&amp;gt;(ConsoleReader.java:209)
+    at org.apache.hive.beeline.BeeLine.getConsoleReader(BeeLine.java:834)
+    at org.apache.hive.beeline.BeeLine.begin(BeeLine.java:770)
+    at org.apache.hive.beeline.BeeLine.mainWithInputRedirection(BeeLine.java:484)
+    at org.apache.hive.beeline.BeeLine.main(BeeLine.java:467)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:606)
+    at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+    at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+I have searched alot on these. Also I have posted these question on HIVE User mailing List but got no response. Please help me with this. Not even getting results when google this error.
+
+

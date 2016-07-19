@@ -1,0 +1,13 @@
+Description
+
+Running the following queries.
+
+create table t1(key string, value string) partitioned by (ds string);
+create table t2(key string, value string) partitioned by (ds string);
+select * from (select * from t1 join t2 on t1.key=t2.key where t1.ds='1') t3;
+FAILED: SemanticException [Error 10041]: No partition predicate found for Alias "t3:t1" Table "t2"
+
+
+In fact, the alias on the message should be "t3:t2".
+
+

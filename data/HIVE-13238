@@ -1,0 +1,49 @@
+Description
+
+hive query
+
+
+select
+  aaa,
+  sum(bbb)
+from (
+  select
+    ...
+  from access_log
+  where yyyymmdd='20160224' AND ...
+)x
+group by aaa
+
+
+stacktrace
+
+
+java.lang.OutOfMemoryError: Java heap space
+        at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:157)
+        at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+        at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:344)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:179)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:171)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:422)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:171)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:167)
+        at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+        at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.OutOfMemoryError: Java heap space
+        at java.nio.HeapByteBuffer.&amp;lt;init&amp;gt;(HeapByteBuffer.java:57)
+        at java.nio.ByteBuffer.allocate(ByteBuffer.java:335)
+        at org.apache.tez.runtime.library.common.sort.impl.PipelinedSorter.&amp;lt;init&amp;gt;(PipelinedSorter.java:172)
+        at org.apache.tez.runtime.library.common.sort.impl.PipelinedSorter.&amp;lt;init&amp;gt;(PipelinedSorter.java:116)
+        at org.apache.tez.runtime.library.output.OrderedPartitionedKVOutput.start(OrderedPartitionedKVOutput.java:142)
+        at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:142)
+        at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:147)
+        ... 14 more
+
+
+
+

@@ -1,0 +1,6 @@
+Description
+
+Hive shims provides a getUGI() method, which creates proxy user for impersonation if HADOOP_USER_NAME is present in environment. If HADOOP_USER_NAME equals to current login user, it is not necessary to create a proxy user.
+It is troublesome in a Hadoop cluster where impersonation is not allowed, and one tries to run hive code in a container where HADOOP_USER_NAME is set. RM will throw Exception: User XXX is not allowed to impersonate XXX.
+
+

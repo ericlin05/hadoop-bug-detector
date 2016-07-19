@@ -1,0 +1,20 @@
+Description
+
+The following code in CalcitePlanner.genOPTree looks buggy : 
+
+
+          if (!conf.getBoolVar(ConfVars.HIVE_IN_TEST) || isMissingStats
+              || e instanceof CalciteSemanticException) {
+            reAnalyzeAST = true;
+          } else if (e instanceof SemanticException) {
+            throw (SemanticException) e;
+          } else if (e instanceof RuntimeException) {
+            throw (RuntimeException) e;
+          } else {
+            throw new SemanticException(e);
+          }
+
+
+If we have missing stats and a Semantic exception thrown from from the try block, we still go ahead and continue to generate a plan with cbo turned off.
+
+

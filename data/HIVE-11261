@@ -1,0 +1,9 @@
+Description
+
+When running a DESCRIBE on a column or nested column, Hive raises a SemanticException if a database qualifier is included:
+hive&amp;gt; DESCRIBE `default`.`merchants`.`products`;
+FAILED: SemanticException [Error 10004]: Invalid table alias or column reference default.merchants.products
+hive&amp;gt; DESCRIBE `default`.`merchants`.`products`.`$value$`;
+FAILED: SemanticException [Error 10001]: Table not found default.merchants.products.$value$
+
+

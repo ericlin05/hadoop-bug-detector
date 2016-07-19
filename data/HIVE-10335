@@ -1,0 +1,40 @@
+Description
+
+
+
+2015-04-14 13:57:55,889 [TezTaskRunner_attempt_1428572510173_0173_2_03_000014_0(container_222212222_0173_01_000066_sseth_20150414135750_7a7c2f4f-5f2d-4645-b833-677621f087bd:2_Map 1_14_0)] ERROR org.apache.hadoop.hive.ql.exec.MapJoinOperator: Unexpected exception: Index: 0, Size: 0
+java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
+        at java.util.ArrayList.rangeCheck(ArrayList.java:653)
+        at java.util.ArrayList.get(ArrayList.java:429)
+        at org.apache.hadoop.hive.ql.exec.persistence.UnwrapRowContainer.unwrap(UnwrapRowContainer.java:79)
+        at org.apache.hadoop.hive.ql.exec.persistence.UnwrapRowContainer.first(UnwrapRowContainer.java:62)
+        at org.apache.hadoop.hive.ql.exec.persistence.UnwrapRowContainer.first(UnwrapRowContainer.java:33)
+        at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.genAllOneUniqueJoinObject(CommonJoinOperator.java:670)
+        at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.checkAndGenObject(CommonJoinOperator.java:754)
+        at org.apache.hadoop.hive.ql.exec.MapJoinOperator.process(MapJoinOperator.java:386)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorMapJoinOperator.process(VectorMapJoinOperator.java:283)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorMapJoinOperator.flushOutput(VectorMapJoinOperator.java:232)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorMapJoinOperator.closeOp(VectorMapJoinOperator.java:240)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:616)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:630)
+        at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.close(MapRecordProcessor.java:348)
+        at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:162)
+        at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+        at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:332)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:180)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:172)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:422)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:172)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:168)
+        at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+
+

@@ -1,0 +1,34 @@
+Description
+
+Drop table in an encrypted zone removes the table but not its data. The client sees the following on Hive CLI:
+
+hive&amp;gt; drop table testtbl;
+OK
+Time taken: 0.158 seconds
+
+
+On the Hive Metastore log following error is thrown:
+
+2015-05-05 08:55:27,665 ERROR [pool-6-thread-142]: hive.log (MetaStoreUtils.java:logAndThrowMetaException(1200)) - Got exception: java.io.IOException Failed to move to trash: hdfs://node-1.example.com:8020/apps/hive/warehouse/encdb1.db/testtbl
+java.io.IOException: Failed to move to trash: hdfs://node-1.example.com:8020/apps/hive/warehouse/encdb1.db/testtbl
+        at org.apache.hadoop.fs.TrashPolicyDefault.moveToTrash(TrashPolicyDefault.java:160)
+        at org.apache.hadoop.fs.Trash.moveToTrash(Trash.java:114)
+        at org.apache.hadoop.fs.Trash.moveToAppropriateTrash(Trash.java:95)
+        at org.apache.hadoop.hive.shims.Hadoop23Shims.moveToAppropriateTrash(Hadoop23Shims.java:270)
+        at org.apache.hadoop.hive.metastore.HiveMetaStoreFsImpl.deleteDir(HiveMetaStoreFsImpl.java:47)
+        at org.apache.hadoop.hive.metastore.Warehouse.deleteDir(Warehouse.java:229)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.deleteTableData(HiveMetaStore.java:1584)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.drop_table_core(HiveMetaStore.java:1552)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.drop_table_with_environment_context(HiveMetaStore.java:1705)
+        at sun.reflect.GeneratedMethodAccessor57.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.hive.metastore.RetryingHMSHandler.invoke(RetryingHMSHandler.java:107)
+        at com.sun.proxy.$Proxy13.drop_table_with_environment_context(Unknown Source)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Processor$drop_table_with_environment_context.getResult(ThriftHiveMetastore.java:9256)
+        ....
+
+
+The client should throw the error and maybe fail the drop table call. To delete the table data one currently has to use drop table testtbl purge which basically remove the table data permanently skipping trash.
+
+

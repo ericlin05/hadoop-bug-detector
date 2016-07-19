@@ -1,0 +1,62 @@
+Description
+
+Query 
+
+
+explain
+select
+    count(*) rowcount
+from
+    (select
+        ss_item_sk, ss_ticket_number, ss_store_sk
+    from
+        store_sales a, store_returns b
+    where
+        a.ss_item_sk = b.sr_item_sk
+            and a.ss_ticket_number = b.sr_ticket_number
+            and ss_sold_date_sk between 2450816 and 2451500
+                        and sr_returned_date_sk between 2450816 and 2451500
+            union all
+        select
+        ss_item_sk, ss_ticket_number, ss_store_sk
+    from
+        store_sales c, store_returns d
+    where
+        c.ss_item_sk = d.sr_item_sk
+            and c.ss_ticket_number = d.sr_ticket_number
+                        and ss_sold_date_sk between 2450816 and 2451500
+                        and sr_returned_date_sk between 2450816 and 2451500) t
+group by t.ss_store_sk , t.ss_item_sk , t.ss_ticket_number
+having rowcount &amp;gt; 100000000
+
+
+Exception 
+
+
+15/04/30 04:44:21 [main]: ERROR parse.CalcitePlanner: CBO failed, skipping CBO.
+org.apache.hadoop.hive.ql.optimizer.calcite.CalciteSemanticException: Encountered Select alias 'rowcount' in having clause 'rowcount &amp;gt; 100000000' This non standard behavior is not supported with cbo on. Turn off cbo for these queries.
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner$CalcitePlannerAction.validateNoHavingReferenceToAlias(CalcitePlanner.java:2888)
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner$CalcitePlannerAction.genGBHavingLogicalPlan(CalcitePlanner.java:2828)
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner$CalcitePlannerAction.genLogicalPlan(CalcitePlanner.java:2738)
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner$CalcitePlannerAction.apply(CalcitePlanner.java:804)
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner$CalcitePlannerAction.apply(CalcitePlanner.java:765)
+        at org.apache.calcite.tools.Frameworks$1.apply(Frameworks.java:109)
+        at org.apache.calcite.prepare.CalcitePrepareImpl.perform(CalcitePrepareImpl.java:730)
+        at org.apache.calcite.tools.Frameworks.withPrepare(Frameworks.java:145)
+        at org.apache.calcite.tools.Frameworks.withPlanner(Frameworks.java:105)
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner.getOptimizedAST(CalcitePlanner.java:604)
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner.genOPTree(CalcitePlanner.java:242)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:10015)
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner.analyzeInternal(CalcitePlanner.java:205)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:227)
+        at org.apache.hadoop.hive.ql.parse.ExplainSemanticAnalyzer.analyzeInternal(ExplainSemanticAnalyzer.java:74)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:227)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:424)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:308)
+        at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1122)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1170)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1059)
+
+
+
+

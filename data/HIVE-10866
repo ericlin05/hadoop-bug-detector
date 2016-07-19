@@ -1,0 +1,44 @@
+Description
+
+Currently, hive does not support appends(insert into) bucketed table, see open jira HIVE-3608. When insert into such table, the data will be "corrupted" and not fit for sort merge bucket mapjoin. 
+We need find a way to prevent client from inserting into such table. Or at least give a warning.
+Reproduce:
+
+CREATE TABLE IF NOT EXISTS buckettestoutput1( 
+data string 
+)CLUSTERED BY(data) 
+INTO 2 BUCKETS 
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+CREATE TABLE IF NOT EXISTS buckettestoutput2( 
+data string 
+)CLUSTERED BY(data) 
+INTO 2 BUCKETS 
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+
+set hive.enforce.bucketing = true; 
+set hive.enforce.sorting=true;
+insert into table buckettestoutput1 select code from sample_07 where total_emp &amp;lt; 134354250 limit 10;
+After this first insert, I did:
+set hive.auto.convert.sortmerge.join=true; 
+set hive.optimize.bucketmapjoin = true; 
+set hive.optimize.bucketmapjoin.sortedmerge = true; 
+set hive.auto.convert.sortmerge.join.noconditionaltask=true;
+
+0: jdbc:hive2://localhost:10000&amp;gt; select * from buckettestoutput1 a join buckettestoutput2 b on (a.data=b.data);
++-------+-------+
+| data  | data  |
++-------+-------+
++-------+-------+
+So select works fine. 
+Second insert:
+0: jdbc:hive2://localhost:10000&amp;gt; insert into table buckettestoutput1 select code from sample_07 where total_emp &amp;gt;= 134354250 limit 10;
+No rows affected (61.235 seconds)
+Then select:
+0: jdbc:hive2://localhost:10000&amp;gt; select * from buckettestoutput1 a join buckettestoutput2 b on (a.data=b.data);
+Error: Error while compiling statement: FAILED: SemanticException [Error 10141]: Bucketed table metadata is not correct. Fix the metadata or don't use bucketed mapjoin, by setting hive.enforce.bucketmapjoin to false. The number of buckets for table buckettestoutput1 is 2, whereas the number of files is 4 (state=42000,code=10141)
+0: jdbc:hive2://localhost:10000&amp;gt;
+
+
+Insert into empty table or partition will be fine, but insert into the non-empty one (after second insert in the reproduce), the SMB mapjoin will throw an error. We should not let second insert succeed when user explicitly want to enforce bucketing. 
+
+

@@ -1,0 +1,58 @@
+Description
+
+Steps to reproduce:
+1,prepare the table and data
+
+create table if not exists lxw_test(imei string,sndaid string,data_time string)
+CLUSTERED BY(imei) SORTED BY(imei) INTO 10 BUCKETS;
+create table if not exists lxw_test1(imei string,sndaid string,data_time string)
+CLUSTERED BY(imei) SORTED BY(imei) INTO 5 BUCKETS;
+set hive.enforce.bucketing = true;
+set hive.enforce.sorting = true;
+insert overwrite table lxw_test
+values(1,1,1),(2,2,2),(3,3,3),(4,4,4),(5,5,5),(6,6,6),(7,7,7),(8,8,8),(9,9,9),(10,10,10);
+insert overwrite table lxw_test1
+values (1,1,1),(2,2,2),(3,3,3),(4,4,4),(5,5,5),(6,6,6),(7,7,7),(8,8,8),(9,9,9),(10,10,10);
+set hive.enforce.bucketing;
+insert into table lxw_test1 select * from lxw_test;
+set hive.optimize.bucketmapjoin = true;
+set hive.optimize.bucketmapjoin.sortedmerge = true;
+set hive.input.format=org.apache.hadoop.hive.ql.io.BucketizedHiveInputFormat;
+
+
+2,the following sql will success :
+
+set hive.execution.engine=mr;
+explain select  count(1) 
+from lxw_test1 a 
+join lxw_test b 
+on a.imei = b.imei ;
+
+
+3,this one will fail :
+
+set hive.execution.engine=spark;
+explain select  count(1) 
+from lxw_test1 a 
+join lxw_test b 
+on a.imei = b.imei ;
+
+
+On spark,the query returns this error:
+
+Error: Error while compiling statement: FAILED: SemanticException [Error 10141]: Bucketed table metadata is not correct. Fix the metadata or don't use bucketed mapjoin, by setting hive.enforce.bucketmapjoin to false. The number of buckets for table lxw_test1 is 5, whereas the number of files is 10 (state=42000,code=10141)
+
+
+4,After set hive.ignore.mapjoin.hint=false and use mapjoin hint,the MapReduce engine return the same error.
+
+set hive.execution.engine=mr;
+set hive.ignore.mapjoin.hint=false;
+explain
+select /*+ mapjoin(b) */ count(1) 
+from lxw_test1 a 
+join lxw_test b 
+on a.imei = b.imei ;
+
+
+
+

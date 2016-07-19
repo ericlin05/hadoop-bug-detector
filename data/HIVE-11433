@@ -1,0 +1,96 @@
+Description
+
+NullPointException is thrown for query that has multiple (greater than 3) inner joins. Stacktrace for 1.1.0
+
+
+NullPointerException null
+java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.parse.ParseUtils.getIndex(ParseUtils.java:149)
+        at org.apache.hadoop.hive.ql.parse.ParseUtils.checkJoinFilterRefersOneAlias(ParseUtils.java:166)
+        at org.apache.hadoop.hive.ql.parse.ParseUtils.checkJoinFilterRefersOneAlias(ParseUtils.java:185)
+        at org.apache.hadoop.hive.ql.parse.ParseUtils.checkJoinFilterRefersOneAlias(ParseUtils.java:185)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.mergeJoins(SemanticAnalyzer.java:8257)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.mergeJoinTree(SemanticAnalyzer.java:8422)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genPlan(SemanticAnalyzer.java:9805)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genPlan(SemanticAnalyzer.java:9714)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genOPTree(SemanticAnalyzer.java:10150)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:10161)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:10078)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:222)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:421)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:307)
+        at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1110)
+        at org.apache.hadoop.hive.ql.Driver.compileAndRespond(Driver.java:1104)
+        at org.apache.hive.service.cli.operation.SQLOperation.prepare(SQLOperation.java:101)
+        at org.apache.hive.service.cli.operation.SQLOperation.runInternal(SQLOperation.java:172)
+        at org.apache.hive.service.cli.operation.Operation.run(Operation.java:257)
+        at org.apache.hive.service.cli.session.HiveSessionImpl.executeStatementInternal(HiveSessionImpl.java:386)
+        at org.apache.hive.service.cli.session.HiveSessionImpl.executeStatementAsync(HiveSessionImpl.java:373)
+        at org.apache.hive.service.cli.CLIService.executeStatementAsync(CLIService.java:271)
+        at org.apache.hive.service.cli.thrift.ThriftCLIService.ExecuteStatement(ThriftCLIService.java:486)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$ExecuteStatement.getResult(TCLIService.java:1313)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$ExecuteStatement.getResult(TCLIService.java:1298)
+        at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+        at org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:39)
+        at org.apache.hadoop.hive.thrift.HadoopThriftAuthBridge$Server$TUGIAssumingProcessor.process(HadoopThriftAuthBridge.java:692)
+        at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+.
+However, the problem can also be reproduced in latest master branch. Further investigation shows that the following code (in ParseUtils.java) is problematic:
+
+
+  static int getIndex(String[] list, String elem) {
+    for(int i=0; i &amp;lt; list.length; i++) {
+      if (list[i].toLowerCase().equals(elem)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+
+The code assumes that every element in the list is not null, which isn't true because of the following code in SemanticAnalyzer.java (method genJoinTree()):
+
+
+    if ((right.getToken().getType() == HiveParser.TOK_TABREF)
+        || (right.getToken().getType() == HiveParser.TOK_SUBQUERY)
+        || (right.getToken().getType() == HiveParser.TOK_PTBLFUNCTION)) {
+      String tableName = getUnescapedUnqualifiedTableName((ASTNode) right.getChild(0))
+          .toLowerCase();
+      String alias = extractJoinAlias(right, tableName);
+      String[] rightAliases = new String[1];
+      rightAliases[0] = alias;
+      joinTree.setRightAliases(rightAliases);
+      String[] children = joinTree.getBaseSrc();
+      if (children == null) {
+        children = new String[2];
+      }
+      children[1] = alias;
+      joinTree.setBaseSrc(children);
+      joinTree.setId(qb.getId());
+      joinTree.getAliasToOpInfo().put(
+          getModifiedAlias(qb, alias), aliasToOpInfo.get(alias));
+      // remember rhs table for semijoin
+      if (joinTree.getNoSemiJoin() == false) {
+        joinTree.addRHSSemijoin(alias);
+      }
+    } else {
+
+
+.
+Specifically, this code can result a null element as base source:
+
+
+      if (children == null) {
+        children = new String[2];
+      }
+      children[1] = alias;
+
+
+This appears to be a regression from earlier release (0.14.1). However, it's unclear which commit caused this.
+
+

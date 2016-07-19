@@ -1,0 +1,30 @@
+Description
+
+Renaming a nonexisting partition should not throw out NullPointerException. 
+create table testpart (col1 int, col2 string, col3 string) partitioned by (part string);
+alter table testpart partition (part = 'nonexisting') rename to partition (part = 'existing');
+we get NPE like following:
+
+
+15/03/16 10:16:11 ERROR exec.DDLTask: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.DDLTask.renamePartition(DDLTask.java:944)
+	at org.apache.hadoop.hive.ql.exec.DDLTask.execute(DDLTask.java:350)
+	at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:88)
+	at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1642)
+	at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1402)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1187)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1053)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1043)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:207)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:159)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:370)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:754)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:675)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:615)
+
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. null
+
+
+
+

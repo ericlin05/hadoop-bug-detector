@@ -1,0 +1,31 @@
+Description
+
+This will cause NPE if the thrift client use protocol V5 or older:
+
+1:46:07.199 PM	ERROR	org.apache.thrift.server.TThreadPoolServer	
+Error occurred during processing of message.
+java.lang.NullPointerException
+	at org.apache.hive.service.cli.thrift.TRow$TRowStandardScheme.write(TRow.java:388)
+	at org.apache.hive.service.cli.thrift.TRow$TRowStandardScheme.write(TRow.java:338)
+	at org.apache.hive.service.cli.thrift.TRow.write(TRow.java:288)
+	at org.apache.hive.service.cli.thrift.TRowSet$TRowSetStandardScheme.write(TRowSet.java:605)
+	at org.apache.hive.service.cli.thrift.TRowSet$TRowSetStandardScheme.write(TRowSet.java:525)
+	at org.apache.hive.service.cli.thrift.TRowSet.write(TRowSet.java:455)
+	at org.apache.hive.service.cli.thrift.TFetchResultsResp$TFetchResultsRespStandardScheme.write(TFetchResultsResp.java:550)
+	at org.apache.hive.service.cli.thrift.TFetchResultsResp$TFetchResultsRespStandardScheme.write(TFetchResultsResp.java:486)
+	at org.apache.hive.service.cli.thrift.TFetchResultsResp.write(TFetchResultsResp.java:412)
+	at org.apache.hive.service.cli.thrift.TCLIService$FetchResults_result$FetchResults_resultStandardScheme.write(TCLIService.java:13272)
+	at org.apache.hive.service.cli.thrift.TCLIService$FetchResults_result$FetchResults_resultStandardScheme.write(TCLIService.java:13236)
+	at org.apache.hive.service.cli.thrift.TCLIService$FetchResults_result.write(TCLIService.java:13187)
+	at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:53)
+	at org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:39)
+	at org.apache.hadoop.hive.thrift.HadoopThriftAuthBridge20S$Server$TUGIAssumingProcessor.process(HadoopThriftAuthBridge20S.java:677)
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:244)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+Reproduce: Run: select NULL as col, * from jsmall limit 5; from a V5 client (for example some version of Hue).
+
+

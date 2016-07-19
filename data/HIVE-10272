@@ -1,0 +1,21 @@
+Description
+
+Some HCat tests fail under windows with errors like this:
+
+java.lang.RuntimeException: java.lang.IllegalArgumentException: Pathname /D:/w/hv/hcatalog/hcatalog-pig-adapter/target/tmp/scratchdir from D:/w/hv/hcatalog/hcatalog-pig-adapter/target/tmp/scratchdir is not a valid DFS filename.
+	at org.apache.hadoop.hdfs.DistributedFileSystem.getPathName(DistributedFileSystem.java:197)
+	at org.apache.hadoop.hdfs.DistributedFileSystem.access$000(DistributedFileSystem.java:106)
+	at org.apache.hadoop.hdfs.DistributedFileSystem$22.doCall(DistributedFileSystem.java:1305)
+	at org.apache.hadoop.hdfs.DistributedFileSystem$22.doCall(DistributedFileSystem.java:1301)
+	at org.apache.hadoop.fs.FileSystemLinkResolver.resolve(FileSystemLinkResolver.java:81)
+	at org.apache.hadoop.hdfs.DistributedFileSystem.getFileStatus(DistributedFileSystem.java:1301)
+	at org.apache.hadoop.fs.FileSystem.exists(FileSystem.java:1424)
+	at org.apache.hadoop.hive.ql.session.SessionState.createRootHDFSDir(SessionState.java:594)
+	at org.apache.hadoop.hive.ql.session.SessionState.createSessionDirs(SessionState.java:552)
+	at org.apache.hadoop.hive.ql.session.SessionState.start(SessionState.java:504)
+	at org.apache.hive.hcatalog.pig.TestHCatLoaderEncryption.setup(TestHCatLoaderEncryption.java:185)
+
+
+We need to sanitize HiveConf objects with WindowsPathUtil.convertPathsFromWindowsToHdfs if running under windows before we use them to instantiate a SessionState/Driver
+
+

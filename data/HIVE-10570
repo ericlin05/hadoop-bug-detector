@@ -1,0 +1,45 @@
+Description
+
+HiveServer2 should not shut down when there is temporary ZooKeeper unavailability (eg. temporary network outage). This prevents retry and recovery later as HiveServer2 is no longer running and therefore cannot retry - HiveServer2 stays offline indefinitely until operator intervention to restart it, even for minor temporary problems.
+I believe this behaviour is due to recent ZooKeeper dependency addition for HiveServer2 HA.
+
+2015-05-01 11:35:05,367 WARN  zookeeper.ClientCnxn (ClientCnxn.java:run(1102)) - Session 0x14d004cb02c001e for server null, unexpected error, closing socket
+connection and attempting reconnect
+java.net.SocketException: Network is unreachable
+        at sun.nio.ch.Net.connect0(Native Method)
+        at sun.nio.ch.Net.connect(Net.java:465)
+        at sun.nio.ch.Net.connect(Net.java:457)
+        at sun.nio.ch.SocketChannelImpl.connect(SocketChannelImpl.java:670)
+        at org.apache.zookeeper.ClientCnxnSocketNIO.registerAndConnect(ClientCnxnSocketNIO.java:277)
+        at org.apache.zookeeper.ClientCnxnSocketNIO.connect(ClientCnxnSocketNIO.java:287)
+        at org.apache.zookeeper.ClientCnxn$SendThread.startConnect(ClientCnxn.java:967)
+        at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1003)
+2015-05-01 11:35:05,629 INFO  client.ZooKeeperSaslClient (ZooKeeperSaslClient.java:run(285)) - Client will use GSSAPI as SASL mechanism.
+2015-05-01 11:35:05,630 INFO  zookeeper.ClientCnxn (ClientCnxn.java:logStartConnect(975)) - Opening socket connection to server &amp;lt;custom_scrubbed&amp;gt;/&amp;lt;ip&amp;gt;:2181. Will attempt to SASL-authenticate using Login Context section 'HiveZooKeeperClient'
+2015-05-01 11:35:05,630 ERROR zookeeper.ClientCnxnSocketNIO (ClientCnxnSocketNIO.java:connect(289)) - Unable to open socket to &amp;lt;custom_scrubbed&amp;gt;/&amp;lt;ip&amp;gt;:2181
+2015-05-01 11:35:05,630 ERROR zookeeper.ClientCnxnSocketNIO (ClientCnxnSocketNIO.java:connect(289)) - Unable to open socket to &amp;lt;custom_scrubbed&amp;gt;/&amp;lt;ip&amp;gt;:2181
+2015-05-01 11:35:05,630 WARN  zookeeper.ClientCnxn (ClientCnxn.java:run(1102)) - Session 0x14d004cb02c001e for server null, unexpected error, closing socket
+connection and attempting reconnect
+java.net.SocketException: Network is unreachable
+        at sun.nio.ch.Net.connect0(Native Method)
+        at sun.nio.ch.Net.connect(Net.java:465)
+        at sun.nio.ch.Net.connect(Net.java:457)
+        at sun.nio.ch.SocketChannelImpl.connect(SocketChannelImpl.java:670)
+        at org.apache.zookeeper.ClientCnxnSocketNIO.registerAndConnect(ClientCnxnSocketNIO.java:277)
+        at org.apache.zookeeper.ClientCnxnSocketNIO.connect(ClientCnxnSocketNIO.java:287)
+        at org.apache.zookeeper.ClientCnxn$SendThread.startConnect(ClientCnxn.java:967)
+        at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1003)
+2015-05-01 11:35:05,943 INFO  server.HiveServer2 (HiveServer2.java:stop(299)) - Shutting down HiveServer2
+2015-05-01 11:35:05,944 INFO  thrift.ThriftCLIService (ThriftCLIService.java:stop(137)) - Thrift server has stopped
+2015-05-01 11:35:05,944 INFO  service.AbstractService (AbstractService.java:stop(125)) - Service:ThriftBinaryCLIService is stopped.
+2015-05-01 11:35:05,944 INFO  service.AbstractService (AbstractService.java:stop(125)) - Service:OperationManager is stopped.
+2015-05-01 11:35:05,944 INFO  service.AbstractService (AbstractService.java:stop(125)) - Service:SessionManager is stopped.
+2015-05-01 11:35:05,946 INFO  server.HiveServer2 (HiveStringUtils.java:run(679)) - SHUTDOWN_MSG:
+/************************************************************
+SHUTDOWN_MSG: Shutting down HiveServer2 at &amp;lt;fqdn&amp;gt;/&amp;lt;ip&amp;gt;
+************************************************************/
+
+Hari Sekhon
+http://www.linkedin.com/in/harisekhon
+
+

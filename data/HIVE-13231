@@ -1,0 +1,36 @@
+Description
+
+cannot store data in a directory whose parent doesn't exist, even though the target dir does have an existing ancestor on HDFS. This occurs when trying to perform create table &amp;lt;location&amp;gt;.
+
+
+0: jdbc:hive2://10.17.81.192:10000/default&amp;gt; create table test3 location '/user/hive/data/yshi/nonexisting/test3' as select * from sample_07;
+Error: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.MoveTask (state=08S01,code=1)
+Error message:
+2015-10-29 19:04:46,323 ERROR org.apache.hadoop.hive.ql.exec.Task: Failed with exception Unable to rename: hdfs://host-10-17-81-192.coe.cloudera.com:8020/user/hive/warehouse/.hive-staging_hive_2015-10-29_19-04-08_375_5385987873542863570-3/-ext-10001 to: /user/hive/data/yshi/nonexisting/test3
+org.apache.hadoop.hive.ql.metadata.HiveException: Unable to rename: hdfs://host-10-17-81-192.coe.cloudera.com:8020/user/hive/warehouse/.hive-staging_hive_2015-10-29_19-04-08_375_5385987873542863570-3/-ext-10001 to: /user/hive/data/yshi/nonexisting/test3
+        at org.apache.hadoop.hive.ql.exec.MoveTask.moveFile(MoveTask.java:101)
+        at org.apache.hadoop.hive.ql.exec.MoveTask.execute(MoveTask.java:209)
+        at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:153)
+        at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:85)
+        at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1554)
+        at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1321)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1139)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:962)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:957)
+        at org.apache.hive.service.cli.operation.SQLOperation.runInternal(SQLOperation.java:144)
+        at org.apache.hive.service.cli.operation.SQLOperation.access$000(SQLOperation.java:68)
+        at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:199)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1642)
+        at org.apache.hadoop.hive.shims.HadoopShimsSecure.doAs(HadoopShimsSecure.java:502)
+        at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:212)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+
+

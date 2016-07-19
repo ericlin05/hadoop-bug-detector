@@ -1,0 +1,13 @@
+Description
+
+compute_stats() UDF's size estimates only work within the Execution engine, not during optimizer pass.
+
+
+java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.udf.generic.GenericUDAFComputeStats$GenericUDAFNumericStatsEvaluator$NumericStatsAgg.estimate(GenericUDAFComputeStats.java:434)
+        at org.apache.hadoop.hive.ql.udf.generic.GenericUDAFComputeStats$GenericUDAFDoubleStatsEvaluator$DoubleStatsAgg.estimate(GenericUDAFComputeStats.java:643)
+        at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$GroupByStatsRule.checkMapSideAggregation(StatsRulesProcFactory.java:996)
+
+
+
+

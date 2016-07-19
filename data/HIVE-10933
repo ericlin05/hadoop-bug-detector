@@ -1,0 +1,47 @@
+Description
+
+DatabaseMetadata.getColumns() returns "COLUMN_SIZE" as 0 for a column defined as varchar(32), or char(32).   While ResultSetMetaData.getPrecision() returns correct value 32.
+Here is the segment program that reproduces the issue.
+
+
+try {
+	statement = connection.createStatement();
+			
+	statement.execute("drop table if exists son_table");
+			
+	statement.execute("create table son_table( col1 varchar(32) )");
+			
+	statement.close();
+			
+} catch ( Exception e) {
+	   return;
+}		
+		
+// get column info using metadata
+try {
+	DatabaseMetaData dmd = null;
+	ResultSet resultSet = null;
+			
+	dmd = connection.getMetaData();
+			
+	resultSet = dmd.getColumns(null, null, "son_table", "col1");
+			
+	if ( resultSet.next() ) {
+		String tabName = resultSet.getString("TABLE_NAME");
+		String colName = resultSet.getString("COLUMN_NAME");
+		String dataType = resultSet.getString("DATA_TYPE");
+		String typeName = resultSet.getString("TYPE_NAME");
+		int precision = resultSet.getInt("COLUMN_SIZE");
+				
+		// output is: colName = col1, dataType = 12, typeName = VARCHAR, precision = 0.
+	      System.out.format("colName = %s, dataType = %s, typeName = %s, precision = %d.",
+		colName, dataType, typeName, precision);
+	}
+
+} catch ( Exception e) {
+	return;
+}
+
+
+
+

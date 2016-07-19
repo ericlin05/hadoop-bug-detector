@@ -1,0 +1,15 @@
+Description
+
+When filtering Parquet tables using a partition column, the query fails saying the column does not exist:
+
+hive&amp;gt; create table part1 (id int, content string) partitioned by (p string) stored as parquet;
+hive&amp;gt; alter table part1 add partition (p='p1');
+hive&amp;gt; insert into table part1 partition (p='p1') values (1, 'a'), (2, 'b');
+hive&amp;gt; select id from part1 where p='p1';
+Failed with exception java.io.IOException:java.lang.IllegalArgumentException: Column [p] was not found in schema!
+Time taken: 0.151 seconds
+
+
+It is correct that the partition column is not part of the Parquet schema. So, the fix should be to remove such expression from the Parquet PPD.
+
+

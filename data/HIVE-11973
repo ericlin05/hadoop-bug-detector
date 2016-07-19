@@ -1,0 +1,47 @@
+Description
+
+Test DLL :
+
+
+CREATE TABLE `date_dim`(
+  `d_date_sk` int, 
+  `d_date_id` string, 
+  `d_date` date, 
+  `d_current_week` string, 
+  `d_current_month` string, 
+  `d_current_quarter` string, 
+  `d_current_year` string) ;
+
+
+Hive query :
+
+
+    SELECT *  
+    FROM   date_dim     
+    WHERE d_date  IN ('2000-03-22','2001-03-22')  ;
+
+
+In 1.0.0 ,  the above query fails with:
+
+
+    FAILED: SemanticException [Error 10014]: Line 1:180 Wrong arguments ''2001-03-22'': The arguments for IN should be the same type! Types are: {date IN (string, string)}
+
+
+I changed the query as given to pass the error :
+
+
+    SELECT *  
+    FROM   date_dim     
+    WHERE d_date  IN (CAST('2000-03-22' AS DATE) , CAST('2001-03-22' AS DATE)  )  ;
+
+
+But it works without casting  :
+
+
+    SELECT *  
+    FROM   date_dim     
+    WHERE d_date   = '2000-03-22' ;
+
+
+
+

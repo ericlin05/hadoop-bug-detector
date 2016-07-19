@@ -1,0 +1,25 @@
+Description
+
+With a simple query (select from orc table and insert into HBase external table):
+
+
+insert into table register.register  select * from aa_temp
+
+
+The aa_temp table have 45 orc files. It generate 45 mappers.
+Some mappers fail with this error:
+
+Caused by: java.lang.IllegalArgumentException: Must specify table name
+        at org.apache.hadoop.hbase.mapreduce.TableOutputFormat.setConf(TableOutputFormat.java:188)
+        at org.apache.hive.common.util.ReflectionUtil.setConf(ReflectionUtil.java:101)
+        at org.apache.hive.common.util.ReflectionUtil.newInstance(ReflectionUtil.java:87)
+        at org.apache.hadoop.hive.ql.io.HiveFileFormatUtils.getHiveOutputFormat(HiveFileFormatUtils.java:300)
+        at org.apache.hadoop.hive.ql.io.HiveFileFormatUtils.getHiveOutputFormat(HiveFileFormatUtils.java:290)
+        at org.apache.hadoop.hive.ql.exec.FileSinkOperator.createHiveOutputFormat(FileSinkOperator.java:1126)
+        ... 25 more
+]], Vertex did not succeed due to OWN_TASK_FAILURE, failedTasks:1 killedTasks:35, Vertex vertex_1457964631631_0015_3_00 [Map 1] killed/failed due to:OWN_TASK_FAILURE]DAG did not succeed due to VERTEX_FAILURE. failedVertices:1 killedVertices:0 (state=08S01,code=2)
+
+
+If I do an ALTER CONCATENATE for aa_temp. And redo the query. Everything is fine because there are only one mapper.
+
+

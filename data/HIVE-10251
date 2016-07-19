@@ -1,0 +1,23 @@
+Description
+
+HIVE-9664 makes hive depend on the existence of ivysettings.xml, and if it is not present, it makes hive NPE when instantiating a CLISessionState.
+
+java.lang.NullPointerException
+at org.apache.hadoop.hive.ql.session.DependencyResolver.&amp;lt;init&amp;gt;(DependencyResolver.java:61)
+at org.apache.hadoop.hive.ql.session.SessionState.&amp;lt;init&amp;gt;(SessionState.java:343)
+at org.apache.hadoop.hive.ql.session.SessionState.&amp;lt;init&amp;gt;(SessionState.java:334)
+at org.apache.hadoop.hive.cli.CliSessionState.&amp;lt;init&amp;gt;(CliSessionState.java:60)
+
+
+This happens because of the following bit:
+
+    // If HIVE_HOME is not defined or file is not found in HIVE_HOME/conf then load default ivysettings.xml from class loader
+    if (ivysettingsPath == null || !(new File(ivysettingsPath).exists())) {
+      ivysettingsPath = ClassLoader.getSystemResource("ivysettings.xml").getFile();
+      _console.printInfo("ivysettings.xml file not found in HIVE_HOME or HIVE_CONF_DIR," + ivysettingsPath + " will be used");
+    }
+
+
+This makes it so that an attempt to instantiate CliSessionState without an ivysettings.xml file will cause hive to fail with an NPE. Hive should not have a hard dependency on a ivysettings,xml being present, and this feature should gracefully fail in that case instead.
+
+

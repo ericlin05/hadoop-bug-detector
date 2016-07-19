@@ -1,0 +1,42 @@
+Description
+
+Hive gets the following NullPointerException when trying to go a group by aggregate.
+This occurs whether the engine is Tez or MR, but I'm told this works on our other cluster which is HDP 2.2.
+I'm attaching the full outputs from the hive session, but here is the crux of it:
+
+
+Error: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:172)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:453)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:164)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:422)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row
+        at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:52)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:163)
+        ... 8 more
+Caused by: java.lang.NullPointerException
+        at java.lang.System.arraycopy(Native Method)
+        at org.apache.hadoop.hive.ql.exec.vector.expressions.aggregates.gen.VectorUDAFMinString$Aggregation.assign(VectorUDAFMinString.java:78)
+        at org.apache.hadoop.hive.ql.exec.vector.expressions.aggregates.gen.VectorUDAFMinString$Aggregation.checkValue(VectorUDAFMinString.java:65)
+        at org.apache.hadoop.hive.ql.exec.vector.expressions.aggregates.gen.VectorUDAFMinString.aggregateInput(VectorUDAFMinString.java:279)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator$ProcessingModeBase.processAggregators(VectorGroupByOperator.java:157)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator$ProcessingModeHashAggregate.processBatch(VectorGroupByOperator.java:335)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator.process(VectorGroupByOperator.java:880)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorSelectOperator.process(VectorSelectOperator.java:138)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorFilterOperator.process(VectorFilterOperator.java:117)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+        at org.apache.hadoop.hive.ql.exec.TableScanOperator.process(TableScanOperator.java:97)
+        at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:162)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:45)
+        ... 9 more
+
+
+
+

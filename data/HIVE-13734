@@ -1,0 +1,5 @@
+Description
+
+When run "hive",there is a mistake:Exception in thread "main" java.lang.RuntimeException:Hive metastore database is not initializad.Please use schematool to create the schema.
+
+

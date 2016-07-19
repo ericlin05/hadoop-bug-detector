@@ -1,0 +1,55 @@
+Description
+
+NO PRECOMMIT TESTS
+
+2015-08-24T20:37:22,285 ERROR [main]: ql.Driver (SessionState.java:printError(963)) - FAILED: NullPointerException null
+java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.stats.StatsUtils.convertColStats(StatsUtils.java:740)
+        at org.apache.hadoop.hive.ql.stats.StatsUtils.getTableColumnStats(StatsUtils.java:731)
+        at org.apache.hadoop.hive.ql.stats.StatsUtils.collectStatistics(StatsUtils.java:186)
+        at org.apache.hadoop.hive.ql.stats.StatsUtils.collectStatistics(StatsUtils.java:139)
+        at org.apache.hadoop.hive.ql.stats.StatsUtils.collectStatistics(StatsUtils.java:127)
+        at org.apache.hadoop.hive.ql.optimizer.stats.annotation.StatsRulesProcFactory$TableScanStatsRule.process(StatsRulesProcFactory.java:110)
+        at org.apache.hadoop.hive.ql.lib.DefaultRuleDispatcher.dispatch(DefaultRuleDispatcher.java:90)
+        at org.apache.hadoop.hive.ql.lib.DefaultGraphWalker.dispatchAndReturn(DefaultGraphWalker.java:95)
+        at org.apache.hadoop.hive.ql.lib.DefaultGraphWalker.dispatch(DefaultGraphWalker.java:79)
+        at org.apache.hadoop.hive.ql.lib.PreOrderWalker.walk(PreOrderWalker.java:56)
+        at org.apache.hadoop.hive.ql.lib.DefaultGraphWalker.startWalking(DefaultGraphWalker.java:110)
+        at org.apache.hadoop.hive.ql.optimizer.stats.annotation.AnnotateWithStatistics.transform(AnnotateWithStatistics.java:78)
+        at org.apache.hadoop.hive.ql.parse.TezCompiler.runStatsAnnotation(TezCompiler.java:249)
+        at org.apache.hadoop.hive.ql.parse.TezCompiler.optimizeOperatorPlan(TezCompiler.java:123)
+        at org.apache.hadoop.hive.ql.parse.TaskCompiler.compile(TaskCompiler.java:102)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:10219)
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner.analyzeInternal(CalcitePlanner.java:212)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:240)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:434)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:310)
+
+
+Fails after importing some databases from regular metastore and running TPCDS Q27.
+Simple select-where-limit query (not FetchTask) appears to run fine.
+With standalone Hbase metastore (might be the same issue):
+
+2015-08-25 14:41:04,793 ERROR [pool-6-thread-53] server.TThreadPoolServer: Thrift error occurred during processing of message.
+org.apache.thrift.protocol.TProtocolException: Required field 'colStats' is unset! Struct:AggrStats(colStats:null, partsFound:0)
+        at org.apache.hadoop.hive.metastore.api.AggrStats.validate(AggrStats.java:393)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$get_aggr_stats_for_result.validate(ThriftHiveMetastore.java)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$get_aggr_stats_for_result$get_aggr_stats_for_resultStandardScheme.write(ThriftHiveMetastore.java)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$get_aggr_stats_for_result$get_aggr_stats_for_resultStandardScheme.write(ThriftHiveMetastore.java)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$get_aggr_stats_for_result.write(ThriftHiveMetastore.java)
+        at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:53)
+        at org.apache.hadoop.hive.metastore.TUGIBasedProcessor$1.run(TUGIBasedProcessor.java:110)
+        at org.apache.hadoop.hive.metastore.TUGIBasedProcessor$1.run(TUGIBasedProcessor.java:106)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:422)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1655)
+        at org.apache.hadoop.hive.metastore.TUGIBasedProcessor.process(TUGIBasedProcessor.java:118)
+        at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+I think I've reported this in the past for regular metastore and it was fixed somewhere
+
+

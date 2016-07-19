@@ -1,0 +1,16 @@
+Description
+
+Currently in QTestGenTask.execute(), we have code like :
+
+
+       if (logFile != null) {
+         File lf = new File(logFile);
+         if (lf.exists()) {
+           if (!lf.delete()) {
+             throw new Exception("Could not delete log file " + lf.getCanonicalPath());
+         }
+
+
+If the log file gets locked due to some other process, it throws the above exception and short circuits the entire test suite. We should provide a mechanism to generate alternative new log files/temporary files whenever possible to avoid unit test failures.
+
+

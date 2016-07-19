@@ -1,0 +1,18 @@
+Description
+
+This issue was supposed to be resolved by https://issues.apache.org/jira/browse/HIVE-6359
+However when invoking
+       create table test (id int&amp;lt;tab&amp;gt;COMMENT 'test');
+the following error appears
+ beeline -f test.sql -u"jdbc:hive2://localhost:10000/default;principal=hive/FQDN@US-WEST-2.COMPUTE.INTERNAL"
+scan complete in 4ms
+Connecting to jdbc:hive2://localhost:10000/default;principal=hiveFQDN@US-WEST-2.COMPUTE.INTERNAL
+Connected to: Apache Hive (version 1.1.0-cdh5.4.4)
+Driver: Hive JDBC (version 1.1.0-cdh5.4.4)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+0: jdbc:hive2://localhost:10000/default&amp;gt; create table test (id intCOMMENT 'test');
+Error: Error while compiling statement: FAILED: ParseException line 1:22 cannot recognize input near 'intCOMMENT' ''test'' ')' in column type (state=42000,code=40000)
+There is no problem when &amp;lt;tab&amp;gt; is between the columns e.g. 
+      create table test (id int COMMENT 'test',&amp;lt;tab&amp;gt;id2 string COMMENT 'test2');
+
+

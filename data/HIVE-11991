@@ -1,0 +1,60 @@
+Description
+
+Running groupby11.q on the branch-1.0 branch hits an error:
+
+2015-09-29 14:27:51,676 ERROR CliDriver (SessionState.java:printError(833)) - Failed with exception java.io.IOException:org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.ClassCastException: java.lang.String cannot be cast to org.apache.hadoop.io.Text
+java.io.IOException: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.ClassCastException: java.lang.String cannot be cast to org.apache.hadoop.io.Text
+        at org.apache.hadoop.hive.ql.exec.FetchTask.fetch(FetchTask.java:154)
+        at org.apache.hadoop.hive.ql.Driver.getResults(Driver.java:1621)
+        at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:221)
+        at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:153)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:364)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:299)
+        at org.apache.hadoop.hive.ql.QTestUtil.executeClient(QTestUtil.java:832)
+        at org.apache.hadoop.hive.cli.TestCliDriver.runTest(TestCliDriver.java:136)
+        at org.apache.hadoop.hive.cli.TestCliDriver.testCliDriver_groupby11(TestCliDriver.java:120)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at junit.framework.TestCase.runTest(TestCase.java:176)
+        at junit.framework.TestCase.runBare(TestCase.java:141)
+        at junit.framework.TestResult$1.protect(TestResult.java:122)
+        at junit.framework.TestResult.runProtected(TestResult.java:142)
+        at junit.framework.TestResult.run(TestResult.java:125)
+        at junit.framework.TestCase.run(TestCase.java:129)
+        at junit.framework.TestSuite.runTest(TestSuite.java:255)
+        at junit.framework.TestSuite.run(TestSuite.java:250)
+        at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:84)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:264)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:153)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:124)
+        at org.apache.maven.surefire.booter.ForkedBooter.invokeProviderInSameClassLoader(ForkedBooter.java:200)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:153)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:103)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.ClassCastException: java.lang.String cannot be cast to org.apache.hadoop.io.Text
+        at org.apache.hadoop.hive.ql.exec.ListSinkOperator.processOp(ListSinkOperator.java:90)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+        at org.apache.hadoop.hive.ql.exec.SelectOperator.processOp(SelectOperator.java:85)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+        at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:95)
+        at org.apache.hadoop.hive.ql.exec.FetchOperator.pushRow(FetchOperator.java:572)
+        at org.apache.hadoop.hive.ql.exec.FetchOperator.pushRow(FetchOperator.java:564)
+        at org.apache.hadoop.hive.ql.exec.FetchTask.fetch(FetchTask.java:140)
+        ... 27 more
+Caused by: java.lang.ClassCastException: java.lang.String cannot be cast to org.apache.hadoop.io.Text
+        at org.apache.hadoop.hive.serde2.objectinspector.primitive.WritableStringObjectInspector.getPrimitiveWritableObject(WritableStringObjectInspector.java:41)
+        at org.apache.hadoop.hive.serde2.lazy.LazyUtils.writePrimitiveUTF8(LazyUtils.java:225)
+        at org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe.serialize(LazySimpleSerDe.java:492)
+        at org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe.serializeField(LazySimpleSerDe.java:445)
+        at org.apache.hadoop.hive.serde2.DelimitedJSONSerDe.serializeField(DelimitedJSONSerDe.java:71)
+        at org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe.doSerialize(LazySimpleSerDe.java:429)
+        at org.apache.hadoop.hive.serde2.AbstractEncodingAwareSerDe.serialize(AbstractEncodingAwareSerDe.java:50)
+        at org.apache.hadoop.hive.ql.exec.DefaultFetchFormatter.convert(DefaultFetchFormatter.java:71)
+        at org.apache.hadoop.hive.ql.exec.DefaultFetchFormatter.convert(DefaultFetchFormatter.java:40)
+        at org.apache.hadoop.hive.ql.exec.ListSinkOperator.processOp(ListSinkOperator.java:87)
+        ... 34 more
+
+
+
+

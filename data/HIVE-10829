@@ -1,0 +1,20 @@
+Description
+
+Commands:
+create table idtable(id string);
+create table ctastable as select * from idtable;
+With ATS hook:
+2015-05-22 18:54:47,092 INFO  [ATS Logger 0]: hooks.ATSHook (ATSHook.java:run(136)) - Failed to submit plan to ATS: java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.exec.ExplainTask.outputPlan(ExplainTask.java:589)
+        at org.apache.hadoop.hive.ql.exec.ExplainTask.outputPlan(ExplainTask.java:576)
+        at org.apache.hadoop.hive.ql.exec.ExplainTask.outputPlan(ExplainTask.java:821)
+        at org.apache.hadoop.hive.ql.exec.ExplainTask.outputStagePlans(ExplainTask.java:965)
+        at org.apache.hadoop.hive.ql.exec.ExplainTask.getJSONPlan(ExplainTask.java:219)
+        at org.apache.hadoop.hive.ql.hooks.ATSHook$2.run(ATSHook.java:120)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+
+

@@ -1,0 +1,33 @@
+Description
+
+We have an application which connect to HiveServer2 via JDBC.
+In the application, it executes "INSERT INTO" query to the same table.
+If there are a lot of users running the application at the same time. Some of the INSERT could fail.
+The root cause is that in Hive.checkPaths(), it uses the following method to check the existing of the file. But if there are multiple inserts running in parallel, it will led to the conflict.
+for (int counter = 1; fs.exists(itemDest) || destExists(result, itemDest); counter++) 
+{
+              itemDest = new Path(destf, name + ("_copy_" + counter) + filetype);
+            }
+
+
+The Error Message
+===========================
+In hive log,
+org.apache.hadoop.hive.ql.metadata.HiveException: copyFiles: error      
+while moving files!!! Cannot move hdfs://node:8020/apps/hive/warehouse/met                                        
+adata.db/scalding_stats/.hive-staging_hive_2016-05-10_18-46-            
+23_642_2056172497900766879-3321/-ext-10000/000000_0 to hdfs://node:8020/apps/hive                                  
+/warehouse/metadata.db/scalding_stats/000000_0_copy_9014                
+        at org.apache.hadoop.hive.ql.metadata.Hive.copyFiles(Hive.java: 
+2719)                                                                   
+        at org.apache.hadoop.hive.ql.metadata.Hive.loadTable(Hive.java: 
+1645)          
+In hadoop log, 
+WARN  hdfs.StateChange (FSDirRenameOp.java:     
+unprotectedRenameTo(174)) - DIR* FSDirectory.unprotectedRenameTo:       
+failed to rename /apps/hive/warehouse/metadata.db/scalding_stats/.hive- 
+staging_hive_2016-05-10_18-46-23_642_2056172497900766879-3321/ext 
+10000/000000_0 to /apps/hive/warehouse/metadata.                        
+db/scalding_stats/000000_0_copy_9014 because destination exists
+
+

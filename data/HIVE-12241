@@ -1,0 +1,20 @@
+Description
+
+Using SQLStdAuthorizer Hive doesn't recognize doing a grant on all tables like I've done before in RDBMS. If having a lot of tables this becomes very inconvenient to grant on a table-by-table basis and granting on database succeeds but still doesn't allow user to query tables in that database:
+
+
+&amp;gt; grant all on myDB.* to user hari;
+Error: Error while compiling statement: FAILED: ParseException line 1:15 mismatched input '.' expecting TO near 'myDB' in grant privileges (state=42000,code=40000)
+
+&amp;gt; grant all on myDB.`*` to user hari;
+Error: Error while compiling statement: FAILED: SemanticException [Error 10001]: Table not found myDB.* (state=42S02,code=10001)
+
+&amp;gt; grant all on `myDB.*` to user hari;  
+Error: Error while compiling statement: FAILED: SemanticException [Error 10001]: Table not found myDB.* (state=42S02,code=10001)
+
+&amp;gt; grant all on all to user hari;   
+Error: Error while compiling statement: FAILED: SemanticException [Error 10001]: Table not found myDB.all (state=42S02,code=10001)
+
+
+
+

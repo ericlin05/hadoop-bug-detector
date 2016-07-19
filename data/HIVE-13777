@@ -1,0 +1,25 @@
+Description
+
+Run the followings to change a column from string to decimail:
+
+drop table if exists shcemaevo_vectorization_true_disallowincompatible_false_fileformat_orc_string_decimal;
+create table shcemaevo_vectorization_true_disallowincompatible_false_fileformat_orc_string_decimal stored as orc as select s, s_dc from schemaevo;
+alter table shcemaevo_vectorization_true_disallowincompatible_false_fileformat_orc_string_decimal change column s_dc s_dc decimal(12,4);
+select count(*) from shcemaevo_vectorization_true_disallowincompatible_false_fileformat_orc_string_decimal;
+
+
+select count works fine but just select throws NPE:
+
+0: jdbc:hive2://os-r6-0517-hiveserver2-1-1.op&amp;gt; select count(*) from shcemaevo_vectorization_true_disallowincompatible_false_fileformat_orc_string_decimal;
++---------+--+
+|   c0    |
++---------+--+
+| 100000  |
++---------+--+
+1 row selected (13.856 seconds)
+0: jdbc:hive2://os-r6-0517-hiveserver2-1-1.op&amp;gt; select * from shcemaevo_vectorization_true_disallowincompatible_false_fileformat_orc_string_decimal;
+Error: java.io.IOException: java.lang.NullPointerException (state=,code=0)
+
+
+
+

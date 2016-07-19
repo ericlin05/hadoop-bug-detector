@@ -1,0 +1,20 @@
+Description
+
+Alter table query trying to drop partition removes metadata of partition but fails to remove the data from HDFS
+hive&amp;gt; create table table_1(name string, age int, gpa double) partitioned by (b string) stored as textfile;
+OK
+Time taken: 0.732 seconds
+hive&amp;gt; alter table table_1 add partition (b='2010-10-10');
+OK
+Time taken: 0.496 seconds
+hive&amp;gt; show partitions table_1;
+OK
+b=2010-10-10
+Time taken: 0.781 seconds, Fetched: 1 row(s)
+hive&amp;gt; alter table table_1 drop partition (b='2010-10-10');
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. Got exception: java.io.IOException Failed to move to trash: hdfs://&amp;lt;ip-address&amp;gt;:8020/&amp;lt;warehouse-dir&amp;gt;/table_1/b=2010-10-10
+hive&amp;gt; show partitions table_1;
+OK
+Time taken: 0.622 seconds
+
+

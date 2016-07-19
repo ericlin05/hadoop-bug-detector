@@ -1,0 +1,48 @@
+Description
+
+Log:
+Diagnostic Messages for this Task:
+Error: java.io.IOException: java.lang.reflect.InvocationTargetException
+	at org.apache.hadoop.hive.io.HiveIOExceptionHandlerChain.handleRecordReaderCreationException(HiveIOExceptionHandlerChain.java:97)
+	at org.apache.hadoop.hive.io.HiveIOExceptionHandlerUtil.handleRecordReaderCreationException(HiveIOExceptionHandlerUtil.java:57)
+	at org.apache.hadoop.hive.shims.HadoopShimsSecure$CombineFileRecordReader.initNextRecordReader(HadoopShimsSecure.java:294)
+	at org.apache.hadoop.hive.shims.HadoopShimsSecure$CombineFileRecordReader.&amp;lt;init&amp;gt;(HadoopShimsSecure.java:241)
+	at org.apache.hadoop.hive.shims.HadoopShimsSecure$CombineFileInputFormatShim.getRecordReader(HadoopShimsSecure.java:365)
+	at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getRecordReader(CombineHiveInputFormat.java:591)
+	at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.&amp;lt;init&amp;gt;(MapTask.java:166)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:407)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:340)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:160)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:396)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1438)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:155)
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:39)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:27)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:513)
+	at org.apache.hadoop.hive.shims.HadoopShimsSecure$CombineFileRecordReader.initNextRecordReader(HadoopShimsSecure.java:280)
+	... 11 more
+Caused by: java.lang.OutOfMemoryError: Java heap space
+	at org.apache.hadoop.hive.ql.io.orc.DynamicByteArray.grow(DynamicByteArray.java:64)
+	at org.apache.hadoop.hive.ql.io.orc.DynamicByteArray.readAll(DynamicByteArray.java:142)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$StringDictionaryTreeReader.startStripe(RecordReaderImpl.java:1547)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$StringTreeReader.startStripe(RecordReaderImpl.java:1337)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$StructTreeReader.startStripe(RecordReaderImpl.java:1825)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.readStripe(RecordReaderImpl.java:2537)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.advanceStripe(RecordReaderImpl.java:2950)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.advanceToNextRow(RecordReaderImpl.java:2992)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.&amp;lt;init&amp;gt;(RecordReaderImpl.java:284)
+	at org.apache.hadoop.hive.ql.io.orc.ReaderImpl.rowsOptions(ReaderImpl.java:480)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.createReaderFromFile(OrcInputFormat.java:214)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$OrcRecordReader.&amp;lt;init&amp;gt;(OrcInputFormat.java:146)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getRecordReader(OrcInputFormat.java:997)
+	at org.apache.hadoop.hive.ql.io.CombineHiveRecordReader.&amp;lt;init&amp;gt;(CombineHiveRecordReader.java:65)
+	... 16 more
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+MapReduce Jobs Launched: 
+Stage-Stage-1: Map: 105   Cumulative CPU: 656.39 sec   HDFS Read: 4040094761 HDFS Write: 139 FAIL
+Total MapReduce CPU Time Spent: 10 minutes 56 seconds 390 msec
+
+

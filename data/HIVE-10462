@@ -1,0 +1,26 @@
+Description
+
+When the return path is on, the mapjoin conversion optimization fails as some DS in the Join descriptor have not been initialized properly.
+The failure can be reproduced with auto_join4.q. In particular, the following Exception is thrown:
+
+org.apache.hadoop.hive.ql.parse.SemanticException: Generate Map Join Task Error: null
+        at org.apache.hadoop.hive.ql.optimizer.physical.CommonJoinTaskDispatcher.processCurrentTask(CommonJoinTaskDispatcher.java:516)
+        at org.apache.hadoop.hive.ql.optimizer.physical.AbstractJoinTaskDispatcher.dispatch(AbstractJoinTaskDispatcher.java:179)
+        at org.apache.hadoop.hive.ql.lib.TaskGraphWalker.dispatch(TaskGraphWalker.java:111)
+        at org.apache.hadoop.hive.ql.lib.TaskGraphWalker.walk(TaskGraphWalker.java:180)
+        at org.apache.hadoop.hive.ql.lib.TaskGraphWalker.startWalking(TaskGraphWalker.java:125)
+        at org.apache.hadoop.hive.ql.optimizer.physical.CommonJoinResolver.resolve(CommonJoinResolver.java:79)
+        at org.apache.hadoop.hive.ql.optimizer.physical.PhysicalOptimizer.optimize(PhysicalOptimizer.java:107)
+        at org.apache.hadoop.hive.ql.parse.MapReduceCompiler.optimizeTaskPlan(MapReduceCompiler.java:270)
+        at org.apache.hadoop.hive.ql.parse.TaskCompiler.compile(TaskCompiler.java:227)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:10084)
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner.analyzeInternal(CalcitePlanner.java:203)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:225)
+        at org.apache.hadoop.hive.ql.parse.ExplainSemanticAnalyzer.analyzeInternal(ExplainSemanticAnalyzer.java:74)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:225)
+...
+
+
+SMBJoin conversion is not triggered either.
+
+

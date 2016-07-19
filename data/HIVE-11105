@@ -1,0 +1,42 @@
+Description
+
+I am getting the exception while running a query on very large data set. The issue is coming in Hive, however my understanding is it's a hadoop setCapacity function problem. The variable definition is integer and it is not able to handle such a large count.
+Please look into it.
+
+
+org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.NegativeArraySizeException
+	at org.apache.hadoop.hive.ql.exec.GroupByOperator.closeOp(GroupByOperator.java:1141)
+	at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:577)
+	at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:588)
+	at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:588)
+	at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:588)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.close(ExecMapper.java:227)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:61)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:430)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:342)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:168)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1594)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:163)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.NegativeArraySizeException
+	at org.apache.hadoop.hive.ql.exec.GroupByOperator.flush(GroupByOperator.java:1099)
+	at org.apache.hadoop.hive.ql.exec.GroupByOperator.closeOp(GroupByOperator.java:1138)
+	... 13 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.NegativeArraySizeException
+	at org.apache.hadoop.hive.ql.exec.ReduceSinkOperator.processOp(ReduceSinkOperator.java:336)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:793)
+	at org.apache.hadoop.hive.ql.exec.GroupByOperator.forward(GroupByOperator.java:1064)
+	at org.apache.hadoop.hive.ql.exec.GroupByOperator.flush(GroupByOperator.java:1082)
+	... 14 more
+Caused by: java.lang.NegativeArraySizeException
+	at org.apache.hadoop.io.BytesWritable.setCapacity(BytesWritable.java:144)
+	at org.apache.hadoop.io.BytesWritable.setSize(BytesWritable.java:123)
+	at org.apache.hadoop.io.BytesWritable.set(BytesWritable.java:171)
+	at org.apache.hadoop.hive.serde2.lazybinary.LazyBinarySerDe.serialize(LazyBinarySerDe.java:213)
+	at org.apache.hadoop.hive.ql.exec.ReduceSinkOperator.makeValueWritable(ReduceSinkOperator.java:456)
+	at org.apache.hadoop.hive.ql.exec.ReduceSinkOperator.processOp(ReduceSinkOperator.java:316)
+
+
+
+

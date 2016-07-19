@@ -1,0 +1,19 @@
+Description
+
+Since we don't allow users to query column names with dot in the middle such as emp.no, don't allow users to create tables with such columns that cannot be queried. Fix the documentation to reflect this fix.
+Here is an example. Consider this table:
+
+
+CREATE TABLE a (`emp.no` string);
+select `emp.no` from a; fails with this message:
+FAILED: RuntimeException java.lang.RuntimeException: cannot find field emp from [0:emp.no]
+
+
+The hive documentation needs to be fixed:
+
+
+ (https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL) seems to  indicate that any Unicode character can go between the backticks in the select statement, but it doesn’t like the dot/colon or even select * when there is a column that has a dot/colon. 
+
+
+
+

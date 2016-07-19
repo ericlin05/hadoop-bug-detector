@@ -1,0 +1,34 @@
+Description
+
+The hive metastore is configured with
+
+
+ &amp;lt;property&amp;gt;
+    &amp;lt;name&amp;gt;
+       javax.jdo.option.ConnectionURL
+    &amp;lt;/name&amp;gt;
+    &amp;lt;value&amp;gt;
+       jdbc:mysql://hostname/hive
+   &amp;lt;/value&amp;gt;
+  &amp;lt;/property&amp;gt;
+
+
+The initialization fails with an error 
+
+
+java.sql.SQLException: No suitable driver found for
+    jdbc:mysql://hostname/hive
+        at java.sql.DriverManager.getConnection(DriverManager.java:689)
+        at java.sql.DriverManager.getConnection(DriverManager.java:208)
+        at com.jolbox.bonecp.BoneCP.obtainRawInternalConnection(BoneCP.java:361)
+        at com.jolbox.bonecp.BoneCP.obtainInternalConnection(BoneCP.java:269)
+        at com.jolbox.bonecp.ConnectionHandle.&amp;lt;init&amp;gt;(ConnectionHandle.java:242)
+        at com.jolbox.bonecp.PoolWatchThread.fillConnections(PoolWatchThread.java:115)
+        at com.jolbox.bonecp.PoolWatchThread.run(PoolWatchThread.java:85)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+
+

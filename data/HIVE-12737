@@ -1,0 +1,31 @@
+Description
+
+
+
+    private void readHeader() throws IOException {
+        ....
+        ByteBuffer slice = this.slice(chunkLength);
+        if (isOriginal) {
+          uncompressed = slice;
+          isUncompressedOriginal = true;
+        } else {
+          if (isUncompressedOriginal) {
+            uncompressed = allocateBuffer(bufferSize);
+            isUncompressedOriginal = false;
+          } else if (uncompressed == null) {
+            uncompressed = allocateBuffer(bufferSize);
+          } else {
+            uncompressed.clear();
+          }
+          codec.decompress(slice, uncompressed);
+        }
+      } else {
+        throw new IllegalStateException("Can't read header at " + this);
+      }
+}
+
+
+when reading the 2nd chunk, uncompressed didn't check the data left in itself.
+chunkSize is set by hive.exec.orc.default.buffer.size, if user set a number that can't mod 8, when read double, error occurs.
+
+

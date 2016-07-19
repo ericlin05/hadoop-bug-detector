@@ -1,0 +1,13 @@
+Description
+
+https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DML, Use "from" as a column name in create table, throw error.
+
+
+CREATE TABLE pageviews (userid VARCHAR(64), link STRING, from STRING)
+  PARTITIONED BY (datestamp STRING) CLUSTERED BY (userid) INTO 256 BUCKETS STORED AS ORC;
+
+Error: Error while compiling statement: FAILED: ParseException line 1:57 cannot recognize input near 'from' 'STRING' ')' in column specification (state=42000,code=40000)
+
+
+
+

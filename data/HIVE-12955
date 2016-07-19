@@ -1,0 +1,169 @@
+Description
+
+Hi!
+we think we have hitted a bug. We have tested this in many ways for a couple of hours now and there is apparently a problem with avro.schema.literal when you specify more than 50 fields. In our tests we have found that regarless the avro file (table) we want to load, it fails with 60 fields.. some tables we uses have more than 400 fields and have the same problem.
+For instance if we launch the command 
+
+
+hive&amp;gt; drop table tableName;
+OK
+Time taken: 0.162 seconds
+hive&amp;gt; 
+    &amp;gt; CREATE EXTERNAL TABLE tableName
+    &amp;gt; ROW FORMAT
+    &amp;gt; SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe'
+    &amp;gt; WITH SERDEPROPERTIES ('avro.schema.literal'='
+    &amp;gt; { "namespace": "cdr.avro", "type": "record", "name": "Account", "fields": [ 
+    &amp;gt; {"name": "Id", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "IsDeleted", "type":["null", "boolean"],"default":null}, 
+    &amp;gt; {"name": "MasterRecordId", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Name", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Type", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "RecordTypeId", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "ParentId", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Phone", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Fax", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "AccountNumber", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Website", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Industry", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "AnnualRevenue", "type":["null", "double"],"default":null}, 
+    &amp;gt; {"name": "NumberOfEmployees", "type":["null", "int"],"default":null}, 
+    &amp;gt; {"name": "Description", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "OwnerId", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "CreatedDate", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "CreatedById", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "LastModifiedDate", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "LastModifiedById", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "SystemModstamp", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "LastActivityDate", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "IsPartner", "type":["null", "boolean"],"default":null}, 
+    &amp;gt; {"name": "IsCustomerPortal", "type":["null", "boolean"],"default":null}, 
+    &amp;gt; {"name": "JigsawCompanyId", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Invoice_Level__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "IT_Developer_Fee__c", "type":["null", "boolean"],"default":null}, 
+    &amp;gt; {"name": "Customer_Type__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Shortname__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Excluir_compensacion_por_desvio__c", "type":["null", "boolean"],"default":null}, 
+    &amp;gt; {"name": "Commercial_Area__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Account_Status__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Active_Fiscal_Details__c", "type":["null", "boolean"],"default":null}, 
+    &amp;gt; {"name": "Office_Code__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Commercial_Brand__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Agreed_payment_method__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Division__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Inactive_Date__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "SAP_Code__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Country_fiscal__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Fiscal_Number_1__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Fiscal_Number_2__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Street_Fiscal__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "City_fiscal__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Post_Code_fiscal__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Web_Prepayment__c", "type":["null", "boolean"],"default":null}, 
+    &amp;gt; {"name": "Customer_Subtype__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Relationship__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Market_Country__c", "type":["null", "string"],"default":null}
+    &amp;gt; ] }
+    &amp;gt; ')
+    &amp;gt; STORED AS
+    &amp;gt; INPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'
+    &amp;gt; OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'
+    &amp;gt; LOCATION 's3://bucket.../path/to/avro';
+OK
+Time taken: 0.412 seconds
+hive&amp;gt; 
+    &amp;gt; select * from tableName limit 10;
+OK
+
+
+but when using the same AVRO file and more fields it fails
+
+
+hive&amp;gt; drop table tableName;
+OK
+Time taken: 0.146 seconds
+hive&amp;gt; 
+    &amp;gt; CREATE EXTERNAL TABLE tableName
+    &amp;gt; ROW FORMAT
+    &amp;gt; SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe'
+    &amp;gt; WITH SERDEPROPERTIES ('avro.schema.literal'='
+    &amp;gt; { "namespace": "cdr.avro", "type": "record", "name": "Account", "fields": [ 
+    &amp;gt; {"name": "Id", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "IsDeleted", "type":["null", "boolean"],"default":null}, 
+    &amp;gt; {"name": "MasterRecordId", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Name", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Type", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "RecordTypeId", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "ParentId", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Phone", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Fax", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "AccountNumber", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Website", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Industry", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "AnnualRevenue", "type":["null", "double"],"default":null}, 
+    &amp;gt; {"name": "NumberOfEmployees", "type":["null", "int"],"default":null}, 
+    &amp;gt; {"name": "Description", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "OwnerId", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "CreatedDate", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "CreatedById", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "LastModifiedDate", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "LastModifiedById", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "SystemModstamp", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "LastActivityDate", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "IsPartner", "type":["null", "boolean"],"default":null}, 
+    &amp;gt; {"name": "IsCustomerPortal", "type":["null", "boolean"],"default":null}, 
+    &amp;gt; {"name": "JigsawCompanyId", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Invoice_Level__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "IT_Developer_Fee__c", "type":["null", "boolean"],"default":null}, 
+    &amp;gt; {"name": "Customer_Type__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Shortname__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Excluir_compensacion_por_desvio__c", "type":["null", "boolean"],"default":null}, 
+    &amp;gt; {"name": "Commercial_Area__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Account_Status__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Active_Fiscal_Details__c", "type":["null", "boolean"],"default":null}, 
+    &amp;gt; {"name": "Office_Code__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Commercial_Brand__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Agreed_payment_method__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Division__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Inactive_Date__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "SAP_Code__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Country_fiscal__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Fiscal_Number_1__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Fiscal_Number_2__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Street_Fiscal__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "City_fiscal__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Post_Code_fiscal__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Web_Prepayment__c", "type":["null", "boolean"],"default":null}, 
+    &amp;gt; {"name": "Customer_Subtype__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Relationship__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Market_Country__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Customer_Service_Centre__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Acquisition_Channel_Type__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Acquisition_Channel_Description__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Comments__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Street_Commercial__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Country_Commercial__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "City_Commercial__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Post_Code_Commercial__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Atlas_Branch_Number__c", "type":["null", "double"],"default":null}, 
+    &amp;gt; {"name": "Timezone__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Billing_Language__c", "type":["null", "string"],"default":null}, 
+    &amp;gt; {"name": "Fiscal_Name__c", "type":["null", "string"],"default":null}
+    &amp;gt; ] }
+    &amp;gt; ')
+    &amp;gt; STORED AS
+    &amp;gt; INPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'
+    &amp;gt; OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'
+    &amp;gt; LOCATION 's3://bucket/path/to/avro';
+OK
+Time taken: 0.48 seconds
+hive&amp;gt; 
+    &amp;gt; select * from tableName limit 10;
+OK
+Failed with exception java.io.IOException:org.apache.avro.AvroTypeException: Found cdr.avro.Account, expecting org.apache.hadoop.hive.CannotDetermineSchemaSentinel
+Time taken: 0.028 seconds
+
+
+This problem doesn't affect when we store the avro schema with 400 fields in a file in s3 and use the avro.schema.url field.
+
+

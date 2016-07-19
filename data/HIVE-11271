@@ -1,0 +1,96 @@
+Description
+
+Some queries with Union all as subquery fail in MapReduce task with stacktrace:
+
+15/07/15 14:19:30 [pool-13-thread-1]: INFO exec.UnionOperator: Initializing operator UNION[104]
+15/07/15 14:19:30 [Thread-72]: INFO mapred.LocalJobRunner: Map task executor complete.
+15/07/15 14:19:30 [Thread-72]: WARN mapred.LocalJobRunner: job_local826862759_0005
+java.lang.Exception: java.lang.RuntimeException: Error in configuring object
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:354)
+Caused by: java.lang.RuntimeException: Error in configuring object
+	at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:93)
+	at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:64)
+	at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:117)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:426)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:366)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job$MapTaskRunnable.run(LocalJobRunner.java:223)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.GeneratedMethodAccessor53.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:88)
+	... 10 more
+Caused by: java.lang.RuntimeException: Error in configuring object
+	at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:93)
+	at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:64)
+	at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:117)
+	at org.apache.hadoop.mapred.MapRunner.configure(MapRunner.java:34)
+	... 14 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.GeneratedMethodAccessor53.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:88)
+	... 17 more
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.configure(ExecMapper.java:140)
+	... 21 more
+Caused by: java.lang.IndexOutOfBoundsException: Index: 1, Size: 1
+	at java.util.ArrayList.rangeCheck(ArrayList.java:635)
+	at java.util.ArrayList.get(ArrayList.java:411)
+	at org.apache.hadoop.hive.ql.exec.UnionOperator.initializeOp(UnionOperator.java:86)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:362)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:481)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:438)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:375)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:481)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:438)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:375)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:481)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:438)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:375)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.initializeMapOperator(MapOperator.java:442)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.configure(ExecMapper.java:119)
+	... 21 more
+
+
+
+Reproduce:
+
+create table if not exists union_all_bug_test_1 
+( 
+f1 int,
+f2 int
+); 
+
+create table if not exists union_all_bug_test_2 
+( 
+f1 int 
+); 
+
+SELECT f1 
+FROM ( 
+
+SELECT 
+f1 
+, if('helloworld' like '%hello%' ,f1,f2) as filter 
+FROM union_all_bug_test_1 
+
+union all 
+
+select 
+f1 
+, 0 as filter 
+from union_all_bug_test_2 
+) A 
+WHERE (filter = 1); 
+
+
+
+
+

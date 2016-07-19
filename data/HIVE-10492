@@ -1,0 +1,6 @@
+Description
+
+HCatClient.dropPartitions() doesn't check the arguments in the partition-spec. This can lead to a RuntimeException when partition-keys are specified incorrectly.
+We should check the arguments a priori and throw a descriptive IllegalArgumentException.
+
+

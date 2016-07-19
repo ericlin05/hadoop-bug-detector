@@ -1,0 +1,20 @@
+Description
+
+KDetected leaks while testing hiveserver2 concurrency setup with LLAP.
+2016-02-26T12:50:58,131 ERROR [HiveServer2-Background-Pool: Thread-311030]: operation.Operation (SQLOperation.java:run(230)) - Error running hive query:
+org.apache.hive.service.cli.HiveSQLException: Error while processing statement: FAILED: Execution Error, return code -101 from org.apache.hadoop.hive.ql.exec.StatsTask. GC overhead limit exceeded
+        at org.apache.hive.service.cli.operation.Operation.toSQLException(Operation.java:333) ~[hive-jdbc-2.0.0.2.3.5.1-36-standalone.jar:2.0.0.2.3.5.1-36]
+        at org.apache.hive.service.cli.operation.SQLOperation.runQuery(SQLOperation.java:177) ~[hive-jdbc-2.0.0.2.3.5.1-36-standalone.jar:2.0.0.2.3.5.1-36]
+        at org.apache.hive.service.cli.operation.SQLOperation.access$100(SQLOperation.java:73) ~[hive-jdbc-2.0.0.2.3.5.1-36-standalone.jar:2.0.0.2.3.5.1-36]
+        at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:227) [hive-jdbc-2.0.0.2.3.5.1-36-standalone.jar:2.0.0.2.3.5.1-36]
+        at java.security.AccessController.doPrivileged(Native Method) ~[?:1.8.0_45]
+        at javax.security.auth.Subject.doAs(Subject.java:422) [?:1.8.0_45]
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657) [hadoop-common-2.7.1.2.3.5.1-36.jar:?]
+        at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:239) [hive-jdbc-2.0.0.2.3.5.1-36-standalone.jar:2.0.0.2.3.5.1-36]
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) [?:1.8.0_45]
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266) [?:1.8.0_45]
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [?:1.8.0_45]
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [?:1.8.0_45]
+        at java.lang.Thread.run(Thread.java:745) [?:1.8.0_45]
+
+

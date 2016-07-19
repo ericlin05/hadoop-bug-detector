@@ -1,0 +1,11 @@
+Description
+
+I noticed that  DELETE.. join does not appear to work with Hive 1.x.
+For an example:
+hive&amp;gt; delete from t_bic_pel_order_acid LEFT OUTER JOIN t_bic_pel_order_poc7 ON (t_bic_pel_order_acid.order_no=t_bic_pel_order_poc7.order_no);
+FAILED: ParseException line 1:33 missing EOF at 'LEFT' near 't_bic_pel_order_acid'
+Looking at Hive's documentation, it does look like the DELETE syntax supported is only limited to DELETE from ..&amp;lt;where&amp;gt;, where there are no indicators that joins are supported.
+https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DML#Languag...
+I could not find any JIRA ticket or examples of other end users using this, therefore, I'm creating this ticket as a feature request to support DELETE/UPDATE .. JOIN
+
+

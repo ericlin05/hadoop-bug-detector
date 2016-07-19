@@ -1,0 +1,15 @@
+Description
+
+Not necessarily happens only in spark branch, queries such as select count from table_name fails with error:
+
+
+hive&amp;gt; select * from content limit 2;
+OK
+Failed with exception java.io.IOException:java.lang.IllegalStateException: All the offsets listed in the split should be found in the file. expected: [4, 4] found: [BlockMetaData{69644, 881917418 [ColumnMetaData{GZIP [guid] BINARY  [PLAIN, BIT_PACKED], 4}, ColumnMetaData{GZIP [collection_name] BINARY  [PLAIN_DICTIONARY, BIT_PACKED], 389571}, ColumnMetaData{GZIP [doc_type] BINARY  [PLAIN_DICTIONARY, BIT_PACKED], 389790}, ColumnMetaData{GZIP [stage] INT64  [PLAIN_DICTIONARY, BIT_PACKED], 389887}, ColumnMetaData{GZIP [meta_timestamp] INT64  [RLE, PLAIN_DICTIONARY, BIT_PACKED], 397673}, ColumnMetaData{GZIP [doc_timestamp] INT64  [RLE, PLAIN_DICTIONARY, BIT_PACKED], 422161}, ColumnMetaData{GZIP [meta_size] INT32  [RLE, PLAIN_DICTIONARY, BIT_PACKED], 460215}, ColumnMetaData{GZIP [content_size] INT32  [RLE, PLAIN_DICTIONARY, BIT_PACKED], 521728}, ColumnMetaData{GZIP [source] BINARY  [RLE, PLAIN, BIT_PACKED], 683740}, ColumnMetaData{GZIP [delete_flag] BOOLEAN  [RLE, PLAIN, BIT_PACKED], 683787}, ColumnMetaData{GZIP [meta] BINARY  [RLE, PLAIN, BIT_PACKED], 683834}, ColumnMetaData{GZIP [content] BINARY  [RLE, PLAIN, BIT_PACKED], 6992365}]}] out of: [4, 129785482, 260224757] in range 0, 134217728
+Time taken: 0.253 seconds
+hive&amp;gt; 
+
+
+I can reproduce the problem with either local or yarn-cluster. It seems happening to MR also. Thus, I suspect this is an parquet problem.
+
+

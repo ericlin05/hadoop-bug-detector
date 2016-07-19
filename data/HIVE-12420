@@ -1,0 +1,98 @@
+Description
+
+When you run with '-d user.name', it failed with:
+
+[hrt_qa@os-r6-bccslu-hive-1-r-5 ~]$ curl -s -d user.name=hrt_qa -d execute="drop table if exists templetontest_tab2;" http://os-r6-bccslu-hive-1-r-3.novalocal:20111/templeton/v1/ddl
+&amp;lt;html&amp;gt;
+&amp;lt;head&amp;gt;
+&amp;lt;meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/&amp;gt;
+&amp;lt;title&amp;gt;Error 500 Server Error&amp;lt;/title&amp;gt;
+&amp;lt;/head&amp;gt;
+&amp;lt;body&amp;gt;
+&amp;lt;h2&amp;gt;HTTP ERROR: 500&amp;lt;/h2&amp;gt;
+&amp;lt;p&amp;gt;Problem accessing /templeton/v1/ddl. Reason:
+&amp;lt;pre&amp;gt;    Server Error&amp;lt;/pre&amp;gt;&amp;lt;/p&amp;gt;
+&amp;lt;hr /&amp;gt;&amp;lt;i&amp;gt;&amp;lt;small&amp;gt;Powered by Jetty://&amp;lt;/small&amp;gt;&amp;lt;/i&amp;gt;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+&amp;lt;/body&amp;gt;
+&amp;lt;/html&amp;gt;
+
+
+server log shows:
+
+WARN  | 16 Nov 2015 19:48:22,738 | org.eclipse.jetty.servlet.ServletHandler | /templeton/v1/ddl
+java.lang.NullPointerException
+	at org.apache.http.client.utils.URLEncodedUtils.parse(URLEncodedUtils.java:235) ~[hive-jdbc-1.2.1.2.3.5.0-13-standalone.jar:1.2.1.2.3.5.0-13]
+	at org.apache.hadoop.security.authentication.server.PseudoAuthenticationHandler.getUserName(PseudoAuthenticationHandler.java:143) ~[hadoop-auth-2.6.0.jar:?]
+	at org.apache.hadoop.security.authentication.server.PseudoAuthenticationHandler.authenticate(PseudoAuthenticationHandler.java:179) ~[hadoop-auth-2.6.0.jar:?]
+	at org.apache.hadoop.security.authentication.server.AuthenticationFilter.doFilter(AuthenticationFilter.java:507) ~[hadoop-auth-2.6.0.jar:?]
+	at org.apache.hadoop.hdfs.web.AuthFilter.doFilter(AuthFilter.java:88) ~[hadoop-hdfs-2.7.1.2.3.5.0-13.jar:?]
+	at org.eclipse.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1331) ~[jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:477) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:1031) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:406) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:965) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:117) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.handler.HandlerList.handle(HandlerList.java:47) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:111) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.Server.handle(Server.java:349) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.AbstractHttpConnection.handleRequest(AbstractHttpConnection.java:449) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.AbstractHttpConnection$RequestHandler.content(AbstractHttpConnection.java:925) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.http.HttpParser.parseNext(HttpParser.java:857) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.http.HttpParser.parseAvailable(HttpParser.java:235) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.AsyncHttpConnection.handle(AsyncHttpConnection.java:76) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.io.nio.SelectChannelEndPoint.handle(SelectChannelEndPoint.java:609) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.io.nio.SelectChannelEndPoint$1.run(SelectChannelEndPoint.java:45) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:599) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.util.thread.QueuedThreadPool$3.run(QueuedThreadPool.java:534) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at java.lang.Thread.run(Thread.java:745) [?:1.8.0_45]
+WARN  | 16 Nov 2015 19:48:22,738 | org.eclipse.jetty.servlet.ServletHandler | /templeton/v1/ddl
+java.lang.NullPointerException
+	at org.apache.http.client.utils.URLEncodedUtils.parse(URLEncodedUtils.java:235) ~[hive-jdbc-1.2.1.2.3.5.0-13-standalone.jar:1.2.1.2.3.5.0-13]
+	at org.apache.hadoop.security.authentication.server.PseudoAuthenticationHandler.getUserName(PseudoAuthenticationHandler.java:143) ~[hadoop-auth-2.6.0.jar:?]
+	at org.apache.hadoop.security.authentication.server.PseudoAuthenticationHandler.authenticate(PseudoAuthenticationHandler.java:179) ~[hadoop-auth-2.6.0.jar:?]
+	at org.apache.hadoop.security.authentication.server.AuthenticationFilter.doFilter(AuthenticationFilter.java:507) ~[hadoop-auth-2.6.0.jar:?]
+	at org.apache.hadoop.hdfs.web.AuthFilter.doFilter(AuthFilter.java:88) ~[hadoop-hdfs-2.7.1.2.3.5.0-13.jar:?]
+	at org.eclipse.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1331) ~[jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:477) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:1031) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:406) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:965) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:117) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.handler.HandlerList.handle(HandlerList.java:47) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:111) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.Server.handle(Server.java:349) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.AbstractHttpConnection.handleRequest(AbstractHttpConnection.java:449) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.AbstractHttpConnection$RequestHandler.content(AbstractHttpConnection.java:925) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.http.HttpParser.parseNext(HttpParser.java:857) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.http.HttpParser.parseAvailable(HttpParser.java:235) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.server.AsyncHttpConnection.handle(AsyncHttpConnection.java:76) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.io.nio.SelectChannelEndPoint.handle(SelectChannelEndPoint.java:609) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.io.nio.SelectChannelEndPoint$1.run(SelectChannelEndPoint.java:45) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:599) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at org.eclipse.jetty.util.thread.QueuedThreadPool$3.run(QueuedThreadPool.java:534) [jetty-all-7.6.0.v20120127.jar:7.6.0.v20120127]
+	at java.lang.Thread.run(Thread.java:745) [?:1.8.0_45]
+
+
+If you use user.name as a part of restful api call, it works.
+
+

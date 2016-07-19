@@ -1,0 +1,9 @@
+Description
+
+
+hive&amp;gt; explain analyze table revenues compute statistics for columns;
+2015-03-30 23:47:45,133 ERROR [main()]: ql.Driver (SessionState.java:printError(951)) - FAILED: UDFArgumentTypeException Only integer/long/timestamp/float/double/string/binary/boolean/decimal type argument is accepted but date is passed.
+
+
+
+

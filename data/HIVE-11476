@@ -1,0 +1,12 @@
+Description
+
+When using column names which contain escaped spaces in them like `user id`, the type info parser is unable to parse out the structures which have a format similar to 
+struct&amp;lt;user id:int,user group: int&amp;gt;
+
+
+java.lang.IllegalArgumentException: Error: : expected at the position 12 of '' but 'struct&amp;lt;user id:int,user group: int&amp;gt;' is found.
+        at org.apache.hadoop.hive.serde2.typeinfo.TypeInfoUtils$TypeInfoParser.expect(TypeInfoUtils.java:360)
+
+
+
+

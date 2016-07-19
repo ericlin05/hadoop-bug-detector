@@ -1,0 +1,6 @@
+Description
+
+If a user attempts to run MSCK REPAIR TABLE on a directory with a large number of untracked partitions HMS will OOME. I suspect this is because it attempts to do one large bulk load in an effort to save time. Ultimately this can lead to a collection so large in size that HMS eventually hits an Out of Memory Exception. 
+Instead I suggest that Hive include a configurable batch size that HMS can use to break up the load. 
+
+

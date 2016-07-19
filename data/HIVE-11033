@@ -1,0 +1,38 @@
+Description
+
+There is a bug in the org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl class which caused the bloom filter index saved in the ORC file not being used. The root cause is the bloomFilterIndices variable defined in the SargApplier class superseded the one defined in its parent class. Therefore, in the ReaderImpl.pickRowGroups()
+
+
+  protected boolean[] pickRowGroups() throws IOException {
+    // if we don't have a sarg or indexes, we read everything
+    if (sargApp == null) {
+      return null;
+    }
+    readRowIndex(currentStripe, included, sargApp.sargColumns);
+    return sargApp.pickRowGroups(stripes.get(currentStripe), indexes);
+  }
+
+
+The bloomFilterIndices populated by readRowIndex() is not picked up by sargApp object. One solution is to make SargApplier.bloomFilterIndices a reference to its parent counterpart.
+
+18:46 $ diff src/java/org/apache/hadoop/hive/ql/io/orc/RecordReaderImpl.java src/java/org/apache/hadoop/hive/ql/io/orc/RecordReaderImpl.java.original
+174d173
+&amp;lt;     bloomFilterIndices = new OrcProto.BloomFilterIndex[types.size()];
+178c177
+&amp;lt;           sarg, options.getColumnNames(), strideRate, types, included.length, bloomFilterIndices);
+---
+&amp;gt;           sarg, options.getColumnNames(), strideRate, types, included.length);
+204a204
+&amp;gt;     bloomFilterIndices = new OrcProto.BloomFilterIndex[types.size()];
+673c673
+&amp;lt;         List&amp;lt;OrcProto.Type&amp;gt; types, int includedCount, OrcProto.BloomFilterIndex[] bloomFilterIndices) {
+---
+&amp;gt;         List&amp;lt;OrcProto.Type&amp;gt; types, int includedCount) {
+677c677
+&amp;lt;       this.bloomFilterIndices = bloomFilterIndices;
+---
+&amp;gt;       bloomFilterIndices = new OrcProto.BloomFilterIndex[types.size()];
+
+
+
+

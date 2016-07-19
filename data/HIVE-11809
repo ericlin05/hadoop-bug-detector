@@ -1,0 +1,21 @@
+Description
+
+1. userA creates a partition table: 
+
+create table w1(id int, name string, addr string) partitioned by (dt string) row format delimited fields terminated by ',' stored as textfile;
+2. userB tries to insert into userA's table: 
+
+insert into table w1 partition(dt='2') select id, name, addr from t1;
+3. userB does not have select privilege of table t1 and insert privilege of w1, 
+step 2 throws: 
+
+Error: Error while compiling statement: FAILED: HiveAccessControlException Permission denied: Principal [name=userB, type=USER] does not have following privileges for operation QUERY [[SELECT] on Object [type=TABLE_OR_VIEW, name=default.t1]] (state=42000,code=40000)
+but the partition directory "/user/hive/warehouse/w1/dt=2" created:
+
+hdfs dfs -ls /user/hive/warehouse/w1/
+15/09/14 11:16:42 INFO hdfs.PeerCache: SocketCache disabled.
+Found 2 items
+drwx------   - userA hive          0 2015-09-14 10:05 /user/hive/warehouse/w1/dt=1
+drwx------   - userB  hive          0 2015-09-14 10:23 /user/hive/warehouse/w1/dt=2
+
+

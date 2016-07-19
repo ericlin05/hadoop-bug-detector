@@ -1,0 +1,16 @@
+Description
+
+From the description, it seems like format argument can be omitted while using trunc() udf. But it throws an error if only date argument is provided.
+
+hive&amp;gt; desc function trunc;
+OK
+trunc(date, fmt) - Returns returns date with the time portion of the day truncated to the unit specified by the format model fmt. If you omit fmt, then date is truncated to the nearest day. It now only supports 'MONTH'/'MON'/'MM' and 'YEAR'/'YYYY'/'YY' as format.
+Time taken: 0.019 seconds, Fetched: 1 row(s)
+hive&amp;gt; select trunc('2015-12-11');
+FAILED: SemanticException [Error 10015]: Line 1:7 Arguments length mismatch ''2015-12-11'': trunc() requires 2 argument, got 1
+
+
+UDF wiki
+https://cwiki.apache.org/confluence/display/Hive/LanguageManual+UDF
+
+

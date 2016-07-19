@@ -1,0 +1,10 @@
+Description
+
+select sum(salary) over w1 from emp; throws NPE rather than meaningful error message like "missing window".
+And also give the right window name rather than the classname in the error message after NPE issue is fixed.
+
+org.apache.hadoop.hive.ql.parse.SemanticException: Window Spec org.apache.hadoop.hive.ql.parse.WindowingSpec$WindowSpec@7954e1de refers to an unknown source
+
+
+
+

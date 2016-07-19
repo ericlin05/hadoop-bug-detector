@@ -1,0 +1,43 @@
+Description
+
+After performing a set name=value I would expect that the variable name would carry over to all locations within the session. It appears to work when querying the value via set;, but not when trying to do actual sql statements.
+Example:
+
+
+0: jdbc:hive2://localhost:10000&amp;gt; set foo;
++----------+--+
+|   set    |
++----------+--+
+| foo=bar  |
++----------+--+
+1 row selected (0.932 seconds)
+
+0: jdbc:hive2://localhost:10000&amp;gt; select * from ${foo};
+Error: Error while compiling statement: FAILED: SemanticException [Error 10001]: Line 1:14 Table not found 'bar' (state=42S02,code=10001)
+
+0: jdbc:hive2://localhost:10000&amp;gt; show tables;
++------------+--+
+|  tab_name  |
++------------+--+
+| my         |
+| purchases  |
++------------+--+
+2 rows selected (0.437 seconds)
+0: jdbc:hive2://localhost:10000&amp;gt; set foo=my;
+
+No rows affected (0.017 seconds)
+0: jdbc:hive2://localhost:10000&amp;gt; set foo;
++---------+--+
+|   set   |
++---------+--+
+| foo=my  |
++---------+--+
+1 row selected (0.02 seconds)
+
+0: jdbc:hive2://localhost:10000&amp;gt; select * from ${foo};
+select * from ${foo};
+Error: Error while compiling statement: FAILED: SemanticException [Error 10001]: Line 1:14 Table not found 'bar' (state=42S02,code=10001)
+
+
+
+

@@ -1,0 +1,18 @@
+Description
+
+When hive can't write to the tmpdir you get —as you'd expect— a stack trace.
+unfortunately, what you get is a multiple-wrapped stack trace without any details as to what went wrong:
+
+
+java.lang.RuntimeException: java.lang.RuntimeException: java.io.IOException: Permission denied
+
+
+This makes finding the root cause somewhat harder than necessary.
+It seems to me that
+
+Any IOE raised on failure to create a temp file should be caught and rethrown.
+there's no need to wrap a RuntimeException with a {{RuntimeException}.
+
+I can do a patch for this, if people promise to review it and then, perhaps, even commit it.
+
+

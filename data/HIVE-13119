@@ -1,0 +1,18 @@
+Description
+
+From e-mail to user@hive.apache.org
+
+New version Hive 2
+a simple Job fails with
+ 
+ 
+2016-02-22T18:23:29,008 ERROR [main]: mr.MapredLocalTask (MapredLocalTask.java:executeInProcess(381)) - Hive Runtime Error: Map local work failed
+java.io.IOException: java.io.IOException: ORC does not support type conversion from CHAR to VARCHAR
+ 
+This was working OK in Hive 1.2.1! I am using MR here
+-- 
+Dr Mich Talebzadeh
+
+
+
+

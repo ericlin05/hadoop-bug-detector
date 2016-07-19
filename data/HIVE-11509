@@ -1,0 +1,8 @@
+Description
+
+I am executing a simple select query on table with uniontype column. Hive already has a support for creating table with uniontype data type. Now when I am trying to fetch the column type information using  getColumnTypeName(i+1) method of ResultSetMetaData using hive-jdbc 1.0.0 version, getting below exception:
+2015-08-10 16:00:07 ERROR ExecuteStatementOperation:114 - java.sql.SQLException: Unrecognized column type: UNIONTYPE
+	at org.apache.hive.jdbc.JdbcColumn.getColumnTypeName(JdbcColumn.java:185)
+	at org.apache.hive.jdbc.HiveResultSetMetaData.getColumnTypeName(HiveResultSetMetaData.java:78)
+
+

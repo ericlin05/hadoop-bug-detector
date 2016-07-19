@@ -1,0 +1,97 @@
+Description
+
+We can reproduce the problem as below:
+
+hive&amp;gt; show create table map_txt;
+OK
+CREATE  TABLE `map_txt`(
+  `id` int,
+  `content` map&amp;lt;int,string&amp;gt;)
+ROW FORMAT SERDE
+  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
+STORED AS INPUTFORMAT
+  'org.apache.hadoop.mapred.TextInputFormat'
+OUTPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+...
+Time taken: 0.233 seconds, Fetched: 18 row(s)
+hive&amp;gt; select * from map_txt;
+OK
+1       NULL
+Time taken: 0.679 seconds, Fetched: 1 row(s)
+hive&amp;gt; select id, map_keys(content) from map_txt;
+....
+Error during job, obtaining debugging information...
+Examining task ID: task_1435534231122_0025_m_000000 (and more) from job job_1435534231122_0025
+
+Task with the most failures(4):
+-----
+Task ID:
+  task_1435534231122_0025_m_000000
+
+URL:
+  http://host-10-17-80-40.coe.cloudera.com:8088/taskdetails.jsp?jobid=job_1435534231122_0025&amp;amp;tipid=task_1435534231122_0025_m_000000
+-----
+Diagnostic Messages for this Task:
+Error: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"id":1,"content":null}
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:198)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:168)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:422)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1642)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:163)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"id":1,"content":null}
+        at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:559)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:180)
+        ... 8 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Error evaluating map_keys(content)
+        at org.apache.hadoop.hive.ql.exec.SelectOperator.processOp(SelectOperator.java:84)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+        at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:92)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+        at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:549)
+        ... 9 more
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.udf.generic.GenericUDFMapKeys.evaluate(GenericUDFMapKeys.java:64)
+        at org.apache.hadoop.hive.ql.exec.ExprNodeGenericFuncEvaluator._evaluate(ExprNodeGenericFuncEvaluator.java:166)
+        at org.apache.hadoop.hive.ql.exec.ExprNodeEvaluator.evaluate(ExprNodeEvaluator.java:77)
+        at org.apache.hadoop.hive.ql.exec.ExprNodeEvaluator.evaluate(ExprNodeEvaluator.java:65)
+        at org.apache.hadoop.hive.ql.exec.SelectOperator.processOp(SelectOperator.java:79)
+        ... 13 more
+
+
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+MapReduce Jobs Launched:
+Stage-Stage-1: Map: 1   HDFS Read: 0 HDFS Write: 0 FAIL
+hive&amp;gt;
+
+
+The error is as below (in mappers):
+
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.udf.generic.GenericUDFMapKeys.evaluate(GenericUDFMapKeys.java:64)
+        at org.apache.hadoop.hive.ql.exec.ExprNodeGenericFuncEvaluator._evaluate(ExprNodeGenericFuncEvaluator.java:166)
+        at org.apache.hadoop.hive.ql.exec.ExprNodeEvaluator.evaluate(ExprNodeEvaluator.java:77)
+        at org.apache.hadoop.hive.ql.exec.ExprNodeEvaluator.evaluate(ExprNodeEvaluator.java:65)
+        at org.apache.hadoop.hive.ql.exec.KeyWrapperFactory$ListKeyWrapper.getNewKey(KeyWrapperFactory.java:113)
+        at org.apache.hadoop.hive.ql.exec.GroupByOperator.processOp(GroupByOperator.java:778)
+        ... 17 more
+
+
+Looking at the source code:
+
+
+  public Object evaluate(DeferredObject[] arguments) throws HiveException {
+    retArray.clear();
+    Object mapObj = arguments[0].get();
+    retArray.addAll(mapOI.getMap(mapObj).keySet());
+    return retArray;
+  }
+
+
+It is obvious that we will have a NPE when a NULL map value is passed in
+
+

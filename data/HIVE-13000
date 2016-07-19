@@ -1,0 +1,10 @@
+Description
+
+When I run query like these I receive unclear exception
+hive&amp;gt; SELECT record FROM ctest GROUP BY record.instance_id;
+FAILED: SemanticException Error in parsing 
+It will be clearer if it would be like:
+hive&amp;gt; SELECT record FROM ctest GROUP BY record.instance_id;
+FAILED: SemanticException  Expression not in GROUP BY key record
+
+

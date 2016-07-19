@@ -1,0 +1,49 @@
+Description
+
+When map join happens, if projection columns include complex data types, query will fail. 
+Steps to reproduce:
+
+
+hive&amp;gt; set hive.auto.convert.join;
+hive.auto.convert.join=true
+hive&amp;gt; desc foo;
+a                   	array&amp;lt;int&amp;gt;
+hive&amp;gt; select * from foo;
+[1,2]
+hive&amp;gt; desc src_int;
+key                 	int
+value               	string
+hive&amp;gt; select * from src_int where key=2;
+2	   val_2
+hive&amp;gt; select * from foo join src_int src  on src.key = foo.a[1];
+
+
+Query will fail with stack trace
+
+Caused by: java.lang.ClassCastException: org.apache.hadoop.hive.serde2.lazybinary.LazyBinaryArray cannot be cast to [Ljava.lang.Object;
+	at org.apache.hadoop.hive.serde2.objectinspector.StandardListObjectInspector.getList(StandardListObjectInspector.java:111)
+	at org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe.serialize(LazySimpleSerDe.java:314)
+	at org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe.serializeField(LazySimpleSerDe.java:262)
+	at org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe.doSerialize(LazySimpleSerDe.java:246)
+	at org.apache.hadoop.hive.serde2.AbstractEncodingAwareSerDe.serialize(AbstractEncodingAwareSerDe.java:50)
+	at org.apache.hadoop.hive.ql.exec.FileSinkOperator.process(FileSinkOperator.java:692)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+	at org.apache.hadoop.hive.ql.exec.SelectOperator.process(SelectOperator.java:88)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+	at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.internalForward(CommonJoinOperator.java:644)
+	at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.genAllOneUniqueJoinObject(CommonJoinOperator.java:676)
+	at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.checkAndGenObject(CommonJoinOperator.java:754)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.process(MapJoinOperator.java:386)
+	... 23 more
+
+
+Similar error when projection columns include a map:
+
+
+hive&amp;gt; CREATE TABLE test (a INT, b MAP&amp;lt;INT, STRING&amp;gt;) STORED AS ORC;
+hive&amp;gt; INSERT OVERWRITE TABLE test SELECT 1, MAP(1, "val_1", 2, "val_2") FROM src LIMIT 1;
+hive&amp;gt; select * from src join test where src.key=test.a;
+
+
+
+

@@ -1,0 +1,165 @@
+Description
+
+##################ERROR  Message###########################
+Hadoop job information for Stage-28: number of mappers: 897; number of reducers: 0
+2015-07-28 02:41:59,385 Stage-28 map = 0%,  reduce = 0%
+Hadoop job information for Stage-22: number of mappers: 973; number of reducers: 0
+2015-07-28 02:42:01,286 Stage-22 map = 0%,  reduce = 0%
+2015-07-28 02:42:36,528 Stage-22 map = 1%,  reduce = 0%
+2015-07-28 02:42:37,559 Stage-22 map = 0%,  reduce = 0%
+2015-07-28 02:42:39,570 Stage-28 map = 1%,  reduce = 0%
+2015-07-28 02:42:40,598 Stage-28 map = 0%,  reduce = 0%
+2015-07-28 02:42:45,825 Stage-22 map = 100%,  reduce = 0%
+Ended Job = job_1437756808808_1395 with errors
+Error during job, obtaining debugging information...
+Examining task ID: task_1437756808808_1395_m_000021 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000035 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000003 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000111 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000060 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000185 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000056 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000067 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000087 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000182 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000132 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000002 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000127 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000046 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000334 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000143 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000035 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000023 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000009 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000030 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000211 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000157 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000097 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000078 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000098 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000062 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000002 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000026 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000215 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000267 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000012 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000325 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000070 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000051 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000194 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000185 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000075 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000038 (and more) from job job_1437756808808_1395
+Examining task ID: task_1437756808808_1395_m_000099 (and more) from job job_1437756808808_1395
+Task with the most failures(4): 
+
+Task ID:
+  task_1437756808808_1395_m_000007
+URL:
+http://test:8088/taskdetails.jsp?jobid=job_1437756808808_1395&amp;amp;tipid=task_1437756808808_1395_m_000007
+
+Diagnostic Messages for this Task:
+Error: java.lang.RuntimeException: Failed to load plan: hdfs://test:8020/tmp/hive/root/71c741f5-7b72-4059-b488-e5c3866a1cfe/hive_2015-07-28_02-41-12_799_4479425231730264480-6/-mr-10036/93c9f46d-8944-4181-8981-fbaa67fd81e2/map.xml: org.apache.hive.com.esotericsoftware.kryo.KryoException: Unable to find class: ask.MAPRED.Stage-10
+Serialization trace:
+startTimes (org.apache.hadoop.hive.ql.log.PerfLogger)
+perfLogger (org.apache.hadoop.hive.ql.exec.MapJoinOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.FilterOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.TableScanOperator)
+aliasToWork (org.apache.hadoop.hive.ql.plan.MapWork)
+	at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:450)
+	at org.apache.hadoop.hive.ql.exec.Utilities.getMapWork(Utilities.java:296)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.init(HiveInputFormat.java:268)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:484)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:477)
+	at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getRecordReader(CombineHiveInputFormat.java:711)
+	at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.&amp;lt;init&amp;gt;(MapTask.java:169)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:432)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: org.apache.hive.com.esotericsoftware.kryo.KryoException: Unable to find class: ask.MAPRED.Stage-10
+Serialization trace:
+startTimes (org.apache.hadoop.hive.ql.log.PerfLogger)
+perfLogger (org.apache.hadoop.hive.ql.exec.MapJoinOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.FilterOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.TableScanOperator)
+aliasToWork (org.apache.hadoop.hive.ql.plan.MapWork)
+	at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readName(DefaultClassResolver.java:138)
+	at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readClass(DefaultClassResolver.java:115)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClass(Kryo.java:656)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:99)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:139)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:17)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+	at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:672)
+	at org.apache.hadoop.hive.ql.exec.Utilities.deserializeObjectByKryo(Utilities.java:1069)
+	at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:960)
+	at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:974)
+	at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:416)
+	... 13 more
+Caused by: java.lang.ClassNotFoundException: ask.MAPRED.Stage-10
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+	at java.lang.Class.forName0(Native Method)
+	at java.lang.Class.forName(Class.java:270)
+	at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readName(DefaultClassResolver.java:136)
+	... 43 more
+Container killed by the ApplicationMaster.
+Container killed on request. Exit code is 143
+Container exited with a non-zero exit code 143
+2015-07-28 02:42:48,816 Stage-28 map = 99%,  reduce = 0%
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+2015-07-28 02:42:49,835 Stage-28 map = 100%,  reduce = 0%
+MapReduce Jobs Launched: 
+Stage-Stage-10: Map: 5  Reduce: 1   Cumulative CPU: 13.5 sec   HDFS Read: 33279418 HDFS Write: 294 SUCCESS
+Stage-Stage-5: Map: 5  Reduce: 1   Cumulative CPU: 13.47 sec   HDFS Read: 33279412 HDFS Write: 294 SUCCESS
+Stage-Stage-1: Map: 5  Reduce: 1   Cumulative CPU: 13.37 sec   HDFS Read: 26132138 HDFS Write: 304 SUCCESS
+Stage-Stage-22: Map: 973   HDFS Read: 0 HDFS Write: 0 FAIL
+Total MapReduce CPU Time Spent: 40 seconds 340 msec
+Ended Job = job_1437756808808_1394 with errors
+Error during job, obtaining debugging information...
+Examining task ID: task_1437756808808_1394_m_000004 (and more) from job job_1437756808808_1394
+Examining task ID: task_1437756808808_1394_m_000025 (and more) from job job_1437756808808_1394
+Examining task ID: task_1437756808808_1394_m_000141 (and more) from job job_1437756808808_1394
+Examining task ID: task_1437756808808_1394_m_000041 (and more) from job job_1437756808808_1394
+Examining task ID: task_1437756808808_1394_m_000013 (and more) from job job_1437756808808_1394
+Examining task ID: task_1437756808808_1394_m_000007 (and more) from job job_1437756808808_1394
+Examining task ID: task_1437756808808_1394_m_000055 (and more) from job job_1437756808808_1394
+Examining task ID: task_1437756808808_1394_m_000099 (and more) from job job_1437756808808_1394
+Examining task ID: task_1437756808808_1394_m_000152 (and more) from job job_1437756808808_1394
+Examining task ID: task_1437756808808_1394_m_000198 (and more) from job job_1437756808808_1394
+Examining task ID: task_1437756808808_1394_m_000109 (and more) from job job_1437756808808_1394
+Examining task ID: task_1437756808808_1394_m_000144 (and more) from job job_1437756808808_1394
+Examining task ID: task_1437756808808_1394_m_000225 (and more) from job job_1437756808808_1394
+Examining task ID: task_1437756808808_1394_m_000200 (and more) from job job_1437756808808_1394
+killing job with: job_1437756808808_1394
+Examining task ID: task_1437756808808_1394_m_000134 (and more) from job job_1437756808808_1394
+
+

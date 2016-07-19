@@ -1,0 +1,55 @@
+Description
+
+In the hive when the clients to execute HQL, occasionally the following exception, please help solve, thank you
+java.io.EOFException: Premature EOF: no length prefix available
+        at org.apache.hadoop.hdfs.protocolPB.PBHelper.vintPrefixed(PBHelper.java:2109)
+        at org.apache.hadoop.hdfs.protocol.datatransfer.PipelineAck.readFields(PipelineAck.java:176)
+        at org.apache.hadoop.hdfs.server.datanode.BlockReceiver$PacketResponder.run(BlockReceiver.java:1151)
+        at java.lang.Thread.run(Thread.java:745)
+2015-08-05 06:28:53,165 INFO org.apache.hadoop.hdfs.server.datanode.DataNode: Exception for BP-1797264656-192.168.4.128-1431244532842:blk_1093571274_19834793
+java.io.IOException: Premature EOF from inputStream
+        at org.apache.hadoop.io.IOUtils.readFully(IOUtils.java:194)
+        at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doReadFully(PacketReceiver.java:213)
+        at org.apache.hadoop.hdfs.protocol.datatransfer.Receiver.processOp(Receiver.java:72)
+        at org.apache.hadoop.hdfs.server.datanode.DataXceiver.run(DataXceiver.java:226)
+        at java.lang.Thread.run(Thread.java:745)
+2015-08-05 06:28:53,165 WARN org.apache.hadoop.hdfs.server.datanode.DataNode: IOException in BlockReceiver.run():
+java.io.IOException: Connection reset by peer
+        at sun.nio.ch.FileDispatcherImpl.write0(Native Method)
+        at sun.nio.ch.SocketDispatcher.write(SocketDispatcher.java:47)
+        at sun.nio.ch.IOUtil.writeFromNativeBuffer(IOUtil.java:93)
+        at sun.nio.ch.IOUtil.write(IOUtil.java:65)
+        at sun.nio.ch.SocketChannelImpl.write(SocketChannelImpl.java:487)
+        at org.apache.hadoop.net.SocketOutputStream$Writer.performIO(SocketOutputStream.java:63)
+        at org.apache.hadoop.net.SocketIOWithTimeout.doIO(SocketIOWithTimeout.java:142)
+        at org.apache.hadoop.net.SocketOutputStream.write(SocketOutputStream.java:159)
+        at java.io.BufferedOutputStream.flush(BufferedOutputStream.java:140)
+        at java.io.DataOutputStream.flush(DataOutputStream.java:123)
+        at org.apache.hadoop.hdfs.server.datanode.BlockReceiver$PacketResponder.sendAckUpstreamUnprotected(BlockReceiver.java:1396)
+        at org.apache.hadoop.hdfs.server.datanode.BlockReceiver$PacketResponder.sendAckUpstream(BlockReceiver.java:1335)
+        at org.apache.hadoop.hdfs.server.datanode.BlockReceiver$PacketResponder.run(BlockReceiver.java:1256)
+        at java.lang.Thread.run(Thread.java:745)
+java.io.IOException: Connection reset by peer
+        at sun.nio.ch.FileDispatcherImpl.write0(Native Method)
+        at sun.nio.ch.SocketDispatcher.write(SocketDispatcher.java:47)
+        at sun.nio.ch.IOUtil.writeFromNativeBuffer(IOUtil.java:93)
+        at sun.nio.ch.IOUtil.write(IOUtil.java:65)
+        at sun.nio.ch.SocketChannelImpl.write(SocketChannelImpl.java:487)
+        at org.apache.hadoop.net.SocketOutputStream$Writer.performIO(SocketOutputStream.java:63)
+        at org.apache.hadoop.net.SocketIOWithTimeout.doIO(SocketIOWithTimeout.java:142)
+        at org.apache.hadoop.net.SocketOutputStream.write(SocketOutputStream.java:159)
+        at org.apache.hadoop.net.SocketOutputStream.write(SocketOutputStream.java:117)
+java.io.IOException: Premature EOF from inputStream
+        at org.apache.hadoop.io.IOUtils.readFully(IOUtils.java:194)
+        at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doReadFully(PacketReceiver.java:213)
+        at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doRead(PacketReceiver.java:134)
+        at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.receiveNextPacket(PacketReceiver.java:109)
+        at org.apache.hadoop.hdfs.server.datanode.BlockReceiver.receivePacket(BlockReceiver.java:468)
+        at org.apache.hadoop.hdfs.server.datanode.BlockReceiver.receiveBlock(BlockReceiver.java:772)
+        at org.apache.hadoop.hdfs.server.datanode.DataXceiver.writeBlock(DataXceiver.java:724)
+        at org.apache.hadoop.hdfs.protocol.datatransfer.Receiver.opWriteBlock(Receiver.java:126)
+        at org.apache.hadoop.hdfs.protocol.datatransfer.Receiver.processOp(Receiver.java:72)
+        at org.apache.hadoop.hdfs.server.datanode.DataXceiver.run(DataXceiver.java:226)
+        at java.lang.Thread.run(Thread.java:745)
+
+

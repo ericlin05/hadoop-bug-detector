@@ -1,0 +1,31 @@
+Description
+
+Steps to reproduce this issue in Windows OS:
+hadoop.cmd fs -mkdir -p /tmp/testjars
+hadoop.cmd fs copyFromLocal &amp;lt;hive-hcatalog-core*.jar&amp;gt;  /tmp/testjars
+from hive cli:
+add jar hdfs:///tmp/testjars/hive-hcatalog-core-*.jar;
+add jar D:\hdp\hive-1.2.0.2.3.0.0-1737\hcatalog\share\hcatalog\hive-hcatal
+og-core-1.2.0.2.3.0.0-1737.jar;
+
+
+hive&amp;gt; add jar hdfs:///tmp/testjars/hive-hcatalog-core-1.2.0.2.3.0.0-1737.jar;
+converting to local hdfs:///tmp/testjars/hive-hcatalog-core-1.2.0.2.3.0.0-1737.j
+ar
+Illegal character in opaque part at index 2: C:\Users\hadoopqa\AppData\Local\Tem
+p\cf0c70a4-f8e5-43ae-8c94-aa528f90887d_resources\hive-hcatalog-core-1.2.0.2.3.0.
+0-1737.jar
+Query returned non-zero code: 1, cause: java.net.URISyntaxException: Illegal cha
+racter in opaque part at index 2: C:\Users\hadoopqa\AppData\Local\Temp\cf0c70a4-
+f8e5-43ae-8c94-aa528f90887d_resources\hive-hcatalog-core-1.2.0.2.3.0.0-1737.jar
+hive&amp;gt; add jar D:\hdp\hive-1.2.0.2.3.0.0-1737\hcatalog\share\hcatalog\hive-hcatal
+og-core-1.2.0.2.3.0.0-1737.jar;
+Illegal character in opaque part at index 2: D:\hdp\hive-1.2.0.2.3.0.0-1737\hcat
+alog\share\hcatalog\hive-hcatalog-core-1.2.0.2.3.0.0-1737.jar
+Query returned non-zero code: 1, cause: java.net.URISyntaxException: Illegal cha
+racter in opaque part at index 2: D:\hdp\hive-1.2.0.2.3.0.0-1737\hcatalog\share\
+hcatalog\hive-hcatalog-core-1.2.0.2.3.0.0-1737.jar
+
+
+
+

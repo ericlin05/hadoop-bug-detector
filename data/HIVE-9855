@@ -1,0 +1,9 @@
+Description
+
+To reproduce, enable runtime skew join and then join two tables that skewed data only exists in one of them. The task will fail with the following exception:
+
+Error: java.lang.RuntimeException: Hive Runtime Error while closing operators: java.io.IOException: Unable to rename output to: hdfs://......
+
+
+
+

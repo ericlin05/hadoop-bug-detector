@@ -1,0 +1,21 @@
+Description
+
+The following piece of code creates a resource which blocks the JVM from exiting. I'm not sure if it is related but  see a "process reaper" thread being created when the setOutput call is made. JVM exits if that statement is removed.
+    import org.apache.hadoop.conf.Configuration;
+    import org.apache.hadoop.mapreduce.Job;
+    import org.apache.hive.hcatalog.mapreduce.HCatOutputFormat;
+    import org.apache.hive.hcatalog.mapreduce.OutputJobInfo;
+    public class ReproduceHCatError {
+        public static void main(String[] args) throws Exception 
+{
+    
+            Job job = Job.getInstance();
+            Configuration config = job.getConfiguration();
+            config.set("hive.metastore.uris", "thrift://bd:9083");
+    
+            OutputJobInfo outputJobInfo = OutputJobInfo.create(null, "test_table_name", null);
+            HCatOutputFormat.setOutput(job, outputJobInfo);
+        }
+    }
+
+

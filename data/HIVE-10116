@@ -1,0 +1,21 @@
+Description
+
+cbo_semijoin.q reproduces the error.
+Stacktrace:
+
+2015-03-26 09:55:20,652 ERROR [main]: parse.CalcitePlanner (CalcitePlanner.java:genOPTree(269)) - CBO failed, skipping CBO.
+java.lang.ArrayIndexOutOfBoundsException: 3
+        at org.apache.calcite.rel.metadata.RelMdSize.averageColumnSizes(RelMdSize.java:193)
+        at sun.reflect.GeneratedMethodAccessor134.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.calcite.rel.metadata.ReflectiveRelMetadataProvider$2$1.invoke(ReflectiveRelMetadataProvider.java:194)
+        at com.sun.proxy.$Proxy30.averageColumnSizes(Unknown Source)
+        at sun.reflect.GeneratedMethodAccessor64.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at 
+        at java.lang.reflect.Method.invoke(Method.java:606)
+
+
+
+

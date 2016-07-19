@@ -1,0 +1,38 @@
+Description
+
+To reproduce:
+CREATE TABLE IF NOT EXISTS bug_test (
+  field1               STRING
+)
+PARTITIONED BY (
+  partition_field_1    STRING
+ ,partition_field_2    STRING
+ ,partition_field_3    STRING
+ ,partition_field_4    STRING
+)
+;
+CREATE TABLE IF NOT EXISTS bug_test2 (
+  field1               STRING
+)
+PARTITIONED BY (
+  partition_field_1    STRING
+ ,partition_field_2    STRING
+ ,partition_field_3    STRING
+ ,partition_field_4    STRING
+)
+;
+INSERT OVERWRITE TABLE bug_test
+PARTITION (partition_field_1='constant 1', partition_field_2='constant 2', partition_field_4)
+SELECT
+  a
+ ,b
+ ,c
+FROM bug_test2
+;
+This gives error message:
+FAILED: SemanticException [Error 10094]: Line 2:11 Dynamic partition cannot be the parent of a static partition 'partition_field_4'
+The error message above is misleading as partition_field_4 is dynamic and all of the declared parents are static.
+More informative error message would be something like: "Partitioning of insert statement partition_field_1, partition_field_2, partition_field_4 does not match partitioning of the table partition_field_1, partition_field_2, partition_field_3, partition_field_4"
+In the actual case I encountered this my error was refereing to wrong table, thus the reproduce script contains fields not present in tables.
+
+

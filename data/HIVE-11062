@@ -1,0 +1,37 @@
+Description
+
+When logging set to info, Extended ACL Enabled and the file system does not support ACL, there are a lot of Exception stack trace in the log file. Although it is benign, it can easily make users frustrated. We should set the level to show the Exception in debug. 
+Current, the Exception in the log looks like:
+
+2015-06-19 05:09:59,376 INFO org.apache.hadoop.hive.shims.HadoopShimsSecure: Skipping ACL inheritance: File system for path s3a://yibing/hive does not support ACLs but dfs.namenode.acls.enabled is set to true: java.lang.UnsupportedOperationException: S3AFileSystem doesn't support getAclStatus
+java.lang.UnsupportedOperationException: S3AFileSystem doesn't support getAclStatus
+	at org.apache.hadoop.fs.FileSystem.getAclStatus(FileSystem.java:2429)
+	at org.apache.hadoop.hive.shims.Hadoop23Shims.getFullFileStatus(Hadoop23Shims.java:729)
+	at org.apache.hadoop.hive.ql.metadata.Hive.inheritFromTable(Hive.java:2786)
+	at org.apache.hadoop.hive.ql.metadata.Hive.replaceFiles(Hive.java:2694)
+	at org.apache.hadoop.hive.ql.metadata.Table.replaceFiles(Table.java:640)
+	at org.apache.hadoop.hive.ql.metadata.Hive.loadTable(Hive.java:1587)
+	at org.apache.hadoop.hive.ql.exec.MoveTask.execute(MoveTask.java:297)
+	at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:88)
+	at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1638)
+	at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1397)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1181)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1047)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1042)
+	at org.apache.hive.service.cli.operation.SQLOperation.runQuery(SQLOperation.java:145)
+	at org.apache.hive.service.cli.operation.SQLOperation.access$100(SQLOperation.java:70)
+	at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:197)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+	at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:209)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+

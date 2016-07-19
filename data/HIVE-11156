@@ -1,0 +1,27 @@
+Description
+
+LLAP buddy allocator doesn't like the large cache size (64Gb) in combination with the rest of the default configs
+
+
+2015-06-30 20:56:01,401 [main()] WARN org.apache.hadoop.hive.llap.daemon.impl.LlapDaemon: Failed to start LLAP Daemon with exception
+java.lang.RuntimeException: Failed to create impl class
+	at org.apache.hadoop.hive.llap.io.api.LlapIoProxy.createIoImpl(LlapIoProxy.java:69)
+	at org.apache.hadoop.hive.llap.io.api.LlapIoProxy.initializeLlapIo(LlapIoProxy.java:55)
+	at org.apache.hadoop.hive.llap.daemon.impl.LlapDaemon.serviceInit(LlapDaemon.java:231)
+	at org.apache.hadoop.service.AbstractService.init(AbstractService.java:163)
+	at org.apache.hadoop.hive.llap.daemon.impl.LlapDaemon.main(LlapDaemon.java:298)
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:422)
+	at org.apache.hadoop.hive.llap.io.api.LlapIoProxy.createIoImpl(LlapIoProxy.java:67)
+	... 4 more
+Caused by: java.lang.AssertionError: Cache size not consistent with arena size: 134217728,68729962496
+	at org.apache.hadoop.hive.llap.cache.BuddyAllocator.&amp;lt;init&amp;gt;(BuddyAllocator.java:71)
+	at org.apache.hadoop.hive.llap.io.api.impl.LlapIoImpl.&amp;lt;init&amp;gt;(LlapIoImpl.java:100)
+	... 9 more
+
+
+
+

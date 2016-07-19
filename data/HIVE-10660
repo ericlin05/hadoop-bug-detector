@@ -1,0 +1,5 @@
+Description
+
+org.apache.hive.service.cli.Type.getType(org.apache.hive.service.cli.thrift.TTypeId) throws an IllegalArgumentException with 'Unrecognized' misspelled as 'Unregonized'.
+
+

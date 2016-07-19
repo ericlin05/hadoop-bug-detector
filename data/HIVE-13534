@@ -1,0 +1,162 @@
+Description
+
+Imported data was stored from a netezza datasource using a sqoop import command like this 
+SQL DDL creation script of imported table looks like this 
+CREATE TABLE "ADMIN"."MIS_AUX_ITR" ( 
+"DDEBVAL" DATE, 
+"DFINVAL" DATE, 
+"NAUX" VARCHAR(6), 
+"CDMNITR" VARCHAR(3), 
+"CDERIMG" VARCHAR(1), 
+"DDERIMG" DATE 
+); 
+Import sqoop job is the following 
+sqoop job 
+--create import-name 
+– import 
+--connect jdbc:netezza://server:port/database 
+--username user 
+--password pwd 
+--table MIS_AUX_ITR 
+--as-parquetfile 
+--target-dir hdfs:///prod/ZA/dee/MIS_AUX_ITR 
+-m 1 
+After import parquet file schema is the following 
+&amp;gt; yarn jar /tmp/parquet-tools-1.6.0.jar schema /prod/ZA/dee/MIS_AUX_ITR/2cf3e971-4c2c-408f-bd86-5d3cf3bd4fa5.parquet 
+message MIS_AUX_ITR 
+{ 
+optional int64 DDEBVAL; 
+optional int64 DFINVAL; 
+optional binary NAUX (UTF8); 
+optional binary CDMNITR (UTF8); 
+optional binary CDERIMG (UTF8); 
+optional int64 DDERIMG; 
+}
+ 
+In order to access data stored into the parquet file we created the external table below 
+CREATE EXTERNAL TABLE za_dee.MIS_AUX_ITR 
+( 
+`DDEBVAL`	DATE, 
+`DFINVAL`	DATE, 
+`NAUX`	VARCHAR(6), 
+`CDMNITR`	VARCHAR(3), 
+`CDERIMG`	VARCHAR(1), 
+`DDERIMG`	DATE 
+) 
+COMMENT 'Table DEE MIS_AUX_ITR' 
+STORED AS PARQUET 
+LOCATION 
+'/prod/ZA/dee/MIS_AUX_ITR'; 
+But when we try to list data from external table above we get the following exception 
+hive&amp;gt; CREATE EXTERNAL TABLE za_dee.MIS_AUX_ITR_V_PPROD 
+&amp;gt; ( 
+&amp;gt; `DDEBVAL`DATE, 
+&amp;gt; `DFINVAL`DATE, 
+&amp;gt; `NAUX`VARCHAR(6), 
+&amp;gt; `CDMNITR`VARCHAR(3), 
+&amp;gt; `CDERIMG`VARCHAR(1), 
+&amp;gt; `DDERIMG`DATE 
+&amp;gt; ) 
+&amp;gt; COMMENT 'Table DEE MIS_AUX_ITR_V_PROD' 
+&amp;gt; STORED AS PARQUET 
+&amp;gt; LOCATION 
+&amp;gt; '/prod/ZA/dee/MIS_AUX_ITR_V_PPROD'; 
+OK 
+Time taken: 0.196 seconds 
+hive&amp;gt; select * from za_dee.MIS_AUX_ITR_V_PPROD limit 100; 
+OK 
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder". 
+SLF4J: Defaulting to no-operation (NOP) logger implementation 
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details. 
+Failed with exception java.io.IOException:org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.ClassCastException: org.apache.hadoop.io.LongWritable cannot be cast to org.apache.hadoop.hive.serde2.io.DateWritable 
+Time taken: 0.529 seconds 
+hive&amp;gt; 
+We also tried with the following external table 
+CREATE EXTERNAL TABLE za_dee.MIS_AUX_ITR_V_PPROD_BI 
+( 
+`DDEBVAL`	BIGINT, 
+`DFINVAL`	BIGINT, 
+`NAUX`	VARCHAR(6), 
+`CDMNITR`	VARCHAR(3), 
+`CDERIMG`	VARCHAR(1), 
+`DDERIMG`	BIGINT 
+) 
+COMMENT 'Table DEE MIS_AUX_ITR_V_PROD_BI' 
+STORED AS PARQUET 
+LOCATION '/prod/ZA/dee/MIS_AUX_ITR_V_PPROD'; 
+Then the “Date” columns are shown as “timestamp” values as below 
+hive&amp;gt; select DDEBVAL from za_dee.MIS_AUX_ITR_V_PPROD_BI limit 5; 
+OK 
+1080770400000 
+1080770400000 
+1080770400000 
+1080770400000 
+1080770400000 
+Time taken: 0.081 seconds, Fetched: 5 row(s) 
+hive&amp;gt; 
+However “Date” values can be listed by casting as Timestamp 
+hive&amp;gt; select cast(DDEBVAL as Timestamp) from za_dee.MIS_AUX_ITR_V_PPROD_BI limit 5; 
+OK 
+2004-04-01 00:00:00 
+2004-04-01 00:00:00 
+2004-04-01 00:00:00 
+2004-04-01 00:00:00 
+2004-04-01 00:00:00 
+Time taken: 0.087 seconds, Fetched: 5 row(s) 
+hive&amp;gt; 
+We also have tested with an external table using TIMESTAMP type as shown below 
+CREATE EXTERNAL TABLE za_dee.MIS_AUX_ITR 
+( 
+`DDEBVAL`	TIMESTAMP, 
+`DFINVAL`	TIMESTAMP, 
+`NAUX`	VARCHAR(6), 
+`CDMNITR`	VARCHAR(3), 
+`CDERIMG`	VARCHAR(1), 
+`DDERIMG`	TIMESTAMP 
+) 
+COMMENT 'Table DEE MIS_AUX_ITR' 
+STORED AS PARQUET 
+LOCATION 
+'/prod/ZA/dee/MIS_AUX_ITR'; 
+But we got the same behavior: an exception when trying to access data from an Oracle DB.
+I tried this 
+CREATE EXTERNAL TABLE za_dee.MIS_AUX_ITR_V_PPROD_TS 
+( 
+`DDEBVAL`	TIMESTAMP, 
+`DFINVAL`	TIMESTAMP, 
+`NAUX`	VARCHAR(6), 
+`CDMNITR`	VARCHAR(3), 
+`CDERIMG`	VARCHAR(1), 
+`DDERIMG`	TIMESTAMP 
+) 
+COMMENT 'Table DEE MIS_AUX_ITR_V_PROD_TS' 
+STORED AS PARQUET 
+LOCATION 
+'/prod/ZA/dee/MIS_AUX_ITR_V_PPROD'; 
+and then i created and launched the sqoop job below 
+sqoop job --create import-za_dee-MIS_AUX_ITR_V-full-default-import-PPROD – import 
+--connect jdbc:netezza:/&amp;lt;server&amp;gt;:&amp;lt;port&amp;gt;/db 
+--username &amp;lt;user&amp;gt; 
+--password &amp;lt;password&amp;gt; 
+--table MIS_AUX_ITR_V 
+--as-parquetfile 
+--hive-import 
+--hive-overwrite 
+--hive-database za_dee 
+--hive-table MIS_AUX_ITR_V_PPROD_TS 
+-m 1 
+sqoop job --exec import-za_dee-MIS_AUX_ITR_V-full-default-import-PPROD 
+the raising error is the following 
+16/04/11 17:15:09 INFO orm.CompilationManager: Writing jar file: /tmp/sqoop-sqoop/compile/3533e18a81a65fb8eb88ec9cef2f4688/codegen_MIS_AUX_ITR_V.jar 
+16/04/11 17:15:09 WARN manager.NetezzaManager: It looks like you are importing from Netezza. 
+16/04/11 17:15:09 WARN manager.NetezzaManager: This transfer can be faster! Use the --direct 
+16/04/11 17:15:09 WARN manager.NetezzaManager: option to exercise a Netezza-specific fast path. 
+16/04/11 17:15:17 INFO mapreduce.ImportJobBase: Beginning import of MIS_AUX_ITR_V 
+16/04/11 17:15:17 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM "MIS_AUX_ITR_V" AS t WHERE 1=0 
+16/04/11 17:15:18 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM "MIS_AUX_ITR_V" AS t WHERE 1=0 
+16/04/11 17:15:18 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM "MIS_AUX_ITR_V" AS t WHERE 1=0 
+16/04/11 17:15:19 INFO hive.metastore: Trying to connect to metastore with URI thrift://slhdm007.maif.local:9083 
+16/04/11 17:15:19 INFO hive.metastore: Connected to metastore. 
+16/04/11 17:15:19 ERROR tool.ImportTool: Imported Failed: Cannot convert unsupported type: timestamp 
+
+

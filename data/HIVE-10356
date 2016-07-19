@@ -1,0 +1,47 @@
+Description
+
+Reducer 6 fails:
+
+Error: Failure while running task:java.lang.RuntimeException: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing vector batch (tag=0) \N\N09.285817653506076E84.639990363237801E7-1.1814318134524737E8
+\N\N01.2847032699693155E96.41569738480791E7-5.956161019898126E8
+\N\N04.682909323885761E82.288924051203157E7-5.995957665973593E7
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:332)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:180)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:172)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:172)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:168)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing vector batch (tag=0) \N\N09.285817653506076E84.639990363237801E7-1.1814318134524737E8
+\N\N01.2847032699693155E96.41569738480791E7-5.956161019898126E8
+\N\N04.682909323885761E82.288924051203157E7-5.995957665973593E7
+	at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordSource.pushRecord(ReduceRecordSource.java:267)
+	at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordProcessor.run(ReduceRecordProcessor.java:254)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:148)
+	... 14 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing vector batch (tag=0) \N\N09.285817653506076E84.639990363237801E7-1.1814318134524737E8
+\N\N01.2847032699693155E96.41569738480791E7-5.956161019898126E8
+\N\N04.682909323885761E82.288924051203157E7-5.995957665973593E7
+	at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordSource.processVectors(ReduceRecordSource.java:394)
+	at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordSource.pushRecord(ReduceRecordSource.java:252)
+	... 16 more
+Caused by: java.lang.ClassCastException: org.apache.hadoop.hive.ql.exec.vector.DoubleColumnVector cannot be cast to org.apache.hadoop.hive.ql.exec.vector.BytesColumnVector
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupKeyHelper.copyGroupKey(VectorGroupKeyHelper.java:94)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator$ProcessingModeGroupBatches.processBatch(VectorGroupByOperator.java:729)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator.process(VectorGroupByOperator.java:878)
+	at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordSource.processVectors(ReduceRecordSource.java:378)
+	... 17 more
+]], Vertex failed as one or more tasks failed. failedTasks:1, Vertex vertex_1428572510173_0231_1_24 [Reducer 5] killed/failed due to:null]Vertex killed, vertexName=Reducer 6, vertexId=vertex_1428572510173_0231_1_25, diagnostics=[Vertex received Kill while in RUNNING state., Vertex killed as other vertex failed. failedTasks:0, Vertex vertex_1428572510173_0231_1_25 [Reducer 6] killed/failed due to:null]DAG failed due to vertex failure. failedVertices:1 killedVertices:1
+
+
+How to repro: run query80 on scale factor 200. I might look tomorrow to see if this is specific to LLAP or not
+
+

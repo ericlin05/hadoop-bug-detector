@@ -1,0 +1,12 @@
+Description
+
+
+
+create temporary table events(`user id` bigint, `user name` string);
+explain analyze table events compute statistics for columns `user id`;
+
+FAILED: SemanticException [Error 30009]: Encountered parse error while parsing rewritten query
+
+
+
+

@@ -1,0 +1,15 @@
+Description
+
+TransactionBatchImpl.beginNextTransactionImpl() has
+
+        LockResponse res = msClient.lock(lockRequest);
+        if (res.getState() != LockState.ACQUIRED) {
+          throw new TransactionError("Unable to acquire lock on " + endPt);
+        }
+
+
+This means that if there are any competing locks already take, this will throw an Exception to client.  This doesn't seem like the right behavior.  It should block.
+We could also add TransactionBatch.beginNextTransaction(long timeoutMs) to  give the client more control.
+cc Alan Gates Sriharsha Chintalapani
+
+

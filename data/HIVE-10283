@@ -1,0 +1,53 @@
+Description
+
+I suspect that by removing the reducer, HIVE-4240, may be causing issues. Because of this inserts will not consolidate 'buckets' into single files which is problematic when attempting to use bucketmapjoin.
+CREATE TABLE IF NOT EXISTS buckettestinput( 
+data string 
+) 
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','; 
+CREATE TABLE IF NOT EXISTS buckettestoutput1( 
+data string 
+)CLUSTERED BY(data) 
+INTO 2 BUCKETS 
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','; 
+CREATE TABLE IF NOT EXISTS buckettestoutput2( 
+data string 
+)CLUSTERED BY(data) 
+INTO 2 BUCKETS 
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','; 
+Then I inserted the following data into the "buckettestinput" table 
+firstinsert1 
+firstinsert2 
+firstinsert3 
+firstinsert4 
+firstinsert5 
+firstinsert6 
+firstinsert7 
+firstinsert8 
+secondinsert1 
+secondinsert2 
+secondinsert3 
+secondinsert4 
+secondinsert5 
+secondinsert6 
+secondinsert7 
+secondinsert8 
+set hive.enforce.bucketing = true; 
+set hive.enforce.sorting=true; 
+insert into table buckettestoutput1 
+select * from buckettestinput where data like 'first%' 
+SELECT * 
+FROM buckettestoutput1 TABLESAMPLE(BUCKET 1 OUT OF 1 ON data) s; 
+insert into table buckettestoutput1 
+select * from buckettestinput where data like 'second%' 
+check the results of the table sample query. 
+for sort merge bucket map join 
+set hive.auto.convert.sortmerge.join=true; 
+set hive.optimize.bucketmapjoin = true; 
+set hive.optimize.bucketmapjoin.sortedmerge = true; 
+set hive.auto.convert.sortmerge.join.noconditionaltask=true; 
+select * from buckettestoutput1 a join buckettestoutput2 b on (a.data=b.data) 
+hive&amp;gt; select * from buckettestoutput1 a join buckettestoutput2 b on (a.data=b.data); 
+FAILED: SemanticException [Error 10141]: Bucketed table metadata is not correct. Fix the metadata or don't use bucketed mapjoin, by setting hive.enforce.bucketmapjoin to false. The number of buckets for table buckettestoutput1 is 2, whereas the number of files is 4 
+
+

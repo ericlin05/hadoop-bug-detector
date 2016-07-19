@@ -1,0 +1,27 @@
+Description
+
+HIVE-11913 added a new review to HiveQA that checks for added unit tests, however this is not reflected in the 'Overall' review at the top of the JIRA comment.  Example below:
+Overall: -1 at least one tests failed
+Here are the results of testing the latest attachment:
+https://issues.apache.org/jira/secure/attachment/12764994/HIVE-11976.03.patch
+ERROR: -1 due to no test(s) being added or modified.
+ERROR: -1 due to 1 failed/errored test(s), 9645 tests executed
+Failed tests:
+
+org.apache.hive.hcatalog.api.TestHCatClient.testTableSchemaPropagation
+
+
+Test results: http://ec2-174-129-184-35.compute-1.amazonaws.com/jenkins/job/PreCommit-HIVE-TRUNK-Build/5534/testReport
+Console output: http://ec2-174-129-184-35.compute-1.amazonaws.com/jenkins/job/PreCommit-HIVE-TRUNK-Build/5534/console
+Test logs: http://ec2-174-129-184-35.compute-1.amazonaws.com/logs/PreCommit-HIVE-TRUNK-Build-5534/
+Messages:
+
+Executing org.apache.hive.ptest.execution.TestCheckPhase
+Executing org.apache.hive.ptest.execution.PrepPhase
+Executing org.apache.hive.ptest.execution.ExecutionPhase
+Executing org.apache.hive.ptest.execution.ReportingPhase
+Tests exited with: TestsFailedException: 1 tests failed
+
+
+
+

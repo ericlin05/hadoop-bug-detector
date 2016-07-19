@@ -1,0 +1,23 @@
+Description
+
+msck repair table will fail to add dynamic partitions when using a custom pattern.
+set hcat.dynamic.partitioning.custom.pattern="$
+{year}
+/$
+{month}
+/$
+{day}
+/$
+{hour}
+";
+CREATE EXTERNAL TABLE raw_line (line string)
+PARTITIONED BY(year STRING, month STRING, day STRING, hour STRING)
+STORED AS TEXTFILE
+LOCATION '/raw/data';
+....
+org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: partition spec is invalid; field year does not exist or is empty
+	at org.apache.hadoop.hive.ql.metadata.Hive.createPartition(Hive.java:1628)
+	at org.apache.hadoop.hive.ql.exec.DDLTask.msckAddPartitionsOneByOne(DDLTask.java:1659)
+	at org.apache.hadoop.hive.ql.exec.DDLTask.msck(DDLTask.java:1726)
+
+

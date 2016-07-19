@@ -1,0 +1,35 @@
+Description
+
+
+Connected to: Apache Hive (version 1.2.1.2.3.0.0-2557)
+Driver: Hive JDBC (version 1.2.1.2.3.0.0-2557)
+0: jdbc:hive2://localhost:10000&amp;gt; create database db1;
+No rows affected (0.997 seconds)
+0: jdbc:hive2://localhost:10000&amp;gt; create database db2;
+No rows affected (0.968 seconds)
+0: jdbc:hive2://localhost:10000&amp;gt; create table db1.test (col1 int);
+No rows affected (1.758 seconds)
+0: jdbc:hive2://localhost:10000&amp;gt; create index idx1 on table db1.test(col1) as 'compact' with deferred rebuild;
+No rows affected (0.287 seconds)
+0: jdbc:hive2://localhost:10000&amp;gt; alter index idx1 on db1.test rebuild;
+INFO  : Tez session hasn't been created yet. Opening session
+INFO  :
+
+INFO  : Status: Running (Executing on YARN cluster with App id application_1449025977131_0007)
+
+INFO  : Map 1: -/-      Reducer 2: 0/1
+INFO  : Map 1: -/-      Reducer 2: 0(+1)/1
+INFO  : Map 1: -/-      Reducer 2: 0/1
+INFO  : Map 1: -/-      Reducer 2: 1/1
+INFO  : Loading data to table db1.db1__test_idx1__ from hdfs://sandbox.hortonworks.com:8020/apps/hive/warehouse/db1.db/b1__test_idx1__/.hive-staging_hive_2015-12-04_02-02-47_278_3621654884902999047-10/-ext-10000
+INFO  : Table db1.db1__test_idx1__ stats: [numFiles=1, numRows=0, totalSize=0, rawDataSize=0]
+No rows affected (7.792 seconds)
+0: jdbc:hive2://localhost:10000&amp;gt; alter table db1.test rename to db2.test;
+No rows affected (0.261 seconds)
+0: jdbc:hive2://localhost:10000&amp;gt; drop table db2.test;
+Error: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLask. MetaException(message:db2.db1__test_idx1__ table not found) (state=08S01,code=1)
+
+
+Basically it looks like the rename to a different database left the index table in the old database.
+
+

@@ -1,0 +1,118 @@
+Description
+
+example:
+from portrait.rec_feature_feedback a insert overwrite table portrait.test1 select iid, feedback_15day, feedback_7day, feedback_5day, feedback_3day, feedback_1day where l_date = '2015-09-09' and bid in ('949722CF_12F7_523A_EE21_E3D591B7E755');
+log shows:
+Query ID = hadoop_20151012153841_120bee59-56a7-4e53-9c45-76f97c0f50ad
+Total jobs = 3
+Launching Job 1 out of 3
+Number of reduce tasks is set to 0 since there's no reduce operator
+Starting Job = job_1441881651073_95266, Tracking URL = http://bjlg-44p12-rm01:8088/proxy/application_1441881651073_95266/
+Kill Command = /opt/hadoop/hadoop/bin/hadoop job  -kill job_1441881651073_95266
+Hadoop job information for Stage-1: number of mappers: 21; number of reducers: 0
+2015-10-12 15:39:29,930 Stage-1 map = 0%,  reduce = 0%
+2015-10-12 15:39:39,597 Stage-1 map = 5%,  reduce = 0%
+2015-10-12 15:39:40,658 Stage-1 map = 0%,  reduce = 0%
+2015-10-12 15:39:53,479 Stage-1 map = 5%,  reduce = 0%
+2015-10-12 15:39:54,535 Stage-1 map = 0%,  reduce = 0%
+2015-10-12 15:39:55,588 Stage-1 map = 10%,  reduce = 0%
+2015-10-12 15:39:56,626 Stage-1 map = 5%,  reduce = 0%
+2015-10-12 15:39:57,687 Stage-1 map = 0%,  reduce = 0%
+2015-10-12 15:40:06,096 Stage-1 map = 100%,  reduce = 0%
+Ended Job = job_1441881651073_95266 with errors
+Error during job, obtaining debugging information...
+Examining task ID: task_1441881651073_95266_m_000000 (and more) from job job_1441881651073_95266
+Examining task ID: task_1441881651073_95266_m_000016 (and more) from job job_1441881651073_95266
+Examining task ID: task_1441881651073_95266_m_000011 (and more) from job job_1441881651073_95266
+Examining task ID: task_1441881651073_95266_m_000018 (and more) from job job_1441881651073_95266
+Examining task ID: task_1441881651073_95266_m_000002 (and more) from job job_1441881651073_95266
+Task with the most failures(4): 
+
+Task ID:
+  task_1441881651073_95266_m_000009
+URL:
+http://0.0.0.0:8088/taskdetails.jsp?jobid=job_1441881651073_95266&amp;amp;tipid=task_1441881651073_95266_m_000009
+
+Diagnostic Messages for this Task:
+Error: java.lang.ClassNotFoundException: org.apache.hadoop.hive.metastore.api.MetaException
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+	at java.lang.Class.getDeclaredMethods0(Native Method)
+	at java.lang.Class.privateGetDeclaredMethods(Class.java:2570)
+	at java.lang.Class.privateGetPublicMethods(Class.java:2690)
+	at java.lang.Class.getMethods(Class.java:1467)
+	at com.sun.beans.finder.MethodFinder$1.create(MethodFinder.java:54)
+	at com.sun.beans.finder.MethodFinder$1.create(MethodFinder.java:49)
+	at com.sun.beans.util.Cache.get(Cache.java:127)
+	at com.sun.beans.finder.MethodFinder.findMethod(MethodFinder.java:81)
+	at java.beans.Statement.getMethod(Statement.java:357)
+	at java.beans.Statement.invokeInternal(Statement.java:261)
+	at java.beans.Statement.access$000(Statement.java:58)
+	at java.beans.Statement$2.run(Statement.java:185)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.beans.Statement.invoke(Statement.java:182)
+	at java.beans.Expression.getValue(Expression.java:153)
+	at com.sun.beans.decoder.ObjectElementHandler.getValueObject(ObjectElementHandler.java:166)
+	at com.sun.beans.decoder.NewElementHandler.getValueObject(NewElementHandler.java:123)
+	at com.sun.beans.decoder.ElementHandler.getContextBean(ElementHandler.java:113)
+	at com.sun.beans.decoder.NewElementHandler.getContextBean(NewElementHandler.java:109)
+	at com.sun.beans.decoder.ObjectElementHandler.getValueObject(ObjectElementHandler.java:146)
+	at com.sun.beans.decoder.NewElementHandler.getValueObject(NewElementHandler.java:123)
+	at com.sun.beans.decoder.ElementHandler.getContextBean(ElementHandler.java:113)
+	at com.sun.beans.decoder.NewElementHandler.getContextBean(NewElementHandler.java:109)
+	at com.sun.beans.decoder.ObjectElementHandler.getValueObject(ObjectElementHandler.java:146)
+	at com.sun.beans.decoder.NewElementHandler.getValueObject(NewElementHandler.java:123)
+	at com.sun.beans.decoder.ElementHandler.getContextBean(ElementHandler.java:113)
+	at com.sun.beans.decoder.NewElementHandler.getContextBean(NewElementHandler.java:109)
+	at com.sun.beans.decoder.ObjectElementHandler.getValueObject(ObjectElementHandler.java:146)
+	at com.sun.beans.decoder.NewElementHandler.getValueObject(NewElementHandler.java:123)
+	at com.sun.beans.decoder.ElementHandler.endElement(ElementHandler.java:169)
+	at com.sun.beans.decoder.DocumentHandler.endElement(DocumentHandler.java:318)
+	at org.apache.xerces.parsers.AbstractSAXParser.endElement(Unknown Source)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl.scanEndElement(Unknown Source)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl$FragmentContentDispatcher.dispatch(Unknown Source)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl.scanDocument(Unknown Source)
+	at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+	at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+	at org.apache.xerces.parsers.XMLParser.parse(Unknown Source)
+	at org.apache.xerces.parsers.AbstractSAXParser.parse(Unknown Source)
+	at org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser.parse(Unknown Source)
+	at org.apache.xerces.jaxp.SAXParserImpl.parse(Unknown Source)
+	at com.sun.beans.decoder.DocumentHandler$1.run(DocumentHandler.java:375)
+	at com.sun.beans.decoder.DocumentHandler$1.run(DocumentHandler.java:372)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.security.ProtectionDomain$1.doIntersectionPrivilege(ProtectionDomain.java:76)
+	at com.sun.beans.decoder.DocumentHandler.parse(DocumentHandler.java:372)
+	at java.beans.XMLDecoder$1.run(XMLDecoder.java:201)
+	at java.beans.XMLDecoder$1.run(XMLDecoder.java:199)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.beans.XMLDecoder.parsingComplete(XMLDecoder.java:199)
+	at java.beans.XMLDecoder.readObject(XMLDecoder.java:250)
+	at org.apache.hadoop.hive.ql.exec.Utilities.deserializeObjectByJavaXML(Utilities.java:1015)
+	at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:928)
+	at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:947)
+	at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:390)
+	at org.apache.hadoop.hive.ql.exec.Utilities.getMapWork(Utilities.java:286)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.init(HiveInputFormat.java:263)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:478)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:471)
+	at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getRecordReader(CombineHiveInputFormat.java:648)
+	at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.&amp;lt;init&amp;gt;(MapTask.java:169)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:429)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+MapReduce Jobs Launched: 
+Stage-Stage-1: Map: 21   HDFS Read: 0 HDFS Write: 0 FAIL
+Total MapReduce CPU Time Spent: 0 msec
+
+

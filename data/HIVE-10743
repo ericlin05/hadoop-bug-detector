@@ -1,0 +1,21 @@
+Description
+
+
+2015-05-18 15:37:33,702 [TezTaskRunner_attempt_1431919257083_0116_1_00_000009_0(container_222212222_0116_01_000010_sershe_20150518153700_b3649675-c035-4d9a-8dfb-2818b0173022:1_Map 1_9_0)] INFO org.apache.hadoop.hive.ql.io.HiveContextAwareRecordReader: Processing file hdfs://cn041-10.l42scl.hortonworks.com:8020/apps/hive/warehouse/tpch_orc_snappy_1000.db/lineitem/000093_0
+2015-05-18 15:37:33,743 [IO-Elevator-Thread-9(container_222212222_0116_01_000010_sershe_20150518153700_b3649675-c035-4d9a-8dfb-2818b0173022:1_Map 1_9_0)] INFO org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl: Resulting disk ranges to read (file 7895017): [{range start: 28153685 end: 70814209}]
+2015-05-18 15:37:33,743 [IO-Elevator-Thread-9(container_222212222_0116_01_000010_sershe_20150518153700_b3649675-c035-4d9a-8dfb-2818b0173022:1_Map 1_9_0)] INFO org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl: Disk ranges after cache (file 7895017, base offset 3): [{range start: 28153685 end: 70814209}]
+2015-05-18 15:37:33,791 [IO-Elevator-Thread-9(container_222212222_0116_01_000010_sershe_20150518153700_b3649675-c035-4d9a-8dfb-2818b0173022:1_Map 1_9_0)] INFO org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl: Disk ranges after disk read (file 7895017, base offset 3): [{data range [28153685, 70814209), size: 42660524 type: direct}]
+2015-05-18 15:37:33,804 [IO-Elevator-Thread-9(container_222212222_0116_01_000010_sershe_20150518153700_b3649675-c035-4d9a-8dfb-2818b0173022:1_Map 1_9_0)] INFO org.apache.hadoop.hive.llap.io.api.impl.LlapIoImpl: setError called; closed false, done false, err null, pending 0
+...
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.io.orc.InStream.readEncodedStream(InStream.java:763)
+        at org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl.readEncodedColumns(EncodedReaderImpl.java:445)
+        at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:294)
+        at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:56)
+        at org.apache.hadoop.hive.common.CallableWithNdc.call(CallableWithNdc.java:37)
+        ... 4 more
+
+
+Not sure yet how this happened. May add some logging or look more if I see it again
+
+

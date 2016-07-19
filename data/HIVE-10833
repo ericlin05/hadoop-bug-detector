@@ -1,0 +1,41 @@
+Description
+
+While working on HIVE-10828 I noticed that internal state of RowResolver looks odd when CBO is enabled.
+Consider the script below.
+
+set hive.enforce.bucketing=true;
+set hive.exec.dynamic.partition.mode=nonstrict;
+set hive.cbo.enable=false;
+
+drop table if exists acid_partitioned;
+create table acid_partitioned (a int, c string)
+  partitioned by (p int)
+  clustered by (a) into 1 buckets;
+  
+insert into acid_partitioned partition (p) (a,p) values(1,1);
+
+
+(this test is part of ql/src/test/results/clientpositive/insert_into_with_schema2.q)
+With CBO on,
+if you put a break point in 
+
+SemanticAnalyzer.genSelectPlan(String dest, ASTNode selExprList, QB qb, Operator&amp;lt;?&amp;gt; input,
+      Operator&amp;lt;?&amp;gt; inputForSelectStar, boolean outerLV)
+
+ at line 
+ selectStar = selectStar &amp;amp;&amp;amp; exprList.getChildCount() == posn + 1;
+(currently 3865) and examine out_rwsch.rslvMap variable looks like 
+
+{null={values__tmp__table__1.tmp_values_col1=_col0: string, values__tmp__table__1.tmp_values_col2=_col1: string}}
+
+with CBO disabled, the same out_rwsch.rslvMap looks like
+
+{values__tmp__table__1={tmp_values_col1=_col0: string, tmp_values_col2=_col1: string}}
+
+The out_rwsch.invRslvMap also differs in the same way.
+It seems that the version you get with CBO off is the correct one since
+insert into acid_partitioned partition (p) (a,p) values(1,1) is rewritten to
+insert into acid_partitioned partition (p) (a,p) select * from valuestmptable1
+CC Ashutosh Chauhan
+
+

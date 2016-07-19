@@ -1,0 +1,22 @@
+Description
+
+With Hive 14 when we run drop command with the schema.table it fails. This feature was working in Hive 13.
+Hive Version:
+*****************
+Hive 0.14.0.2.2.4.2-2
+Subversion git://ip-10-0-0-54.ec2.internal/grid/0/jenkins/workspace/HDP-2.2.4.1-centos5/bigtop/build/hive/rpm/BUILD/hive-0.14.0.2.2.4.2 -r 115d99896f5a4a81e7d91e052e8d38d7436b78d4
+Compiled by jenkins on Tue Mar 31 16:03:30 EDT 2015
+From source with checksum 1f34a1d4e566c3e801582862ed85ee93
+Commands Execution:
+*****************************
+hive (dev_sft_pos_usf_c09013_ps799_bre000_pfc00000_spr104_pfs00000)&amp;gt; DROP TABLE IF EXISTS dev_sft_pos_usf_c09013_ps799_bre000_pfc00000_spr104_pfs00000.aggr_store_aiv_mon;
+OK
+Time taken: 0.608 seconds
+hive (dev_sft_pos_usf_c09013_ps799_bre000_pfc00000_spr104_pfs00000)&amp;gt; use default;
+OK
+Time taken: 0.222 seconds
+hive (default)&amp;gt; DROP TABLE IF EXISTS dev_sft_pos_usf_c09013_ps799_bre000_pfc00000_spr104_pfs00000.basedondata;
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. org.apache.thrift.TApplicationException: Internal error processing get_partition_names
+hive (default)&amp;gt;
+
+

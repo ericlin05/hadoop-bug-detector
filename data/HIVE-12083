@@ -1,0 +1,54 @@
+Description
+
+In the fix for HIVE-10965, there is a short-circuit path that causes an empty AggrStats object to be returned if partNames is empty or colNames is empty:
+
+
+diff --git metastore/src/java/org/apache/hadoop/hive/metastore/MetaStoreDirectSql.java metastore/src/java/org/apache/hadoop/hive/metastore/MetaStoreDirectSql.java
+index 0a56bac..ed810d2 100644
+--- metastore/src/java/org/apache/hadoop/hive/metastore/MetaStoreDirectSql.java
++++ metastore/src/java/org/apache/hadoop/hive/metastore/MetaStoreDirectSql.java
+@@ -1100,6 +1100,7 @@ public ColumnStatistics getTableStats(
+   public AggrStats aggrColStatsForPartitions(String dbName, String tableName,
+       List&amp;lt;String&amp;gt; partNames, List&amp;lt;String&amp;gt; colNames, boolean useDensityFunctionForNDVEstimation)
+       throws MetaException {
++    if (colNames.isEmpty() || partNames.isEmpty()) return new AggrStats(); // Nothing to aggregate.
+     long partsFound = partsFoundForPartitions(dbName, tableName, partNames, colNames);
+     List&amp;lt;ColumnStatisticsObj&amp;gt; colStatsList;
+     // Try to read from the cache first
+
+
+This runs afoul of thrift requirements that AggrStats have required fields:
+
+
+struct AggrStats {
+1: required list&amp;lt;ColumnStatisticsObj&amp;gt; colStats,
+2: required i64 partsFound // number of partitions for which stats were found
+}
+
+
+Thus, we get errors as follows:
+
+2015-10-08 00:00:25,413 ERROR server.TThreadPoolServer (TThreadPoolServer.java:run(213)) - Thrift error occurred during processing of message.
+org.apache.thrift.protocol.TProtocolException: Required field 'colStats' is unset! Struct:AggrStats(colStats:null, partsFound:0)
+        at org.apache.hadoop.hive.metastore.api.AggrStats.validate(AggrStats.java:389)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$get_aggr_stats_for_result.validate(ThriftHiveMetastore.java)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$get_aggr_stats_for_result$get_aggr_stats_for_resultStandardScheme.write(ThriftHiveMetastore.java)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$get_aggr_stats_for_result$get_aggr_stats_for_resultStandardScheme.write(ThriftHiveMetastore.java)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$get_aggr_stats_for_result.write(ThriftHiveMetastore.java)
+        at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:53)
+        at org.apache.hadoop.hive.metastore.TUGIBasedProcessor$1.run(TUGIBasedProcessor.java:110)
+        at org.apache.hadoop.hive.metastore.TUGIBasedProcessor$1.run(TUGIBasedProcessor.java:106)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+        at org.apache.hadoop.hive.shims.HadoopShimsSecure.doAs(HadoopShimsSecure.java:536)
+        at org.apache.hadoop.hive.metastore.TUGIBasedProcessor.process(TUGIBasedProcessor.java:118)
+        at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:206)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+Normally, this would not occur since HIVE-10965 does also include a guard on the client-side for colNames.isEmpty() to not call the metastore call at all, but there is no guard for partNames being empty, and would still cause an error on the metastore side if the thrift call were called directly, as would happen if the client is from an older version before this was patched.
+
+

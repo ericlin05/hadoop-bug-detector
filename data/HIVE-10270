@@ -1,0 +1,9 @@
+Description
+
+
+hive&amp;gt; select 0.09765625BD;
+FAILED: IllegalArgumentException Decimal scale must be less than or equal to precision
+
+
+
+

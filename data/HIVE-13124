@@ -1,0 +1,39 @@
+Description
+
+There seems to be a bug in Hive using Map-Reduce as execution engine when you have multiple external tables with the same location and you try to join them.
+(in my case the files in the location are XML-files and I created a custom SerDe for reading those "non-standard" XML-files.) 
+When I am trying to execute a "select ... join ...." the task will fail with this message:
+2016-02-23 08:06:35,976 ERROR [main]: exec.Task (SessionState.java:printError(960)) - Execution failed with exit status: 2
+2016-02-23 08:06:35,977 ERROR [main]: exec.Task (SessionState.java:printError(960)) - Obtaining error information
+2016-02-23 08:06:35,977 ERROR [main]: exec.Task (SessionState.java:printError(960)) - 
+Task failed!
+Task ID:
+  Stage-4
+And this is the exception from the log:
+2016-02-23 08:06:35,756 ERROR mr.MapredLocalTask (MapredLocalTask.java:executeInProcess(355)) - Hive Runtime Error: Map local work failed
+java.lang.RuntimeException: cannot find field feb45_vehicleinfo_id from [0:feb06_event_id, 1:feb01_feedbacksession_id, 2:feb07_eventtype_id, 3:feb06_event_ts]
+	at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils.getStandardStructFieldRef(ObjectInspectorUtils.java:416)
+	at org.apache.hadoop.hive.serde2.objectinspector.StandardStructObjectInspector.getStructFieldRef(StandardStructObjectInspector.java:147)
+	at org.apache.hadoop.hive.ql.exec.ExprNodeColumnEvaluator.initialize(ExprNodeColumnEvaluator.java:55)
+	at org.apache.hadoop.hive.ql.exec.JoinUtil.getObjectInspectorsFromEvaluators(JoinUtil.java:77)
+	at org.apache.hadoop.hive.ql.exec.HashTableSinkOperator.initializeOp(HashTableSinkOperator.java:147)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:363)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:482)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:439)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:376)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:482)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:439)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:376)
+	at org.apache.hadoop.hive.ql.exec.mr.MapredLocalTask.initializeOperators(MapredLocalTask.java:458)
+	at org.apache.hadoop.hive.ql.exec.mr.MapredLocalTask.startForward(MapredLocalTask.java:364)
+	at org.apache.hadoop.hive.ql.exec.mr.MapredLocalTask.executeInProcess(MapredLocalTask.java:344)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecDriver.main(ExecDriver.java:747)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+If I copy the files to a different directory and point in each table to its own directory, than I don't have this problem. But it doesn't make any sense to copy tons of gigabyte 35 times on the cluster as a workaround. Seems like that if you are using Apache Tez as execution engine  you don't face this kind of issue.
+
+

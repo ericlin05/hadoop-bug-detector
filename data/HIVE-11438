@@ -1,0 +1,77 @@
+Description
+
+The following script fail on MR mode:
+Preparation:
+
+
+CREATE TABLE orc_update_table (k1 INT, f1 STRING, op_code STRING) 
+CLUSTERED BY (k1) INTO 2 BUCKETS 
+STORED AS ORC TBLPROPERTIES("transactional"="true"); 
+INSERT INTO TABLE orc_update_table VALUES (1, 'a', 'I');
+CREATE TABLE orc_table (k1 INT, f1 STRING) 
+CLUSTERED BY (k1) SORTED BY (k1) INTO 2 BUCKETS 
+STORED AS ORC; 
+INSERT OVERWRITE TABLE orc_table VALUES (1, 'x');
+
+
+Then run the following script:
+
+
+SET hive.execution.engine=mr; 
+SET hive.auto.convert.join=false; 
+SET hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
+SELECT t1.*, t2.* FROM orc_table t1 
+JOIN orc_update_table t2 ON t1.k1=t2.k1 ORDER BY t1.k1;
+
+
+Stack:
+
+
+java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.init(HiveInputFormat.java:265)
+	at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getCombineSplits(CombineHiveInputFormat.java:272)
+	at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getSplits(CombineHiveInputFormat.java:509)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeOldSplits(JobSubmitter.java:624)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:616)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:492)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1296)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1293)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1293)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:585)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:580)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:580)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:571)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecDriver.execute(ExecDriver.java:429)
+	at org.apache.hadoop.hive.ql.exec.mr.MapRedTask.execute(MapRedTask.java:137)
+	at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:85)
+	at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1606)
+	at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1367)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1179)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1006)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:996)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:247)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:199)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:410)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:783)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:677)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:616)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+Job Submission failed with exception 'java.lang.NullPointerException(null)'
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+
+
+Note the query is the same as HIVE-11422. But in 1.0.0 for this Jira, it throw a different exeception.
+
+

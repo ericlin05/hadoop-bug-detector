@@ -1,0 +1,140 @@
+Description
+
+Looks like the following stack in very parallel workload counts as task error and DAG fails:
+
+: Error while processing statement: FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.tez.TezTask. Vertex failed, vertexName=Map 1, vertexId=vertex_1433459966952_0482_4_03, diagnostics=[Task failed, taskId=task_1433459966952_0482_4_03_000022, diagnostics=[TaskAttempt 0 killed, TaskAttempt 1 killed, TaskAttempt 2 killed, TaskAttempt 3 killed, TaskAttempt 4 killed, TaskAttempt 5 killed, TaskAttempt 6 killed, TaskAttempt 7 killed, TaskAttempt 8 killed, TaskAttempt 9 killed, TaskAttempt 10 killed, TaskAttempt 11 killed, TaskAttempt 12 killed, TaskAttempt 13 killed, TaskAttempt 14 killed, TaskAttempt 15 killed, TaskAttempt 16 killed, TaskAttempt 17 killed, TaskAttempt 18 killed, TaskAttempt 19 failed, info=[Error: Failure while running task: attempt_1433459966952_0482_4_03_000022_19:java.lang.RuntimeException: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:181)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:146)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:349)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:71)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:60)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1654)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:60)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:35)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:256)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:157)
+	... 14 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Async initialization failed
+	at org.apache.hadoop.hive.ql.exec.Operator.completeInitialization(Operator.java:416)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:388)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:511)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:464)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:378)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:241)
+	... 15 more
+Caused by: java.util.concurrent.CancellationException
+	at java.util.concurrent.FutureTask.report(FutureTask.java:121)
+	at java.util.concurrent.FutureTask.get(FutureTask.java:192)
+	at org.apache.hadoop.hive.ql.exec.Operator.completeInitialization(Operator.java:408)
+	... 20 more
+], TaskAttempt 20 failed, info=[Error: Failure while running task: attempt_1433459966952_0482_4_03_000022_20:java.lang.RuntimeException: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:181)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:146)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:349)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:71)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:60)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1654)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:60)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:35)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:256)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:157)
+	... 14 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Async initialization failed
+	at org.apache.hadoop.hive.ql.exec.Operator.completeInitialization(Operator.java:416)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:388)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:511)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:464)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:378)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:241)
+	... 15 more
+Caused by: java.util.concurrent.CancellationException
+	at java.util.concurrent.FutureTask.report(FutureTask.java:121)
+	at java.util.concurrent.FutureTask.get(FutureTask.java:192)
+	at org.apache.hadoop.hive.ql.exec.Operator.completeInitialization(Operator.java:408)
+	... 20 more
+], TaskAttempt 21 failed, info=[Error: Failure while running task: attempt_1433459966952_0482_4_03_000022_21:java.lang.RuntimeException: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:181)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:146)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:349)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:71)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:60)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1654)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:60)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:35)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:256)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:157)
+	... 14 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Async initialization failed
+	at org.apache.hadoop.hive.ql.exec.Operator.completeInitialization(Operator.java:416)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:388)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:511)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:464)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:378)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:241)
+	... 15 more
+Caused by: java.util.concurrent.CancellationException
+	at java.util.concurrent.FutureTask.report(FutureTask.java:121)
+	at java.util.concurrent.FutureTask.get(FutureTask.java:192)
+	at org.apache.hadoop.hive.ql.exec.Operator.completeInitialization(Operator.java:408)
+	... 20 more
+], TaskAttempt 22 failed, info=[Error: Failure while running task: attempt_1433459966952_0482_4_03_000022_22:java.lang.RuntimeException: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:181)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:146)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:349)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:71)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:60)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1654)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:60)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:35)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:256)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:157)
+	... 14 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Async initialization failed
+	at org.apache.hadoop.hive.ql.exec.Operator.completeInitialization(Operator.java:416)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:388)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:511)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:464)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:378)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:241)
+	... 15 more
+Caused by: java.util.concurrent.CancellationException
+	at java.util.concurrent.FutureTask.report(FutureTask.java:121)
+	at java.util.concurrent.FutureTask.get(FutureTask.java:192)
+	at org.apache.hadoop.hive.ql.exec.Operator.completeInitialization(Operator.java:408)
+	... 20 more
+
+
+
+

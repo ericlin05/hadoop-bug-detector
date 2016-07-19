@@ -1,0 +1,5 @@
+Description
+
+Any column name INTERVAL is causing ParseException , even we set hive.support.sql11.reserved.keywords = false
+
+

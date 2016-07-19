@@ -1,0 +1,11 @@
+Description
+
+For example
+
+
+select format_number(cast(null as int), 0);
+FAILED: NullPointerException null
+
+
+
+

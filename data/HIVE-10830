@@ -1,0 +1,40 @@
+Description
+
+1. create external table platdev.table_target ( id INT, message String, state string, date string ) partitioned by (country string) row format delimited fields terminated by ',' stored as RCFILE location '/user/nikgupta/table_target' ;
+2. insert overwrite table platdev.table_target partition(country) select case when id=13 then 15 else id end,message,state,date,country from platdev.table_base2 where id between 13 and 16; \n"
+say now my table is written by default using LazyBinaryColumnarSerDe and has the following data:
+15	thirteen	delhi	        2-12-2014	india
+14	fourteen	delhi	        1-1-2014	        india
+15	fifteen	florida	1-1-2014	        us
+16	sixteen	florida	2-12-2014	us
+Now If I try to read the data with a mapreduce program, with map function as given below:
+public void map(LongWritable key, BytesRefArrayWritable val, Context context)
+    throws IOException, InterruptedException {
+    for (int i = 0; i &amp;lt; val.size(); i++) 
+{
+     BytesRefWritable bytesRefread = val.get(i);
+     byte[] currentCell = Arrays.copyOfRange(bytesRefread.getData(), bytesRefread.getStart(), bytesRefread.getStart()+bytesRefread.getLength());
+     Text currentCellStr = new Text(currentCell);
+     System.out.println("rowText="+currentCellStr	);
+    }
+    context.write(NullWritable.get(), bytes);
+   }
+and set  the following job configuration parameters:- 
+job.setInputFormatClass(RCFileMapReduceInputFormat.class);
+job.setOutputFormatClass(RCFileMapReduceOutputFormat.class);
+jobConf.setInt(RCFile.COLUMN_NUMBER_CONF_STR, 5)
+The output shown is as follows: (LazyBinaryColumnarSerDe)
+rowText=
+rowText=fifteen
+rowText=goa
+rowText=2-2-2222
+rowText=us
+But exactly the same case using the (ColumnarSerDe) explicitly in the table definition would give the following output:
+rowText=1
+rowText=fifteen
+rowText=goa
+rowText=2-2-2222
+rowText=us
+Point is that First column value is missing in the case of LazyBinaryColumnarSerDe.
+
+

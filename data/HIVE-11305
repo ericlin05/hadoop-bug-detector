@@ -1,0 +1,20 @@
+Description
+
+Start a 1-node LLAP cluster with 16 executors and run attached test-case on the single node instance.
+
+
+Caused by: java.lang.ClassCastException: org.apache.hadoop.hive.ql.exec.persistence.HybridHashTableContainer cannot be cast to org.apache.hadoop.hive.ql.exec.vector.mapjoin.hashtable.VectorMapJoinTableContainer
+        at org.apache.hadoop.hive.ql.exec.vector.mapjoin.VectorMapJoinCommonOperator.loadHashTable(VectorMapJoinCommonOperator.java:648)
+        at org.apache.hadoop.hive.ql.exec.MapJoinOperator.cleanUpInputFileChangedOp(MapJoinOperator.java:314)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1104)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1108)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1108)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1108)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1108)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:37)
+        at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:86)
+        ... 17 more
+
+
+
+

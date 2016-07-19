@@ -1,0 +1,32 @@
+Description
+
+The "create table ... stored as textfile" query fails with AssertionError during parsing the query text. Without "stored as something" it works. These query is ok in 1.0.0, 1.0.1, 1.1.0 and 1.2.0 (with the exactly same configuration), but fails in 1.1.1.
+We tried using both Hive CLI and also beeline. Almost the same stacktrace is shown in Hive CLI or in the HiveServer log (when using beeline). The interesting is that the Hive CLI crashes. 
+hive&amp;gt; CREATE TABLE r3 (a1 DOUBLE , a2 DOUBLE) stored as textfile;
+Exception in thread "main" java.lang.AssertionError: Unknown token: [@-1,0:0='TOK_FILEFORMAT_GENERIC',&amp;lt;679&amp;gt;,0:-1]
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeCreateTable(SemanticAnalyzer.java:10895)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genResolvedParseTree(SemanticAnalyzer.java:10103)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:10147)
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner.analyzeInternal(CalcitePlanner.java:192)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:222)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:421)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:307)
+        at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1112)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1160)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1049)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1039)
+        at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:207)
+        at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:159)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:370)
+        at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:754)
+        at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:675)
+        at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:615)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+bash-4.1# 
+
+

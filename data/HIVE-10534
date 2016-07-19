@@ -1,0 +1,43 @@
+Description
+
+
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Unexpected exception: output cannot be null.
+        at org.apache.hadoop.hive.ql.exec.MapJoinOperator.process(MapJoinOperator.java:415)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+        at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.internalForward(CommonJoinOperator.java:644)
+        at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.genAllOneUniqueJoinObject(CommonJoinOperator.java:676)
+        at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.checkAndGenObject(CommonJoinOperator.java:754)
+        at org.apache.hadoop.hive.ql.exec.MapJoinOperator.process(MapJoinOperator.java:403)
+        ... 31 more
+Caused by: java.lang.IllegalArgumentException: output cannot be null.
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.writeClassAndObject(Kryo.java:601)
+        at org.apache.hadoop.hive.ql.exec.persistence.ObjectContainer.add(ObjectContainer.java:101)
+        at org.apache.hadoop.hive.ql.exec.MapJoinOperator.spillBigTableRow(MapJoinOperator.java:429)
+        at org.apache.hadoop.hive.ql.exec.MapJoinOperator.process(MapJoinOperator.java:394)
+        ... 36 more
+], TaskAttempt 3 failed, info=[Error: Failure while running task:java.lang.RuntimeException: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"ss_sold_time_sk":null,"ss_item_sk":76496,"ss_customer_sk":null,"ss_cdemo_sk":null,"ss_hdemo_sk":null,"ss_addr_sk":null,"ss_store_sk":626,"ss_promo_sk":null,"ss_ticket_number":null,"ss_quantity":null,"ss_wholesale_cost":null,"ss_list_price":null,"ss_sales_price":13.61,"ss_ext_discount_amt":null,"ss_ext_sales_price":null,"ss_ext_wholesale_cost":null,"ss_ext_list_price":null,"ss_ext_tax":null,"ss_coupon_amt":null,"ss_net_paid":null,"ss_net_paid_inc_tax":null,"ss_net_profit":null,"ss_sold_date_sk":2451860}
+        at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:171)
+        at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:137)
+        at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:329)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:179)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:171)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:422)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:171)
+        at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:167)
+        at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+        at java.lang.Thread.run(Thread.java:745)
+
+
+Scenario:
+
+Ran query_89 with TPC-DS @ 10 TB
+Additional setings : "--hiveconf tez.runtime.io.sort.mb=1800 --hiveconf tez.runtime.sort.threads=2 --hiveconf hive.tez.container.size=4096 --hiveconf tez.runtime.shuffle.memory-to-memory.enable=false  --hiveconf hive.vectorized.execution.enabled=false"
+
+Same query passes when hybrid grace hashtable is disabled "--hiveconf hive.mapjoin.hybridgrace.hashtable=false" .
+
+

@@ -1,0 +1,18 @@
+Description
+
+For tables created without column definition in the DDL (but referencing the schema in the underlying file format like Avro), ObjectStore.validateTableCols throws an exception that doesn't include the table and db name.  This makes it tedious to lookup table name in schema files.
+Example:
+
+
+ERROR org.apache.hadoop.hive.metastore.ObjectStore: Error retrieving statistics via jdo
+MetaException(message:Column wpp_mbrshp_hix_ik doesn't exist.)
+at org.apache.hadoop.hive.metastore.ObjectStore.validateTableCols(ObjectStore.java:6061)
+at org.apache.hadoop.hive.metastore.ObjectStore.getMTableColumnStatistics(ObjectStore.java:6012)
+at org.apache.hadoop.hive.metastore.ObjectStore.access$1000(ObjectStore.java:160)
+at org.apache.hadoop.hive.metastore.ObjectStore$6.getJdoResult(ObjectStore.java:6084)
+at org.apache.hadoop.hive.metastore.ObjectStore$6.getJdoResult(ObjectStore.java:6076)
+
+
+We should add database and the table name to the error message.
+
+

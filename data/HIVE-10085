@@ -1,0 +1,20 @@
+Description
+
+Following the following sqls to create table and view and execute a select statement. It will throw the runtime exception:
+
+FAILED: RuntimeException org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException: "map" or "list" is expected at function SIZE, but "int" is found
+
+
+
+ 
+CREATE TABLE t1( symptom STRING,  pattern ARRAY&amp;lt;INT&amp;gt;,  occurrence INT, index INT);
+
+CREATE OR REPLACE VIEW v1 AS
+SELECT TRIM(pd.symptom) AS symptom, pd.index, pd.pattern, pd.occurrence, pd.occurrence as cnt from t1 pd;
+
+SELECT pattern_data.symptom, pattern_data.index, pattern_data.occurrence, pattern_data.cnt, size(pattern_data.pattern) as pattern_length, pattern.pattern_id
+FROM v1 pattern_data LATERAL VIEW explode(pattern) pattern AS pattern_id;
+
+
+
+

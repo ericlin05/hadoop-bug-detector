@@ -1,0 +1,25 @@
+Description
+
+Hit this on ctas13 query.
+
+Error: Failure while running task:java.lang.NullPointerException
+   at org.apache.hadoop.hive.ql.exec.tez.ReduceRecordProcessor.&amp;lt;init&amp;gt;(ReduceRecordProcessor.java:98)
+   at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:134)
+   at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:330)
+   at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:180)
+   at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:172)
+   at java.security.AccessController.doPrivileged(Native Method)
+   at javax.security.auth.Subject.doAs(Subject.java:422)
+   at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+   at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:172)
+   at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.callInternal(TezTaskRunner.java:168)
+   at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+   at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+   at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+   at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+   at java.lang.Thread.run(Thread.java:745)
+
+
+The line is  cacheKey = queryId + processorContext.getTaskVertexName() + REDUCE_PLAN_KEY;
+
+

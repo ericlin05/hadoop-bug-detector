@@ -1,0 +1,53 @@
+Description
+
+I run query throw follow exception when enable hdfs federation  :
+
+ERROR : Failed to execute tez graph.
+java.io.IOException: Incomplete HDFS URI, no host: hdfs:///user
+        at org.apache.hadoop.hdfs.DistributedFileSystem.initialize(DistributedFileSystem.java:142)
+        at org.apache.hadoop.fs.FileSystem.createFileSystem(FileSystem.java:2596)
+        at org.apache.hadoop.fs.FileSystem.access$200(FileSystem.java:91)
+        at org.apache.hadoop.fs.FileSystem$Cache.getInternal(FileSystem.java:2630)
+        at org.apache.hadoop.fs.FileSystem$Cache.get(FileSystem.java:2612)
+        at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:370)
+        at org.apache.hadoop.fs.Path.getFileSystem(Path.java:296)
+        at org.apache.hadoop.hive.ql.exec.tez.DagUtils.getDefaultDestDir(DagUtils.java:767)
+        at org.apache.hadoop.hive.ql.exec.tez.DagUtils.getHiveJarDirectory(DagUtils.java:874)
+        at org.apache.hadoop.hive.ql.exec.tez.TezSessionState.createJarLocalResource(TezSessionState.java:337)
+        at org.apache.hadoop.hive.ql.exec.tez.TezSessionState.open(TezSessionState.java:158)
+        at org.apache.hadoop.hive.ql.exec.tez.TezTask.updateSession(TezTask.java:234)
+        at org.apache.hadoop.hive.ql.exec.tez.TezTask.execute(TezTask.java:136)
+        at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+        at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:88)
+        at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1640)
+        at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1399)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1183)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1049)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1044)
+        at org.apache.hive.service.cli.operation.SQLOperation.runQuery(SQLOperation.java:144)
+        at org.apache.hive.service.cli.operation.SQLOperation.access$100(SQLOperation.java:69)
+        at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:196)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+        at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:208)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+Error: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.tez.TezTask (state=08S01,code=1)
+
+
+Workaround:
+
+&amp;lt;property&amp;gt;
+      &amp;lt;name&amp;gt;hive.user.install.directory&amp;lt;/name&amp;gt;
+ &amp;lt;value&amp;gt;${fs.defaultFS}/user/&amp;lt;/value&amp;gt;
+    &amp;lt;/property&amp;gt;
+&amp;lt;property&amp;gt;
+
+
+set hive.user.install.directory  in hive-site.xml to override the default value hdfs:///user.
+
+

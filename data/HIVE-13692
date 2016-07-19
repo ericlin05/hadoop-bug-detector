@@ -1,0 +1,26 @@
+Description
+
+First I think it is similar to HIVE-8162, but  i have turn off hive.optimize.sort.dynamic.partition option, it still happened.
+I have no idea how to solve the problem.
+My Hive sql is:
+set hive.optimize.sort.dynamic.partition=false;
+create table test( log_id string, session_id string, mid_no int, next_start_time string, session_no int, max_session_no int, app_id int, cookie_class string );
+insert overwrite table test select table_key, session_id, mid_no, next_start_time, session_no, row_number() over(partition by session_id order by session_no desc) max_session_no, app_id, cookie_class from ( select b.table_key, a.session_id, row_number() over(partition by b.mid,b.app_name,b.app_version,b.app_platform order by b.start_time) mid_no, lead(b.start_time,1,b.start_time) over (partition by a.session_id order by b.start_time) next_start_time, row_number() over(partition by a.session_id order by b.start_time) session_no, a.app_id, a.cookie_class from ( select * from test2 where dt = 'XXXXXXXX' )a join test3 b on a.mid = b.mid and a.app_name = b.app_name and a.app_version = b.app_version and a.app_platform = b.app_platform where unix_timestamp(b.start_time) &amp;gt;= a.start_time and unix_timestamp(b.start_time) &amp;lt; a.next_start_time )a
+Exception Log:
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error: Unable to deserialize reduce input key from x1x57x55x53x53x54x56x101x101x99x50x50x50x97x54x55x50x51x55x99x49x49x51x98x99x52x51x100x97x54x57x49x98x52x56x54x97x54x100x57x97x0x1x231x137x185x229x141x150x228x188x154x1x1x53x46x49x56x0x1x105x112x104x111x110x101x0x1x50x48x49x54x45x48x53x45x48x52x32x48x56x58x48x49x58x53x51x46x56x51x49x0x255 with properties 
+{columns=reducesinkkey0,reducesinkkey1,reducesinkkey2,reducesinkkey3,reducesinkkey4, serialization.lib=org.apache.hadoop.hive.serde2.binarysortable.BinarySortableSerDe, serialization.sort.order=+++++, columns.types=string,string,string,string,string}
+at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.reduce(ExecReducer.java:222)
+... 7 more
+Caused by: org.apache.hadoop.hive.serde2.SerDeException: java.io.EOFException
+at org.apache.hadoop.hive.serde2.binarysortable.BinarySortableSerDe.deserialize(BinarySortableSerDe.java:189)
+at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.reduce(ExecReducer.java:220)
+... 7 more
+Caused by: java.io.EOFException
+at org.apache.hadoop.hive.serde2.binarysortable.InputByteBuffer.read(InputByteBuffer.java:54)
+at org.apache.hadoop.hive.serde2.binarysortable.BinarySortableSerDe.deserializeText(BinarySortableSerDe.java:550)
+at org.apache.hadoop.hive.serde2.binarysortable.BinarySortableSerDe.deserialize(BinarySortableSerDe.java:285)
+at org.apache.hadoop.hive.serde2.binarysortable.BinarySortableSerDe.deserialize(BinarySortableSerDe.java:185)
+... 8 more
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+
+

@@ -1,0 +1,28 @@
+Description
+
+The following error occured for cbo_subq_not_in.q 
+
+
+java.lang.Exception: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error: Unable to deserialize reduce input key from x1x128x0x0x1 with properties {columns=reducesinkkey0, serialization.lib=org.apache.hadoop.hive.serde2.binarysortable.BinarySortableSerDe, serialization.sort.order=+, columns.types=double}
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.runTasks(LocalJobRunner.java:462)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:529)
+
+
+A more easier way to reproduce is 
+
+
+set hive.cbo.enable=true;
+set hive.exec.check.crossproducts=false;
+
+set hive.stats.fetch.column.stats=true;
+set hive.auto.convert.join=false;
+
+select p_size, src.key
+from 
+part join src
+on p_size=key;
+
+
+As you can see, p_size is integer while src.key is string. Both of them should be cast to double when they join. When return path is off, this will happen before Join, at RS. However, when return path is on, this will be considered as an expression in Join. Thus, when reducer is collecting different types of keys from different join branches, it throws exception.
+
+

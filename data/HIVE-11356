@@ -1,0 +1,20 @@
+Description
+
+
+
+:java.lang.IllegalStateException: Unexpected event. All physical sources already initialized 
+at com.google.common.base.Preconditions.checkState(Preconditions.java:145) 
+at org.apache.tez.mapreduce.input.MultiMRInput.handleEvents(MultiMRInput.java:142) 
+at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.handleEvent(LogicalIOProcessorRuntimeTask.java:610) 
+at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.access$1100(LogicalIOProcessorRuntimeTask.java:90) 
+at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask$1.run(LogicalIOProcessorRuntimeTask.java:673) 
+at java.lang.Thread.run(Thread.java:745) 
+]], Vertex failed as one or more tasks failed. failedTasks:1, Vertex vertex_1437168420060_17787_1_01 [Map 4] killed/failed due to:null] 
+Vertex killed, vertexName=Reducer 5, vertexId=vertex_1437168420060_17787_1_02, diagnostics=[Vertex received Kill while in RUNNING state., Vertex killed as other vertex failed. failedTasks:0, Vertex vertex_1437168420060_17787_1_02 [Reducer 5] killed/failed due to:null] 
+DAG failed due to vertex failure. failedVertices:1 killedVertices:1 
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.tez.TezTask 
+HQL-FAILED 
+
+
+
+

@@ -1,0 +1,11 @@
+Description
+
+Trying to "select * from table limit 1" from hive table throws:
+Failed with exception java.io.IOException:java.lang.NullPointerException
+Steps to reproduce:
+1. Run spark sql/streaming job, write dataframe with fields that CONTAIN null values (null instead of String/null instead of number) as parquet file.
+2. Create external partitioned hive table on top of the parquet files. MSCK repair table.
+3. select query returns NPE as described.
+Not sure if partitioning is relevant, but the tabled is partitioned by string value.
+
+

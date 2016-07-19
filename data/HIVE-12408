@@ -1,0 +1,11 @@
+Description
+
+When trying to create an external table via beeline in Hive using the SQLStdAuthorizer it expects the table creator to be the owner of the directory path and ignores the group rwx permission that is granted to the user.
+
+Error: Error while compiling statement: FAILED: HiveAccessControlException Permission denied: Principal [name=hari, type=USER] does not have following privileges for operation CREATETABLE [[INSERT, DELETE, OBJECT OWNERSHIP] on Object [type=DFS_URI, name=/etl/path/to/hdfs/dir]] (state=42000,code=40000)
+
+All it should be checking is read access to that directory.
+The directory owner requirement breaks the ability of more than one user to create external table definitions to a given location. For example this is a flume landing directory with json data, and the /etl tree is owned by the flume user. Even chowning the tree to another user would still break access to other users who are able to read the directory in hdfs but would still unable to create external tables on top of it.
+This looks like a remnant of the owner only access model in SQLStdAuth and is a separate issue to HIVE-11864 / HIVE-12324.
+
+

@@ -1,0 +1,13 @@
+Description
+
+HIVE-3958 added support for partial scan for RCFile. This works fine for static partitions (for example: analyze table analyze_srcpart_partial_scan PARTITION(ds='2008-04-08',hr=11) compute statistics partialscan).
+For dynamic partition, the analyze files with an IOException "java.io.IOException: No input paths specified in job":
+hive&amp;gt; ANALYZE TABLE testtable PARTITION(col_varchar) COMPUTE STATISTICS PARTIALSCAN;
+java.io.IOException: No input paths specified in job
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.getInputPaths(HiveInputFormat.java:318)
+        at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getSplits(CombineHiveInputFormat.java:459)
+        at org.apache.hadoop.mapreduce.JobSubmitter.writeOldSplits(JobSubmitter.java:624)
+        at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:616)
+        at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:492)
+
+

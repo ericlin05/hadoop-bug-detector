@@ -1,0 +1,57 @@
+Description
+
+Repro:
+
+
+0: jdbc:hive2://localhost:10000&amp;gt; create table src (i int);
+No rows affected (0.04 seconds)
+0: jdbc:hive2://localhost:10000&amp;gt; insert into table src select 1;
+
+-- Fails
+0: jdbc:hive2://localhost:10000&amp;gt; create table dest location '/user/hive/warehouse/dir1/dir2' as select * from src;
+
+-- Without CTAS, operations succeeds
+0: jdbc:hive2://localhost:10000&amp;gt; create table t2 (i int) location '/user/hive/warehouse/dir3/dir4';
+0: jdbc:hive2://localhost:10000&amp;gt; insert into table t2 select 1;
+
+
+The failure is:
+
+
+ERROR : Failed with exception Unable to move source hdfs://HOSTNAME:8020/user/hive/warehouse/.hive-staging_hive_2015-11-14_15-55-54_901_1808963268027473184-5/-ext-10001 to destination /user/hive/warehouse/test/me
+org.apache.hadoop.hive.ql.metadata.HiveException: Unable to move source hdfs://HOSTNAME:8020/user/hive/warehouse/.hive-staging_hive_2015-11-14_15-55-54_901_1808963268027473184-5/-ext-10001 to destination /user/hive/warehouse/test/me
+at org.apache.hadoop.hive.ql.metadata.Hive.moveFile(Hive.java:2612)
+at org.apache.hadoop.hive.ql.exec.MoveTask.moveFile(MoveTask.java:105)
+at org.apache.hadoop.hive.ql.exec.MoveTask.execute(MoveTask.java:237)
+at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:88)
+at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1669)
+at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1430)
+at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1215)
+at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1077)
+at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1070)
+at org.apache.hive.service.cli.operation.SQLOperation.runQuery(SQLOperation.java:162)
+at org.apache.hive.service.cli.operation.SQLOperation.access$100(SQLOperation.java:71)
+at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:214)
+at java.security.AccessController.doPrivileged(Native Method)
+at javax.security.auth.Subject.doAs(Subject.java:415)
+at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:226)
+at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+at java.lang.Thread.run(Thread.java:745)
+Caused by: java.io.FileNotFoundException: File does not exist: /user/hive/warehouse/test
+at org.apache.hadoop.hdfs.DistributedFileSystem$19.doCall(DistributedFileSystem.java:1218)
+at org.apache.hadoop.hdfs.DistributedFileSystem$19.doCall(DistributedFileSystem.java:1210)
+at org.apache.hadoop.fs.FileSystemLinkResolver.resolve(FileSystemLinkResolver.java:81)
+at org.apache.hadoop.hdfs.DistributedFileSystem.getFileStatus(DistributedFileSystem.java:1210)
+at org.apache.hadoop.hive.shims.Hadoop23Shims.getFullFileStatus(Hadoop23Shims.java:728)
+at org.apache.hadoop.hive.ql.metadata.Hive.moveFile(Hive.java:2556)
+... 21 more
+
+
+
+
+

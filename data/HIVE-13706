@@ -1,0 +1,79 @@
+Description
+
+Customer migrated from Hive-0.13 to Hive-1.2
+Old tables have description:
+
+
+Table Parameters:
+        hbase.table.name        /user/test/xyz
+        storage_handler        
+org.apache.hadoop.hive.hbase.HBaseStorageHandler
+        transient_lastDdlTime   1462273708
+
+# Storage Information
+SerDe Library:          org.apache.hadoop.hive.hbase.HBaseSerDe
+InputFormat:            org.apache.hadoop.hive.hbase.HiveHBaseTableInputFormat
+OutputFormat:          
+org.apache.hadoop.hive.ql.io.HivePassThroughOutputFormat
+Compressed:             No
+Num Buckets:            -1
+Bucket Columns:         []
+Sort Columns:           []
+Storage Desc Params:
+        hbase.columns.mapping   :key,cf1:val
+        serialization.format    1
+Time taken: 0.259 seconds, Fetched: 30 row(s)
+
+
+Because there is no default constructor of HivePassThroughOutputFormat in Hive-1.2, exception happens. I can reproduce it manually.
+1. Create table in Hive
+
+
+ create table t1(id int) STORED AS INPUTFORMAT "org.apache.hadoop.hive.ql.io.HiveInputFormat"  OUTPUTFORMAT "org.apache.hadoop.hive.ql.io.HivePassThroughOutputFormat" ;
+
+
+2. Perform query
+
+
+select count(*) from t1;
+
+
+3. See exception:
+
+
+java.lang.RuntimeException: java.lang.NoSuchMethodException: org.apache.hadoop.hive.ql.io.HivePassThroughOutputFormat.&amp;lt;init&amp;gt;()
+	at org.apache.hive.common.util.ReflectionUtil.newInstance(ReflectionUtil.java:85)
+	at org.apache.hadoop.hive.ql.io.HiveFileFormatUtils.getHiveOutputFormat(HiveFileFormatUtils.java:277)
+	at org.apache.hadoop.hive.ql.io.HiveFileFormatUtils.getHiveOutputFormat(HiveFileFormatUtils.java:272)
+	at org.apache.hadoop.hive.ql.exec.Utilities.createDummyFileForEmptyPartition(Utilities.java:3489)
+	at org.apache.hadoop.hive.ql.exec.Utilities.getInputPaths(Utilities.java:3417)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecDriver.execute(ExecDriver.java:372)
+	at org.apache.hadoop.hive.ql.exec.mr.MapRedTask.execute(MapRedTask.java:137)
+	at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:88)
+	at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1656)
+	at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1415)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1198)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1062)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1052)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:213)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:165)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:376)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:736)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:681)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:621)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+Caused by: java.lang.NoSuchMethodException: org.apache.hadoop.hive.ql.io.HivePassThroughOutputFormat.&amp;lt;init&amp;gt;()
+	at java.lang.Class.getConstructor0(Class.java:2892)
+	at java.lang.Class.getDeclaredConstructor(Class.java:2058)
+	at org.apache.hive.common.util.ReflectionUtil.newInstance(ReflectionUtil.java:79)
+	... 25 more
+
+
+
+

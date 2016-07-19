@@ -1,0 +1,13 @@
+Description
+
+
+java.lang.NullPointerException
+        at org.apache.tez.dag.app.rm.LlapTaskSchedulerService.deallocateTask(LlapTaskSchedulerService.java:388)
+        at org.apache.tez.dag.app.rm.TaskSchedulerEventHandler.handleTASucceeded(TaskSchedulerEventHandler.java:339)
+        at org.apache.tez.dag.app.rm.TaskSchedulerEventHandler.handleEvent(TaskSchedulerEventHandler.java:224)
+        at org.apache.tez.dag.app.rm.TaskSchedulerEventHandler$1.run(TaskSchedulerEventHandler.java:493)
+
+
+The query, running alone on 10-node cluster, dumped 1000 mappers into running; with 3 completed it failed with that.
+
+

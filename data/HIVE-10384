@@ -1,0 +1,16 @@
+Description
+
+This bug is very similar to HIVE-9436, in that a TTransportException wrapped in a MetaException will not be retried. RetryingMetaStoreClient has a block of code above the MetaException handler that retries thrift exceptions, but this doesn't work when the exception is wrapped.
+
+
+        if ((e.getCause() instanceof TApplicationException) ||
+            (e.getCause() instanceof TProtocolException) ||
+            (e.getCause() instanceof TTransportException)) {
+          caughtException = (TException) e.getCause();
+        } else if ((e.getCause() instanceof MetaException) &amp;amp;&amp;amp;
+            e.getCause().getMessage().matches("(?s).*JDO[a-zA-Z]*Exception.*")) {
+          caughtException = (MetaException) e.getCause();
+
+
+
+

@@ -1,0 +1,28 @@
+Description
+
+When return path is on, SMB conversion is throwing an Exception in some cases.
+The problem can be reproduced with auto_join32.q. The Exception with the following stacktrace is thrown:
+
+java.lang.ClassCastException: org.apache.hadoop.hive.ql.exec.FilterOperator cannot be cast to org.apache.hadoop.hive.ql.exec.TableScanOperator
+        at org.apache.hadoop.hive.ql.parse.TableAccessAnalyzer.genRootTableScan(TableAccessAnalyzer.java:243)
+        at org.apache.hadoop.hive.ql.optimizer.AbstractBucketJoinProc.checkConvertBucketMapJoin(AbstractBucketJoinProc.java:226)
+        at org.apache.hadoop.hive.ql.optimizer.AbstractSMBJoinProc.canConvertJoinToBucketMapJoin(AbstractSMBJoinProc.java:497)
+        at org.apache.hadoop.hive.ql.optimizer.AbstractSMBJoinProc.canConvertJoinToSMBJoin(AbstractSMBJoinProc.java:414)
+        at org.apache.hadoop.hive.ql.optimizer.SortedMergeJoinProc.process(SortedMergeJoinProc.java:45)
+        at org.apache.hadoop.hive.ql.lib.DefaultRuleDispatcher.dispatch(DefaultRuleDispatcher.java:90)
+        at org.apache.hadoop.hive.ql.lib.DefaultGraphWalker.dispatchAndReturn(DefaultGraphWalker.java:95)
+        at org.apache.hadoop.hive.ql.lib.DefaultGraphWalker.dispatch(DefaultGraphWalker.java:79)
+        at org.apache.hadoop.hive.ql.lib.DefaultGraphWalker.walk(DefaultGraphWalker.java:133)
+        at org.apache.hadoop.hive.ql.lib.DefaultGraphWalker.startWalking(DefaultGraphWalker.java:110)
+        at org.apache.hadoop.hive.ql.optimizer.SortedMergeBucketMapJoinOptimizer.transform(SortedMergeBucketMapJoinOptimizer.java:109)
+        at org.apache.hadoop.hive.ql.optimizer.Optimizer.optimize(Optimizer.java:201)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:10071)
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner.analyzeInternal(CalcitePlanner.java:204)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:225)
+        at org.apache.hadoop.hive.ql.parse.ExplainSemanticAnalyzer.analyzeInternal(ExplainSemanticAnalyzer.java:74)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:225)
+...
+
+
+
+

@@ -1,0 +1,34 @@
+Description
+
+
+
+select a, count(distinct b), count(distinct c), sum(d) from abcd group by a;
+
+
+Set hive.cbo.returnpath.hiveop=true;
+
+
+java.lang.IndexOutOfBoundsException: Index: 5, Size: 5
+        at java.util.ArrayList.rangeCheck(ArrayList.java:635) ~[?:1.7.0_79]
+        at java.util.ArrayList.get(ArrayList.java:411) ~[?:1.7.0_79]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.HiveGBOpConvUtil.genReduceSideGB1NoMapGB(HiveGBOpConvUtil.java:1060) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.HiveGBOpConvUtil.genNoMapSideGBNoSkew(HiveGBOpConvUtil.java:473) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.HiveGBOpConvUtil.translateGB(HiveGBOpConvUtil.java:304) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.HiveOpConverter.visit(HiveOpConverter.java:398) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.HiveOpConverter.dispatch(HiveOpConverter.java:181) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.optimizer.calcite.translator.HiveOpConverter.convert(HiveOpConverter.java:154) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner.getOptimizedHiveOPDag(CalcitePlanner.java:688) ~[hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner.genOPTree(CalcitePlanner.java:266) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:10094) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.parse.CalcitePlanner.analyzeInternal(CalcitePlanner.java:231) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:237) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.parse.ExplainSemanticAnalyzer.analyzeInternal(ExplainSemanticAnalyzer.java:74) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:237) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:471) [hive-exec-2.1.0-SNAPSHOT.jar:?]
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:311) [hive-exec-2.1.0-SNAPSHOT.jar:?]
+        at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1149) [hive-exec-2.1.0-SNAPSHOT.jar:?]
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1237) [hive-exec-2.1.0-SNAPSHOT.jar:?]
+
+
+
+

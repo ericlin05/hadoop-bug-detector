@@ -1,0 +1,113 @@
+Description
+
+NO PRECOMMIT TESTS
+Before we run HiveServer2 tests, we create table via beeline.
+And 'create table' with JsonSerDe failed on Winodws. It works on Linux:
+
+0: jdbc:hive2://localhost:10001&amp;gt; create external table all100kjson(
+0: jdbc:hive2://localhost:10001&amp;gt; s string,
+0: jdbc:hive2://localhost:10001&amp;gt; i int,
+0: jdbc:hive2://localhost:10001&amp;gt; d double,
+0: jdbc:hive2://localhost:10001&amp;gt; m map&amp;lt;string, string&amp;gt;,
+0: jdbc:hive2://localhost:10001&amp;gt; bb array&amp;lt;struct&amp;lt;a: int, b: string&amp;gt;&amp;gt;,
+0: jdbc:hive2://localhost:10001&amp;gt; t timestamp)
+0: jdbc:hive2://localhost:10001&amp;gt; row format serde 'org.apache.hive.hcatalog.data.JsonSerDe'
+0: jdbc:hive2://localhost:10001&amp;gt; WITH SERDEPROPERTIES ('timestamp.formats'='yyyy-MM-dd\'T\'HH:mm:ss')
+0: jdbc:hive2://localhost:10001&amp;gt; STORED AS TEXTFILE
+0: jdbc:hive2://localhost:10001&amp;gt; location '/user/hcat/tests/data/all100kjson';
+Error: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLT
+ask. Cannot validate serde: org.apache.hive.hcatalog.data.JsonSerDe (state=08S01,code=1)
+
+
+hive.log shows:
+
+2015-05-21 21:59:17,004 ERROR operation.Operation (SQLOperation.java:run(209)) - Error running hive query: 
+
+org.apache.hive.service.cli.HiveSQLException: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. Cannot validate serde: org.apache.hive.hcatalog.data.JsonSerDe
+
+	at org.apache.hive.service.cli.operation.Operation.toSQLException(Operation.java:315)
+
+	at org.apache.hive.service.cli.operation.SQLOperation.runQuery(SQLOperation.java:156)
+
+	at org.apache.hive.service.cli.operation.SQLOperation.access$100(SQLOperation.java:71)
+
+	at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:206)
+
+	at java.security.AccessController.doPrivileged(Native Method)
+
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+
+	at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:218)
+
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+
+	at java.lang.Thread.run(Thread.java:745)
+
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Cannot validate serde: org.apache.hive.hcatalog.data.JsonSerDe
+
+	at org.apache.hadoop.hive.ql.exec.DDLTask.validateSerDe(DDLTask.java:3871)
+
+	at org.apache.hadoop.hive.ql.exec.DDLTask.createTable(DDLTask.java:4011)
+
+	at org.apache.hadoop.hive.ql.exec.DDLTask.execute(DDLTask.java:306)
+
+	at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:88)
+
+	at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1650)
+
+	at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1409)
+
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1192)
+
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1059)
+
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1054)
+
+	at org.apache.hive.service.cli.operation.SQLOperation.runQuery(SQLOperation.java:154)
+
+	... 11 more
+
+Caused by: java.lang.ClassNotFoundException: Class org.apache.hive.hcatalog.data.JsonSerDe not found
+
+	at org.apache.hadoop.conf.Configuration.getClassByName(Configuration.java:2101)
+
+	at org.apache.hadoop.hive.ql.exec.DDLTask.validateSerDe(DDLTask.java:3865)
+
+	... 21 more
+
+
+If you do add the hcatalog jar to classpath, it works:
+
+0: jdbc:hive2://localhost:10001&amp;gt; add jar hdfs:///tmp/testjars/hive-hcatalog-core-1.2.0.2.3.0.0-2079.jar;
+INFO  : converting to local hdfs:///tmp/testjars/hive-hcatalog-core-1.2.0.2.3.0.0-2079.jar
+INFO  : Added [/C:/Users/hadoop/AppData/Local/Temp/bc941dac-3bca-4287-a490-8a65c2dac220_resources/hive-hcatalog-core-1.2
+.0.2.3.0.0-2079.jar] to class path
+INFO  : Added resources: [hdfs:///tmp/testjars/hive-hcatalog-core-1.2.0.2.3.0.0-2079.jar]
+No rows affected (0.304 seconds)
+0: jdbc:hive2://localhost:10001&amp;gt; create external table all100kjson(
+0: jdbc:hive2://localhost:10001&amp;gt; s string,
+0: jdbc:hive2://localhost:10001&amp;gt; i int,
+0: jdbc:hive2://localhost:10001&amp;gt; d double,
+0: jdbc:hive2://localhost:10001&amp;gt; m map&amp;lt;string, string&amp;gt;,
+0: jdbc:hive2://localhost:10001&amp;gt; bb array&amp;lt;struct&amp;lt;a: int, b: string&amp;gt;&amp;gt;,
+0: jdbc:hive2://localhost:10001&amp;gt; t timestamp)
+0: jdbc:hive2://localhost:10001&amp;gt; row format serde 'org.apache.hive.hcatalog.data.JsonSerDe'
+0: jdbc:hive2://localhost:10001&amp;gt; WITH SERDEPROPERTIES ('timestamp.formats'='yyyy-MM-dd\'T\'HH:mm:ss')
+0: jdbc:hive2://localhost:10001&amp;gt; STORED AS TEXTFILE
+0: jdbc:hive2://localhost:10001&amp;gt; location '/user/hcat/tests/data/all100kjson';
+No rows affected (2.141 seconds)
+
+
+Thanks to Takahiko Saito for uncovering this issue!
+
+

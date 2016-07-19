@@ -1,0 +1,6 @@
+Description
+
+The tests throw java.lang.IndexOutOfBoundsException again. 
+It was supposed to be fixed by HIVE-11271
+
+

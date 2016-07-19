@@ -1,0 +1,28 @@
+Description
+
+It seems != is a supported inequality operator according to: https://cwiki.apache.org/confluence/display/Hive/LanguageManual+UDF#LanguageManualUDF-Built-inOperators.
+However, HiveCLI crashes if we try a query:
+
+hive&amp;gt; select * from src where key != '10';
+[ERROR] Could not expand event
+java.lang.IllegalArgumentException: != '10';: event not found
+	at jline.console.ConsoleReader.expandEvents(ConsoleReader.java:779)
+	at jline.console.ConsoleReader.finishBuffer(ConsoleReader.java:631)
+	at jline.console.ConsoleReader.accept(ConsoleReader.java:2019)
+	at jline.console.ConsoleReader.readLine(ConsoleReader.java:2666)
+	at jline.console.ConsoleReader.readLine(ConsoleReader.java:2269)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:730)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:681)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:621)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+
+
+Beeline is also based on jline and does not crash.
+Current Hive is on jline-2.12.
+
+

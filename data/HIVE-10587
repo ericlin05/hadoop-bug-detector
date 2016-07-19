@@ -1,0 +1,20 @@
+Description
+
+In SymenticAnalyzer method: 
+Operator genConversionSelectOperator(String dest, QB qb, Operator input, TableDesc table_desc, DynamicPartitionCtx dpCtx) throws SemanticException
+==
+The DP column's ExprNodeColumnDesc is created by passing false as the parameter isPartitionColOrVirtualCol value:
+
+
+      // DP columns starts with tableFields.size()
+      for (int i = tableFields.size() + (updating() ? 1 : 0); i &amp;lt; rowFields.size(); ++i) {
+        TypeInfo rowFieldTypeInfo = rowFields.get(i).getType();
+        ExprNodeDesc column = new ExprNodeColumnDesc(
+            rowFieldTypeInfo, rowFields.get(i).getInternalName(), "", false);
+        expressions.add(column);
+      }
+
+
+I think it should be true instead. 
+
+

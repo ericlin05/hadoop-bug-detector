@@ -1,0 +1,26 @@
+Description
+
+When Hive configured to Store Statistics in MySQL we have next error:
+
+ 
+2016-04-08 15:53:28,047 ERROR [main]: jdbc.JDBCStatsPublisher (JDBCStatsPublisher.java:init(316)) - Error during JDBC initialization.
+com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Specified key was too long; max key length is 767 bytes
+
+
+If set MySql properties as:
+
+ 
+set global innodb_large_prefix = ON;
+set global innodb_file_format = BARRACUDA;
+
+
+Now we have next Error:
+
+ 
+2016-04-08 15:56:05,552 ERROR [main]: jdbc.JDBCStatsPublisher (JDBCStatsPublisher.java:init(316)) - Error during JDBC initialization.
+com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Specified key was too long; max key length is 3072 bytes
+
+
+ As a result of my investigation I figured out that MySQL does not allow to create primary key with size more than 3072 bytes.
+
+

@@ -1,0 +1,13 @@
+Description
+
+
+
+0: jdbc:hive2://a2110.halxg.cloudera.com:1000&amp;gt; CREATE EXTERNAL TABLE IF NOT EXISTS mydb.employees3 like mydb.employees LOCATION 'data/stock';
+Error: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. MetaException(message:java.lang.NullPointerException) (state=08S01,code=1)
+
+0: jdbc:hive2://a2110.halxg.cloudera.com:1000&amp;gt; CREATE EXTERNAL TABLE IF NOT EXISTS mydb.employees3 like mydb.employees LOCATION '/user/hive/data/stock';
+No rows affected (0.369 seconds)
+
+
+
+

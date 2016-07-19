@@ -1,0 +1,34 @@
+Description
+
+Hi all,
+Recently i have configured Spark 1.2.0 and my environment is hadoop
+2.6.0 hive 1.1.0 Here i have tried hive on Spark while executing
+insert into i am getting the following g error.
+Query ID = hadoop2_20150313162828_8764adad-a8e4-49da-9ef5-35e4ebd6bc63
+Total jobs = 1
+Launching Job 1 out of 1
+In order to change the average load for a reducer (in bytes):
+set hive.exec.reducers.bytes.per.reducer=&amp;lt;number&amp;gt;
+In order to limit the maximum number of reducers:
+set hive.exec.reducers.max=&amp;lt;number&amp;gt;
+In order to set a constant number of reducers:
+set mapreduce.job.reduces=&amp;lt;number&amp;gt;
+Failed to execute spark task, with exception
+'org.apache.hadoop.hive.ql.metadata.HiveException(Failed to create
+spark client.)'
+FAILED: Execution Error, return code 1 from
+org.apache.hadoop.hive.ql.exec.spark.SparkTask
+Have added the spark-assembly jar in hive lib
+And also in hive console using the command add jar followed by the steps
+set spark.home=/opt/spark-1.2.1/;
+add jar /opt/spark-1.2.1/assembly/target/scala-2.10/spark-assembly-1.2.1-hadoop2.4.0.jar;
+set hive.execution.engine=spark;
+set spark.master=spark://xxxxxxx:7077;
+set spark.eventLog.enabled=true;
+set spark.executor.memory=512m;
+set spark.serializer=org.apache.spark.serializer.KryoSerializer;
+Can anyone suggest!!!!
+Thanks &amp;amp; Regards
+Amithsha
+
+

@@ -1,0 +1,33 @@
+Description
+
+To reproduce:
+1. Submit a query to Hive through JDBC
+2. Cancel (almost) immediately
+For the query SELECT DISTINCT a FROM test the Hive log says: "java.lang.Exception: Failed to submit Spark work, please retry later" ... "Caused by: java.io.IOException: java.lang.InterruptedException". After I call close() on the statement and the connection, the application changes to FINISHED/SUCCEEDED state (as expected).
+However, for the query SELECT a FROM test order by a  Hive log says: "org.apache.hadoop.hive.ql.metadata.HiveException: Failed to create spark client." ... "Caused by: java.lang.RuntimeException: java.lang.InterruptedException". Calling close() seems to have no effect, the yarn application is stuck in RUNNING state.
+If I cancel the second query later (e.g. after 10 secs), the application closes with FINISHED/SUCCEEDED (as expected).
+Code snippet:
+Bar.java
+
+final Statement st = connection.createStatement();
+new Thread() {
+	@Override
+	public void run() {
+		sleep(100);
+		st.cancel();
+	}
+}.start();
+
+ResultSet r = null;
+try {
+	// r = st.executeQuery("SELECT DISTINCT a FROM test");
+	r = st.executeQuery("SELECT a FROM test order by a");
+} catch (SQLException e) {
+	close(r);
+	close(st);
+	close(connection);
+}
+
+
+
+

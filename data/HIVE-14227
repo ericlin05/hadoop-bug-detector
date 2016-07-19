@@ -1,0 +1,28 @@
+Description
+
+There are the following warnings. 
+
+WARN  org.apache.hive.service.cli.thrift.ThriftCLIService: [HiveServer2-Handler-Pool: Thread-55]: Error executing statement:
+org.apache.hive.service.cli.HiveSQLException: Invalid SessionHandle: SessionHandle [1bc00251-64e9-4a95-acb7-a7f53f773528]
+        at org.apache.hive.service.cli.session.SessionManager.getSession(SessionManager.java:318)
+        at org.apache.hive.service.cli.CLIService.executeStatementAsync(CLIService.java:258)
+        at org.apache.hive.service.cli.thrift.ThriftCLIService.ExecuteStatement(ThriftCLIService.java:506)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$ExecuteStatement.getResult(TCLIService.java:1313)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$ExecuteStatement.getResult(TCLIService.java:1298)
+        at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+
+
+
+WARN  org.apache.hive.service.cli.thrift.ThriftCLIService: [HiveServer2-Handler-Pool: Thread-1060]: Error closing operation:
+org.apache.hive.service.cli.HiveSQLException: Invalid OperationHandle: OperationHandle [opType=EXECUTE_STATEMENT, getHandleIdentifier()=13d930dd-316c-4c09-9f44-fee5f483e73d]
+        at org.apache.hive.service.cli.operation.OperationManager.getOperation(OperationManager.java:185)
+        at org.apache.hive.service.cli.CLIService.closeOperation(CLIService.java:408)
+        at org.apache.hive.service.cli.thrift.ThriftCLIService.CloseOperation(ThriftCLIService.java:664)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$CloseOperation.getResult(TCLIService.java:1513)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$CloseOperation.getResult(TCLIService.java:1498)
+        at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+        at org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:39)
+
+
+
+

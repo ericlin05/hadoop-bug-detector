@@ -1,0 +1,70 @@
+Description
+
+Reading from an ORC file bombs in HDP-2.3.2 when pushing down predicate:
+Error message in CLI
+Failed with exception java.io.IOException:java.lang.IllegalArgumentException: Seek in index to 4613 is outside of the data
+
+
+Stack trace in log4j file
+2015-11-06 09:48:11,873 ERROR [main]: CliDriver (SessionState.java:printError(960)) - Failed with exception java.io.IOException:java.lang.IllegalArgumentException: Seek in index to 4613 is outside of the data
+java.io.IOException: java.lang.IllegalArgumentException: Seek in index to 4613 is outside of the data
+	at org.apache.hadoop.hive.ql.exec.FetchOperator.getNextRow(FetchOperator.java:508)
+	at org.apache.hadoop.hive.ql.exec.FetchOperator.pushRow(FetchOperator.java:415)
+	at org.apache.hadoop.hive.ql.exec.FetchTask.fetch(FetchTask.java:140)
+	at org.apache.hadoop.hive.ql.Driver.getResults(Driver.java:1672)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:233)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:165)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:376)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:736)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:681)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:621)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:601)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+Caused by: java.lang.IllegalArgumentException: Seek in index to 4613 is outside of the data
+	at org.apache.hadoop.hive.ql.io.orc.InStream$UncompressedStream.seek(InStream.java:139)
+	at org.apache.hadoop.hive.ql.io.orc.InStream$UncompressedStream.read(InStream.java:87)
+	at java.io.InputStream.read(InputStream.java:102)
+	at com.google.protobuf.CodedInputStream.refillBuffer(CodedInputStream.java:737)
+	at com.google.protobuf.CodedInputStream.isAtEnd(CodedInputStream.java:701)
+	at com.google.protobuf.CodedInputStream.readTag(CodedInputStream.java:99)
+	at org.apache.hadoop.hive.ql.io.orc.OrcProto$RowIndex.&amp;lt;init&amp;gt;(OrcProto.java:7429)
+	at org.apache.hadoop.hive.ql.io.orc.OrcProto$RowIndex.&amp;lt;init&amp;gt;(OrcProto.java:7393)
+	at org.apache.hadoop.hive.ql.io.orc.OrcProto$RowIndex$1.parsePartialFrom(OrcProto.java:7482)
+	at org.apache.hadoop.hive.ql.io.orc.OrcProto$RowIndex$1.parsePartialFrom(OrcProto.java:7477)
+	at com.google.protobuf.AbstractParser.parsePartialFrom(AbstractParser.java:200)
+	at com.google.protobuf.AbstractParser.parseFrom(AbstractParser.java:217)
+	at com.google.protobuf.AbstractParser.parseFrom(AbstractParser.java:223)
+	at com.google.protobuf.AbstractParser.parseFrom(AbstractParser.java:49)
+	at org.apache.hadoop.hive.ql.io.orc.OrcProto$RowIndex.parseFrom(OrcProto.java:7593)
+	at org.apache.hadoop.hive.ql.io.orc.MetadataReader.readRowIndex(MetadataReader.java:88)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.readRowIndex(RecordReaderImpl.java:1166)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.readRowIndex(RecordReaderImpl.java:1151)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.pickRowGroups(RecordReaderImpl.java:750)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.readStripe(RecordReaderImpl.java:777)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.advanceStripe(RecordReaderImpl.java:986)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.advanceToNextRow(RecordReaderImpl.java:1019)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl.&amp;lt;init&amp;gt;(RecordReaderImpl.java:205)
+	at org.apache.hadoop.hive.ql.io.orc.ReaderImpl.rowsOptions(ReaderImpl.java:598)
+	at org.apache.hadoop.hive.ql.io.orc.OrcRawRecordMerger$ReaderPair.&amp;lt;init&amp;gt;(OrcRawRecordMerger.java:183)
+	at org.apache.hadoop.hive.ql.io.orc.OrcRawRecordMerger$OriginalReaderPair.&amp;lt;init&amp;gt;(OrcRawRecordMerger.java:226)
+	at org.apache.hadoop.hive.ql.io.orc.OrcRawRecordMerger.&amp;lt;init&amp;gt;(OrcRawRecordMerger.java:437)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getReader(OrcInputFormat.java:1235)
+	at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getRecordReader(OrcInputFormat.java:1117)
+	at org.apache.hadoop.hive.ql.exec.FetchOperator$FetchInputFormatSplit.getRecordReader(FetchOperator.java:674)
+	at org.apache.hadoop.hive.ql.exec.FetchOperator.getRecordReader(FetchOperator.java:324)
+	at org.apache.hadoop.hive.ql.exec.FetchOperator.getNextRow(FetchOperator.java:446)
+	... 15 more
+
+
+This is very similar to HIVE-9471, except that:
+
+HDP2.3.2 says it already incorporates HIVE-9471, HIVE-10303;
+the test in HIVE-9471 does not fail in my HDP2.3.2 setup.
+
+Just as in HIVE-9471, the ORC file is not compressed and the failure only occurs with hive.optimize.index.filter=true.
+
+

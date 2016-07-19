@@ -1,0 +1,32 @@
+Description
+
+Making a hive table transactional
+Steps followed
+1. Entered hive shell.
+2. Choose database.
+3. Set hive transaction properties.
+
+SET hive.support.concurrency=true;
+SET hive.enforce.bucketing=true;
+SET hive.exec.dynamic.partition.mode=nonstrict;
+SET hive.txn.manager=org.apache.hadoop.hive.ql.lockmgr.DbTxnManager;
+SET hive.compactor.initiator.on=true;
+SET hive.compactor.worker.threads=1;
+SET hive.support.concurrency=true;
+SET hive.enforce.bucketing=true;
+4. Created bucketed table with 'transactional'='true'
+
+create table test(id int, name string) clustered by (id) into 2 buckets
+stored as orc TBLPROPERTIES ('transactional'='true');
+5. Inserted values.
+
+insert into table test values(1,'Name');
+6. Fired update query.
+
+update test set name='New_Name' where id=1;
+Created following error ;
+
+FAILED: SemanticException [Error 10294]: Attempt to do update or delete using transaction manager that does not support these operations.
+It works without error when the transaction properties are set, before choosing database.
+
+

@@ -1,0 +1,27 @@
+Description
+
+When trying to create view that exists with statement:
+CREATE VIEW IF NOT EXISTS dummy_table ...
+Next error is logged:
+ERROR RetryingHMSHandler:190 - AlreadyExistsException(message:Table dummy_view already exists)
+at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.create_table_core(HiveMetaStore.java:1296)
+...
+The same when creating schema using:
+CREATE SCHEMA IF NOT EXISTS ...
+Error should not be logged as it confuses.
+For 
+CREATE TABLE IF NOT EXISTS ...
+it works fine. I checked that there is code to handle this in:
+org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeCreateTable
+// check for existence of table
+    if (ifNotExists) {
+      try {
+        Table table = getTable(qualifiedTabName, false);
+        if (table != null) 
+{ // table exists
+          return null;
+        }
+
+could you please add similar check for creating views and schema?
+
+

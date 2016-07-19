@@ -1,0 +1,34 @@
+Description
+
+When executing TPCx-BB query 4 (with MR engine, map-join enabled, and hive.exec.submit.local.task.via.child=true), the following exception occurred:
+2016-05-16T08:50:47,909 ERROR [bb6ffca1-f821-4ac2-b140-710d87c5d9d7 main]: mr.MapredLocalTask (MapredLocalTask.java:executeInChildVM(346)) - Exception:
+java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.exec.mr.MapredLocalTask.executeInChildVM(MapredLocalTask.java:321) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.exec.mr.MapredLocalTask.execute(MapredLocalTask.java:148) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:172) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:100) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1852) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1592) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1346) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1117) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1105) [hive-exec-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:236) [hive-cli-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:187) [hive-cli-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:403) [hive-cli-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:339) [hive-cli-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.cli.CliDriver.processReader(CliDriver.java:436) [hive-cli-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.cli.CliDriver.processFile(CliDriver.java:452) [hive-cli-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:754) [hive-cli-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:721) [hive-cli-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:648) [hive-cli-2.1.0-SNAPSHOT.jar:2.1.0-SNAPSHOT]
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:1.7.0_67]
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57) ~[?:1.7.0_67]
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:1.7.0_67]
+        at java.lang.reflect.Method.invoke(Method.java:606) ~[?:1.7.0_67]
+        at org.apache.hadoop.util.RunJar.run(RunJar.java:221) [hadoop-common-2.6.0-cdh5.7.0.jar:?]
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:136) [hadoop-common-2.6.0-cdh5.7.0.jar:?]
+2016-05-16T08:50:47,915 ERROR [bb6ffca1-f821-4ac2-b140-710d87c5d9d7 main]: ql.Driver (SessionState.java:printError(1066)) - FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.mr.MapredLocalTask
+If we disable map-join explicitly (by setting hive.auto.convert.join=false), the query could be passed.
+If we keep map-join enabled and set hive.exec.submit.local.task.via.child=false, the query could be passed.
+
+

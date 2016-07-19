@@ -1,0 +1,7 @@
+Description
+
+During Constant Propagation optimization, sometimes a node ends up being added to opToDelete list more than once.
+Later in ConstantPropagate transform, we try to delete that operator multiple times, which will cause SemanticException since the node has already been removed in an earlier pass.
+The data structure for storing opToDelete is List. We should use Set to avoid the problem.
+
+

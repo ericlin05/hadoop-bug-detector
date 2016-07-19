@@ -1,0 +1,7 @@
+Description
+
+Fails for me with Caught exception org.apache.hadoop.hive.metastore.api.InvalidObjectException with message &amp;lt;Role admin already exists&amp;gt;
+Not sure what to do with this now... someone might have run the import before, but that didn't finish because I don't see anything non-default in Hbase metastore tables. Or maybe role admin exists by default.
+There should be a better way to handle this ("clear" flag? confirmation if something already exists?)
+
+

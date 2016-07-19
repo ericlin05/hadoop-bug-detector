@@ -1,0 +1,19 @@
+Description
+
+When hive.exec.submitviachild = true, parallel order by fails with NPE and falls back to single-reducer mode. Stack trace:
+
+2015-05-25 08:41:04,446 ERROR [main]: mr.ExecDriver (ExecDriver.java:execute(386)) - Sampling error
+java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.exec.mr.ExecDriver.handleSampling(ExecDriver.java:513)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecDriver.execute(ExecDriver.java:379)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecDriver.main(ExecDriver.java:750)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:497)
+        at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+
+
+
+

@@ -1,0 +1,45 @@
+Description
+
+HIVE-11449 covered the scenario with HybridHashTableContainer, but we can still run into the error as shown below:
+
+
+Vertex failed, vertexName=Map 1, vertexId=vertex_1454464706407_0225_1_19, diagnostics=[Task failed, taskId=task_1454464706407_0225_1_19_000000, diagnostics=[TaskAttempt 0 failed, info=[Error: Failure while running task:java.lang.RuntimeException: java.lang.OutOfMemoryError: Java heap space
+at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:172)
+at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:138)
+at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:333)
+at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:177)
+at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:168)
+at java.security.AccessController.doPrivileged(Native Method)
+at javax.security.auth.Subject.doAs(Subject.java:415)
+at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1671)
+at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:168)
+at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:163)
+at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.OutOfMemoryError: Java heap space
+at org.apache.hadoop.hive.serde2.WriteBuffers.nextBufferToWrite(WriteBuffers.java:206)
+at org.apache.hadoop.hive.serde2.WriteBuffers.write(WriteBuffers.java:182)
+at org.apache.hadoop.hive.serde2.lazybinary.LazyBinaryUtils.writeVLong(LazyBinaryUtils.java:411)
+at org.apache.hadoop.hive.serde2.WriteBuffers.writeVLong(WriteBuffers.java:294)
+at org.apache.hadoop.hive.ql.exec.persistence.BytesBytesMultiHashMap.addRecordToList(BytesBytesMultiHashMap.java:540)
+at org.apache.hadoop.hive.ql.exec.persistence.BytesBytesMultiHashMap.put(BytesBytesMultiHashMap.java:219)
+at org.apache.hadoop.hive.ql.exec.persistence.MapJoinBytesTableContainer.putRow(MapJoinBytesTableContainer.java:285)
+at org.apache.hadoop.hive.ql.exec.tez.HashTableLoader.load(HashTableLoader.java:114)
+at org.apache.hadoop.hive.ql.exec.MapJoinOperator.loadHashTable(MapJoinOperator.java:190)
+at org.apache.hadoop.hive.ql.exec.MapJoinOperator.cleanUpInputFileChangedOp(MapJoinOperator.java:216)
+at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1051)
+at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:37)
+at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:83)
+at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.pushRecord(MapRecordSource.java:68)
+at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.run(MapRecordProcessor.java:316)
+at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:163)
+... 13 more
+
+
+
+

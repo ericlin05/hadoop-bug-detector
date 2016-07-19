@@ -1,0 +1,6 @@
+Description
+
+In the non-auth case, calling HiveMetaStoreClient.getPartitionNames() on a non-existent table returns an empty list, rather than NoSuchObjectException.
+It looks like currently all of the checking for valid table is being done at the SemanticAnalyzer level, and no such checking done in the API/metastore level.
+
+

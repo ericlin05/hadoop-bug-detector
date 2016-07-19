@@ -1,0 +1,18 @@
+Description
+
+Usually in multi-threading programming Thread.wait() should be in "while" loop.
+So, "if" statement below should be replaced with "while". HWISessionItem (121-128)
+
+
+    synchronized (runnable) {
+      if (status != WebSessionItemStatus.READY) {
+        try {
+          runnable.wait();
+        } catch (Exception ex) {
+        }
+      }
+    }
+
+
+
+

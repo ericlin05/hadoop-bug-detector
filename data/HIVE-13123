@@ -1,0 +1,54 @@
+Description
+
+2015-04-27 10:41:33,449 INFO [main] org.apache.hadoop.mapred.Task:  Using ResourceCalculatorProcessTree : [ ]
+2015-04-27 10:41:33,756 INFO [main] org.apache.hadoop.mapred.MapTask: Processing split: Paths:/tmp/hive-hadoop/hive_2015-04-27_10-39-59_371_8227897410315895740-1/-mr-10004/000000_0:0+189InputFormatClass: org.apache.hadoop.mapred.SequenceFileInputFormat
+2015-04-27 10:41:33,829 INFO [main] org.apache.hadoop.hive.ql.log.PerfLogger: &amp;lt;PERFLOG method=deserializePlan from=org.apache.hadoop.hive.ql.exec.Utilities&amp;gt;
+2015-04-27 10:41:33,829 INFO [main] org.apache.hadoop.hive.ql.exec.Utilities: Deserializing MapWork via kryo
+2015-04-27 10:41:34,053 ERROR [main] org.apache.hadoop.hive.ql.exec.Utilities: Failed to load plan: hdfs://c7000-master:8020/tmp/hive-hadoop/hive_2015-04-27_10-39-59_371_8227897410315895740-5/-mr-10020/9e94cf5d-1841-49fc-ab4f-45e11ade550c/map.xml
+org.apache.hive.com.esotericsoftware.kryo.KryoException: Encountered unregistered class ID: -243410070
+Serialization trace:
+startTimes (org.apache.hadoop.hive.ql.log.PerfLogger)
+perfLogger (org.apache.hadoop.hive.ql.exec.MapJoinOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.TableScanOperator)
+aliasToWork (org.apache.hadoop.hive.ql.plan.MapWork)
+        at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readClass(DefaultClassResolver.java:119)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClass(Kryo.java:656)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:99)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:139)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:17)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:672)
+        at org.apache.hadoop.hive.ql.exec.Utilities.deserializeObjectByKryo(Utilities.java:918)
+        at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:826)
+        at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:840)
+        at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:333)
+        at org.apache.hadoop.hive.ql.exec.Utilities.getMapWork(Utilities.java:275)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.init(HiveInputFormat.java:254)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:440)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:433)
+        at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getRecordReader(CombineHiveInputFormat.java:587)
+        at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.&amp;lt;init&amp;gt;(MapTask.java:169)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:429)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:168)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1614)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:163)
+enviroment: hadoop 2.6.0 hive:1.2.1
+this question  is found in hive 0.14+
+
+

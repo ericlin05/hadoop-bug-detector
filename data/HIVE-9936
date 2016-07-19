@@ -1,0 +1,7 @@
+Description
+
+In some cases DefaultUDAFEvaluatorResolver calls new AmbiguousMethodException(udafClass, null, null)  (line 94)
+This will throw NPE because AmbiguousMethodException calls argTypeInfos.toString()
+argTypeInfos is the second parameter and it can not be null.
+
+

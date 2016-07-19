@@ -1,0 +1,6 @@
+Description
+
+Exception is getting thorwn during table creation in Hive  
+Error: java.lang.RuntimeException: org.apache.hive.com/esotericsoftware.kryo.KryoException: Encountered unregistered class ID: 380
+
+

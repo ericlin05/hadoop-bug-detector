@@ -1,0 +1,11 @@
+Description
+
+The below query fails in Hive without proper error message.
+If the column alias dont matych between the first and 2 query hive 0.13 is throwing the below error.
+select 'new' as  col1 union all select 'new' as  col2;
+Error: Error while compiling statement: FAILED: NullPointerException null (state=42000,code=40000)
+Whereas Oracle picks the first alias name.
+select 'new' as  col1 from dual union all select 'new' as  col2 from dual;
+In my use case we have lot of oracle queries being converted to hive, but users are facing difficulties to find out the actual error sometimes.
+
+

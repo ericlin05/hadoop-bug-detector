@@ -1,0 +1,20 @@
+Description
+
+We're seeing msck repair fail randomly for a directory layout like this:
+
+
+/table/timestamp=2015-05-01
+/table/timestamp=2015-05-01/type=open
+/table/timestamp=2015-05-01/type=open/num=1/file-1
+/table/timestamp=2015-05-01/type=open/num=1/file-2
+
+
+The table is partitioned by timestamp (date), type (string) and num (integer). Running MCSK repair succeeds for some files, but intermittently throws an exception like this:
+
+
+MetaException(message:Expected 1 components, got 3 (timestamp=2015-05-01/type=open/num=1))
+
+
+Appears that there is a bug in DDLTask.mcsk (https://github.com/apache/hive/blob/6cb5dbe64968f052266f491492225e925e437dac/ql/src/java/org/apache/hadoop/hive/ql/exec/DDLTask.java#L1832).
+
+

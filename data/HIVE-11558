@@ -1,0 +1,38 @@
+Description
+
+When creating a Parquet table in Hive from a table in another format (in this case JSON) using CTAS, the generated parquet files are created with broken footers and cause NullPointerExceptions in both Parquet tools and Spark when reading the files directly.
+Here is the error from parquet tools:
+
+Could not read footer: java.lang.NullPointerException
+
+Here is the error from Spark reading the parquet file back:
+
+java.lang.NullPointerException
+        at parquet.format.converter.ParquetMetadataConverter.fromParquetStatistics(ParquetMetadataConverter.java:249)
+        at parquet.format.converter.ParquetMetadataConverter.fromParquetMetadata(ParquetMetadataConverter.java:543)
+        at parquet.format.converter.ParquetMetadataConverter.readParquetMetadata(ParquetMetadataConverter.java:520)
+        at parquet.hadoop.ParquetFileReader.readFooter(ParquetFileReader.java:426)
+        at org.apache.spark.sql.parquet.ParquetRelation2$MetadataCache$$anonfun$refresh$6.apply(newParquet.scala:298)
+        at org.apache.spark.sql.parquet.ParquetRelation2$MetadataCache$$anonfun$refresh$6.apply(newParquet.scala:297)
+        at scala.collection.parallel.mutable.ParArray$Map.leaf(ParArray.scala:658)
+        at scala.collection.parallel.Task$$anonfun$tryLeaf$1.apply$mcV$sp(Tasks.scala:54)
+        at scala.collection.parallel.Task$$anonfun$tryLeaf$1.apply(Tasks.scala:53)
+        at scala.collection.parallel.Task$$anonfun$tryLeaf$1.apply(Tasks.scala:53)
+        at scala.collection.parallel.Task$class.tryLeaf(Tasks.scala:56)
+        at scala.collection.parallel.mutable.ParArray$Map.tryLeaf(ParArray.scala:650)
+        at scala.collection.parallel.AdaptiveWorkStealingTasks$WrappedTask$class.compute(Tasks.scala:165)
+        at scala.collection.parallel.AdaptiveWorkStealingForkJoinTasks$WrappedTask.compute(Tasks.scala:514)
+        at scala.concurrent.forkjoin.RecursiveAction.exec(RecursiveAction.java:160)
+        at scala.concurrent.forkjoin.ForkJoinTask.doExec(ForkJoinTask.java:260)
+        at scala.concurrent.forkjoin.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1339)
+        at scala.concurrent.forkjoin.ForkJoinPool.runWorker(ForkJoinPool.java:1979)
+        at scala.concurrent.forkjoin.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:107)
+
+
+What's interesting is that the table works fine in Hive when selecting out of it, even when doing select * on the whole table and letting it run to the end (it's a sample data set), it's only other tools it causes problems for.
+All fields are string except for the first one which is timestamp, but this is not that known issue since if I create another parquet table with 3 fields including the timestamp and two string fields using CTAS those hive generated parquet files works fine in the other tools.
+The only thing I can see which appears to cause this is the other fields have lots of NULLs in them as those json fields may or may not be present.
+I've converted this exact same json data set to parquet using Apache Drill and also using Apache Spark SQL and both of those tools create parquet files from this data set as a straight conversion that are fine when accessed via Parquet tools or Drill or Spark or Hive (using an external Hive table definition layered over the generated parquet files).
+This implies that it's Hive's generation of Parquet that is broken since both Drill and Spark can convert the dataset from JSON to Parquet without any issues on reading the files back in any of the other mentioned tools.
+
+

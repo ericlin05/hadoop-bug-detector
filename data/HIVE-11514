@@ -1,0 +1,22 @@
+Description
+
+Query from auto_sortmerge_join_1.q:
+
+
+select count(*) FROM bucket_big a JOIN bucket_small b ON a.key = b.key
+
+
+generates stack trace:
+
+
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.vector.VectorMapJoinOperator.initializeOp(VectorMapJoinOperator.java:177)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:362)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:481)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:438)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:375)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.configure(ExecMapper.java:131)
+
+
+
+

@@ -1,0 +1,65 @@
+Description
+
+I was trying to combine records of two tables using UNION ALL. 
+One table testTableText is on TEXT format and another table testTableORC is on ORC format. It is failing with given error.
+It seems error related to input format. 
+See the given scenario :  
+Hive Version  : 1.0.0
+– Create TEXT Table
+create table testTableText(id int,name string)row format delimited fields terminated by ',';
+– Create ORC Table
+create table testTableORC(id int ,name string ) clustered by (id) into 2 buckets stored as orc TBLPROPERTIES('transactional'='true');
+– query with UNION
+SELECT * FROM testTableORC
+UNION ALL
+SELECT * FROM testTableText ;
+– Error :
+Query ID = cloud_20150618225656_fbad7df0-9063-478e-8b6e-f0631d9978e6
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks is set to 0 since there's no reduce operator
+java.lang.NullPointerException
+    at org.apache.hadoop.hive.ql.io.HiveInputFormat.init(HiveInputFormat.java:265)
+    at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getCombineSplits(CombineHiveInputFormat.java:272)
+    at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getSplits(CombineHiveInputFormat.java:509)
+    at org.apache.hadoop.mapreduce.JobSubmitter.writeOldSplits(JobSubmitter.java:624)
+    at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:616)
+    at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:492)
+    at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1296)
+    at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1293)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at javax.security.auth.Subject.doAs(Subject.java:415)
+    at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+    at org.apache.hadoop.mapreduce.Job.submit(Job.java:1293)
+    at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:562)
+    at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:557)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at javax.security.auth.Subject.doAs(Subject.java:415)
+    at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+    at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:557)
+    at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:548)
+    at org.apache.hadoop.hive.ql.exec.mr.ExecDriver.execute(ExecDriver.java:429)
+    at org.apache.hadoop.hive.ql.exec.mr.MapRedTask.execute(MapRedTask.java:137)
+    at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+    at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:85)
+    at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1604)
+    at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1364)
+    at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1177)
+    at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1004)
+    at org.apache.hadoop.hive.ql.Driver.run(Driver.java:994)
+    at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:201)
+    at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:153)
+    at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:364)
+    at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:712)
+    at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:631)
+    at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:570)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:606)
+    at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+    at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+Job Submission failed with exception 'java.lang.NullPointerException(null)'
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+
+

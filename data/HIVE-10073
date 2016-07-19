@@ -1,0 +1,16 @@
+Description
+
+When querying HBase with Spark, we got 
+
+ Caused by: java.lang.IllegalArgumentException: Must specify table name
+at org.apache.hadoop.hbase.mapreduce.TableOutputFormat.setConf(TableOutputFormat.java:188)
+at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:73)
+at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:133)
+at org.apache.hadoop.hive.ql.io.HiveFileFormatUtils.getHiveOutputFormat(HiveFileFormatUtils.java:276)
+at org.apache.hadoop.hive.ql.io.HiveFileFormatUtils.getHiveOutputFormat(HiveFileFormatUtils.java:266)
+at org.apache.hadoop.hive.ql.exec.FileSinkOperator.initializeOp(FileSinkOperator.java:331)
+
+
+But it works fine for MapReduce.
+
+

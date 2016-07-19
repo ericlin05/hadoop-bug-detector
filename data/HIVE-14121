@@ -1,0 +1,50 @@
+Description
+
+This issue is 2.1.0 occurs.
+
+
+2016-06-29 14:29:26,884 [ERROR] [TezChild] |tez.MapRecordProcessor|: Hit error while closing operators - failing tree
+2016-06-29 14:29:26,884 [ERROR] [TezChild] |tez.TezProcessor|: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"xxx":"yyy"}
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:95)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.pushRecord(MapRecordSource.java:70)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.run(MapRecordProcessor.java:360)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:172)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:160)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:355)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:72)
+	at org.apache.tez.runtime.task.TaskRunner2Callable$1.run(TaskRunner2Callable.java:60)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:60)
+	at org.apache.tez.runtime.task.TaskRunner2Callable.callInternal(TaskRunner2Callable.java:36)
+	at org.apache.tez.common.CallableWithNdc.call(CallableWithNdc.java:36)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"xxx":"yyy"}
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:499)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:86)
+	... 17 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Unexpected exception from MapJoinOperator : null
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.process(MapJoinOperator.java:454)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:878)
+	at org.apache.hadoop.hive.ql.exec.SelectOperator.process(SelectOperator.java:95)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:878)
+	at org.apache.hadoop.hive.ql.exec.FilterOperator.process(FilterOperator.java:126)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:878)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.process(TableScanOperator.java:130)
+	at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:149)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:489)
+	... 18 more
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.persistence.HybridHashTableContainer$ReusableRowContainer.setFromOutput(HybridHashTableContainer.java:922)
+	at org.apache.hadoop.hive.ql.exec.persistence.HybridHashTableContainer$GetAdaptor.setFromRow(HybridHashTableContainer.java:802)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.setMapJoinKey(MapJoinOperator.java:339)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.process(MapJoinOperator.java:390)
+	... 26 more
+
+
+
+

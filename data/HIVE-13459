@@ -1,0 +1,10 @@
+Description
+
+Using Hive trying to execute select statement on cassandra, but it throws error:
+hive&amp;gt; select * from genericquantity;
+OK
+Failed with exception java.io.IOException:java.lang.RuntimeException: org.apache.cassandra.exceptions.ConfigurationException: Unable to find partitioner class 'org.apache.cassandra.dht.Murmur3Partitioner'
+Time taken: 0.518 seconds
+middle:hive-1.2.0-hadoop-2.6.0-cassandra-2.1.6.jar
+
+

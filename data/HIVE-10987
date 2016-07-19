@@ -1,0 +1,39 @@
+Description
+
+According to documentation arrays allow any other datatype for elements (incl. complex datatypes).
+But creating an array of union types will cause an IOException in versions 0.14 to 1.2:
+
+
+hive&amp;gt; SELECT ARRAY(CREATE_UNION(1,1,'a'));
+OK
+Failed with exception java.io.IOException:org.apache.hadoop.hive.ql.metadata.HiveException: Error evaluating array(create_union(1,1,'a'))
+Time taken: 0.522 seconds
+
+
+It causes a HiveException in version 0.13:
+
+
+hive&amp;gt; SELECT ARRAY(CREATE_UNION(1, 1, 'a'));
+Query ID = haeusler_20141114112929_5ee86c17-e607-4f0f-a157-92699e4d5777
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks is set to 0 since there's no reduce operator
+Starting Job = job_1415037444037_12008, Tracking URL = http://********:8088/proxy/application_1415037444037_12008/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1415037444037_12008
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 0
+2014-11-14 11:29:50,699 Stage-1 map = 0%,  reduce = 0%
+[…]
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Error evaluating array(create_union(1,1,'a'))
+       at org.apache.hadoop.hive.ql.exec.SelectOperator.processOp(SelectOperator.java:84)
+[...]
+Caused by: java.lang.ClassCastException: org.apache.hadoop.hive.serde2.objectinspector.StandardUnionObjectInspector cannot be cast to org.apache.hadoop.io.IntWritable
+       at org.apache.hadoop.hive.serde2.objectinspector.primitive.WritableIntObjectInspector.get(WritableIntObjectInspector.java:36)
+       at org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils.getInt(PrimitiveObjectInspectorUtils.java:598)
+       at org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorConverter$IntConverter.convert(PrimitiveObjectInspectorConverter.java:150)
+       at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorConverters$UnionConverter.convert(ObjectInspectorConverters.java:456)
+       at org.apache.hadoop.hive.ql.udf.generic.GenericUDFArray.evaluate(GenericUDFArray.java:79)
+[...]
+
+
+
+

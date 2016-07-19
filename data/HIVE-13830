@@ -1,0 +1,226 @@
+Description
+
+With Hive 1.2.1 I was able to use Hive on Spark successfully with the use of the spark-assembly "spark-assembly-1.4.1-hadoop2.7.1.jar". 
+Today with Hive 2.0.0, I'm unable to use Hive on Spark whether it be with the spark-assembly "spark-assembly-1.4.1-hadoop2.7.1.jar" or the spark-assembly "spark-assembly-1.6.1-hadoop2.7.2.jar".
+My configuration is the following:
+
+spark-default.conf available in HIVE_DIR/conf
+spark assembly available in HIVE_DIR/lib
+
+I gathered several logs below:
+
+HQL commands
+
+$ hive -v --database shfs3453
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/application/Hive/apache-hive-2.0.0-bin/lib/hive-jdbc-2.0.0-standalone.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/application/Hive/apache-hive-2.0.0-bin/lib/log4j-slf4j-impl-2.4.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/application/Spark/spark-1.6.1/assembly/target/scala-2.10/spark-assembly-1.6.1-hadoop2.7.2.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/application/Hadoop/hadoop-2.7.2/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+
+Logging initialized using configuration in file:/opt/application/Hive/apache-hive-2.0.0-bin/conf/hive-log4j2.properties
+use shfs3453
+OK
+Time taken: 1.425 seconds
+Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. tez, spark) or using Hive 1.X releases.
+hive (shfs3453)&amp;gt; set hive.execution.engine=spark;
+set hive.execution.engine=spark
+hive (shfs3453)&amp;gt; set spark.master=yarn-client;
+set spark.master=yarn-client
+hive (shfs3453)&amp;gt; CREATE TABLE chicagoCrimes2 (ID BIGINT, CaseNumber STRING, Day STRING, Block STRING, IUCR INT, PrimaryType STRING, Description STRING, LocationDescription STRING, Arrest BOOLEAN, Domestic BOOLEAN, Beat INT, District INT, Ward INT, CommunityArea INT, FBICode INT, XCoordinate BIGINT, YCoordinate BIGINT, Year INT, UpdatedOn STRING, Latitude FLOAT, Longitude FLOAT, Location STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE;
+CREATE TABLE chicagoCrimes2 (ID BIGINT, CaseNumber STRING, Day STRING, Block STRING, IUCR INT, PrimaryType STRING, Description STRING, LocationDescription STRING, Arrest BOOLEAN, Domestic BOOLEAN, Beat INT, District INT, Ward INT, CommunityArea INT, FBICode INT, XCoordinate BIGINT, YCoordinate BIGINT, Year INT, UpdatedOn STRING, Latitude FLOAT, Longitude FLOAT, Location STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE
+OK
+Time taken: 0.408 seconds
+hive (shfs3453)&amp;gt; INSERT OVERWRITE TABLE chicagocrimes2 SELECT * FROM chicagocrimes WHERE Description = 'FIRST DEGREE MURDER';
+INSERT OVERWRITE TABLE chicagocrimes2 SELECT * FROM chicagocrimes WHERE Description = 'FIRST DEGREE MURDER'
+Query ID = shfs3453_20160524092714_41c89aec-2c6f-49e9-98c7-d227ca144f73
+Total jobs = 1
+Launching Job 1 out of 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=&amp;lt;number&amp;gt;
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=&amp;lt;number&amp;gt;
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=&amp;lt;number&amp;gt;
+Starting Spark Job = 79484279-8e75-4b13-8e71-7de463f4d51e
+Status: SENT
+Failed to execute spark task, with exception 'java.lang.IllegalStateException(RPC channel is closed.)'
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.spark.SparkTask
+
+
+
+
+Client logs
+
+May 24 09:32:19 hive-cli WARN - org.apache.hive.spark.client.rpc.RpcDispatcherReceived error message:io.netty.handler.codec.DecoderException: java.lang.NoClassDefFoundError: org/apache/hive/spark/client/Job
+        at io.netty.handler.codec.ByteToMessageDecoder.callDecode(ByteToMessageDecoder.java:358)
+        at io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:230)
+        at io.netty.handler.codec.ByteToMessageCodec.channelRead(ByteToMessageCodec.java:103)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:308)
+        at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:294)
+        at io.netty.channel.ChannelInboundHandlerAdapter.channelRead(ChannelInboundHandlerAdapter.java:86)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:308)
+        at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:294)
+        at io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:846)
+        at io.netty.channel.nio.AbstractNioByteChannel$NioByteUnsafe.read(AbstractNioByteChannel.java:131)
+        at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:511)
+        at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:468)
+        at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:382)
+        at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:354)
+        at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:111)
+        at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.NoClassDefFoundError: org/apache/hive/spark/client/Job
+        at java.lang.ClassLoader.defineClass1(Native Method)
+        at java.lang.ClassLoader.defineClass(ClassLoader.java:800)
+        at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:142)
+        at java.net.URLClassLoader.defineClass(URLClassLoader.java:449)
+        at java.net.URLClassLoader.access$100(URLClassLoader.java:71)
+        at java.net.URLClassLoader$1.run(URLClassLoader.java:361)
+        at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+        at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:412)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+        at java.lang.Class.forName0(Native Method)
+        at java.lang.Class.forName(Class.java:278)
+        at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readName(DefaultClassResolver.java:154)
+        at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readClass(DefaultClassResolver.java:133)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClass(Kryo.java:670)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:118)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:551)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:790)
+        at org.apache.hive.spark.client.rpc.KryoMessageCodec.decode(KryoMessageCodec.java:97)
+        at io.netty.handler.codec.ByteToMessageCodec$1.decode(ByteToMessageCodec.java:42)
+        at io.netty.handler.codec.ByteToMessageDecoder.callDecode(ByteToMessageDecoder.java:327)
+        ... 15 more
+Caused by: java.lang.ClassNotFoundException: org.apache.hive.spark.client.Job
+        at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+        at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+        at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+        ... 39 more
+.
+May 24 09:32:19 hive-cli WARN - org.apache.hive.spark.client.SparkClientImplClient RPC channel closed unexpectedly.
+May 24 09:32:48 hive-cli INFO - org.apache.hadoop.hive.ql.exec.spark.status.SparkJobMonitorJob hasn't been submitted after 61s. Aborting it.
+May 24 09:32:48 hive-cli ERROR - org.apache.hadoop.hive.ql.exec.spark.status.SparkJobMonitorStatus: SENT
+May 24 09:32:48 hive-cli ERROR - org.apache.hadoop.hive.ql.exec.spark.SparkTaskFailed to execute spark task, with exception 'java.lang.IllegalStateException(RPC channel is closed.)'
+java.lang.IllegalStateException: RPC channel is closed.
+        at com.google.common.base.Preconditions.checkState(Preconditions.java:149)
+        at org.apache.hive.spark.client.rpc.Rpc.call(Rpc.java:276)
+        at org.apache.hive.spark.client.rpc.Rpc.call(Rpc.java:259)
+        at org.apache.hive.spark.client.SparkClientImpl$ClientProtocol.cancel(SparkClientImpl.java:523)
+        at org.apache.hive.spark.client.SparkClientImpl.cancel(SparkClientImpl.java:187)
+        at org.apache.hive.spark.client.JobHandleImpl.cancel(JobHandleImpl.java:62)
+        at org.apache.hadoop.hive.ql.exec.spark.status.impl.RemoteSparkJobRef.cancelJob(RemoteSparkJobRef.java:54)
+        at org.apache.hadoop.hive.ql.exec.spark.SparkTask.execute(SparkTask.java:128)
+        at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:158)
+        at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:101)
+        at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1840)
+        at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1584)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1361)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1184)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1172)
+        at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:233)
+        at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:184)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:400)
+        at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:778)
+        at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:717)
+        at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:645)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+
+May 24 09:32:48 hive-cli ERROR - org.apache.hadoop.hive.ql.exec.spark.SparkTaskFailed to execute spark task, with exception 'java.lang.IllegalStateException(RPC channel is closed.)'
+java.lang.IllegalStateException: RPC channel is closed.
+        at com.google.common.base.Preconditions.checkState(Preconditions.java:149) ~[guava-14.0.1.jar:?]
+        at org.apache.hive.spark.client.rpc.Rpc.call(Rpc.java:276) ~[hive-exec-2.0.0.jar:2.0.0]
+        at org.apache.hive.spark.client.rpc.Rpc.call(Rpc.java:259) ~[hive-exec-2.0.0.jar:2.0.0]
+        at org.apache.hive.spark.client.SparkClientImpl$ClientProtocol.cancel(SparkClientImpl.java:523) ~[hive-exec-2.0.0.jar:2.0.0]
+        at org.apache.hive.spark.client.SparkClientImpl.cancel(SparkClientImpl.java:187) ~[hive-exec-2.0.0.jar:2.0.0]
+        at org.apache.hive.spark.client.JobHandleImpl.cancel(JobHandleImpl.java:62) ~[hive-exec-2.0.0.jar:2.0.0]
+        at org.apache.hadoop.hive.ql.exec.spark.status.impl.RemoteSparkJobRef.cancelJob(RemoteSparkJobRef.java:54) ~[hive-exec-2.0.0.jar:2.0.0]
+        at org.apache.hadoop.hive.ql.exec.spark.SparkTask.execute(SparkTask.java:128) [hive-exec-2.0.0.jar:2.0.0]
+        at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:158) [hive-exec-2.0.0.jar:2.0.0]
+        at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:101) [hive-exec-2.0.0.jar:2.0.0]
+        at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1840) [hive-exec-2.0.0.jar:2.0.0]
+        at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1584) [hive-exec-2.0.0.jar:2.0.0]
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1361) [hive-exec-2.0.0.jar:2.0.0]
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1184) [hive-exec-2.0.0.jar:2.0.0]
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1172) [hive-exec-2.0.0.jar:2.0.0]
+        at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:233) [hive-cli-2.0.0.jar:2.0.0]
+        at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:184) [hive-cli-2.0.0.jar:2.0.0]
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:400) [hive-cli-2.0.0.jar:2.0.0]
+        at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:778) [hive-cli-2.0.0.jar:2.0.0]
+        at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:717) [hive-cli-2.0.0.jar:2.0.0]
+        at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:645) [hive-cli-2.0.0.jar:2.0.0]
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:1.7.0_85]
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57) ~[?:1.7.0_85]
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:1.7.0_85]
+        at java.lang.reflect.Method.invoke(Method.java:606) ~[?:1.7.0_85]
+        at org.apache.hadoop.util.RunJar.run(RunJar.java:221) [spark-assembly-1.6.1-hadoop2.7.2.jar:1.6.1]
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:136) [spark-assembly-1.6.1-hadoop2.7.2.jar:1.6.1]
+May 24 09:32:48 hive-cli ERROR - org.apache.hadoop.hive.ql.DriverFAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.spark.SparkTask
+May 24 09:32:48 hive-cli INFO - org.apache.hadoop.hive.ql.DriverCompleted executing command(queryId=shfs3453_20160524092714_41c89aec-2c6f-49e9-98c7-d227ca144f73); Time taken: 65.543 seconds
+
+
+
+
+Yarn logs (executor)
+
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/mnt/hd4/hadoop/yarn/local/usercache/shfs3453/filecache/18/spark-assembly-1.6.1-hadoop2.7.2.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/application/Hadoop/hadoop-2.7.2/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+16/05/24 09:32:14 INFO executor.CoarseGrainedExecutorBackend: Registered signal handlers for [TERM, HUP, INT]
+16/05/24 09:32:15 INFO spark.SecurityManager: Changing view acls to: shfs3453
+16/05/24 09:32:15 INFO spark.SecurityManager: Changing modify acls to: shfs3453
+16/05/24 09:32:15 INFO spark.SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: Set(shfs3453); users with modify permissions: Set(shfs3453)
+16/05/24 09:32:15 INFO spark.SecurityManager: Changing view acls to: shfs3453
+16/05/24 09:32:15 INFO spark.SecurityManager: Changing modify acls to: shfs3453
+16/05/24 09:32:15 INFO spark.SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: Set(shfs3453); users with modify permissions: Set(shfs3453)
+16/05/24 09:32:16 INFO slf4j.Slf4jLogger: Slf4jLogger started
+16/05/24 09:32:16 INFO Remoting: Starting remoting
+16/05/24 09:32:16 INFO Remoting: Remoting started; listening on addresses :[akka.tcp://sparkExecutorActorSystem@datanode05.bigdata.fr:37444]
+16/05/24 09:32:16 INFO util.Utils: Successfully started service 'sparkExecutorActorSystem' on port 37444.
+16/05/24 09:32:17 INFO storage.DiskBlockManager: Created local directory at /mnt/hd8/hadoop/yarn/local/usercache/shfs3453/appcache/application_1463151644662_0023/blockmgr-8206d302-c8c7-4c79-974f-e349586c64f3
+16/05/24 09:32:17 INFO storage.DiskBlockManager: Created local directory at /mnt/hd3/hadoop/yarn/local/usercache/shfs3453/appcache/application_1463151644662_0023/blockmgr-c3f44368-0b14-4bbf-b216-9fb332fd5174
+16/05/24 09:32:17 INFO storage.DiskBlockManager: Created local directory at /mnt/hd2/hadoop/yarn/local/usercache/shfs3453/appcache/application_1463151644662_0023/blockmgr-008678f2-f592-4026-8342-9f03432539bc
+16/05/24 09:32:17 INFO storage.DiskBlockManager: Created local directory at /mnt/hd1/hadoop/yarn/local/usercache/shfs3453/appcache/application_1463151644662_0023/blockmgr-44aad90f-755c-4294-b294-355b929b43e7
+16/05/24 09:32:17 INFO storage.DiskBlockManager: Created local directory at /mnt/hd9/hadoop/yarn/local/usercache/shfs3453/appcache/application_1463151644662_0023/blockmgr-0862fb2d-aa29-48eb-abde-e4b8fa6943af
+16/05/24 09:32:17 INFO storage.DiskBlockManager: Created local directory at /mnt/hd10/hadoop/yarn/local/usercache/shfs3453/appcache/application_1463151644662_0023/blockmgr-10811a27-1cb0-44cb-a842-db98638d67b5
+16/05/24 09:32:17 INFO storage.DiskBlockManager: Created local directory at /mnt/hd4/hadoop/yarn/local/usercache/shfs3453/appcache/application_1463151644662_0023/blockmgr-b6f7eb6f-bb1e-4f18-80a8-d0e0de4c0c5e
+16/05/24 09:32:17 INFO storage.DiskBlockManager: Created local directory at /mnt/hd5/hadoop/yarn/local/usercache/shfs3453/appcache/application_1463151644662_0023/blockmgr-c0949d83-1c03-457d-8c09-b61ae02c9567
+16/05/24 09:32:17 INFO storage.DiskBlockManager: Created local directory at /mnt/hd6/hadoop/yarn/local/usercache/shfs3453/appcache/application_1463151644662_0023/blockmgr-c33365d4-9ff0-41a9-9684-19fbd3a8c8ec
+16/05/24 09:32:17 INFO storage.DiskBlockManager: Created local directory at /mnt/hd0/hadoop/yarn/local/usercache/shfs3453/appcache/application_1463151644662_0023/blockmgr-94c7ebea-3df2-4004-911d-03e46f02909d
+16/05/24 09:32:17 INFO storage.DiskBlockManager: Created local directory at /mnt/hd11/hadoop/yarn/local/usercache/shfs3453/appcache/application_1463151644662_0023/blockmgr-316bc7e1-1cb6-4a68-bf64-f4169d433e4e
+16/05/24 09:32:17 INFO storage.DiskBlockManager: Created local directory at /mnt/hd7/hadoop/yarn/local/usercache/shfs3453/appcache/application_1463151644662_0023/blockmgr-d4b6e343-2f03-4558-acc6-027b896491ee
+16/05/24 09:32:17 INFO storage.MemoryStore: MemoryStore started with capacity 2.7 GB
+16/05/24 09:32:17 INFO executor.CoarseGrainedExecutorBackend: Connecting to driver: spark://CoarseGrainedScheduler@192.168.200.208:55898
+16/05/24 09:32:17 INFO executor.CoarseGrainedExecutorBackend: Successfully registered with driver
+16/05/24 09:32:17 INFO executor.Executor: Starting executor ID 4 on host datanode05.bigdata.fr
+16/05/24 09:32:17 INFO util.Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 49034.
+16/05/24 09:32:17 INFO netty.NettyBlockTransferService: Server created on 49034
+16/05/24 09:32:17 INFO storage.BlockManagerMaster: Trying to register BlockManager
+16/05/24 09:32:17 INFO storage.BlockManagerMaster: Registered BlockManager
+16/05/24 09:32:19 INFO executor.CoarseGrainedExecutorBackend: Driver commanded a shutdown
+16/05/24 09:32:20 INFO storage.MemoryStore: MemoryStore cleared
+16/05/24 09:32:20 INFO storage.BlockManager: BlockManager stopped
+16/05/24 09:32:20 WARN executor.CoarseGrainedExecutorBackend: An unknown (hiveclient.bigdata.fr:55898) driver disconnected.
+16/05/24 09:32:20 ERROR executor.CoarseGrainedExecutorBackend: Driver 192.168.200.208:55898 disassociated! Shutting down.
+16/05/24 09:32:20 INFO util.ShutdownHookManager: Shutdown hook called
+
+
+
+
+

@@ -1,0 +1,22 @@
+Description
+
+Currently in ReduceSinkDeDuplication.checkExprs() we have the following check which prevents the optimization from kicking in as soon as we hit constant key. We should lift this restriction as much as possible.
+
+
+    private Integer checkExprs(List&amp;lt;ExprNodeDesc&amp;gt; ckeys, List&amp;lt;ExprNodeDesc&amp;gt; pkeys,
+        ReduceSinkOperator cRS, ReduceSinkOperator pRS) throws SemanticException {
+      // If ckeys or pkeys have constant node expressions avoid the merge.
+      for (ExprNodeDesc ck : ckeys) {
+        if (ck instanceof ExprNodeConstantDesc) {
+          return null;
+        }
+      }
+      for (ExprNodeDesc pk : pkeys) {
+        if (pk instanceof ExprNodeConstantDesc) {
+          return null;
+        }
+      }
+
+
+
+

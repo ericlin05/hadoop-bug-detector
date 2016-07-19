@@ -1,0 +1,13 @@
+Description
+
+
+
+Caused by: java.io.IOException: ORC compression buffer size (0) is smaller than LLAP low-level cache minimum allocation size (131072). Decrease the value for hive.llap.io.cache.orc.alloc.min
+        at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:137)
+        at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:48)
+        at org.apache.hadoop.hive.common.CallableWithNdc.call(CallableWithNdc.java:37)
+        ... 4 more
+
+
+
+

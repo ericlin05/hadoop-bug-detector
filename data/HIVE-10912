@@ -1,0 +1,39 @@
+Description
+
+
+
+2015-06-03 13:46:32,212 ERROR [Dispatcher thread: Central] exec.Utilities: Failed to load plan: hdfs://localhost:8020/tmp/hive/sseth/9c4ce145-f7f4-49c4-a615-28ce154f7f1d/hive_2015-06-03_13-46-29_283_23518
+java.lang.NullPointerException
+  at org.apache.hadoop.hive.ql.exec.GlobalWorkMapFactory.get(GlobalWorkMapFactory.java:85)
+  at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:389)
+  at org.apache.hadoop.hive.ql.exec.Utilities.getMapWork(Utilities.java:299)
+  at org.apache.hadoop.hive.ql.exec.tez.HiveSplitGenerator.&amp;lt;init&amp;gt;(HiveSplitGenerator.java:94)
+  at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+  at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:57)
+  at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+  at java.lang.reflect.Constructor.newInstance(Constructor.java:526)
+  at org.apache.tez.common.ReflectionUtils.getNewInstance(ReflectionUtils.java:69)
+  at org.apache.tez.common.ReflectionUtils.createClazzInstance(ReflectionUtils.java:98)
+  at org.apache.tez.dag.app.dag.RootInputInitializerManager.createInitializer(RootInputInitializerManager.java:137)
+  at org.apache.tez.dag.app.dag.RootInputInitializerManager.runInputInitializers(RootInputInitializerManager.java:114)
+  at org.apache.tez.dag.app.dag.impl.VertexImpl.setupInputInitializerManager(VertexImpl.java:4422)
+  at org.apache.tez.dag.app.dag.impl.VertexImpl.access$4300(VertexImpl.java:200)
+  at org.apache.tez.dag.app.dag.impl.VertexImpl$InitTransition.handleInitEvent(VertexImpl.java:3271)
+  at org.apache.tez.dag.app.dag.impl.VertexImpl$InitTransition.transition(VertexImpl.java:3221)
+  at org.apache.tez.dag.app.dag.impl.VertexImpl$InitTransition.transition(VertexImpl.java:3202)
+  at org.apache.hadoop.yarn.state.StateMachineFactory$MultipleInternalArc.doTransition(StateMachineFactory.java:385)
+  at org.apache.hadoop.yarn.state.StateMachineFactory.doTransition(StateMachineFactory.java:302)
+  at org.apache.hadoop.yarn.state.StateMachineFactory.access$300(StateMachineFactory.java:46)
+  at org.apache.hadoop.yarn.state.StateMachineFactory$InternalStateMachine.doTransition(StateMachineFactory.java:448)
+  at org.apache.tez.state.StateMachineTez.doTransition(StateMachineTez.java:57)
+  at org.apache.tez.dag.app.dag.impl.VertexImpl.handle(VertexImpl.java:1850)
+  at org.apache.tez.dag.app.dag.impl.VertexImpl.handle(VertexImpl.java:199)
+  at org.apache.tez.dag.app.DAGAppMaster$VertexEventDispatcher.handle(DAGAppMaster.java:2001)
+  at org.apache.tez.dag.app.DAGAppMaster$VertexEventDispatcher.handle(DAGAppMaster.java:1987)
+  at org.apache.tez.common.AsyncDispatcher.dispatch(AsyncDispatcher.java:183)
+  at org.apache.tez.common.AsyncDispatcher$1.run(AsyncDispatcher.java:114)
+  at java.lang.Thread.run(Thread.java:745)
+
+
+
+

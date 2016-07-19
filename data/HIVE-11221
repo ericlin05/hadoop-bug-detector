@@ -1,0 +1,38 @@
+Description
+
+We are not waiting for input ready events which can trigger occasional NPE if input is not actually ready.
+Stacktrace:
+
+
+java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:186)
+	at org.apache.hadoop.hive.ql.exec.tez.MergeFileTezProcessor.run(MergeFileTezProcessor.java:42)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:324)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:176)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:168)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:168)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:163)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.init(HiveInputFormat.java:265)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:478)
+	at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:471)
+	at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getRecordReader(CombineHiveInputFormat.java:648)
+	at org.apache.tez.mapreduce.lib.MRReaderMapred.setupOldRecordReader(MRReaderMapred.java:146)
+	at org.apache.tez.mapreduce.lib.MRReaderMapred.&amp;lt;init&amp;gt;(MRReaderMapred.java:73)
+	at org.apache.tez.mapreduce.input.MRInput.initializeInternal(MRInput.java:483)
+	at org.apache.tez.mapreduce.input.MRInputLegacy.init(MRInputLegacy.java:108)
+	at org.apache.hadoop.hive.ql.exec.tez.MergeFileRecordProcessor.getMRInput(MergeFileRecordProcessor.java:220)
+	at org.apache.hadoop.hive.ql.exec.tez.MergeFileRecordProcessor.init(MergeFileRecordProcessor.java:72)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:162)
+	... 13 more
+
+
+
+

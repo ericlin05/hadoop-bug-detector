@@ -1,0 +1,23 @@
+Description
+
+When the cache is enabled, queries throws different over-read exceptions.
+Looks like the batchSize changes as you read data, the end of stripe batchSize is smaller than the default size (the super calls change it).
+
+
+Caused by: java.io.EOFException: Can't finish byte read from uncompressed stream DATA position: 262144 length: 262144 range: 0 offset: 46399488 limit: 46399488
+        at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$BytesColumnVectorUtil.commonReadByteArrays(RecordReaderImpl.java:1556)
+        at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$BytesColumnVectorUtil.readOrcByteArrays(RecordReaderImpl.java:1569)
+        at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$StringDirectTreeReader.nextVector(RecordReaderImpl.java:1691)
+        at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$StringTreeReader.nextVector(RecordReaderImpl.java:1517)
+        at org.apache.hadoop.hive.llap.io.decode.OrcEncodedDataConsumer.decodeBatch(OrcEncodedDataConsumer.java:115)
+        at org.apache.hadoop.hive.llap.io.decode.EncodedDataConsumer.consumeData(EncodedDataConsumer.java:108)
+        at org.apache.hadoop.hive.llap.io.decode.EncodedDataConsumer.consumeData(EncodedDataConsumer.java:35)
+        at org.apache.hadoop.hive.ql.io.orc.EncodedReaderImpl.readEncodedColumns(EncodedReaderImpl.java:314)
+        at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:280)
+        at org.apache.hadoop.hive.llap.io.encoded.OrcEncodedDataReader.callInternal(OrcEncodedDataReader.java:44)
+        at org.apache.hadoop.hive.common.CallableWithNdc.call(CallableWithNdc.java:37)
+        ... 4 more
+
+
+
+

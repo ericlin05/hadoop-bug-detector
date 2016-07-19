@@ -1,0 +1,40 @@
+Description
+
+Noticing some typo in default hive-log4j2.xml used for tests causing the following exception
+
+
+2015-08-14 11:26:35,965 WARN Error while converting string [{sys:hive.log.level}] to type [class org.apache.logging.log4j.Level]. Using default value [null]. java.lang.IllegalArgumentException: Unknown level constant [{SYS:HIVE.LOG.LEVEL}].
+	at org.apache.logging.log4j.Level.valueOf(Level.java:286)
+	at org.apache.logging.log4j.core.config.plugins.convert.TypeConverters$LevelConverter.convert(TypeConverters.java:230)
+	at org.apache.logging.log4j.core.config.plugins.convert.TypeConverters$LevelConverter.convert(TypeConverters.java:226)
+	at org.apache.logging.log4j.core.config.plugins.convert.TypeConverters.convert(TypeConverters.java:336)
+	at org.apache.logging.log4j.core.config.plugins.visitors.AbstractPluginVisitor.convert(AbstractPluginVisitor.java:130)
+	at org.apache.logging.log4j.core.config.plugins.visitors.PluginAttributeVisitor.visit(PluginAttributeVisitor.java:45)
+	at org.apache.logging.log4j.core.config.plugins.util.PluginBuilder.generateParameters(PluginBuilder.java:247)
+	at org.apache.logging.log4j.core.config.plugins.util.PluginBuilder.build(PluginBuilder.java:136)
+	at org.apache.logging.log4j.core.config.AbstractConfiguration.createPluginObject(AbstractConfiguration.java:766)
+	at org.apache.logging.log4j.core.config.AbstractConfiguration.createConfiguration(AbstractConfiguration.java:706)
+	at org.apache.logging.log4j.core.config.AbstractConfiguration.createConfiguration(AbstractConfiguration.java:698)
+	at org.apache.logging.log4j.core.config.AbstractConfiguration.createConfiguration(AbstractConfiguration.java:698)
+	at org.apache.logging.log4j.core.config.AbstractConfiguration.doConfigure(AbstractConfiguration.java:358)
+	at org.apache.logging.log4j.core.config.AbstractConfiguration.start(AbstractConfiguration.java:161)
+	at org.apache.logging.log4j.core.LoggerContext.setConfiguration(LoggerContext.java:361)
+	at org.apache.logging.log4j.core.LoggerContext.reconfigure(LoggerContext.java:426)
+	at org.apache.logging.log4j.core.LoggerContext.reconfigure(LoggerContext.java:442)
+	at org.apache.logging.log4j.core.LoggerContext.start(LoggerContext.java:138)
+	at org.apache.logging.log4j.core.impl.Log4jContextFactory.getContext(Log4jContextFactory.java:147)
+	at org.apache.logging.log4j.core.impl.Log4jContextFactory.getContext(Log4jContextFactory.java:41)
+	at org.apache.logging.log4j.LogManager.getContext(LogManager.java:175)
+	at org.apache.logging.log4j.spi.AbstractLoggerAdapter.getContext(AbstractLoggerAdapter.java:102)
+	at org.apache.logging.log4j.jcl.LogAdapter.getContext(LogAdapter.java:39)
+	at org.apache.logging.log4j.spi.AbstractLoggerAdapter.getLogger(AbstractLoggerAdapter.java:42)
+	at org.apache.logging.log4j.jcl.LogFactoryImpl.getInstance(LogFactoryImpl.java:40)
+	at org.apache.logging.log4j.jcl.LogFactoryImpl.getInstance(LogFactoryImpl.java:55)
+	at org.apache.commons.logging.LogFactory.getLog(LogFactory.java:657)
+	at org.apache.hadoop.util.ShutdownHookManager.&amp;lt;clinit&amp;gt;(ShutdownHookManager.java:44)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:200)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+
+
+
+

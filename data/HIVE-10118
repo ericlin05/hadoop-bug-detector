@@ -1,0 +1,172 @@
+Description
+
+Query 
+
+
+explain
+  select  ss_items.item_id
+       ,ss_item_rev
+       ,ss_item_rev/(ss_item_rev+cs_item_rev+ws_item_rev)/3 * 100 ss_dev
+       ,cs_item_rev
+       ,cs_item_rev/(ss_item_rev+cs_item_rev+ws_item_rev)/3 * 100 cs_dev
+       ,ws_item_rev
+       ,cs_item_rev/(ss_item_rev+cs_item_rev+ws_item_rev)/3 * 100 cs_dev
+       ,ws_item_rev
+       ,ws_item_rev/(ss_item_rev+cs_item_rev+ws_item_rev)/3 * 100 ws_dev
+       ,(ss_item_rev+cs_item_rev+ws_item_rev)/3 average
+FROM
+( select i_item_id item_id ,sum(ss_ext_sales_price) as ss_item_rev
+ from store_sales
+     JOIN item ON store_sales.ss_item_sk = item.i_item_sk
+     JOIN date_dim ON store_sales.ss_sold_date_sk = date_dim.d_date_sk
+     JOIN (select d1.d_date
+                 from date_dim d1 JOIN date_dim d2 ON d1.d_week_seq = d2.d_week_seq
+                 where d2.d_date = '1998-08-04') sub ON date_dim.d_date = sub.d_date
+ group by i_item_id ) ss_items
+JOIN
+( select i_item_id item_id ,sum(cs_ext_sales_price) as cs_item_rev
+ from catalog_sales
+     JOIN item ON catalog_sales.cs_item_sk = item.i_item_sk
+     JOIN date_dim ON catalog_sales.cs_sold_date_sk = date_dim.d_date_sk
+     JOIN (select d1.d_date
+                 from date_dim d1 JOIN date_dim d2 ON d1.d_week_seq = d2.d_week_seq
+                 where d2.d_date = '1998-08-04') sub ON date_dim.d_date = sub.d_date
+ group by i_item_id ) cs_items
+ON ss_items.item_id=cs_items.item_id
+JOIN
+( select i_item_id item_id ,sum(ws_ext_sales_price) as ws_item_rev
+ from web_sales
+     JOIN item ON web_sales.ws_item_sk = item.i_item_sk
+     JOIN date_dim ON web_sales.ws_sold_date_sk = date_dim.d_date_sk
+     JOIN (select d1.d_date
+                 from date_dim d1 JOIN date_dim d2 ON d1.d_week_seq = d2.d_week_seq
+                 where d2.d_date = '1998-08-04') sub ON date_dim.d_date = sub.d_date
+ group by i_item_id ) ws_items
+ON ss_items.item_id=ws_items.item_id
+ where
+       ss_item_rev between 0.9 * cs_item_rev and 1.1 * cs_item_rev
+   and ss_item_rev between 0.9 * ws_item_rev and 1.1 * ws_item_rev
+   and cs_item_rev between 0.9 * ss_item_rev and 1.1 * ss_item_rev
+   and cs_item_rev between 0.9 * ws_item_rev and 1.1 * ws_item_rev
+   and ws_item_rev between 0.9 * ss_item_rev and 1.1 * ss_item_rev
+   and ws_item_rev between 0.9 * cs_item_rev and 1.1 * cs_item_rev
+ order by item_id ,ss_item_rev
+ limit 100
+
+
+Exception 
+
+
+ limit 100
+15/03/27 12:38:32 [main]: ERROR parse.CalcitePlanner: CBO failed, skipping CBO.
+java.lang.RuntimeException: java.lang.AssertionError: Internal error: Cannot find common type for join keys $1 (type INTEGER) and $1 (type VARCHAR(2147483647))
+	at org.apache.hadoop.hive.ql.parse.CalcitePlanner.rethrowCalciteException(CalcitePlanner.java:677)
+	at org.apache.hadoop.hive.ql.parse.CalcitePlanner.getOptimizedAST(CalcitePlanner.java:586)
+	at org.apache.hadoop.hive.ql.parse.CalcitePlanner.genOPTree(CalcitePlanner.java:238)
+	at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:9998)
+	at org.apache.hadoop.hive.ql.parse.CalcitePlanner.analyzeInternal(CalcitePlanner.java:201)
+	at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:224)
+	at org.apache.hadoop.hive.ql.parse.ExplainSemanticAnalyzer.analyzeInternal(ExplainSemanticAnalyzer.java:74)
+	at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:224)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:425)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:309)
+	at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1114)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1162)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1051)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1041)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:207)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:159)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:370)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:305)
+	at org.apache.hadoop.hive.cli.CliDriver.processReader(CliDriver.java:403)
+	at org.apache.hadoop.hive.cli.CliDriver.processFile(CliDriver.java:419)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:708)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:675)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:615)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+Caused by: java.lang.AssertionError: Internal error: Cannot find common type for join keys $1 (type INTEGER) and $1 (type VARCHAR(2147483647))
+	at org.apache.calcite.util.Util.newInternal(Util.java:728)
+	at org.apache.calcite.plan.RelOptUtil.splitJoinCondition(RelOptUtil.java:1042)
+	at org.apache.calcite.plan.RelOptUtil.splitJoinCondition(RelOptUtil.java:869)
+	at org.apache.hadoop.hive.ql.optimizer.calcite.HiveCalciteUtil$JoinLeafPredicateInfo.constructJoinLeafPredicateInfo(HiveCalciteUtil.java:484)
+	at org.apache.hadoop.hive.ql.optimizer.calcite.HiveCalciteUtil$JoinLeafPredicateInfo.access$000(HiveCalciteUtil.java:411)
+	at org.apache.hadoop.hive.ql.optimizer.calcite.HiveCalciteUtil$JoinPredicateInfo.constructJoinPredicateInfo(HiveCalciteUtil.java:347)
+	at org.apache.hadoop.hive.ql.optimizer.calcite.HiveCalciteUtil$JoinPredicateInfo.constructJoinPredicateInfo(HiveCalciteUtil.java:322)
+	at org.apache.hadoop.hive.ql.optimizer.calcite.reloperators.HiveJoin.checkInputsCorrectOrder(HiveJoin.java:228)
+	at org.apache.hadoop.hive.ql.optimizer.calcite.reloperators.HiveJoin.chooseJoinAlgorithmAndGetCost(HiveJoin.java:153)
+	at org.apache.hadoop.hive.ql.optimizer.calcite.reloperators.HiveJoin.computeSelfCost(HiveJoin.java:145)
+	at org.apache.calcite.rel.metadata.RelMdPercentageOriginalRows.getNonCumulativeCost(RelMdPercentageOriginalRows.java:165)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.calcite.rel.metadata.ReflectiveRelMetadataProvider$1$1.invoke(ReflectiveRelMetadataProvider.java:182)
+	at com.sun.proxy.$Proxy41.getNonCumulativeCost(Unknown Source)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.calcite.rel.metadata.ChainedRelMetadataProvider$ChainedInvocationHandler.invoke(ChainedRelMetadataProvider.java:109)
+	at com.sun.proxy.$Proxy41.getNonCumulativeCost(Unknown Source)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.calcite.rel.metadata.CachingRelMetadataProvider$CachingInvocationHandler.invoke(CachingRelMetadataProvider.java:131)
+	at com.sun.proxy.$Proxy41.getNonCumulativeCost(Unknown Source)
+	at org.apache.calcite.rel.metadata.RelMetadataQuery.getNonCumulativeCost(RelMetadataQuery.java:115)
+	at org.apache.hadoop.hive.ql.optimizer.calcite.stats.HiveRelMdDistinctRowCount.getCumulativeCost(HiveRelMdDistinctRowCount.java:114)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.calcite.rel.metadata.ReflectiveRelMetadataProvider$1$1.invoke(ReflectiveRelMetadataProvider.java:182)
+	at com.sun.proxy.$Proxy40.getCumulativeCost(Unknown Source)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.calcite.rel.metadata.ChainedRelMetadataProvider$ChainedInvocationHandler.invoke(ChainedRelMetadataProvider.java:109)
+	at com.sun.proxy.$Proxy40.getCumulativeCost(Unknown Source)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.calcite.rel.metadata.ChainedRelMetadataProvider$ChainedInvocationHandler.invoke(ChainedRelMetadataProvider.java:109)
+	at com.sun.proxy.$Proxy40.getCumulativeCost(Unknown Source)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.calcite.rel.metadata.CachingRelMetadataProvider$CachingInvocationHandler.invoke(CachingRelMetadataProvider.java:131)
+	at com.sun.proxy.$Proxy40.getCumulativeCost(Unknown Source)
+	at org.apache.calcite.rel.metadata.RelMetadataQuery.getCumulativeCost(RelMetadataQuery.java:101)
+	at org.apache.calcite.rel.rules.LoptOptimizeJoinRule.addFactorToTree(LoptOptimizeJoinRule.java:944)
+	at org.apache.calcite.rel.rules.LoptOptimizeJoinRule.createOrdering(LoptOptimizeJoinRule.java:726)
+	at org.apache.calcite.rel.rules.LoptOptimizeJoinRule.findBestOrderings(LoptOptimizeJoinRule.java:458)
+	at org.apache.calcite.rel.rules.LoptOptimizeJoinRule.onMatch(LoptOptimizeJoinRule.java:128)
+	at org.apache.calcite.plan.AbstractRelOptPlanner.fireRule(AbstractRelOptPlanner.java:326)
+	at org.apache.calcite.plan.hep.HepPlanner.applyRule(HepPlanner.java:515)
+	at org.apache.calcite.plan.hep.HepPlanner.applyRules(HepPlanner.java:392)
+	at org.apache.calcite.plan.hep.HepPlanner.executeInstruction(HepPlanner.java:255)
+	at org.apache.calcite.plan.hep.HepInstruction$RuleInstance.execute(HepInstruction.java:125)
+	at org.apache.calcite.plan.hep.HepPlanner.executeProgram(HepPlanner.java:207)
+	at org.apache.calcite.plan.hep.HepPlanner.findBestExp(HepPlanner.java:194)
+	at org.apache.hadoop.hive.ql.parse.CalcitePlanner$CalcitePlannerAction.apply(CalcitePlanner.java:824)
+	at org.apache.hadoop.hive.ql.parse.CalcitePlanner$CalcitePlannerAction.apply(CalcitePlanner.java:742)
+	at org.apache.calcite.tools.Frameworks$1.apply(Frameworks.java:109)
+	at org.apache.calcite.prepare.CalcitePrepareImpl.perform(CalcitePrepareImpl.java:730)
+	at org.apache.calcite.tools.Frameworks.withPrepare(Frameworks.java:145)
+	at org.apache.calcite.tools.Frameworks.withPlanner(Frameworks.java:105)
+	at org.apache.hadoop.hive.ql.parse.CalcitePlanner.getOptimizedAST(CalcitePlanner.java:583)
+	... 27 more
+OK
+
+
+
+

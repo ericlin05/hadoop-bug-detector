@@ -1,0 +1,27 @@
+Description
+
+When some timestamp fields are null,  NPE are thrown. 
+
+2015-06-11 16:11:57,348 FATAL [Thread-80]: ExecReducer (ExecReducer.java:reduce(255)) - org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row (tag=0) {"key":{"reducesinkkey0":20,"reducesinkkey1":"1980-12-17 00:00:00"},"value":{"_col0":7369,"_col5":800.0}}
+        at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.reduce(ExecReducer.java:244)
+        at org.apache.hadoop.mapred.ReduceTask.runOldReducer(ReduceTask.java:506)
+        at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:447)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:449)
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils.getLong(PrimitiveObjectInspectorUtils.java:714)
+        at org.apache.hadoop.hive.ql.udf.ptf.WindowingTableFunction$LongValueBoundaryScanner.isGreater(WindowingTableFunction.java:1166)
+        at org.apache.hadoop.hive.ql.udf.ptf.WindowingTableFunction$ValueBoundaryScanner.computeStartPreceding(WindowingTableFunction.java:877)
+        at org.apache.hadoop.hive.ql.udf.ptf.WindowingTableFunction$ValueBoundaryScanner.computeStart(WindowingTableFunction.java:827)
+        at org.apache.hadoop.hive.ql.udf.ptf.WindowingTableFunction.getRange(WindowingTableFunction.java:700)
+        at org.apache.hadoop.hive.ql.udf.ptf.WindowingTableFunction.access$100(WindowingTableFunction.java:67)
+        at org.apache.hadoop.hive.ql.udf.ptf.WindowingTableFunction$WindowingIterator.next(WindowingTableFunction.java:1393)
+        at org.apache.hadoop.hive.ql.exec.PTFOperator$PTFInvocation.finishPartition(PTFOperator.java:365)
+        at org.apache.hadoop.hive.ql.exec.PTFOperator.process(PTFOperator.java:114)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:837)
+        at org.apache.hadoop.hive.ql.exec.SelectOperator.process(SelectOperator.java:88)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.reduce(ExecReducer.java:235)
+        ... 3 more
+
+
+
+

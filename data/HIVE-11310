@@ -1,0 +1,5 @@
+Description
+
+We use the AST tree String representation of a condition in the WHERE clause to identify its column in the RowResolver. This can lead to OOM Exceptions when the condition is very large.
+
+

@@ -1,0 +1,78 @@
+Description
+
+Here are the details for stacktrace :-
+Problem accessing /hwi/view_file.jsp. Reason:
+    Unable to compile class for JSP: 
+An error occurred at line: 61 in the jsp file: /view_file.jsp
+The type java.nio.CharBuffer cannot be resolved. It is indirectly referenced from required .class files
+58: 			  char [] c = new char [bsize] ;
+59: 			  int cread=-1;
+60: 			  
+61: 			  if( ( cread=br.read(c)) != -1 )
+{
+62: 			   out.println( c ); 
+63: 			  }
+64: 			  br.close();	  
+Stacktrace:
+Caused by:
+org.apache.jasper.JasperException: Unable to compile class for JSP: 
+An error occurred at line: 61 in the jsp file: /view_file.jsp
+The type java.nio.CharBuffer cannot be resolved. It is indirectly referenced from required .class files
+58: 			  char [] c = new char [bsize] ;
+59: 			  int cread=-1;
+60: 			  
+61: 			  if( ( cread=br.read(c)) != -1 )
+{
+62: 			   out.println( c ); 
+63: 			  }
+64: 			  br.close();	  
+Stacktrace:
+	at org.apache.jasper.compiler.DefaultErrorHandler.javacError(DefaultErrorHandler.java:85)
+	at org.apache.jasper.compiler.ErrorDispatcher.javacError(ErrorDispatcher.java:330)
+	at org.apache.jasper.compiler.JDTCompiler.generateClass(JDTCompiler.java:435)
+	at org.apache.jasper.compiler.Compiler.compile(Compiler.java:298)
+	at org.apache.jasper.compiler.Compiler.compile(Compiler.java:277)
+	at org.apache.jasper.compiler.Compiler.compile(Compiler.java:265)
+	at org.apache.jasper.JspCompilationContext.compile(JspCompilationContext.java:564)
+	at org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:299)
+	at org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:315)
+	at org.apache.jasper.servlet.JspServlet.service(JspServlet.java:265)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:511)
+	at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:401)
+	at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+	at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:182)
+	at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:767)
+	at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:450)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.handler.RequestLogHandler.handle(RequestLogHandler.java:49)
+	at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+	at org.mortbay.jetty.Server.handle(Server.java:326)
+	at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:542)
+	at org.mortbay.jetty.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:928)
+	at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:549)
+	at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:212)
+	at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:404)
+	at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:228)
+	at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:582
+I have used below configuration :-
+&amp;lt;property&amp;gt;
+    &amp;lt;name&amp;gt;hive.hwi.listen.host&amp;lt;/name&amp;gt;
+    &amp;lt;value&amp;gt;localhost&amp;lt;/value&amp;gt;
+    &amp;lt;description&amp;gt;This is the host address the Hive Web Interface will listen on&amp;lt;/description&amp;gt;
+  &amp;lt;/property&amp;gt;
+  &amp;lt;property&amp;gt;
+    &amp;lt;name&amp;gt;hive.hwi.listen.port&amp;lt;/name&amp;gt;
+    &amp;lt;value&amp;gt;9999&amp;lt;/value&amp;gt;
+    &amp;lt;description&amp;gt;This is the port the Hive Web Interface will listen on&amp;lt;/description&amp;gt;
+  &amp;lt;/property&amp;gt;
+  &amp;lt;property&amp;gt;
+    &amp;lt;name&amp;gt;hive.hwi.war.file&amp;lt;/name&amp;gt;
+    &amp;lt;value&amp;gt;/lib/hive-hwi-0.11.0.war&amp;lt;/value&amp;gt;
+    &amp;lt;description&amp;gt;This sets the path to the HWI war file, relative to $
+{HIVE_HOME}
+. &amp;lt;/description&amp;gt;
+  &amp;lt;/property&amp;gt;
+Note :- I have used hwi-0.11.0.war , as 'war' file for HWI is not available in tar file(1.2.1 version) , also i can't complie code in local to generate it.
+
+

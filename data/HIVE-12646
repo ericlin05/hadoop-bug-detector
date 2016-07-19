@@ -1,0 +1,25 @@
+Description
+
+Beeline and Cli have to escape ; in the quote while most other shell scripts need not. For example:
+in Beeline:
+
+0: jdbc:hive2://localhost:10000&amp;gt; select ';' from tlb1;
+select ';' from tlb1;
+15/12/10 10:45:26 DEBUG TSaslTransport: writing data length: 115
+15/12/10 10:45:26 DEBUG TSaslTransport: CLIENT: reading data length: 3403
+Error: Error while compiling statement: FAILED: ParseException line 1:8 cannot recognize input near '&amp;lt;EOF&amp;gt;' '&amp;lt;EOF&amp;gt;
+
+
+while in mysql shell:
+
+mysql&amp;gt; SELECT CONCAT(';', 'foo') FROM test limit 3;
++--------------------+
+| ;foo               |
+| ;foo               |
+| ;foo               |
++--------------------+
+3 rows in set (0.00 sec)
+
+
+
+

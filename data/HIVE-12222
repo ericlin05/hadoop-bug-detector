@@ -1,0 +1,56 @@
+Description
+
+Creating this JIRA after discussin with Xuefu on the dev mailing list. Would need some help to review and update the fields in this JIRA ticket, thanks.
+I notice that in 
+./spark-client/src/main/java/org/apache/hive/spark/client/rpc/RpcServer.java
+The port number is assigned with 0 which means it will be a random port every time when the RPC Server is created to talk to Spark in the same session.
+Because of this, this is causing problems to configure firewall between the 
+HiveCLI RPC Server and Spark due to unpredictable port numbers here. In other word, users need to open all hive ports range 
+from Data Node =&amp;gt; HiveCLI (edge node).
+
+
+ this.channel = new ServerBootstrap()
+      .group(group)
+      .channel(NioServerSocketChannel.class)
+      .childHandler(new ChannelInitializer&amp;lt;SocketChannel&amp;gt;() {
+          @Override
+          public void initChannel(SocketChannel ch) throws Exception {
+            SaslServerHandler saslHandler = new SaslServerHandler(config);
+            final Rpc newRpc = Rpc.createServer(saslHandler, config, ch, group);
+            saslHandler.rpc = newRpc;
+
+            Runnable cancelTask = new Runnable() {
+                @Override
+                public void run() {
+                  LOG.warn("Timed out waiting for hello from client.");
+                  newRpc.close();
+                }
+            };
+            saslHandler.cancelTask = group.schedule(cancelTask,
+                RpcServer.this.config.getServerConnectTimeoutMs(),
+                TimeUnit.MILLISECONDS);
+
+          }
+      })
+
+
+2 Main reasons.
+
+Most users (what I see and encounter) use HiveCLI as a command line tool, and in order to use that, they need to login to the edge node (via SSH). Now, here comes the interesting part.
+Could be true or not, but this is what I observe and encounter from time to time. Most users will abuse the resource on that edge node (increasing HADOOP_HEAPSIZE, dumping output to local disk, running huge python workflow, etc), this may cause the HS2 process to run into OOME, choke and die, etc. various resource issues including others like login, etc.
+
+
+Analyst connects to Hive via HS2 + ODBC. So HS2 needs to be highly available. This makes sense to run it on the gateway node or a service node and separated from the HiveCLI.
+The logs are located in different location, monitoring and auditing is easier to run HS2 with a daemon user account, etc. so we don't want users to run HiveCLI where HS2 is running.
+It's better to isolate the resource this way to avoid any memory, file handlers, disk space, issues.
+
+From a security standpoint, 
+
+Since users can login to edge node (via SSH), the security on the edge node needs to be fortified and enhanced. Therefore, all the FW comes in and auditing.
+
+
+Regulation/compliance for auditing is another requirement to monitor all traffic, specifying ports and locking down the ports makes it easier since we can focus
+on a range to monitor and audit.
+
+
+

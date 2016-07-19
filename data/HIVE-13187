@@ -1,0 +1,9 @@
+Description
+
+Affects at least branch-2.
+See trace in https://issues.apache.org/jira/browse/HIVE-13176
+This looks to be in src/java/org/apache/hadoop/hive/ql/exec/TaskRunner.java.
+That catches Throwable in the thread and sends it further up. There's no checks to see if this is an Error or general Exception - Errors end up getting suppressed, instead of killing HiveServer2. This is on the processing threads.
+It looks like the Handler threads have some kind of OOM checker on them.
+
+

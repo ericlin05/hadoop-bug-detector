@@ -1,0 +1,35 @@
+Description
+
+Queries with deep filters (left deep) throws StackOverflowException in vectorization
+
+
+Exception in thread "main" java.lang.StackOverflowError
+	at java.lang.Class.getAnnotation(Class.java:3415)
+	at org.apache.hive.common.util.AnnotationUtils.getAnnotation(AnnotationUtils.java:29)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorExpressionDescriptor.getVectorExpressionClass(VectorExpressionDescriptor.java:332)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getVectorExpressionForUdf(VectorizationContext.java:988)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getGenericUdfVectorExpression(VectorizationContext.java:1164)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getVectorExpression(VectorizationContext.java:439)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.createVectorExpression(VectorizationContext.java:1014)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getVectorExpressionForUdf(VectorizationContext.java:996)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorizationContext.getGenericUdfVectorExpression(VectorizationContext.java:1164)
+
+
+Sample query:
+
+
+explain select count(*) from over1k where (
+(t=1 and si=2)
+or (t=2 and si=3)
+or (t=3 and si=4) 
+or (t=4 and si=5) 
+or (t=5 and si=6) 
+or (t=6 and si=7) 
+or (t=7 and si=8)
+...
+..
+
+
+repeat the filter for few thousand times for reproduction of the issue.
+
+

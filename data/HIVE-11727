@@ -1,0 +1,18 @@
+Description
+
+When we read back row containers from disk, a misconfiguration causes us to look for a non-existing file.
+
+Caused by: java.io.FileNotFoundException: File file:/grid/0/hadoop/yarn/local/usercache/appcache/application_1440685000561_0028/container_e26_1440685000561_0028_01_000005/container_tokens does not exist
+	at org.apache.hadoop.fs.RawLocalFileSystem.deprecatedGetFileStatus(RawLocalFileSystem.java:608)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatusInternal(RawLocalFileSystem.java:821)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:598)
+	at org.apache.hadoop.fs.FilterFileSystem.getFileStatus(FilterFileSystem.java:414)
+	at org.apache.hadoop.fs.ChecksumFileSystem$ChecksumFSInputChecker.&amp;lt;init&amp;gt;(ChecksumFileSystem.java:140)
+	at org.apache.hadoop.fs.ChecksumFileSystem.open(ChecksumFileSystem.java:341)
+	at org.apache.hadoop.fs.FileSystem.open(FileSystem.java:766)
+	at org.apache.hadoop.security.Credentials.readTokenStorageFile(Credentials.java:169)
+	... 31 more
+
+
+
+

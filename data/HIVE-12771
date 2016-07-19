@@ -1,0 +1,12 @@
+Description
+
+when I use HiveTemplate to select hive table,then my program log throws exception, the details are as follow:
+java.sql.SQLException: java.lang.NullPointerException
+        at org.apache.hive.jdbc.HiveStatement.execute(HiveStatement.java:311)
+        at org.apache.hive.jdbc.HiveStatement.executeQuery(HiveStatement.java:392)
+        at org.datanucleus.store.rdbms.datasource.dbcp.DelegatingStatement.executeQuery(DelegatingStatement.java:208)
+        at org.datanucleus.store.rdbms.datasource.dbcp.DelegatingStatement.executeQuery(DelegatingStatement.java:208)
+        at com.xxx.analysis.hadoop.xxx.hive.utils.HiveTemplate.executeQuery(HiveTemplate.java:56)
+any help will be appreciated！ 
+
+

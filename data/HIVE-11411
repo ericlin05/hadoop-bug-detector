@@ -1,0 +1,19 @@
+Description
+
+in method progress(ExecDriverTaskHandle th) of class HadoopJobExecHelper, hive lock heartbeating progress works with job tracking progress. 
+such like 
+      heartbeater.heartbeat();
+      if (initializing &amp;amp;&amp;amp; rj.getJobState() == JobStatus.PREP) 
+{
+        // No reason to poll untill the job is initialized
+        continue;
+      }
+ else 
+{
+        // By now the job is initialized so no reason to do
+        // rj.getJobState() again and we do not want to do an extra RPC call
+        initializing = false;
+      }
+When job tracking progress got any exception in  rj.getJobState() == JobStatus.PREP, will bring  NoSuchLockException(hive client &amp;amp; exception message:No record of lock could be found, may have timed out) to big query job finally. 
+
+

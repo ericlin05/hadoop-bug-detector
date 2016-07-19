@@ -1,0 +1,29 @@
+Description
+
+I am getting the following errors while trying to run org.apache.hive.hcatalog.pig.TestHCatLoaderEncryption.* tests in windows.
+
+
+Encryption key created: 'key_128'
+(1,Encryption Processor Helper Failed:Pathname /D:/w/hv/hcatalog/hcatalog-pig-adapter/target/tmp/org.apache.hive.hcatalog.pig.TestHCatLoader-1432579852919/warehouse/encryptedTable from D:/w/hv/hcatalog/hcatalog-pig-adapter/target/tmp/org.apache.hive.hcatalog.pig.TestHCatLoader-1432579852919/warehouse/encryptedTable is not a valid DFS filename.,null)
+Encryption key deleted: 'key_128'
+
+
+
+
+Error Message
+
+Could not fully delete D:\w\hv\hcatalog\hcatalog-pig-adapter\target\tmp\dfs\name1
+Stacktrace
+
+java.io.IOException: Could not fully delete D:\w\hv\hcatalog\hcatalog-pig-adapter\target\tmp\dfs\name1
+	at org.apache.hadoop.hdfs.MiniDFSCluster.createNameNodesAndSetConf(MiniDFSCluster.java:940)
+	at org.apache.hadoop.hdfs.MiniDFSCluster.initMiniDFSCluster(MiniDFSCluster.java:811)
+	at org.apache.hadoop.hdfs.MiniDFSCluster.&amp;lt;init&amp;gt;(MiniDFSCluster.java:742)
+	at org.apache.hadoop.hdfs.MiniDFSCluster.&amp;lt;init&amp;gt;(MiniDFSCluster.java:612)
+	at org.apache.hadoop.hive.shims.Hadoop23Shims.getMiniDfs(Hadoop23Shims.java:523)
+	at org.apache.hive.hcatalog.pig.TestHCatLoaderEncryption.initEncryptionShim(TestHCatLoaderEncryption.java:242)
+	at org.apache.hive.hcatalog.pig.TestHCatLoaderEncryption.setup(TestHCatLoaderEncryption.java:190)
+
+
+
+

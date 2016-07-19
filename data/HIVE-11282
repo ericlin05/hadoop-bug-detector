@@ -1,0 +1,5 @@
+Description
+
+When RT is on, we try to infer the Hive type from the Calcite type for the value '’ e.g. in udf3.q, and we end up with char (length=0) as a result. The min length of char/varchar in Hive is 1, thus an Exception is thrown.
+
+

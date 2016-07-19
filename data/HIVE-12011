@@ -1,0 +1,28 @@
+Description
+
+CTAS temporary table query fails if regular table with the same name already exists. 
+Steps to reproduce the issue:
+
+hive&amp;gt; use dbtemptable;
+OK
+Time taken: 0.273 seconds
+hive&amp;gt; create table a(i int);
+OK
+Time taken: 0.297 seconds
+hive&amp;gt; create temporary table a(i int);
+OK
+Time taken: 0.165 seconds
+hive&amp;gt; create table b(i int);
+OK
+Time taken: 0.212 seconds
+hive&amp;gt; create temporary table b as select * from a;
+FAILED: SemanticException org.apache.hadoop.hive.ql.parse.SemanticException: Table already exists: dbtemptable.b
+hive&amp;gt; create table c(i int);
+OK
+Time taken: 0.264 seconds
+hive&amp;gt; create temporary table b as select * from c;
+FAILED: SemanticException org.apache.hadoop.hive.ql.parse.SemanticException: Table already exists: dbtemptable.b
+
+
+
+

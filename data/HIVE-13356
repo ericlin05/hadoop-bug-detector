@@ -1,0 +1,68 @@
+Description
+
+Hive query involves cast date to int data type throughs cast exception.
+
+
+[mapr@cs2none500 bin]$ rpm -qa |grep mapr
+mapr-hadoop-core-2.7.0.32987.GA-1.x86_64
+mapr-fileserver-5.0.0.32987.GA-1.x86_64
+mapr-zookeeper-5.0.0.32987.GA-1.x86_64
+mapr-historyserver-2.7.0.32987.GA-1.x86_64
+mapr-hiveserver2-1.2.201601281422-1.noarch
+mapr-hive-1.2.201601281422-1.noarch
+mapr-hivemetastore-1.2.201601281422-1.noarch
+mapr-core-internal-5.0.0.32987.GA-1.x86_64
+mapr-mapreduce2-2.7.0.32987.GA-1.x86_64
+mapr-core-5.0.0.32987.GA-1.x86_64
+mapr-tasktracker-5.0.0.32987.GA-1.x86_64
+mapr-jobtracker-5.0.0.32987.GA-1.x86_64
+mapr-webserver-5.0.0.32987.GA-1.x86_64
+mapr-nodemanager-2.7.0.32987.GA-1.x86_64
+mapr-zk-internal-5.0.0.32987.GA.v3.4.5-1.x86_64
+mapr-mapreduce1-0.20.2.32987.GA-1.x86_64
+mapr-cldb-5.0.0.32987.GA-1.x86_64
+mapr-resourcemanager-2.7.0.32987.GA-1.x86_64
+mapr-drill-1.4.0.201601071151-1.noarch
+
+
+Hive schema (parquet file in attachments):
+
+
+create external table if not exists hive_storage.fewtypes_parquet (
+  int_col int,
+  bigint_col bigint,
+  date_col int,
+  time_col int,
+  timestamp_col bigint,
+  interval_col string,
+  varchar_col string,
+  float_col float,
+  double_col double,
+  bool_col boolean
+)
+STORED AS PARQUET
+LOCATION '/tmp/testdata/hive_storage/fewtypes_parquet';
+
+
+
+
+hive&amp;gt; use hive_storage;
+OK
+Time taken: 0.035 seconds
+hive&amp;gt; show tables;
+OK
+fewtypes_parquet
+Time taken: 0.034 seconds, Fetched: 1 row(s)
+hive&amp;gt; select * from fewtypes_parquet;
+OK
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Failed with exception java.io.IOException:org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.ClassCastException: org.apache.hadoop.hive.serde2.io.DateWritable cannot be cast to org.apache.hadoop.io.IntWritable
+Time taken: 0.41 seconds
+
+
+If date_col in CTAS is date the query will be executed. 
+Hive1.0 hasn't this issue.
+
+

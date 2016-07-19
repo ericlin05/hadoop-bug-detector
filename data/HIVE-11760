@@ -1,0 +1,98 @@
+Description
+
+When using Hive with Azure storage, credentials can be passed as a property to hiveserver2
+
+
+set fs.azure.account.key.xxx.blob.core.windows.net=xxxxx
+create external table inputs(name string) STORED AS TEXTFILE LOCATION  'wasb://xx@xxx.blob.core.windows.net/’
+
+
+By setting the key as a property, there is no need to put keys in the global hive config. 
+This works as expected, except when the hive server is restarted. Then, all select queries return an error (see below).
+It would be nice if the properties were propagated to the metastore, so that it works as expected. 
+
+
+
+"*org.apache.hive.service.cli.HiveSQLException:Error while compiling statement: FAILED: SemanticException Unable to fetch table inputs. org.apache.hadoop.fs.azure.AzureException: org.apache.hadoop.fs.azure.AzureException: Container __container__ in account __account__.blob.core.windows.net not found, and we can't create  it using anoynomous credentials.:17:16",
+'org.apache.hive.service.cli.operation.Operation:toSQLException:Operation.java:315',
+'org.apache.hive.service.cli.operation.SQLOperation:prepare:SQLOperation.java:112',
+'org.apache.hive.service.cli.operation.SQLOperation:runInternal:SQLOperation.java:181',
+'org.apache.hive.service.cli.operation.Operation:run:Operation.java:257',
+'org.apache.hive.service.cli.session.HiveSessionImpl:executeStatementInternal:HiveSessionImpl.java:388',
+'org.apache.hive.service.cli.session.HiveSessionImpl:executeStatementAsync:HiveSessionImpl.java:375',
+'org.apache.hive.service.cli.CLIService:executeStatementAsync:CLIService.java:274',
+'org.apache.hive.service.cli.thrift.ThriftCLIService:ExecuteStatement:ThriftCLIService.java:486',
+'org.apache.hive.service.cli.thrift.TCLIService$Processor$ExecuteStatement:getResult:TCLIService.java:1313',
+'org.apache.hive.service.cli.thrift.TCLIService$Processor$ExecuteStatement:getResult:TCLIService.java:1298',
+'org.apache.thrift.ProcessFunction:process:ProcessFunction.java:39',
+'org.apache.thrift.TBaseProcessor:process:TBaseProcessor.java:39',
+'org.apache.hive.service.auth.TSetIpAddressProcessor:process:TSetIpAddressProcessor.java:56',
+'org.apache.thrift.server.TThreadPoolServer$WorkerProcess:run:TThreadPoolServer.java:285',
+'java.util.concurrent.ThreadPoolExecutor:runWorker:ThreadPoolExecutor.java:1145',
+'java.util.concurrent.ThreadPoolExecutor$Worker:run:ThreadPoolExecutor.java:615',
+'java.lang.Thread:run:Thread.java:745',
+"*org.apache.hadoop.hive.ql.parse.SemanticException:Unable to fetch table inputs. org.apache.hadoop.fs.azure.AzureException: org.apache.hadoop.fs.azure.AzureException: Container __container__ in account __account__.blob.core.windows.net not found, and we can't create  it using anoynomous credentials.:26:10",
+'org.apache.hadoop.hive.ql.parse.SemanticAnalyzer:getMetaData:SemanticAnalyzer.java:1868',
+'org.apache.hadoop.hive.ql.parse.SemanticAnalyzer:getMetaData:SemanticAnalyzer.java:1545',
+'org.apache.hadoop.hive.ql.parse.SemanticAnalyzer:genResolvedParseTree:SemanticAnalyzer.java:10077',
+'org.apache.hadoop.hive.ql.parse.SemanticAnalyzer:analyzeInternal:SemanticAnalyzer.java:10128',
+'org.apache.hadoop.hive.ql.parse.CalcitePlanner:analyzeInternal:CalcitePlanner.java:209',
+'org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer:analyze:BaseSemanticAnalyzer.java:227',
+'org.apache.hadoop.hive.ql.Driver:compile:Driver.java:424',
+'org.apache.hadoop.hive.ql.Driver:compile:Driver.java:308',
+'org.apache.hadoop.hive.ql.Driver:compileInternal:Driver.java:1122',
+'org.apache.hadoop.hive.ql.Driver:compileAndRespond:Driver.java:1116',
+'org.apache.hive.service.cli.operation.SQLOperation:prepare:SQLOperation.java:110',
+"*org.apache.hadoop.hive.ql.metadata.HiveException:Unable to fetch table inputs. org.apache.hadoop.fs.azure.AzureException: org.apache.hadoop.fs.azure.AzureException: Container __container__ in account __account__.blob.core.windows.net not found, and we can't create  it using anoynomous credentials.:28:2",
+'org.apache.hadoop.hive.ql.metadata.Hive:getTable:Hive.java:1123',
+'org.apache.hadoop.hive.ql.metadata.Hive:getTable:Hive.java:1070',
+'org.apache.hadoop.hive.ql.parse.SemanticAnalyzer:getMetaData:SemanticAnalyzer.java:1574',
+  
+"*org.apache.hadoop.hive.metastore.api.MetaException:org.apache.hadoop.fs.azure.AzureException: org.apache.hadoop.fs.azure.AzureException: Container __container__ in account __account__.blob.core.windows.net not found, and we can't create  it using anoynomous credentials.:47:19",
+'org.apache.hadoop.hive.ql.security.authorization.AuthorizationPreEventListener:metaException:AuthorizationPreEventListener.java:411',
+'org.apache.hadoop.hive.ql.security.authorization.AuthorizationPreEventListener:authorizeReadTable:AuthorizationPreEventListener.java:193',
+'org.apache.hadoop.hive.ql.security.authorization.AuthorizationPreEventListener:onEvent:AuthorizationPreEventListener.java:149',
+'org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler:firePreEvent:HiveMetaStore.java:1992',
+'org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler:get_table:HiveMetaStore.java:1779',
+'sun.reflect.NativeMethodAccessorImpl:invoke0:NativeMethodAccessorImpl.java:-2',
+'sun.reflect.NativeMethodAccessorImpl:invoke:NativeMethodAccessorImpl.java:57',
+'sun.reflect.DelegatingMethodAccessorImpl:invoke:DelegatingMethodAccessorImpl.java:43',
+'java.lang.reflect.Method:invoke:Method.java:606',
+'org.apache.hadoop.hive.metastore.RetryingHMSHandler:invoke:RetryingHMSHandler.java:107',
+'com.sun.proxy.$Proxy7:get_table::-1',
+'org.apache.hadoop.hive.metastore.HiveMetaStoreClient:getTable:HiveMetaStoreClient.java:1208',
+'org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient:getTable:SessionHiveMetaStoreClient.java:131',
+'sun.reflect.NativeMethodAccessorImpl:invoke0:NativeMethodAccessorImpl.java:-2',
+'sun.reflect.NativeMethodAccessorImpl:invoke:NativeMethodAccessorImpl.java:57',
+'sun.reflect.DelegatingMethodAccessorImpl:invoke:DelegatingMethodAccessorImpl.java:43',
+'java.lang.reflect.Method:invoke:Method.java:606',
+'org.apache.hadoop.hive.metastore.RetryingMetaStoreClient:invoke:RetryingMetaStoreClient.java:156',
+'com.sun.proxy.$Proxy8:getTable::-1',
+'org.apache.hadoop.hive.ql.metadata.Hive:getTable:Hive.java:1115',
+  
+"*org.apache.hadoop.hive.ql.metadata.HiveException:org.apache.hadoop.fs.azure.AzureException: org.apache.hadoop.fs.azure.AzureException: Container __container__ in account __account__.blob.core.windows.net not found, and we can't create  it using anoynomous credentials.:49:3",
+'org.apache.hadoop.hive.ql.security.authorization.StorageBasedAuthorizationProvider:hiveException:StorageBasedAuthorizationProvider.java:427',
+'org.apache.hadoop.hive.ql.security.authorization.StorageBasedAuthorizationProvider:authorize:StorageBasedAuthorizationProvider.java:346',
+'org.apache.hadoop.hive.ql.security.authorization.StorageBasedAuthorizationProvider:authorize:StorageBasedAuthorizationProvider.java:188',
+'org.apache.hadoop.hive.ql.security.authorization.AuthorizationPreEventListener:authorizeReadTable:AuthorizationPreEventListener.java:188',
+
+ "*org.apache.hadoop.fs.azure.AzureException:org.apache.hadoop.fs.azure.AzureException: Container __container__ in account __account__.blob.core.windows.net not found, and we can't create  it using anoynomous credentials.:58:10",
+'org.apache.hadoop.fs.azure.AzureNativeFileSystemStore:createAzureStorageSession:AzureNativeFileSystemStore.java:943',
+'org.apache.hadoop.fs.azure.AzureNativeFileSystemStore:initialize:AzureNativeFileSystemStore.java:440',
+'org.apache.hadoop.fs.azure.NativeAzureFileSystem:initialize:NativeAzureFileSystem.java:1048',
+'org.apache.hadoop.fs.FileSystem:createFileSystem:FileSystem.java:2653',
+'org.apache.hadoop.fs.FileSystem:access$200:FileSystem.java:92',
+'org.apache.hadoop.fs.FileSystem$Cache:getInternal:FileSystem.java:2687',
+'org.apache.hadoop.fs.FileSystem$Cache:get:FileSystem.java:2669',
+'org.apache.hadoop.fs.FileSystem:get:FileSystem.java:371',
+'org.apache.hadoop.fs.Path:getFileSystem:Path.java:295',
+'org.apache.hadoop.hive.ql.security.authorization.StorageBasedAuthorizationProvider:checkPermissions:StorageBasedAuthorizationProvider.java:362',
+'org.apache.hadoop.hive.ql.security.authorization.StorageBasedAuthorizationProvider:authorize:StorageBasedAuthorizationProvider.java:339',
+  
+"*org.apache.hadoop.fs.azure.AzureException:Container __container__ in account __account__.blob.core.windows.net not found, and we can't create  it using anoynomous credentials.:59:1",
+'org.apache.hadoop.fs.azure.AzureNativeFileSystemStore:connectUsingAnonymousCredentials:AzureNativeFileSystemStore.java:735',
+'org.apache.hadoop.fs.azure.AzureNativeFileSystemStore:createAzureStorageSession:AzureNativeFileSystemStore.java:938'
+
+
+
+

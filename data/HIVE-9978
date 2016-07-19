@@ -1,0 +1,19 @@
+Description
+
+LlapInputFormat does not understand the difference between empty columns list and null columns list.
+The empty columns list indicates no columns read except the root struct isPresent column, while the null columns list indicates that all columns are being read.
+
+
+select count(1) from store_sales join date_dim on ss_sold_date_sk = d_date_sk where d_date = '1998-01-01';
+...
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.llap.io.decode.OrcColumnVectorProducer.createReadPipeline(OrcColumnVectorProducer.java:72)
+        at org.apache.hadoop.hive.llap.io.api.impl.LlapInputFormat$LlapRecordReader.startRead(LlapInputFormat.java:181)
+        at org.apache.hadoop.hive.llap.io.api.impl.LlapInputFormat$LlapRecordReader.next(LlapInputFormat.java:140)
+        at org.apache.hadoop.hive.llap.io.api.impl.LlapInputFormat$LlapRecordReader.next(LlapInputFormat.java:99)
+        at org.apache.hadoop.hive.ql.io.HiveContextAwareRecordReader.doNext(HiveContextAwareRecordReader.java:350)
+        ... 22 more
+
+
+
+

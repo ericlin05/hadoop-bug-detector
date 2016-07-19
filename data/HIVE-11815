@@ -1,0 +1,28 @@
+Description
+
+Right now Hive does not quote column/table names in subquery expression when create a view. For example
+
+
+hive&amp;gt;
+    &amp;gt; create table tc (`@d` int);
+OK
+Time taken: 0.119 seconds
+hive&amp;gt; create view tcv as select * from tc b where exists (select a.`@d` from tc a where b.`@d`=a.`@d`);
+OK
+Time taken: 0.075 seconds
+hive&amp;gt; describe extended tcv;
+OK
+@d                  	int
+
+Detailed Table Information	Table(tableName:tcv, dbName:default, owner:pxiong, createTime:1442250005, lastAccessTime:0, retention:0, sd:StorageDescriptor(cols:[FieldSchema(name:@d, type:int, comment:null)], location:null, inputFormat:org.apache.hadoop.mapred.SequenceFileInputFormat, outputFormat:org.apache.hadoop.hive.ql.io.HiveSequenceFileOutputFormat, compressed:false, numBuckets:-1, serdeInfo:SerDeInfo(name:null, serializationLib:null, parameters:{}), bucketCols:[], sortCols:[], parameters:{}, skewedInfo:SkewedInfo(skewedColNames:[], skewedColValues:[], skewedColValueLocationMaps:{}), storedAsSubDirectories:false), partitionKeys:[], parameters:{transient_lastDdlTime=1442250005}, viewOriginalText:select * from tc b where exists (select a.@d from tc a where b.@d=a.@d), viewExpandedText:select `b`.`@d` from `default`.`tc` `b` where exists (select a.@d from tc a where b.@d=a.@d), tableType:VIRTUAL_VIEW)
+Time taken: 0.063 seconds, Fetched: 3 row(s)
+hive&amp;gt; select * from tcv;
+FAILED: SemanticException line 1:63 character '@' not supported here
+line 1:84 character '@' not supported here
+line 1:89 character '@' not supported here in definition of VIEW tcv [
+select `b`.`@d` from `default`.`tc` `b` where exists (select a.@d from tc a where b.@d=a.@d)
+] used as tcv at Line 1:14
+
+
+
+

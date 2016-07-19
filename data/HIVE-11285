@@ -1,0 +1,81 @@
+Description
+
+STEPS TO REPRODUCE:
+
+*$ cat data.out 
+1|One 
+2|Two
+
+
+
+
+hql&amp;gt; 
+CREATE TABLE data_table (key INT, value STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|'; 
+LOAD DATA LOCAL INPATH '${system:user.dir}/data.out' INTO TABLE data_table;
+CREATE TABLE smb_table (key INT, value STRING) 
+CLUSTERED BY (key) 
+SORTED BY (key) INTO 1 BUCKETS 
+STORED AS ORC;
+CREATE TABLE smb_table_part (key INT, value STRING) 
+PARTITIONED BY (p1 DECIMAL) 
+CLUSTERED BY (key) 
+SORTED BY (key) INTO 1 BUCKETS 
+STORED AS ORC;
+INSERT OVERWRITE TABLE smb_table SELECT * FROM data_table; 
+INSERT OVERWRITE TABLE smb_table_part PARTITION (p1) SELECT key, value, 100 as p1 FROM data_table;
+SET hive.execution.engine=mr; 
+SET hive.enforce.sortmergebucketmapjoin=false; 
+SET hive.auto.convert.sortmerge.join=true; 
+SET hive.optimize.bucketmapjoin = true; 
+SET hive.optimize.bucketmapjoin.sortedmerge = true; 
+SET hive.input.format = org.apache.hadoop.hive.ql.io.BucketizedHiveInputFormat;
+SELECT s1.key, s2.p1 
+FROM smb_table s1 
+INNER JOIN smb_table_part s2 
+ON s1.key = s2.key 
+ORDER BY s1.key;
+
+
+ERROR:
+
+2015-07-15 13:39:04,333 WARN main org.apache.hadoop.mapred.YarnChild: Exception running child : java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row
+{"key":1,"value":"One"}
+
+at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:185) 
+at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54) 
+at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450) 
+at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343) 
+at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163) 
+at java.security.AccessController.doPrivileged(Native Method) 
+at javax.security.auth.Subject.doAs(Subject.java:415) 
+at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628) 
+at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158) 
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row
+{"key":1,"value":"One"}
+
+at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:503) 
+at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:176) 
+... 8 more 
+Caused by: java.lang.RuntimeException: Map local work failed 
+at org.apache.hadoop.hive.ql.exec.SMBMapJoinOperator.fetchOneRow(SMBMapJoinOperator.java:569) 
+at org.apache.hadoop.hive.ql.exec.SMBMapJoinOperator.fetchNextGroup(SMBMapJoinOperator.java:429) 
+at org.apache.hadoop.hive.ql.exec.SMBMapJoinOperator.processOp(SMBMapJoinOperator.java:260) 
+at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815) 
+at org.apache.hadoop.hive.ql.exec.FilterOperator.processOp(FilterOperator.java:120) 
+at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815) 
+at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:95) 
+at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:157) 
+at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:493) 
+... 9 more 
+Caused by: java.lang.ClassCastException: org.apache.hadoop.io.IntWritable cannot be cast to java.lang.Integer 
+at org.apache.hadoop.hive.serde2.objectinspector.primitive.JavaIntObjectInspector.getPrimitiveWritableObject(JavaIntObjectInspector.java:35) 
+at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils.copyToStandardObject(ObjectInspectorUtils.java:305) 
+at org.apache.hadoop.hive.ql.exec.JoinUtil.computeValues(JoinUtil.java:193) 
+at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.getFilteredValue(CommonJoinOperator.java:408) 
+at org.apache.hadoop.hive.ql.exec.SMBMapJoinOperator.processOp(SMBMapJoinOperator.java:270) 
+at org.apache.hadoop.hive.ql.exec.SMBMapJoinOperator.fetchOneRow(SMBMapJoinOperator.java:558) 
+... 17 more
+
+
+
+
