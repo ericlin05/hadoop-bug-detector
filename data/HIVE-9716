@@ -1,0 +1,30 @@
+Description
+
+When a table's location (the value of column 'LOCATION' in SDS table in metastore) does not have a scheme, map job returns error. For example, 
+when do select count ( * ) from t1, get following exception:
+
+15/02/18 12:29:43 [Thread-22]: WARN mapred.LocalJobRunner: job_local2120192529_0001
+java.lang.Exception: java.lang.RuntimeException: java.lang.IllegalStateException: Invalid input path file:/user/hive/warehouse/t1/data
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:354)
+Caused by: java.lang.RuntimeException: java.lang.IllegalStateException: Invalid input path file:/user/hive/warehouse/t1/data
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:179)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:50)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:430)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:366)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job$MapTaskRunnable.run(LocalJobRunner.java:223)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.IllegalStateException: Invalid input path file:/user/hive/warehouse/t1/data
+	at org.apache.hadoop.hive.ql.exec.MapOperator.getNominalPath(MapOperator.java:406)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.cleanUpInputFileChangedOp(MapOperator.java:442)
+	at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1051)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:486)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:170)
+	... 9 more
+
+
+
+

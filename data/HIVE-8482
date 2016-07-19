@@ -1,0 +1,46 @@
+Description
+
+014-10-16 16:37:22,899 Stage-31 map = 0%,  reduce = 0%
+2014-10-16 16:38:19,081 Stage-31 map = 100%,  reduce = 100%
+Ended Job = job_201409101641_249763 with errors
+Error during job, obtaining debugging information...
+Job Tracking URL: http://CNSH041566.app.paic.com.cn:50030/jobdetails.jsp?user.name=hadoop&amp;amp;jobid=job_201409101641_249763
+Examining task ID: task_201409101641_249763_m_000002 (and more) from job job_201409101641_249763
+Task with the most failures(4): 
+
+Task ID:
+  task_201409101641_249763_m_000000
+URL:
+http://CNSH041566.app.paic.com.cn:50030/taskdetails.jsp?jobid=job_201409101641_249763&amp;amp;tipid=task_201409101641_249763_m_000000
+
+Diagnostic Messages for this Task:
+java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: java.io.FileNotFoundException: /data/data01/data/tmp/hadoop-hadoop/mapred/local/taskTracker/hduser0401/distcache/5448139015889594124_-2045333338_404393650/CNSH041566.app.paic.com.cn/tmp/hduser0401/hive_2014-10-16_16-33-51_335_4584605482989653833-1/-mr-10024/HashTable-Stage-31/Stage-31.tar.gz/MapJoin-mapfile21-.hashtable (No such file or directory)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:195)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:50)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:430)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:366)
+        at org.apache.hadoop.mapred.Child$4.run(Child.java:255)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:396)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1190)
+        at org.apache.hadoop.mapred.Child.main(Child.java:249)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.io.FileNotFoundException: /data/data01/data/tmp/hadoop-hadoop/mapred/local/taskTracker/hduser0401/distcache/5448139015889594124_-2045333338_404393650/CNSH041566.app.paic.com.cn/tmp/hduser0401/hive_2014-10-16_16-33-51_335_4584605482989653833-1/-mr-10024/HashTable-Stage-31/Stage-31.tar.gz/MapJoin-mapfile21-.hashtable (No such file or directory)
+        at org.apache.hadoop.hive.ql.exec.mr.HashTableLoader.load(HashTableLoader.java:104)
+        at org.apache.hadoop.hive.ql.exec.MapJoinOperator.loadHashTable(MapJoinOperator.java:152)
+        at org.apache.hadoop.hive.ql.exec.MapJoinOperator.cleanUpInputFileChangedOp(MapJoinOperator.java:178)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1029)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1033)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1033)
+        at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:505)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:177)
+        ... 8 more
+Caused by: java.io.FileNotFoundException: /data/data01/data/tmp/hadoop-hadoop/mapred/local/taskTracker/hduser0401/distcache/5448139015889594124_-2045333338_404393650/CNSH041566.app.paic.com.cn/tmp/hduser0401/hive_2014-10-16_16-33-51_335_4584605482989653833-1/-mr-10024/HashTable-Stage-31/Stage-31.tar.gz/MapJoin-mapfile21-.hashtable (No such file or directory)
+        at java.io.FileInputStream.open(Native Method)
+        at java.io.FileInputStream.&amp;lt;init&amp;gt;(FileInputStream.java:120)
+        at java.io.FileInputStream.&amp;lt;init&amp;gt;(FileInputStream.java:79)
+        at org.apache.hadoop.hive.ql.exec.mr.HashTableLoader.load(HashTableLoader.java:95)
+        ... 15 more
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+MapReduce Jobs Launched: 
+
+

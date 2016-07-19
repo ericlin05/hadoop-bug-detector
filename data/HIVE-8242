@@ -1,0 +1,11 @@
+Description
+
+Currently, we rely on setting hive.optimize.multigroupby.common.distincts and hive.multigroupby.singlereducer to false to enable some groupby related tests. However, some other tests may fail because of this change. For instance, in groupby10.q, the last test will fail with exception:
+
+FAILED: SemanticException [Error 10022]: DISTINCT on different columns not supported with skew in data
+
+
+Since when hive.groupby.skewindata is set to true and hive.optimize.multigroupby.common.distincts is set to false, the distinct keyword is not supported.
+There may be other issues like this. This JIRA is created to collect these issues, and ideally, find out why they fail.
+
+

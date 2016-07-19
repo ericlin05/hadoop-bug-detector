@@ -1,0 +1,27 @@
+Description
+
+Under at least one specific condition, using index-filters in ORC causes a bad seek into the ORC row-group.
+stacktrace
+
+java.io.IOException: java.lang.IllegalArgumentException: Seek in Stream for column 2 kind DATA to 0 is outside of the data
+	at org.apache.hadoop.hive.ql.exec.FetchOperator.getNextRow(FetchOperator.java:507)
+	at org.apache.hadoop.hive.ql.exec.FetchOperator.pushRow(FetchOperator.java:414)
+	at org.apache.hadoop.hive.ql.exec.FetchTask.fetch(FetchTask.java:138)
+	at org.apache.hadoop.hive.ql.Driver.getResults(Driver.java:1655)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:227)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:159)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:370)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:305)
+...
+Caused by: java.lang.IllegalArgumentException: Seek in Stream for column 2 kind DATA to 0 is outside of the data
+	at org.apache.hadoop.hive.ql.io.orc.InStream$UncompressedStream.seek(InStream.java:112)
+	at org.apache.hadoop.hive.ql.io.orc.InStream$UncompressedStream.seek(InStream.java:96)
+	at org.apache.hadoop.hive.ql.io.orc.RunLengthIntegerReaderV2.seek(RunLengthIntegerReaderV2.java:310)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$StringDictionaryTreeReader.seek(RecordReaderImpl.java:1596)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$StringTreeReader.seek(RecordReaderImpl.java:1337)
+	at org.apache.hadoop.hive.ql.io.orc.RecordReaderImpl$StructTreeReader.seek(RecordReaderImpl.java:1852)
+
+
+I'll attach the script to reproduce the problem herewith.
+
+

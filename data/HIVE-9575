@@ -1,0 +1,19 @@
+Description
+
+Hello, we're using hive 0.14.0 with cloudera 5.3 and a problem occurs when we set hive.exec.mode.local.auto=true for running a small query. The query fails with this error:
+java.lang.NullPointerException
+at org.apache.hadoop.hive.ql.io.HiveInputFormat.init(HiveInputFormat.java:265)
+at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:478)
+at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:471)
+at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getRecordReader(CombineHiveInputFormat.java:648)
+at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:394)
+at org.apache.hadoop.mapred.MapTask.run(MapTask.java:332)
+at org.apache.hadoop.mapred.Child$4.run(Child.java:268)
+at java.security.AccessController.doPrivileged(Native Method)
+at javax.security.auth.Subject.doAs(Subject.java:415)
+at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1642)
+at org.apache.hadoop.mapred.Child.main(Child.java:262)
+but if we also set mapred.job.tracker=local, then it works fine.
+Having to manually set mapred.job.tracker to 'local' kind of defies the purpose of the local.auto feature.
+
+

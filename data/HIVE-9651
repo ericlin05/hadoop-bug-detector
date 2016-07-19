@@ -1,0 +1,14 @@
+Description
+
+
+java.lang.NullPointerException
+	at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:366)
+	at org.apache.hadoop.hive.serde2.avro.AvroSerdeUtils.getSchemaFromFS(AvroSerdeUtils.java:131)
+	at org.apache.hadoop.hive.serde2.avro.AvroSerdeUtils.determineSchemaOrThrowException(AvroSerdeUtils.java:112)
+	at org.apache.hadoop.hive.serde2.avro.AvroSerDe.determineSchemaOrReturnErrorSchema(AvroSerDe.java:165)
+	at org.apache.hadoop.hive.serde2.avro.AvroSerDe.initialize(AvroSerDe.java:103)
+	at org.apache.hadoop.hive.ql.exec.FileSinkOperator.initializeOp(FileSinkOperator.java:337)
+
+
+
+

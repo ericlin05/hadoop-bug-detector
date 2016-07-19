@@ -1,0 +1,6 @@
+Description
+
+Doing: update orctabsmall set age = age + 1; results in FAILED: ParseException line 1:33 missing EOF at '+' near 'age'
+We should be able to handle simple expressions in set clauses.
+
+

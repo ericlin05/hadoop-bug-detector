@@ -1,0 +1,29 @@
+Description
+
+Querying a partition in PostgreSQL fails when using JDO (with hive.metastore.try.direct.sql=false) . Following is the reproduce example:
+
+
+create table partition_test_multilevel (key string, value string) partitioned by (level1 string, level2 string, level3 string);
+
+insert overwrite table partition_test_multilevel partition(level1='1111', level2='111', level3='11') select key, value from srcpart tablesample (11 rows);
+insert overwrite table partition_test_multilevel partition(level1='1111', level2='222', level3='11') select key, value from srcpart tablesample (15 rows);
+insert overwrite table partition_test_multilevel partition(level1='1111', level2='333', level3='11') select key, value from srcpart tablesample (20 rows);
+
+select level1, level2, level3, count(*) from partition_test_multilevel where level2 &amp;lt;= '222' group by level1, level2, level3;
+
+
+The query fails with following error:
+
+
+      Caused by: org.apache.hadoop.hive.ql.parse.SemanticException: MetaException(message:Invocation of method "substring" on "StringExpression" requires argument 1 of type "NumericExpression")
+	at org.apache.hadoop.hive.ql.optimizer.ppr.PartitionPruner.getPartitionsFromServer(PartitionPruner.java:392)
+	at org.apache.hadoop.hive.ql.optimizer.ppr.PartitionPruner.prune(PartitionPruner.java:215)
+	at org.apache.hadoop.hive.ql.optimizer.ppr.PartitionPruner.prune(PartitionPruner.java:139)
+	at org.apache.hadoop.hive.ql.parse.ParseContext.getPrunedPartitions(ParseContext.java:619)
+	at org.apache.hadoop.hive.ql.optimizer.pcr.PcrOpProcFactory$FilterPCR.process(PcrOpProcFactory.java:110)
+	... 21 more
+
+
+It is because the JDO pushdown filter generated for a query having inequality/between partition predicate uses DN indexOf function which is not working properly with postgresql (see http://www.datanucleus.org/servlet/jira/browse/NUCRDBMS-840) 
+
+

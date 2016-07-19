@@ -1,0 +1,38 @@
+Description
+
+The following tables exist:
+1. test_table –  schema 
+{"field_a":STRING, "field_b":STRING, "field_c":STRING}
+2. dual – schema 
+{"field_1":INT}
+
+test_table contents:
+
+
+en	dbpedia	http://dbpedia.org/schools/CMU
+
+
+dual contents:
+
+
+1
+
+
+I tried the following query, and it fails:
+
+
+INSERT INTO TABLE test_table SELECT 
+stack(1,
+"en",
+"dbpedia",
+NULL
+) AS (
+field_a,
+field_b,
+field_c
+) FROM dual;
+
+
+The error returned: FAILED: NullPointerException null
+
+

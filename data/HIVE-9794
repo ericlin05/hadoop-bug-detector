@@ -1,0 +1,22 @@
+Description
+
+We updated our code to the latest revision on Spark Branch  (i.e. fd0f638a8d481a9a98b34d3dd08236d6d591812f) , rebuild and deploy Hive in our cluster and run BigBench case again. Many cases (e.g. Q1, Q2, Q3, Q4, Q8) failed due to a common 'NoSuchMethodError'. The root cause sentence in these queries should be  ‘ADD FILE XXXX.jar’.
+Detail error message:
+Exception in thread "main" java.lang.NoSuchMethodError: org.apache.hadoop.hive.ql.session.SessionState.add_resources(Lorg/apache/hadoop/hive/ql/session/SessionState$ResourceType;Ljava/util/List;)Ljava/util/List;
+        at org.apache.hadoop.hive.ql.processors.AddResourceProcessor.run(AddResourceProcessor.java:67)
+        at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:262)
+        at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:159)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:370)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:305)
+        at org.apache.hadoop.hive.cli.CliDriver.processReader(CliDriver.java:403)
+        at org.apache.hadoop.hive.cli.CliDriver.processFile(CliDriver.java:419)
+        at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:708)
+        at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:675)
+        at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:615)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:212)
+
+

@@ -1,0 +1,31 @@
+Description
+
+We've found situations in production where Pig queries using HCatStorer, dynamic partitioning and opt.multiquery=true that produce partitions in the output table, but the corresponding directories have no data files (in spite of Pig reporting non-zero records written to HDFS). I don't yet have a distilled test-case for this.
+Here's the code from FileOutputCommitterContainer after HIVE-7803:
+FileOutputCommitterContainer.java
+
+  @Override
+  public void commitTask(TaskAttemptContext context) throws IOException {
+    String jobInfoStr = context.getConfiguration().get(FileRecordWriterContainer.DYN_JOBINFO);
+    if (!dynamicPartitioningUsed) {
+         //See HCATALOG-499
+      FileOutputFormatContainer.setWorkOutputPath(context);
+      getBaseOutputCommitter().commitTask(HCatMapRedUtil.createTaskAttemptContext(context));
+    } else if (jobInfoStr != null) {
+      ArrayList&amp;lt;String&amp;gt; jobInfoList = (ArrayList&amp;lt;String&amp;gt;)HCatUtil.deserialize(jobInfoStr);
+      org.apache.hadoop.mapred.TaskAttemptContext currTaskContext = HCatMapRedUtil.createTaskAttemptContext(context);
+      for (String jobStr : jobInfoList) {
+    	OutputJobInfo localJobInfo = (OutputJobInfo)HCatUtil.deserialize(jobStr);
+    	FileOutputCommitter committer = new FileOutputCommitter(new Path(localJobInfo.getLocation()), currTaskContext);
+    	committer.commitTask(currTaskContext);
+      }
+    }
+  }
+
+
+The serialized jobInfoList can't be retrieved, and hence the commit never completes. This is because Pig's MapReducePOStoreImpl deliberately clones both the TaskAttemptContext and the contained Configuration instance, thus separating the Configuration instances passed to FileOutputCommitterContainer::commitTask() and FileRecordWriterContainer::close(). Anything set by the RecordWriter is unavailable to the Committer.
+One approach would have been to store state in the FileOutputFormatContainer. But that won't work since this is constructed via reflection in HCatOutputFormat (itself constructed via reflection by PigOutputFormat via HCatStorer). There's no guarantee that the instance is preserved.
+My only recourse seems to be to use a Singleton to store shared state. I'm loath to indulge in this brand of shenanigans. (Statics and container-reuse in Tez might not play well together, for instance.) It might work if we're careful about tearing down the singleton.
+Any other ideas? 
+
+

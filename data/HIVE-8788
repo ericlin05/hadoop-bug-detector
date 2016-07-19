@@ -1,0 +1,17 @@
+Description
+
+The test limit_partition_metadataonly fails with 
+2014-11-06 18:40:12,891 ERROR ql.Driver (SessionState.java:printError(829)) - FAILED: SemanticException Number of partitions scanned (=4) on table srcpart exceeds limit (=1). This is controlled by hive.limit.query.max.table.partition.
+org.apache.hadoop.hive.ql.parse.SemanticException: Number of partitions scanned (=4) on table srcpart exceeds limit (=1). This is controlled by hive.limit.query.max.table.partition.
+	at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.enforceScanLimits(SemanticAnalyzer.java:10358)
+	at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:10190)
+	at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:221)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:419)
+In the test, SemanticAnalyzer.enforceScanLimits expects only 1 partition ds=2008-04-08/hr=11 but gets 4 partitions:
+[srcpart(ds=2008-04-08/hr=11), srcpart(ds=2008-04-08/hr=12), srcpart(ds=2008-04-09/hr=11), srcpart(ds=2008-04-09/hr=12)]
+In the log it shows that the ParitionPruner ran, and it should have only retained one partition:
+2014-11-07 14:18:09,147 DEBUG ppr.PartitionPruner (PartitionPruner.java:prune(206)) - Filter w/ compacting: ((hr = 11) and (ds = '2008-04-08')); filter w/o compacting: ((hr = 11) and (ds = '2008-04-08'))
+2014-11-07 14:18:09,147 INFO  metastore.HiveMetaStore (HiveMetaStore.java:logInfo(719)) - 0: get_partitions_by_expr : db=default tbl=srcpart
+2014-11-07 14:18:09,165 DEBUG ppr.PartitionPruner (PartitionPruner.java:prunePartitionNames(491)) - retained partition: ds=2008-04-08/hr=11
+
+

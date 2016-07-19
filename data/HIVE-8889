@@ -1,0 +1,9 @@
+Description
+
+Using hive-jdbc-0.13.1-cdh5.2.0.jar.
+All of the get-by-column-label methods of HiveBaseResultSet are now broken.  They don't take just the column label as they should.  Instead you have to pass in &amp;lt;table name&amp;gt;.&amp;lt;column name&amp;gt;.  This requirement doesn't conform to the java ResultSet API which specifies:
+"columnLabel - the label for the column specified with the SQL AS clause. If the SQL AS clause was not specified, then the label is the name of the column"
+Looking at the code, it seems that the problem is that findColumn() method is looking in normalizedColumnNames instead of the columnNames.
+BTW, Another annoying issue with the code is that the SQLException thrown gives no indication of what the problem is.  It should at least say that the column name wasn't found in the description string.
+
+

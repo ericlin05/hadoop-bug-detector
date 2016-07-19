@@ -1,0 +1,8 @@
+Description
+
+File systems such as s3, wasp (azure) don't implement Hadoop FileSystem acl functionality.
+Hadoop23Shims has code that calls getAclStatus on file systems.
+Instead of calling getAclStatus and catching the exception, we can also check FsPermission#getAclBit .
+Additionally, instead of catching all exceptions for calls to getAclStatus and ignoring them, it is better to just catch UnsupportedOperationException.
+
+

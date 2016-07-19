@@ -1,0 +1,21 @@
+Description
+
+
+
+Caused by: java.lang.ClassCastException: org.apache.hadoop.hive.common.type.HiveDecimal cannot be cast to org.apache.hadoop.hive.serde2.io.HiveDecimalWritable
+	at org.apache.hadoop.hive.ql.exec.vector.VectorColumnAssignFactory$17.assignObjectValue(VectorColumnAssignFactory.java:431)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator.writeSingleRow(VectorGroupByOperator.java:886)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator.access$400(VectorGroupByOperator.java:63)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator$ProcessingModeHashAggregate.flush(VectorGroupByOperator.java:463)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator$ProcessingModeHashAggregate.close(VectorGroupByOperator.java:369)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator.closeOp(VectorGroupByOperator.java:924)
+	at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:583)
+	at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:595)
+	at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:595)
+	at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:595)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.close(MapRecordProcessor.java:224)
+	... 13 more
+
+
+
+

@@ -1,0 +1,47 @@
+Description
+
+Making testcase for HIVE-8613, I've found CBO changes constant expr to column expr. For example (only in test mode).
+
+
+CREATE TABLE bucket (key double, value string) CLUSTERED BY (key) SORTED BY (key DESC)  INTO 4 BUCKETS STORED AS TEXTFILE;
+load data local inpath '../../data/files/srcsortbucket1outof4.txt' INTO TABLE bucket;
+load data local inpath '../../data/files/srcsortbucket2outof4.txt' INTO TABLE bucket;
+load data local inpath '../../data/files/srcsortbucket3outof4.txt' INTO TABLE bucket;
+load data local inpath '../../data/files/srcsortbucket4outof4.txt' INTO TABLE bucket;
+
+select percentile_approx(case when key &amp;lt; 100 then cast('NaN' as double) else key end, 0.5) from bucket;
+
+
+It works in shell but in TestCliDriver, that induces argument type exception creating udaf evaluator, which expects constant OI for second argument.
+
+2014-12-22 17:03:31,433 ERROR parse.SemanticAnalyzer (SemanticAnalyzer.java:analyzeInternal(10102)) - CBO failed, skipping CBO.
+org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException: The second argument must be a constant, but double was passed instead.
+        at org.apache.hadoop.hive.ql.udf.generic.GenericUDAFPercentileApprox.getEvaluator(GenericUDAFPercentileApprox.java:146)
+        at org.apache.hadoop.hive.ql.exec.FunctionRegistry.getGenericUDAFEvaluator(FunctionRegistry.java:1160)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.getGenericUDAFEvaluator(SemanticAnalyzer.java:3794)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genGroupByPlanMapGroupByOperator(SemanticAnalyzer.java:4467)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genGroupByPlanMapAggrNoSkew(SemanticAnalyzer.java:5536)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genBodyPlan(SemanticAnalyzer.java:8884)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genPlan(SemanticAnalyzer.java:9745)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genPlan(SemanticAnalyzer.java:9638)
+        at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:10086)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:224)
+        at org.apache.hadoop.hive.ql.parse.ExplainSemanticAnalyzer.analyzeInternal(ExplainSemanticAnalyzer.java:74)
+        at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:224)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:419)
+        at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:305)
+        at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1107)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1155)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1044)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1034)
+        at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:206)
+        at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:158)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:369)
+        at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:304)
+        at org.apache.hadoop.hive.ql.QTestUtil.executeClient(QTestUtil.java:877)
+        at org.apache.hadoop.hive.cli.TestCliDriver.runTest(TestCliDriver.java:136)
+        at org.apache.hadoop.hive.cli.TestCliDriver.testCliDriver_udaf_percentile_approx_23(TestCliDriver.java:120)
+
+
+
+

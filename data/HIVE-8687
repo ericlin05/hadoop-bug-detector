@@ -1,0 +1,22 @@
+Description
+
+Attempting to write to a HCatalog defined table backed by the AvroSerde fails with the following stacktrace:
+
+
+java.lang.ClassCastException: org.apache.hadoop.io.NullWritable cannot be cast to org.apache.hadoop.io.LongWritable
+	at org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat$1.write(AvroContainerOutputFormat.java:84)
+	at org.apache.hcatalog.mapreduce.FileRecordWriterContainer.write(FileRecordWriterContainer.java:253)
+	at org.apache.hcatalog.mapreduce.FileRecordWriterContainer.write(FileRecordWriterContainer.java:53)
+	at org.apache.hcatalog.pig.HCatBaseStorer.putNext(HCatBaseStorer.java:242)
+	at org.apache.hcatalog.pig.HCatStorer.putNext(HCatStorer.java:52)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat$PigRecordWriter.write(PigOutputFormat.java:139)
+	at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat$PigRecordWriter.write(PigOutputFormat.java:98)
+	at org.apache.hadoop.mapred.MapTask$NewDirectOutputCollector.write(MapTask.java:559)
+	at org.apache.hadoop.mapreduce.task.TaskInputOutputContextImpl.write(TaskInputOutputContextImpl.java:85)
+
+
+The proximal cause of this failure is that the AvroContainerOutputFormat's signature mandates a LongWritable key and HCat's FileRecordWriterContainer forces a NullWritable. I'm not sure of a general fix, other than redefining HiveOutputFormat to mandate a WritableComparable.
+It looks like accepting WritableComparable is what's done in the other Hive OutputFormats, and there's no reason AvroContainerOutputFormat couldn't also be changed, since it's ignoring the key. That way fixing things so FileRecordWriterContainer can always use NullWritable could get spun into a different issue?
+The underlying cause for failure to write to AvroSerde tables is that AvroContainerOutputFormat doesn't meaningfully implement getRecordWriter, so fixing the above will just push the failure into the placeholder RecordWriter.
+
+

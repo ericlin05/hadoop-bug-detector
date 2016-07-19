@@ -1,0 +1,23 @@
+Description
+
+We are trying to plugin custom map reduce to our hive , but facing the error as below-
+java.lang.RuntimeException: Hive Runtime Error while closing operators
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.close(ExecMapper.java:240)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:57)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:418)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:349)
+        at org.apache.hadoop.mapred.Child$4.run(Child.java:270)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:396)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1127)
+        at org.apache.hadoop.mapred.Child.main(Child.java:264)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: [Error 20003]: An error occurred when trying to close the Operator running your custom script.
+        at org.apache.hadoop.hive.ql.exec.ScriptOperator.close(ScriptOperator.java:514)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:613)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:613)
+        at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:613)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.close(ExecMapper.java:207)
+        ... 8 more
+FAILED: Execution Error, return code 20003 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask. An error occurred when trying to close the Operator running your custom script.
+
+

@@ -1,0 +1,45 @@
+Description
+
+The test udf_context_aware fails with a NPE here:
+Thread [main] (Suspended (exception NullPointerException))	
+	DummyContextUDF.evaluate(GenericUDF$DeferredObject[]) line: 42	
+	ExprNodeGenericFuncEvaluator._evaluate(Object, int) line: 169	
+	ExprNodeGenericFuncEvaluator(ExprNodeEvaluator&amp;lt;T&amp;gt;).evaluate(Object, int) line: 77	
+	ExprNodeGenericFuncEvaluator(ExprNodeEvaluator&amp;lt;T&amp;gt;).evaluate(Object) line: 65	
+	SelectOperator.processOp(Object, int) line: 77	
+	TableScanOperator(Operator&amp;lt;T&amp;gt;).forward(Object, ObjectInspector) line: 815	
+	TableScanOperator.processOp(Object, int) line: 95	
+	FetchOperator.pushRow(InspectableObject) line: 577	
+	FetchOperator.pushRow() line: 569	
+	FetchTask.fetch(List) line: 138	
+	Driver.getResults(List) line: 1661	
+	CliDriver.processLocalCmd(String, CommandProcessor, CliSessionState) line: 267	
+	CliDriver.processCmd(String) line: 199	
+	CliDriver.processLine(String, boolean) line: 410	
+	CliDriver.processLine(String) line: 345	
+	QTestUtil.executeClient(String) line: 832	
+	TestSparkCliDriver.runTest(String, String, String) line: 136	
+	TestSparkCliDriver.testCliDriver_udf_context_aware() line: 120	
+	NativeMethodAccessorImpl.invoke0(Method, Object, Object[]) line: not available [native method] 
+	NativeMethodAccessorImpl.invoke(Object, Object[]) line: 57	
+	DelegatingMethodAccessorImpl.invoke(Object, Object[]) line: 43	
+	Method.invoke(Object, Object...) line: 606	
+	TestSparkCliDriver(TestCase).runTest() line: 176	
+	TestSparkCliDriver(TestCase).runBare() line: 141	
+	TestResult$1.protect() line: 122	
+	TestResult.runProtected(Test, Protectable) line: 142	
+	TestResult.run(TestCase) line: 125	
+	TestSparkCliDriver(TestCase).run(TestResult) line: 129	
+	TestSuite.runTest(Test, TestResult) line: 255	
+	TestSuite.run(TestResult) line: 250	
+	SuiteMethod(JUnit38ClassRunner).run(RunNotifier) line: 84	
+	JUnit4Provider.execute(Class&amp;lt;?&amp;gt;, RunNotifier, String[]) line: 264	
+	JUnit4Provider.executeTestSet(Class&amp;lt;?&amp;gt;, RunListener, RunNotifier) line: 153	
+	JUnit4Provider.invoke(Object) line: 124	
+	ForkedBooter.invokeProviderInSameClassLoader(Object, Object, ProviderConfiguration, boolean, StartupConfiguration, boolean) line: 200	
+	ForkedBooter.runSuitesInProcess(Object, StartupConfiguration, ProviderConfiguration, PrintStream) line: 153	
+	ForkedBooter.main(String[]) line: 103	
+While debugging I found that the MapredContext object is null here:
+Reporter reporter = context.getReporter();
+
+

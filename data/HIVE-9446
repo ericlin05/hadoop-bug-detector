@@ -1,0 +1,5 @@
+Description
+
+After creating temporary table, calling DatabaseMetadData.getColumns() hits error "UnknownTableException(message:default.tmp_07 table not found)"
+
+

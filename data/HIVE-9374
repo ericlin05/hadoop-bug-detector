@@ -1,0 +1,45 @@
+Description
+
+
+    &amp;lt;system-err&amp;gt;&amp;lt;![CDATA[Begin query: hbase_handler_bulk.q
+org.apache.hadoop.mapred.FileAlreadyExistsException: Output directory /tmp/hb_target/cf already exists
+  at org.apache.hadoop.mapreduce.lib.output.FileOutputFormat.checkOutputSpecs(FileOutputFormat.java:146)
+  at org.apache.hadoop.hive.hbase.HiveHFileOutputFormat.checkOutputSpecs(HiveHFileOutputFormat.java:253)
+  at org.apache.hadoop.hive.ql.exec.FileSinkOperator.checkOutputSpecs(FileSinkOperator.java:1064)
+  at org.apache.hadoop.hive.ql.io.HiveOutputFormatImpl.checkOutputSpecs(HiveOutputFormatImpl.java:67)
+  at org.apache.hadoop.mapreduce.JobSubmitter.checkSpecs(JobSubmitter.java:564)
+  at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:432)
+  at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1296)
+  at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1293)
+  at java.security.AccessController.doPrivileged(Native Method)
+  at javax.security.auth.Subject.doAs(Subject.java:415)
+  at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+  at org.apache.hadoop.mapreduce.Job.submit(Job.java:1293)
+  at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:562)
+  at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:557)
+  at java.security.AccessController.doPrivileged(Native Method)
+  at javax.security.auth.Subject.doAs(Subject.java:415)
+  at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+  at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:557)
+  at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:548)
+  at org.apache.hadoop.hive.ql.exec.mr.ExecDriver.execute(ExecDriver.java:428)
+  at org.apache.hadoop.hive.ql.exec.mr.MapRedTask.execute(MapRedTask.java:137)
+  at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+  at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:88)
+  at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1633)
+  at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1392)
+  at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1179)
+  at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1045)
+  at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1035)
+  at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:206)
+  at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:158)
+  at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:369)
+  at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:304)
+  at org.apache.hadoop.hive.ql.QTestUtil.executeClientInternal(QTestUtil.java:962)
+  at org.apache.hadoop.hive.ql.QTestUtil.executeClient(QTestUtil.java:940)
+  at org.apache.hadoop.hive.cli.TestHBaseCliDriver.runTest(TestHBaseCliDriver.java:112)
+  at org.apache.hadoop.hive.cli.TestHBaseCliDriver.testCliDriver_hbase_handler_bulk(TestHBaseCliDriver.java:94)
+
+
+
+

@@ -1,0 +1,11 @@
+Description
+
+
+create table FOO clustered by (i) into 8 buckets stored as orc AS select * from BAR;
+
+
+this statement throws a SemanticException with ErrorMsg.CTAS_PARCOL_COEXISTENCE.  The actual message text is "CREATE-TABLE-AS-SELECT does not support partitioning in the target table" which is confusing since target table is not partitioned.
+The real issue is that bucketed table is not supported https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-CreateTableAsSelect(CTAS)
+Need to update the message
+
+

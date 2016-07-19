@@ -1,0 +1,17 @@
+Description
+
+HS2 has made setPermission mandatory within its CLIService#setupStagingDir method as a result of HIVE-6602.
+This causes HS2 to fail to start if the owner of the staging directory is not the same user as it, even though the directory is already 777. This is because only owners and superusers of a directory can change its permission, not group or others.
+Failure appears as:
+
+
+Caused by: org.apache.hive.service.ServiceException: Error setting stage directories 
+at org.apache.hive.service.cli.CLIService.start(CLIService.java:132) 
+at org.apache.hive.service.CompositeService.start(CompositeService.java:70) 
+... 8 more 
+Caused by: org.apache.hadoop.security.AccessControlException: Permission denied 
+
+
+We should only call the setPermission if it is unsatisfactory.
+
+

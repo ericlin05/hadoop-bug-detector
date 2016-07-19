@@ -1,0 +1,29 @@
+Description
+
+With the current multi-insertion implementation, when caching is enabled for input RDD, query may fail with the following exception:
+
+2014-10-21 13:57:34,742 WARN  [task-result-getter-0]: scheduler.TaskSetManager (Logging.scala:logWarning(71)) - Lost task 0.0 in stage 1.0 (TID 1, localhost): java.lang.ClassCastException: org.apache.hadoop.io.Text cannot be cast to org.apache.hadoop.io.BytesWritable
+        org.apache.hadoop.hive.ql.exec.spark.MapInput$CopyFunction.call(MapInput.java:67)
+        org.apache.hadoop.hive.ql.exec.spark.MapInput$CopyFunction.call(MapInput.java:61)
+        org.apache.spark.api.java.JavaPairRDD$$anonfun$pairFunToScalaFun$1.apply(JavaPairRDD.scala:1002)
+        org.apache.spark.api.java.JavaPairRDD$$anonfun$pairFunToScalaFun$1.apply(JavaPairRDD.scala:1002)
+        scala.collection.Iterator$$anon$11.next(Iterator.scala:328)
+        org.apache.spark.storage.MemoryStore.unrollSafely(MemoryStore.scala:234)
+        org.apache.spark.CacheManager.putInBlockManager(CacheManager.scala:163)
+        org.apache.spark.CacheManager.getOrCompute(CacheManager.scala:70)
+        org.apache.spark.rdd.RDD.iterator(RDD.scala:227)
+        org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:35)
+        org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:262)
+        org.apache.spark.rdd.RDD.iterator(RDD.scala:229)
+        org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:68)
+        org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:41)
+        org.apache.spark.scheduler.Task.run(Task.scala:56)
+        org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:181)
+        java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        java.lang.Thread.run(Thread.java:745)
+
+
+The fix should be easy. However, interestingly, this error doesn't show up when the caching is turned off. We need to find out why.
+
+

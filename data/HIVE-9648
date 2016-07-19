@@ -1,0 +1,15 @@
+Description
+
+Some versions of hdfs do not like DFSClient.setkeyProvider(null):
+
+java.lang.NullPointerException
+	at com.google.common.base.Preconditions.checkNotNull(Preconditions.java:191)
+	at com.google.common.cache.LocalCache.put(LocalCache.java:4209)
+	at com.google.common.cache.LocalCache$LocalManualCache.put(LocalCache.java:4804)
+	at org.apache.hadoop.hdfs.KeyProviderCache.setKeyProvider(KeyProviderCache.java:107)
+	at org.apache.hadoop.hdfs.DFSClient.setKeyProvider(DFSClient.java:3186)
+	at org.apache.hadoop.hive.shims.Hadoop23Shims.getMiniDfs(Hadoop23Shims.java:446)
+
+
+
+

@@ -1,0 +1,38 @@
+Description
+
+Repro 
+
+
+set hive.vectorized.execution.enabled=true;
+
+select count(distinct(cint)) from alltypesorc;
+
+
+
+Exception 
+
+
+Caused by: java.lang.ClassCastException: org.apache.hadoop.hive.serde2.objectinspector.StandardUnionObjectInspector$StandardUnion cannot be cast to org.apache.hadoop.io.IntWritable
+	at org.apache.hadoop.hive.serde2.objectinspector.primitive.WritableIntObjectInspector.get(WritableIntObjectInspector.java:36)
+	at org.apache.hadoop.hive.serde2.binarysortable.BinarySortableSerDe.serialize(BinarySortableSerDe.java:654)
+	at org.apache.hadoop.hive.serde2.binarysortable.BinarySortableSerDe.serialize(BinarySortableSerDe.java:602)
+	at org.apache.hadoop.hive.ql.exec.ReduceSinkOperator.toHiveKey(ReduceSinkOperator.java:468)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorReduceSinkOperator.processOp(VectorReduceSinkOperator.java:283)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:800)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator.flushOutput(VectorGroupByOperator.java:918)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator.writeSingleRow(VectorGroupByOperator.java:891)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator.access$400(VectorGroupByOperator.java:63)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator$ProcessingModeHashAggregate.flush(VectorGroupByOperator.java:463)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator$ProcessingModeHashAggregate.checkHashModeEfficiency(VectorGroupByOperator.java:536)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator$ProcessingModeHashAggregate.processBatch(VectorGroupByOperator.java:363)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator.processOp(VectorGroupByOperator.java:851)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:800)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorSelectOperator.processOp(VectorSelectOperator.java:139)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:800)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:95)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:800)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:43)
+
+
+
+

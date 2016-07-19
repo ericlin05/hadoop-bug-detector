@@ -1,0 +1,41 @@
+Description
+
+create table t1 (val date);
+insert overwrite table t1 select '2014-10-10' from src limit 1;
+create table t2 (val varchar(10));
+insert overwrite table t2 select '2014-10-10' from src limit 1; 
+==
+Query:
+select t.val from
+(select val from t1
+union all
+select val from t1
+union all
+select val from t2
+union all
+select val from t1) t;
+==
+Will throw exception: 
+
+
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Incompatible types for union operator
+	at org.apache.hadoop.hive.ql.exec.UnionOperator.initializeOp(UnionOperator.java:86)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:380)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:464)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:420)
+	at org.apache.hadoop.hive.ql.exec.SelectOperator.initializeOp(SelectOperator.java:65)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:380)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:464)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:420)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.initializeOp(TableScanOperator.java:193)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:380)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.initializeOp(MapOperator.java:443)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:380)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.configure(ExecMapper.java:133)
+	... 22 more
+
+
+It was because at this query parse step, getCommonClassForUnionAll is used, but at execution getCommonClass is used. They are not used consistently in union. The later one does not support the implicit conversion from date to string, which is the problem cause.
+The change might be simple to fix this particular union issue but I noticed that there are three versions of getCommonClass: getCommonClass, getCommonClassForComparison, getCommonClassForUnionAll, and wonder if they need to be cleaned and refactored.
+
+

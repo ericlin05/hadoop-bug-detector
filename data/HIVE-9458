@@ -1,0 +1,11 @@
+Description
+
+Currently you get the following error if you do the following command. 
+
+
+0: jdbc:hive2://jrepo2-1.ent.cloudera.com:100&amp;gt; grant select on table testdatabase.j1 to role jrole;
+Error: Error while compiling statement: FAILED: ParseException line 1:29 mismatched input '.' expecting TO near 'testdatabase' in grant privileges (state=42000,code=40000)
+
+
+
+

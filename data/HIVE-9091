@@ -1,0 +1,11 @@
+Description
+
+Change the function scope for the functions in HiveSQLException to be private, including 
+  toString(Throwable cause, StackTraceElement[] parent) , 
+  enroll(Throwable ex, StackTraceElement[] trace, int max),
+  toStackTrace(List&amp;lt;String&amp;gt; details, StackTraceElement[] parent, int index) 
+since these serve as helper function internally. 
+Add comments for the public functions in HiveSQLException.
+To add additional unit test cases for HiveSQLException such as exception with unknown source, test TStatus conversion, etc. 
+
+

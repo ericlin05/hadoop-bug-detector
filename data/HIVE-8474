@@ -1,0 +1,42 @@
+Description
+
+
+
+create table concur_orc_tab(name varchar(50), age int, gpa decimal(3, 2)) clustered by (age) into 2 buckets stored as orc TBLPROPERTIES ('transactional'='true');
+select name, age from concur_orc_tab order by name;
+
+
+results in
+
+
+Diagnostic Messages for this Task:
+Error: java.io.IOException: java.lang.NullPointerException
+        at org.apache.hadoop.hive.io.HiveIOExceptionHandlerChain.handleRecordReaderNextException(HiveIOExceptionHandlerChain.java:121)
+        at org.apache.hadoop.hive.io.HiveIOExceptionHandlerUtil.handleRecordReaderNextException(HiveIOExceptionHandlerUtil.java:77)
+        at org.apache.hadoop.hive.ql.io.HiveContextAwareRecordReader.doNext(HiveContextAwareRecordReader.java:352)
+        at org.apache.hadoop.hive.ql.io.HiveRecordReader.doNext(HiveRecordReader.java:79)
+        at org.apache.hadoop.hive.ql.io.HiveRecordReader.doNext(HiveRecordReader.java:33)
+        at org.apache.hadoop.hive.ql.io.HiveContextAwareRecordReader.next(HiveContextAwareRecordReader.java:115)
+        at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.moveToNext(MapTask.java:199)
+        at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.next(MapTask.java:185)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:52)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1614)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.exec.vector.VectorizedBatchUtil.setNullColIsNullValue(VectorizedBatchUtil.java:63)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorizedBatchUtil.addRowToBatchFrom(VectorizedBatchUtil.java:443)
+        at org.apache.hadoop.hive.ql.exec.vector.VectorizedBatchUtil.addRowToBatch(VectorizedBatchUtil.java:214)
+        at org.apache.hadoop.hive.ql.io.orc.VectorizedOrcAcidRowReader.next(VectorizedOrcAcidRowReader.java:95)
+        at org.apache.hadoop.hive.ql.io.orc.VectorizedOrcAcidRowReader.next(VectorizedOrcAcidRowReader.java:43)
+        at org.apache.hadoop.hive.ql.io.HiveContextAwareRecordReader.doNext(HiveContextAwareRecordReader.java:347)
+        ... 13 more
+
+
+The issue is that the object inspector passed to VectorizedOrcAcidRowReader has all of the columns in the file rather than only the projected columns.
+
+

@@ -1,0 +1,59 @@
+Description
+
+This one is a bit strange - it gives the following stack trace:
+
+2014-11-14 17:11:23,952 ERROR [Executor task launch worker-7]: executor.Executor (Logging.scala:logError(96)) - Exception in task 0.0 in stage 34.0 (TID 34)
+java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: Error while trying to create table container
+  at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.processRow(SparkMapRecordHandler.java:160)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:47)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:28)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveBaseFunctionResultList$ResultIterator.hasNext(HiveBaseFunctionResultList.java:96)
+  at scala.collection.convert.Wrappers$JIteratorWrapper.hasNext(Wrappers.scala:41)
+  at org.apache.spark.util.collection.ExternalSorter.insertAll(ExternalSorter.scala:214)
+  at org.apache.spark.shuffle.sort.SortShuffleWriter.write(SortShuffleWriter.scala:65)
+  at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:68)
+  at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:41)
+  at org.apache.spark.scheduler.Task.run(Task.scala:56)
+  at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:186)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+  at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: Error while trying to create table container
+  at org.apache.hadoop.hive.ql.exec.spark.HashTableLoader.load(HashTableLoader.java:94)
+  at org.apache.hadoop.hive.ql.exec.MapJoinOperator.loadHashTable(MapJoinOperator.java:197)
+  at org.apache.hadoop.hive.ql.exec.MapJoinOperator.cleanUpInputFileChangedOp(MapJoinOperator.java:223)
+  at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1051)
+  at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+  at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+  at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+  at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+  at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+  at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:486)
+  at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.processRow(SparkMapRecordHandler.java:149)
+  ... 13 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Error while trying to create table container
+  at org.apache.hadoop.hive.ql.exec.persistence.MapJoinTableContainerSerDe.load(MapJoinTableContainerSerDe.java:154)
+  at org.apache.hadoop.hive.ql.exec.spark.HashTableLoader.load(HashTableLoader.java:91)
+  ... 23 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Error, not a directory: hdfs://localhost:23010/tmp/hive/chao/36a0e49e-5eb4-44ec-ab80-6fc2c3884809/hive_2014-11-14_17-11-23_347_3696380933176529758-1/-mr-10003/HashTable-Stage-1/MapJoin-mapfile180--.hashtable
+  at org.apache.hadoop.hive.ql.exec.persistence.MapJoinTableContainerSerDe.load(MapJoinTableContainerSerDe.java:105)
+  ... 24 more
+2014-11-14 17:11:23,954 WARN  [task-result-getter-2]: scheduler.TaskSetManager (Logging.scala:logWarning(71)) - Lost task 0.0 in stage 34.0 (TID 34, localhost): java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: Error while trying to create table container
+        org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.processRow(SparkMapRecordHandler.java:160)
+        org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:47)
+        org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:28)
+        org.apache.hadoop.hive.ql.exec.spark.HiveBaseFunctionResultList$ResultIterator.hasNext(HiveBaseFunctionResultList.java:96)
+        scala.collection.convert.Wrappers$JIteratorWrapper.hasNext(Wrappers.scala:41)
+        org.apache.spark.util.collection.ExternalSorter.insertAll(ExternalSorter.scala:214)
+        org.apache.spark.shuffle.sort.SortShuffleWriter.write(SortShuffleWriter.scala:65)
+        org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:68)
+        org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:41)
+        org.apache.spark.scheduler.Task.run(Task.scala:56)
+        org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:186)
+        java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        java.lang.Thread.run(Thread.java:745)
+
+
+
+

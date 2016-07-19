@@ -1,0 +1,164 @@
+Description
+
+I have two simple tables:
+desc kgorlo_comm;
+
+
+ col_name  
+ data_type  
+ comment  
+
+
+ id        
+ bigint     
+ 
+
+
+ dest_id   
+ bigint     
+ 
+
+
+desc kgorlo_log; 
+
+
+ col_name  
+ data_type  
+ comment  
+
+
+ id        
+ bigint     
+ 
+
+
+ dest_id   
+ bigint     
+ 
+
+
+ tstamp    
+ bigint     
+ 
+
+
+With data:
+select * from kgorlo_comm; 
+
+
+ kgorlo_comm.id  
+ kgorlo_comm.dest_id  
+
+
+ 1               
+ 2                    
+
+
+ 2               
+ 1                    
+
+
+ 1               
+ 3                    
+
+
+ 2               
+ 3                    
+
+
+ 3               
+ 5                    
+
+
+ 4               
+ 5                    
+
+
+select * from kgorlo_log; 
+
+
+ kgorlo_log.id  
+ kgorlo_log.dest_id  
+ kgorlo_log.tstamp  
+
+
+ 1              
+ 2                   
+ 0                  
+
+
+ 1              
+ 3                   
+ 0                  
+
+
+ 1              
+ 5                   
+ 0                  
+
+
+ 3              
+ 1                   
+ 0                  
+
+
+Following query fails in second stage of execution:
+select v.id, v.dest_id from kgorlo_log v join (select id, dest_id, count as wiad from kgorlo_comm group by id, dest_id)com1 on com1.id=v.id and com1.dest_id=v.dest_id;
+with following exception:
+
+  2014-12-16 17:09:17,629 ERROR [uber-SubtaskRunner] org.apache.hadoop.hive.ql.exec.MapJoinOperator: Unxpected exception: null
+  java.lang.NullPointerException
+  at org.apache.hadoop.hive.ql.exec.MapJoinOperator.getRefKey(MapJoinOperator.java:198)
+  at org.apache.hadoop.hive.ql.exec.MapJoinOperator.computeMapJoinKey(MapJoinOperator.java:186)
+  at org.apache.hadoop.hive.ql.exec.MapJoinOperator.processOp(MapJoinOperator.java:216)
+  at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+  at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:92)
+  at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+  at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:540)
+  at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:177)
+  at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54)
+  at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+  at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+  at org.apache.hadoop.mapred.LocalContainerLauncher$EventHandler.runSubtask(LocalContainerLauncher.java:370)
+  at org.apache.hadoop.mapred.LocalContainerLauncher$EventHandler.runTask(LocalContainerLauncher.java:295)
+  at org.apache.hadoop.mapred.LocalContainerLauncher$EventHandler.access$200(LocalContainerLauncher.java:181)
+  at org.apache.hadoop.mapred.LocalContainerLauncher$EventHandler$1.run(LocalContainerLauncher.java:224)
+  at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+  at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+  at java.lang.Thread.run(Thread.java:745)
+  2014-12-16 17:09:17,659 FATAL [uber-SubtaskRunner] org.apache.hadoop.hive.ql.exec.mr.ExecMapper: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row 
+Unknown macro: {"_col0"} 
+  at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:550)
+  at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:177)
+  at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54)
+  at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+  at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+  at org.apache.hadoop.mapred.LocalContainerLauncher$EventHandler.runSubtask(LocalContainerLauncher.java:370)
+  at org.apache.hadoop.mapred.LocalContainerLauncher$EventHandler.runTask(LocalContainerLauncher.java:295)
+  at org.apache.hadoop.mapred.LocalContainerLauncher$EventHandler.access$200(LocalContainerLauncher.java:181)
+  at org.apache.hadoop.mapred.LocalContainerLauncher$EventHandler$1.run(LocalContainerLauncher.java:224)
+  at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+  at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+  at java.lang.Thread.run(Thread.java:745)
+  Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Unxpected exception: null
+  at org.apache.hadoop.hive.ql.exec.MapJoinOperator.processOp(MapJoinOperator.java:254)
+  at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+  at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:92)
+  at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+  at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:540)
+  ... 13 more
+  Caused by: java.lang.NullPointerException
+  at org.apache.hadoop.hive.ql.exec.MapJoinOperator.getRefKey(MapJoinOperator.java:198)
+  at org.apache.hadoop.hive.ql.exec.MapJoinOperator.computeMapJoinKey(MapJoinOperator.java:186)
+  at org.apache.hadoop.hive.ql.exec.MapJoinOperator.processOp(MapJoinOperator.java:216)
+  ... 17 more
+When I set hive.auto.convert.join=false everything works.
+Here are explains with this variable turned off and on:
+https://gist.github.com/kgs/20db747c8d81d94ac20e
+https://gist.github.com/kgs/63bc1fc148354b98a63e
+
+

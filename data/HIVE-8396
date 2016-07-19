@@ -1,0 +1,19 @@
+Description
+
+
+-- SORT_QUERY_RESULTS
+set hive.cbo.enable=true;
+
+... commands ...
+
+
+causes
+
+
+2014-10-07 18:55:57,193 ERROR ql.Driver (SessionState.java:printError(825)) - FAILED: ParseException line 2:4 missing KW_ROLE at 'hive' near 'hive'
+
+
+If the comment is moved after the command it works.
+I noticed this earlier when I comment out parts of some random q file for debugging purposes, and it starts failing. This is annoying.
+
+

@@ -1,0 +1,28 @@
+Description
+
+Trying SMB join with 2 tables on trunk.
+Created with :
+
+
+CREATE TABLE foo ( ..)
+ CLUSTERED BY (id) 
+ SORTED BY (id) INTO 4 BUCKETS 
+ STORED AS ORC;
+
+
+got this :
+
+
+explain 
+select s.id, count(*) 
+from sales e, shops s
+where e.id_shop = s.id
+group by s.id
+
+
+
+Error: Error while compiling statement: FAILED: ClassCastException org.apache.hadoop.hive.ql.exec.SMBMapJoinOperator cannot be cast to org.apache.hadoop.hive.ql.exec.MapJoinOperator (state=42000,code=40000)
+
+
+
+

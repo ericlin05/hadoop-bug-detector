@@ -1,0 +1,27 @@
+Description
+
+Comparison with a Sub query in a WHERE statement does not work.
+Given that id_chargement is an integer:
+USE db1;
+SELECT * FROM tbl1 a WHERE a.id_chargement &amp;gt; (SELECT MAX(b.id_chargement) FROM tbl2 b);
+or
+SELECT * FROM tbl1 a WHERE a.id_chargement &amp;gt; (SELECT b.id_chargement FROM tbl2 b LIMIT 1);
+Both return the following parsing error:
+Error: Error while compiling statement: FAILED: ParseException line 1:88 cannot recognize input near 'SELECT' 'b' '.' in expression specification (state=42000,code=40000)
+java.sql.SQLException: Error while compiling statement: FAILED: ParseException line 1:88 cannot recognize input near 'SELECT' 'b' '.' in expression specification
+        at org.apache.hive.jdbc.Utils.verifySuccess(Utils.java:121)
+        at org.apache.hive.jdbc.Utils.verifySuccessWithInfo(Utils.java:109)
+        at org.apache.hive.jdbc.HiveStatement.execute(HiveStatement.java:231)
+        at org.apache.hive.beeline.Commands.execute(Commands.java:736)
+        at org.apache.hive.beeline.Commands.sql(Commands.java:657)
+        at org.apache.hive.beeline.BeeLine.dispatch(BeeLine.java:804)
+        at org.apache.hive.beeline.BeeLine.begin(BeeLine.java:659)
+        at org.apache.hive.beeline.BeeLine.mainWithInputRedirection(BeeLine.java:368)
+        at org.apache.hive.beeline.BeeLine.main(BeeLine.java:351)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:601)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:212)
+
+

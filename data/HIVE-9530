@@ -1,0 +1,21 @@
+Description
+
+
+
+select c1 from tversion where 1 * cnnull is null
+
+FAILED: SemanticException [Error 10014]: Line 1:30 Wrong arguments 'cnnull': No matching method for class org.apache.hadoop.hive.ql.udf.generic.GenericUDFOPMultiply with (int, boolean)
+
+create table if not exists TVERSION (
+  RNUM int,
+  C1 int,
+  CVER char(6),
+  CNNULL int,
+  CCNULL char(1)
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' 
+STORED AS TEXTFILE ;
+
+
+
+

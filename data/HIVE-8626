@@ -1,0 +1,22 @@
+Description
+
+HIVE-6392 takes care of allowing HDFS super-user accounts to register partitions in tables whose HDFS paths don't explicitly grant write-permissions to the super-user.
+However, the dropPartitions()/dropTable()/dropDatabase() use-cases don't handle this at all. i.e. An HDFS super-user (kal_el@DEV.GRID.MYTH.NET) can't drop the very partitions that were added to a table-directory owned by the user (mithunr). The following error is the result:
+
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. MetaException(message:Table metadata not deleted since hdfs://mythcluster-nn1.grid.myth.net:8020/user/mithunr/myth.db/myth_table is not writable by kal_el@DEV.GRID.MYTH.NET)
+This is the result of redundant checks in HiveMetaStore::dropPartitionsAndGetLocations():
+HiveMetaStore.java
+
+if (!wh.isWritable(partPath.getParent())) {
+  throw new MetaException("Table metadata not deleted since the partition "
+            + Warehouse.makePartName(partitionKeys, part.getValues()) 
+            +  " has parent location " + partPath.getParent() 
+            + " which is not writable " 
+            + "by " + hiveConf.getUser());
+}
+
+
+This check is already made in StorageBasedAuthorizationProvider. If the argument is that the SBAP isn't guaranteed to be in play, then this shouldn't be checked in HMS either. If HDFS permissions need to be checked in addition to say, ACLs, then perhaps a recursively-composed auth-provider ought to be used.
+For the moment, I'll get Warehouse.isWritable() to handle HDFS super-users. But I think isWritable() checks oughtn't to be in HiveMetaStore. (Perhaps fix this in another JIRA?)
+
+

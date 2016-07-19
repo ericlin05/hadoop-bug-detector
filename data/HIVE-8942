@@ -1,0 +1,84 @@
+Description
+
+This test is failing with exceptions.
+The query:
+
+FROM T1 a JOIN src c ON c.key+1=a.key SELECT /*+ STREAMTABLE(a) */ sum(hash(a.key)), sum(hash(a.val)), sum(hash(c.key));
+
+
+throws following exception:
+
+java.lang.RuntimeException: cannot find field val from [0:key, 1:value]
+	at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils.getStandardStructFieldRef(ObjectInspectorUtils.java:410)
+	at org.apache.hadoop.hive.serde2.BaseStructObjectInspector.getStructFieldRef(BaseStructObjectInspector.java:133)
+	at org.apache.hadoop.hive.ql.exec.ExprNodeColumnEvaluator.initialize(ExprNodeColumnEvaluator.java:55)
+	at org.apache.hadoop.hive.ql.exec.JoinUtil.getObjectInspectorsFromEvaluators(JoinUtil.java:68)
+	at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.initializeOp(CommonJoinOperator.java:221)
+	at org.apache.hadoop.hive.ql.exec.AbstractMapJoinOperator.initializeOp(AbstractMapJoinOperator.java:72)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.initializeOp(MapJoinOperator.java:96)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:385)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:469)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:425)
+	at org.apache.hadoop.hive.ql.exec.HashTableDummyOperator.initializeOp(HashTableDummyOperator.java:40)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:385)
+	at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.init(SparkMapRecordHandler.java:127)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunction.call(HiveMapFunction.java:54)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunction.call(HiveMapFunction.java:29)
+	at org.apache.spark.api.java.JavaRDDLike$$anonfun$fn$7$1.apply(JavaRDDLike.scala:167)
+	at org.apache.spark.api.java.JavaRDDLike$$anonfun$fn$7$1.apply(JavaRDDLike.scala:167)
+	at org.apache.spark.rdd.RDD$$anonfun$13.apply(RDD.scala:601)
+	at org.apache.spark.rdd.RDD$$anonfun$13.apply(RDD.scala:601)
+	at org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:35)
+	at org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:263)
+	at org.apache.spark.rdd.RDD.iterator(RDD.scala:230)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:68)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:41)
+	at org.apache.spark.scheduler.Task.run(Task.scala:56)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:196)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+and the query:
+
+FROM T1 a RIGHT OUTER JOIN T2 c ON c.key+1=a.key SELECT /*+ STREAMTABLE(a) */ sum(hash(a.key)), sum(hash(a.val)), sum(hash(c.key));
+
+
+throws following exception:
+
+java.lang.IndexOutOfBoundsException: Index: 1, Size: 1
+  at java.util.ArrayList.rangeCheck(ArrayList.java:635)
+  at java.util.ArrayList.get(ArrayList.java:411)
+  at org.apache.hadoop.hive.ql.exec.AbstractMapJoinOperator.getValueObjectInspectors(AbstractMapJoinOperator.java:101)
+  at org.apache.hadoop.hive.ql.exec.MapJoinOperator.getValueObjectInspectors(MapJoinOperator.java:128)
+  at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.getJoinOutputObjectInspector(CommonJoinOperator.java:167)
+  at org.apache.hadoop.hive.ql.exec.CommonJoinOperator.initializeOp(CommonJoinOperator.java:310)
+  at org.apache.hadoop.hive.ql.exec.AbstractMapJoinOperator.initializeOp(AbstractMapJoinOperator.java:72)
+  at org.apache.hadoop.hive.ql.exec.MapJoinOperator.initializeOp(MapJoinOperator.java:96)
+  at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:385)
+  at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:469)
+  at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:425)
+  at org.apache.hadoop.hive.ql.exec.HashTableDummyOperator.initializeOp(HashTableDummyOperator.java:40)
+  at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:385)
+  at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.init(SparkMapRecordHandler.java:127)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunction.call(HiveMapFunction.java:54)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunction.call(HiveMapFunction.java:29)
+  at org.apache.spark.api.java.JavaRDDLike$$anonfun$fn$7$1.apply(JavaRDDLike.scala:167)
+  at org.apache.spark.api.java.JavaRDDLike$$anonfun$fn$7$1.apply(JavaRDDLike.scala:167)
+  at org.apache.spark.rdd.RDD$$anonfun$13.apply(RDD.scala:601)
+  at org.apache.spark.rdd.RDD$$anonfun$13.apply(RDD.scala:601)
+  at org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:35)
+  at org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:263)
+  at org.apache.spark.rdd.RDD.iterator(RDD.scala:230)
+  at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:68)
+  at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:41)
+  at org.apache.spark.scheduler.Task.run(Task.scala:56)
+  at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:196)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+  at java.lang.Thread.run(Thread.java:745)
+
+
+
+

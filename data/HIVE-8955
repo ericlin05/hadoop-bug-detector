@@ -1,0 +1,32 @@
+Description
+
+When alter partition code path is triggered, it should check for the flag "hive.stats.autogather", if it is true, then only updateStats else skip them.
+This is done in append_partition code flow. 
+Is there any specific reason the alter_partition does not respect this conf variable?
+//code snippet : HiveMetastore.java 
+ private Partition append_partition_common(RawStore ms, String dbName, String tableName,
+        List&amp;lt;String&amp;gt; part_vals, EnvironmentContext envContext) throws InvalidObjectException,
+        AlreadyExistsException, MetaException {
+...
+....
+        if (HiveConf.getBoolVar(hiveConf, HiveConf.ConfVars.HIVESTATSAUTOGATHER) &amp;amp;&amp;amp;
+            !MetaStoreUtils.isView(tbl)) 
+{
+          MetaStoreUtils.updatePartitionStatsFast(part, wh, madeDir);
+        }
+...
+...
+}
+The above code snippet checks for the variable but this same check is absent in 
+//code snippet : HiveAlterHandler.java 
+public Partition alterPartition(final RawStore msdb, Warehouse wh, final String dbname,
+      final String name, final List&amp;lt;String&amp;gt; part_vals, final Partition new_part)
+      throws InvalidOperationException, InvalidObjectException, AlreadyExistsException,
+      MetaException 
+{
+
+....
+...
+}
+            
+

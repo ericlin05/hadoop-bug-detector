@@ -1,0 +1,76 @@
+Description
+
+1) downloaded hive on spark source from https://github.com/apache/hive/tree/spark
+2) changed guava library to 14 of hadoop since there was common error
+3) compiled with "mvn clean install  -Dhadoop-23.version=2.4.0  -Phadoop-2,dist"
+4) i got the below error..
+5) So i edit the pom.xml to erace the relevant test jar (i am not sure it is the right process to avoid below error)...
+[Error Logs]
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 20.892 sec - in org.apache.hadoop.hive.metastore.TestMetastoreExpr
+Results :
+Failed tests: 
+  TestOrcSerDeStats.testStringAndBinaryStatistics:211 expected:&amp;lt;273&amp;gt; but was:&amp;lt;165&amp;gt;
+  TestOrcSerDeStats.testOrcSerDeStatsList:309 expected:&amp;lt;430000000&amp;gt; but was:&amp;lt;250000000&amp;gt;
+  TestOrcSerDeStats.testOrcSerDeStatsMap:341 expected:&amp;lt;950000&amp;gt; but was:&amp;lt;590000&amp;gt;
+  TestOrcSerDeStats.testOrcSerDeStatsSimpleWithNulls:373 expected:&amp;lt;44500&amp;gt; but was:&amp;lt;26500&amp;gt;
+  TestOrcSerDeStats.testOrcSerDeStatsComplex:416 expected:&amp;lt;1740&amp;gt; but was:&amp;lt;1104&amp;gt;
+  TestOrcSerDeStats.testOrcSerDeStatsComplexOldFormat:510 expected:&amp;lt;1740&amp;gt; but was:&amp;lt;1104&amp;gt;
+Tests in error: 
+  TestOrcSerDeStats.testSerdeStatsOldFormat »  Unexpected exception, expected&amp;lt;ja...
+Tests run: 2282, Failures: 6, Errors: 1, Skipped: 0
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary:
+[INFO] 
+[INFO] Hive .............................................. SUCCESS [32.298s]
+[INFO] Hive Shims Common ................................. SUCCESS [12.751s]
+[INFO] Hive Shims 0.20 ................................... SUCCESS [3.378s]
+[INFO] Hive Shims Secure Common .......................... SUCCESS [2.836s]
+[INFO] Hive Shims 0.20S .................................. SUCCESS [2.647s]
+[INFO] Hive Shims 0.23 ................................... SUCCESS [4.236s]
+[INFO] Hive Shims ........................................ SUCCESS [0.815s]
+[INFO] Hive Common ....................................... SUCCESS [53.406s]
+[INFO] Hive Serde ........................................ SUCCESS [1:04.661s]
+[INFO] Hive Metastore .................................... SUCCESS [1:50.439s]
+[INFO] Hive Ant Utilities ................................ SUCCESS [0.803s]
+[INFO] Hive Query Language ............................... FAILURE [1:14:38.323s]
+[INFO] Hive Service ...................................... SKIPPED
+[INFO] Hive Accumulo Handler ............................. SKIPPED
+[INFO] Hive JDBC ......................................... SKIPPED
+[INFO] Hive Beeline ...................................... SKIPPED
+[INFO] Hive CLI .......................................... SKIPPED
+[INFO] Hive Contrib ...................................... SKIPPED
+[INFO] Hive HBase Handler ................................ SKIPPED
+[INFO] Hive HCatalog ..................................... SKIPPED
+[INFO] Hive HCatalog Core ................................ SKIPPED
+[INFO] Hive HCatalog Pig Adapter ......................... SKIPPED
+[INFO] Hive HCatalog Server Extensions ................... SKIPPED
+[INFO] Hive HCatalog Webhcat Java Client ................. SKIPPED
+[INFO] Hive HCatalog Webhcat ............................. SKIPPED
+[INFO] Hive HCatalog Streaming ........................... SKIPPED
+[INFO] Hive HWI .......................................... SKIPPED
+[INFO] Hive ODBC ......................................... SKIPPED
+[INFO] Hive Shims Aggregator ............................. SKIPPED
+[INFO] Hive TestUtils .................................... SKIPPED
+[INFO] Hive Packaging .................................... SKIPPED
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 1:19:28.909s
+[INFO] Finished at: Mon Sep 15 01:33:10 PDT 2014
+[INFO] Final Memory: 49M/469M
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.16:test (default-test) on project hive-exec: There are test failures.
+[ERROR] 
+[ERROR] Please refer to /home/secuser/project/hive-spark/ql/target/surefire-reports for the individual test results.
+[ERROR] -&amp;gt; [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn &amp;lt;goals&amp;gt; -rf :hive-exec
+
+

@@ -1,0 +1,14 @@
+Description
+
+1. UDF decode should accept STRING_GROUP types for the second parameter
+2. Fix error messages. (replace Encode with Decode)
+
+
+select decode(cast('A' as binary), cast('utf-8' as varchar(5)));
+FAILED: SemanticException [Error 10016]: Line 1:59 Argument type mismatch ''utf-8'': The second argument to Encode() must be a string
+
+
+3. remove unused imports
+4. add udf_decode.q test
+
+

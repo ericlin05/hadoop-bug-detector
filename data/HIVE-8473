@@ -1,0 +1,10 @@
+Description
+
+A reasonable and unambiguous user command attempt in Beeline is "exit;". We have other commands that are similarly formed, like "show tables;". We should support "exit;" as an alias of "!exit" instead of displaying:
+
+
+Error: Error while compiling statement: FAILED: ParseException line 1:0 cannot recognize input near 'exit' '&amp;lt;EOF&amp;gt;' '&amp;lt;EOF&amp;gt;' (state=42000,code=40000)
+
+
+
+

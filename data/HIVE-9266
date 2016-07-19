@@ -1,0 +1,16 @@
+Description
+
+The following error shows in Hiveserver2 logs: 
+2014-12-31 13:22:01,920 ERROR org.apache.hadoop.hive.ql.Driver: FAILED: NullPointerException null 
+java.lang.NullPointerException 
+at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.getStagingDirectoryPathname(SemanticAnalyzer.java:1640) 
+When looking at "show create table" the LOCATION does not have a preceding "hdfs://" 
+We should change the following:
+// Only HDFS paths can be checked for encryption 
+if (tablePath.toUri().getScheme().equals("hdfs")) { 
+to:
+"hdfs".equals(tablePath.toUri().getScheme()) 
+( Also on line 1605, in getStrongestEncryptedTablePath )
+This will avoid the NPE, and allow it to be more resilient to bad locations.
+
+

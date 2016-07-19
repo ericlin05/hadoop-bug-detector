@@ -1,0 +1,57 @@
+Description
+
+I got this issue while running some perf tests with beeline. After I submit a query, the beeline will hung, with no output shown, even after the job is completed:
+
+0: jdbc:hive2://ec2-54-67-61-36.us-west-1.com&amp;gt; SELECT COUNT(*) FROM store_sales WHERE ss_item_sk IS NOT NULL;
+INFO  : In order to change the average load for a reducer (in bytes):
+INFO  :   set hive.exec.reducers.bytes.per.reducer=&amp;lt;number&amp;gt;
+INFO  : In order to limit the maximum number of reducers:
+INFO  :   set hive.exec.reducers.max=&amp;lt;number&amp;gt;
+INFO  : In order to set a constant number of reducers:
+INFO  :   set mapreduce.job.reduces=&amp;lt;number&amp;gt;
+INFO  : state = null
+INFO  : state = null
+INFO  : state = null
+INFO  : state = null
+INFO  : state = null
+INFO  : state = null
+...
+
+
+Also, in hive.log, I see this exception happens periodically:
+
+2014-12-22 16:01:04,166 WARN  [HiveServer2-Background-Pool: Thread-35]: impl.RemoteSparkJobStatus (RemoteSparkJobStatus.java:getSparkJobInfo(153)) - Error getting job info
+java.util.concurrent.TimeoutException
+        at io.netty.util.concurrent.AbstractFuture.get(AbstractFuture.java:49)
+        at org.apache.hive.spark.client.JobHandleImpl.get(JobHandleImpl.java:74)
+        at org.apache.hive.spark.client.JobHandleImpl.get(JobHandleImpl.java:35)
+        at org.apache.hadoop.hive.ql.exec.spark.status.impl.RemoteSparkJobStatus.getSparkJobInfo(RemoteSparkJobStatus.java:151)
+        at org.apache.hadoop.hive.ql.exec.spark.status.impl.RemoteSparkJobStatus.getState(RemoteSparkJobStatus.java:75)
+        at org.apache.hadoop.hive.ql.exec.spark.status.SparkJobMonitor.startMonitor(SparkJobMonitor.java:72)
+        at org.apache.hadoop.hive.ql.exec.spark.SparkTask.execute(SparkTask.java:113)
+        at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+        at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:85)
+        at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1646)
+        at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1406)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1218)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1045)
+        at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1218)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1045)
+        at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1040)
+        at org.apache.hive.service.cli.operation.SQLOperation.runQuery(SQLOperation.java:145)
+        at org.apache.hive.service.cli.operation.SQLOperation.access$100(SQLOperation.java:70)
+        at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:197)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1614)
+        at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:209)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+2014-12-22 16:01:04,166 INFO  [HiveServer2-Background-Pool: Thread-35]: status.SparkJobMonitor (SessionState.java:printInfo(829)) - state = null
+
+
+
+

@@ -1,0 +1,25 @@
+Description
+
+In spark-1.2, we have guava shaded in spark-assembly. And we only ship hive-exec to spark cluster. So spark executor won't have (original) guava in its class path.
+This can cause some problem when TaskRunner deserializes a task, and throws something like this:
+
+
+org.apache.spark.SparkException: Job aborted due to stage failure: Task 0 in stage 0.0 failed 4 times, most recent failure: Lost task 0.3 in stage 0.0 (TID 3, node13-1): java.lang.IllegalStateException: unread block data
+        java.io.ObjectInputStream$BlockDataInputStream.setBlockDataMode(ObjectInputStream.java:2421)
+        java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1382)
+        java.io.ObjectInputStream.defaultReadFields(ObjectInputStream.java:1990)
+        java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:1915)
+        java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:1798)
+        java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1350)
+        java.io.ObjectInputStream.readObject(ObjectInputStream.java:370)
+        org.apache.spark.serializer.JavaDeserializationStream.readObject(JavaSerializer.scala:62)
+        org.apache.spark.serializer.JavaSerializerInstance.deserialize(JavaSerializer.scala:87)
+        org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:164)
+        java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        java.lang.Thread.run(Thread.java:744)
+
+
+We may have to verify this issue and ship guava to spark cluster.
+
+

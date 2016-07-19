@@ -1,0 +1,13 @@
+Description
+
+NO PRECOMMIT TESTS
+TestEncryptedHDFSCliDriver get exception "Could not execute test command" for encryption test cases.
+The stacktrace is:
+
+Unexpected exception java.lang.RuntimeException: Could not execute test command: Could not get CommandProcessor for command: 
+ at org.apache.hadoop.hive.ql.QTestUtil.executeTestCommand(QTestUtil.java:967)
+ at org.apache.hadoop.hive.ql.QTestUtil.executeClientInternal(QTestUtil.java:931)
+ at org.apache.hadoop.hive.ql.QTestUtil.executeClient(QTestUtil.java:922)
+ at org.apache.hadoop.hive.cli.TestEncryptedHDFSCliDriver.runTest(TestEncryptedHDFSCliDriver.java:150)
+
+

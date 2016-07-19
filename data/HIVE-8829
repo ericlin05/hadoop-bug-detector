@@ -1,0 +1,30 @@
+Description
+
+Apache Thrift 0.9.2 was released recently (https://thrift.apache.org/download). It has a fix for THRIFT-2660 which can cause HS2 (tcp mode) and Metastore processes to go OOM on getting a non-thrift request when they use SASL transport. The reason (thrift code):
+
+
+  protected SaslResponse receiveSaslMessage() throws TTransportException {
+    underlyingTransport.readAll(messageHeader, 0, messageHeader.length);
+
+    byte statusByte = messageHeader[0];
+    byte[] payload = new byte[EncodingUtils.decodeBigEndian(messageHeader, STATUS_BYTES)];
+    underlyingTransport.readAll(payload, 0, payload.length);
+
+    NegotiationStatus status = NegotiationStatus.byValue(statusByte);
+    if (status == null) {
+      sendAndThrowMessage(NegotiationStatus.ERROR, "Invalid status " + statusByte);
+    } else if (status == NegotiationStatus.BAD || status == NegotiationStatus.ERROR) {
+      try {
+        String remoteMessage = new String(payload, "UTF-8");
+        throw new TTransportException("Peer indicated failure: " + remoteMessage);
+      } catch (UnsupportedEncodingException e) {
+        throw new TTransportException(e);
+      }
+    }
+
+
+Basically since there are no message format checks / size checks before creating the byte array, on getting a non-SASL message this creates a huge 
+byte array from some garbage size.
+For HS2, an attempt was made to fix it here: HIVE-6468, which never went in.  I think for 0.15.0 it's best to upgarde to Thrift 0.9.2.
+
+

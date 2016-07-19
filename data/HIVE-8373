@@ -1,0 +1,23 @@
+Description
+
+I have a straigh forward query to run in Spark local mode, but get an OOM even though the data volumn is tiny:
+
+
+Exception in thread "Spark Context Cleaner" 
+Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "Spark Context Cleaner"
+Exception in thread "Executor task launch worker-1" 
+Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "Executor task launch worker-1"
+Exception in thread "Keep-Alive-Timer" 
+Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "Keep-Alive-Timer"
+Exception in thread "Driver Heartbeater" 
+Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "Driver Heartbeater"
+
+
+The query is:
+
+
+select product_name, avg(item_price) as avg_price from product join item on item.product_pk=product.product_pk group by product_name order by avg_price;
+
+
+
+

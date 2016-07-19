@@ -1,0 +1,69 @@
+Description
+
+Currently, when Hive parses GROUPING SETS clauses, and if there are some expressions that were composed of two or more common subexpressions, then the first element of those expressions can only be a simple Identifier without any qualifications, otherwise Hive will throw ParseException during its parser stage. Therefore, Hive will throw ParseException while parsing the following HQLs:
+
+
+    drop table test;
+    create table test(tc1 int, tc2 int, tc3 int);
+    
+    explain select test.tc1, test.tc2 from test group by test.tc1, test.tc2 grouping sets(test.tc1, (test.tc1, test.tc2));
+    explain select tc1+tc2, tc2 from test group by tc1+tc2, tc2 grouping sets(tc2, (tc1 + tc2, tc2));
+    
+    drop table test;
+
+
+The following contents show some ParseExctption stacktrace:
+
+
+    2015-01-07 09:53:34,718 INFO [main]: log.PerfLogger (PerfLogger.java:PerfLogBegin(108)) - &amp;lt;PERFLOG method=Driver.run from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+    2015-01-07 09:53:34,719 INFO [main]: log.PerfLogger (PerfLogger.java:PerfLogBegin(108)) - &amp;lt;PERFLOG method=TimeToSubmit from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+    2015-01-07 09:53:34,721 INFO [main]: ql.Driver (Driver.java:checkConcurrency(158)) - Concurrency mode is disabled, not creating a lock manager
+    2015-01-07 09:53:34,721 INFO [main]: log.PerfLogger (PerfLogger.java:PerfLogBegin(108)) - &amp;lt;PERFLOG method=compile from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+    2015-01-07 09:53:34,724 INFO [main]: log.PerfLogger (PerfLogger.java:PerfLogBegin(108)) - &amp;lt;PERFLOG method=parse from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+    2015-01-07 09:53:34,724 INFO [main]: parse.ParseDriver (ParseDriver.java:parse(185)) - Parsing command: explain select test.tc1, test.tc2 from test group by test.tc1, test.tc2 grouping sets(test.tc1, (test.tc1, test.tc2))
+    2015-01-07 09:53:34,734 ERROR [main]: ql.Driver (SessionState.java:printError(545)) - FAILED: ParseException line 1:105 missing ) at ',' near '&amp;lt;EOF&amp;gt;'
+    line 1:116 extraneous input ')' expecting EOF near '&amp;lt;EOF&amp;gt;'
+    org.apache.hadoop.hive.ql.parse.ParseException: line 1:105 missing ) at ',' near '&amp;lt;EOF&amp;gt;'
+    line 1:116 extraneous input ')' expecting EOF near '&amp;lt;EOF&amp;gt;'
+    at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:210)
+    at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:166)
+    at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:404)
+    at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:322)
+    at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:975)
+    at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1040)
+    at org.apache.hadoop.hive.ql.Driver.run(Driver.java:911)
+    at org.apache.hadoop.hive.ql.Driver.run(Driver.java:901)
+    at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:268)
+    at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:220)
+    at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:423)
+    at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:792)
+    at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:686)
+    at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:625)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:606)
+    at org.apache.hadoop.util.RunJar.main(RunJar.java:208)
+    2015-01-07 09:53:34,745 INFO [main]: log.PerfLogger (PerfLogger.java:PerfLogEnd(135)) - &amp;lt;/PERFLOG method=compile start=1420595614721 end=1420595614745 duration=24 from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+    2015-01-07 09:53:34,745 INFO [main]: log.PerfLogger (PerfLogger.java:PerfLogBegin(108)) - &amp;lt;PERFLOG method=releaseLocks from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+    2015-01-07 09:53:34,746 INFO [main]: log.PerfLogger (PerfLogger.java:PerfLogEnd(135)) - &amp;lt;/PERFLOG method=releaseLocks start=1420595614745 end=1420595614746 duration=1 from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+    2015-01-07 09:53:34,746 INFO [main]: log.PerfLogger (PerfLogger.java:PerfLogBegin(108)) - &amp;lt;PERFLOG method=releaseLocks from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+    2015-01-07 09:53:34,746 INFO [main]: log.PerfLogger (PerfLogger.java:PerfLogEnd(135)) - &amp;lt;/PERFLOG method=releaseLocks start=1420595614746 end=1420595614746 duration=0 from=org.apache.hadoop.hive.ql.Driver&amp;gt;
+
+
+But, Hive will not throw ParseException while handling the follwing HQLs:
+
+
+    drop table test;
+    create table test(tc1 int, tc2 int, tc3 int);
+    
+    explain select tc1, test.tc2 from test group by tc1, test.tc2 grouping sets(tc1, (tc1, test.tc2));
+    explain select tc1+tc2, tc1 from test group by tc1+tc2, tc1 grouping sets(tc1, (tc1, tc1 + tc2));
+    explain select test.tc1, test.tc1 + test.tc2 from test group by test.tc1, test.tc1 + test.tc2 grouping sets(test.tc1, (test.tc1), (test.tc1 + test.tc2));
+    
+    drop table test;
+
+
+For why and how to solve it, see the attachments: Fix-Hive-ParseException-of-Grouping-Sets.htm and HIVE-9336.1.patch
+
+

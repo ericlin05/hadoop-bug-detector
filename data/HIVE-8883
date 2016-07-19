@@ -1,0 +1,53 @@
+Description
+
+This test fails with the following stack trace:
+
+java.lang.NullPointerException
+  at org.apache.hadoop.hive.ql.exec.MapJoinOperator.processOp(MapJoinOperator.java:257)
+  at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+  at org.apache.hadoop.hive.ql.exec.SelectOperator.processOp(SelectOperator.java:84)
+  at org.apache.hadoop.hive.ql.exec.spark.SparkReduceRecordHandler.processKeyValues(SparkReduceRecordHandler.java:319)
+  at org.apache.hadoop.hive.ql.exec.spark.SparkReduceRecordHandler.processRow(SparkReduceRecordHandler.java:276)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveReduceFunctionResultList.processNextRecord(HiveReduceFunctionResultList.java:48)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveReduceFunctionResultList.processNextRecord(HiveReduceFunctionResultList.java:28)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveBaseFunctionResultList$ResultIterator.hasNext(HiveBaseFunctionResultList.java:96)
+  at scala.collection.convert.Wrappers$JIteratorWrapper.hasNext(Wrappers.scala:41)
+  at org.apache.spark.util.collection.ExternalSorter.insertAll(ExternalSorter.scala:214)
+  at org.apache.spark.shuffle.sort.SortShuffleWriter.write(SortShuffleWriter.scala:65)
+  at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:68)
+  at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:41)
+  at org.apache.spark.scheduler.Task.run(Task.scala:56)
+  at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:186)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+  at java.lang.Thread.run(Thread.java:745)
+2014-11-14 17:05:09,206 ERROR [Executor task launch worker-4]: spark.SparkReduceRecordHandler (SparkReduceRecordHandler.java:processRow(285)) - org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row (tag=0) {"key":{"reducesinkkey0":"val_0"},"value":{"_col0":"0"}}
+  at org.apache.hadoop.hive.ql.exec.spark.SparkReduceRecordHandler.processKeyValues(SparkReduceRecordHandler.java:328)
+  at org.apache.hadoop.hive.ql.exec.spark.SparkReduceRecordHandler.processRow(SparkReduceRecordHandler.java:276)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveReduceFunctionResultList.processNextRecord(HiveReduceFunctionResultList.java:48)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveReduceFunctionResultList.processNextRecord(HiveReduceFunctionResultList.java:28)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveBaseFunctionResultList$ResultIterator.hasNext(HiveBaseFunctionResultList.java:96)
+  at scala.collection.convert.Wrappers$JIteratorWrapper.hasNext(Wrappers.scala:41)
+  at org.apache.spark.util.collection.ExternalSorter.insertAll(ExternalSorter.scala:214)
+  at org.apache.spark.shuffle.sort.SortShuffleWriter.write(SortShuffleWriter.scala:65)
+  at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:68)
+  at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:41)
+  at org.apache.spark.scheduler.Task.run(Task.scala:56)
+  at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:186)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+  at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Unexpected exception: null
+  at org.apache.hadoop.hive.ql.exec.MapJoinOperator.processOp(MapJoinOperator.java:318)
+  at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+  at org.apache.hadoop.hive.ql.exec.SelectOperator.processOp(SelectOperator.java:84)
+  at org.apache.hadoop.hive.ql.exec.spark.SparkReduceRecordHandler.processKeyValues(SparkReduceRecordHandler.java:319)
+  ... 14 more
+Caused by: java.lang.NullPointerException
+  at org.apache.hadoop.hive.ql.exec.MapJoinOperator.processOp(MapJoinOperator.java:257)
+  ... 17 more
+
+
+auto_join27.q and auto_join31.q seem to fail with the same error.
+
+

@@ -1,0 +1,19 @@
+Description
+
+I have implemented an UADF which wrap around percentile_approx, and I have been hit by the following stack trace:
+
+Caused by: java.lang.IllegalArgumentException: Comparison method violates its general contract!
+	at java.util.ComparableTimSort.mergeLo(ComparableTimSort.java:714)
+	at java.util.ComparableTimSort.mergeAt(ComparableTimSort.java:451)
+	at java.util.ComparableTimSort.mergeCollapse(ComparableTimSort.java:376)
+	at java.util.ComparableTimSort.sort(ComparableTimSort.java:182)
+	at java.util.ComparableTimSort.sort(ComparableTimSort.java:146)
+	at java.util.Arrays.sort(Arrays.java:472)
+	at java.util.Collections.sort(Collections.java:155)
+	at org.apache.hadoop.hive.ql.udf.generic.NumericHistogram.merge(NumericHistogram.java:161)
+
+
+In my use case, with my special UADF, there were Double.NaN
+Implementing a proper double comparaison with Double.compare in com.goojet.mapred.hive.udf.NumericHistogram.Coord.compareTo(Object) fixes it.
+
+

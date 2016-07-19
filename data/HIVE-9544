@@ -1,0 +1,26 @@
+Description
+
+When attempting to drop a partitioned table using a fully qualified name I get this error:
+
+
+hive -e 'drop table myDB.my_table_name;'
+Logging initialized using configuration in file:/etc/hive/conf/hive-log4j.properties
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/usr/hdp/2.2.0.0-2041/hadoop/lib/slf4j-log4j12-1.7.5.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/usr/hdp/2.2.0.0-2041/hive/lib/hive-jdbc-0.14.0.2.2.0.0-2041-standalone.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+
+
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. org.apache.thrift.TApplicationException: Internal error processing get_partition_names
+
+
+It succeeds if I instead do:
+
+hive -e 'use myDB; drop table my_table_name;'
+
+Regards,
+Hari Sekhon
+http://www.linkedin.com/in/harisekhon
+
+

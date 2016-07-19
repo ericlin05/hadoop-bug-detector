@@ -1,0 +1,28 @@
+Description
+
+For every run of the hive CLI there is a delay for the shell startup
+
+14/07/31 23:07:19 INFO Configuration.deprecation: fs.default.name is deprecated. Instead, use fs.defaultFS
+14/07/31 23:07:19 INFO tez.DagUtils: Hive jar directory is hdfs://mac-10:8020/user/gopal/apps/2014-Jul-31/hive/
+14/07/31 23:07:19 INFO tez.DagUtils: Localizing resource because it does not exist: file:/home/gopal/tez-autobuild/dist/hive/lib/hive-exec-0.14.0-SNAPSHOT.jar to dest: 
+hdfs://mac-10:8020/user/gopal/apps/2014-Jul-31/hive/hive-exec-0.14.0-SNAPSHOTde1f82f0b5561d3db9e3080dfb2897210a3bda4ca5e7b14e881e381115837fd8.
+jar
+14/07/31 23:07:19 INFO tez.DagUtils: Looks like another thread is writing the same file will wait.
+14/07/31 23:07:19 INFO tez.DagUtils: Number of wait attempts: 5. Wait interval: 5000
+14/07/31 23:07:19 INFO tez.DagUtils: Resource modification time: 1406870512963
+14/07/31 23:07:20 INFO tez.TezSessionState: Opening new Tez Session (id: 02d6b558-44cc-4182-b2f2-6a37ffdd25d2, scratch dir: hdfs://mac-10:8020/tmp/hive-gopal/_tez_session_dir/02d6b558-44cc-4182-b2f2-6a37ffdd25d2)
+
+
+Traced this to a method which does PRIVATE LRs - this is marked as PRIVATE even if it is from a common install dir.
+
+
+ public LocalResource localizeResource(Path src, Path dest, Configuration conf)
+    throws IOException {
+....
+    return createLocalResource(destFS, dest, LocalResourceType.FILE,
+        LocalResourceVisibility.PRIVATE);
+  }
+
+
+
+

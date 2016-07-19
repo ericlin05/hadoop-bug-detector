@@ -1,0 +1,11 @@
+Description
+
+Create Hive index without specifying "WITH DEFERRED REBUILD" is failed with following error.
+CREATE INDEX table01_index ON TABLE table01 (column2) 
+AS 'COMPACT';
+FAILED: Error in metadata: java.lang.RuntimeException: Please specify deferred rebuild using " WITH DEFERRED REBUILD ".
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask
+According to the design here https://cwiki.apache.org/confluence/display/Hive/IndexDev
+"WITH DEFERRED REBUILD" is optional, correct?
+
+

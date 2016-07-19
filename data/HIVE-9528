@@ -1,0 +1,19 @@
+Description
+
+When running the following query:
+
+
+SELECT if( COUNT(*) = 0, 'true', 'false' ) as RESULT FROM ( select  *  from sim a join sim2 b on a.simstr=b.simstr) app
+
+Error: Error while compiling statement: FAILED: SemanticException [Error 10007]: Ambiguous column reference simstr in app (state=42000,code=10007)
+
+
+This query works fine in hive 0.10
+In the apache trunk, following workaround will work:
+
+
+SELECT if(COUNT(*) = 0, 'true', 'false') as RESULT FROM (select a.* from sim a join sim2 b on a.simstr=b.simstr) app;
+
+
+
+

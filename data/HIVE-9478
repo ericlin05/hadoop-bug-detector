@@ -1,0 +1,46 @@
+Description
+
+When I first got started with beeline, since I was already the cloud user on my edge node (not using Kerbose), I was logging into beeline without passing in a user via –n.  Not sure if that was right or not, but seemed to let me create tables.  However, when doing this and trying to do a select, I would get the error below.  See Appendix #1 for me creating a table and then doing a select to get the error.
+I spent some time messing around with different things and stumbled upon where if a passed in the –n parameter, the select command was completed successfully.  See Appendix #2 for that output.
+I’m not sure why I could create tables but not select on them when not passing in –n?  But then select on the table when passing in my username via –n?  I’m not using Kerberos authentication so my expert contact might have suggested that setup might give me a unusual experience.
+Anyway, I’m off and running using the –n parameter but wanted to share my experience as I cut over to beeline.  Thanks again in advance for everyone's help and great work on Hive and Beeline.
+Appendix 1
+cloud@c-10-206-76-8:~&amp;gt;  beeline -u jdbc:hive2://c-10-206-76-8.int.cis.trcloud:10000/default --verbose=true
+issuing: !connect jdbc:hive2://c-10-206-76-8.int.cis.trcloud:10000/default '' ''
+scan complete in 4ms
+Connecting to jdbc:hive2://c-10-206-76-8.int.cis.trcloud:10000/default
+Connected to: Apache Hive (version 0.13.1-cdh5.2.0)
+Driver: Hive JDBC (version 0.13.1-cdh5.2.0)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 0.13.1-cdh5.2.0 by Apache Hive
+0: jdbc:hive2://c-10-206-76-8.int.cis.trcloud&amp;gt; create table test123 (test123 int);
+No rows affected (0.217 seconds)
+0: jdbc:hive2://c-10-206-76-8.int.cis.trcloud&amp;gt; select avg(test123) from test123;
+Error: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask (state=08S01,code=1)
+java.sql.SQLException: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+        at org.apache.hive.jdbc.HiveStatement.execute(HiveStatement.java:277)
+        at org.apache.hive.beeline.Commands.execute(Commands.java:736)
+        at org.apache.hive.beeline.Commands.sql(Commands.java:657)
+        at org.apache.hive.beeline.BeeLine.dispatch(BeeLine.java:908)
+        at org.apache.hive.beeline.BeeLine.execute(BeeLine.java:770)
+        at org.apache.hive.beeline.BeeLine.begin(BeeLine.java:732)
+        at org.apache.hive.beeline.BeeLine.mainWithInputRedirection(BeeLine.java:467)
+        at org.apache.hive.beeline.BeeLine.main(BeeLine.java:450)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:212)
+0: jdbc:hive2://c-10-206-76-8.int.cis.trcloud&amp;gt; !quit
+Appendix #2
+Closing: 0: jdbc:hive2://c-10-206-76-8.int.cis.trcloud:10000/default
+cloud@c-10-206-76-8:~&amp;gt;  beeline -u jdbc:hive2://c-10-206-76-8.int.cis.trcloud:10000/default --verbose=true -n cloud
+issuing: !connect jdbc:hive2://c-10-206-76-8.int.cis.trcloud:10000/default cloud ''
+scan complete in 3ms
+Connecting to jdbc:hive2://c-10-206-76-8.int.cis.trcloud:10000/default
+Connected to: Apache Hive (version 0.13.1-cdh5.2.0)
+Driver: Hive JDBC (version 0.13.1-cdh5.2.0)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 0.13.1-cdh5.2.0 by Apache Hive
+0: jdbc:hive2://c-10-206-76-8.int.cis.trcloud&amp;gt; select avg(test123) from test123;
+------

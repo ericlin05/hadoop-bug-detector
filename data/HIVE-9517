@@ -1,0 +1,52 @@
+Description
+
+I was running a query from cbo_gby_empty.q:
+
+
+select unionsrc.key, unionsrc.value FROM (select 'max' as key, max(c_int) as value from cbo_t3 s1
+  UNION  ALL
+      select 'min' as key,  min(c_int) as value from cbo_t3 s2
+    UNION ALL
+        select 'avg' as key,  avg(c_int) as value from cbo_t3 s3) unionsrc order by unionsrc.key;
+
+
+and got the following exception:
+
+2015-01-29 15:57:55,948 ERROR [Executor task launch worker-1]: spark.SparkReduceRecordHandler (SparkReduceRecordHandler.java:processRow(299)) - Fatal error: org.apache.hadoop.hive.ql.metadata.HiveException: Error while processing row (tag=0) {"key":{"reducesinkkey0":"max"},"value":{"_col0":1.5}}
+org.apache.hadoop.hive.ql.metadata.HiveException: Error while processing row (tag=0) {"key":{"reducesinkkey0":"max"},"value":{"_col0":1.5}}
+  at org.apache.hadoop.hive.ql.exec.spark.SparkReduceRecordHandler.processKeyValues(SparkReduceRecordHandler.java:339)
+  at org.apache.hadoop.hive.ql.exec.spark.SparkReduceRecordHandler.processRow(SparkReduceRecordHandler.java:289)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveReduceFunctionResultList.processNextRecord(HiveReduceFunctionResultList.java:49)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveReduceFunctionResultList.processNextRecord(HiveReduceFunctionResultList.java:28)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveBaseFunctionResultList$ResultIterator.hasNext(HiveBaseFunctionResultList.java:98)
+  at scala.collection.convert.Wrappers$JIteratorWrapper.hasNext(Wrappers.scala:41)
+  at scala.collection.Iterator$class.foreach(Iterator.scala:727)
+  at scala.collection.AbstractIterator.foreach(Iterator.scala:1157)
+  at org.apache.spark.rdd.AsyncRDDActions$$anonfun$foreachAsync$2.apply(AsyncRDDActions.scala:115)
+  at org.apache.spark.rdd.AsyncRDDActions$$anonfun$foreachAsync$2.apply(AsyncRDDActions.scala:115)
+  at org.apache.spark.SparkContext$$anonfun$30.apply(SparkContext.scala:1390)
+  at org.apache.spark.SparkContext$$anonfun$30.apply(SparkContext.scala:1390)
+  at org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:61)
+  at org.apache.spark.scheduler.Task.run(Task.scala:56)
+  at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:196)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+  at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Error evaluating VALUE._col0
+  at org.apache.hadoop.hive.ql.exec.SelectOperator.processOp(SelectOperator.java:82)
+  at org.apache.hadoop.hive.ql.exec.spark.SparkReduceRecordHandler.processKeyValues(SparkReduceRecordHandler.java:330)
+  ... 17 more
+Caused by: java.lang.ArrayIndexOutOfBoundsException: 3
+  at org.apache.hadoop.hive.serde2.lazybinary.LazyBinaryUtils.byteArrayToLong(LazyBinaryUtils.java:84)
+  at org.apache.hadoop.hive.serde2.lazybinary.LazyBinaryDouble.init(LazyBinaryDouble.java:43)
+  at org.apache.hadoop.hive.serde2.lazybinary.LazyBinaryStruct.uncheckedGetField(LazyBinaryStruct.java:264)
+  at org.apache.hadoop.hive.serde2.lazybinary.LazyBinaryStruct.getField(LazyBinaryStruct.java:201)
+  at org.apache.hadoop.hive.serde2.lazybinary.objectinspector.LazyBinaryStructObjectInspector.getStructFieldData(LazyBinaryStructObjectInspector.java:64)
+  at org.apache.hadoop.hive.ql.exec.ExprNodeColumnEvaluator._evaluate(ExprNodeColumnEvaluator.java:98)
+  at org.apache.hadoop.hive.ql.exec.ExprNodeEvaluator.evaluate(ExprNodeEvaluator.java:77)
+  at org.apache.hadoop.hive.ql.exec.ExprNodeEvaluator.evaluate(ExprNodeEvaluator.java:65)
+  at org.apache.hadoop.hive.ql.exec.SelectOperator.processOp(SelectOperator.java:77)
+
+
+
+

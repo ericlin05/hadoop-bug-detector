@@ -1,0 +1,56 @@
+Description
+
+HivePassThroughOutputFormat is a wrapper HiveOutputFormat used by hive to allow access to StorageHandlers that use mapred OutputFormats as their primary implementation point, and do not implement HiveOutputFormat.
+However, HivePassThroughOutputFormat(henceforth called PTOF) has one major bug - it tracks the underlying outputformat that it is proxying by means of a static string in HiveFileFormatUtils. There are a few problems with this.
+a) For starters, it means that a given process can only process one PTOF-based output format. So, in the case of a HS2 instance, where one thread is attempting to start a job based on HBase and another on Accumulo will cause a problem, and will overwrite each others' "real" output format. This leads to bugs where a person trying to use a hbase table gets stack traces from Accumulo like the following:
+
+ERROR exec.Task: Job Submission failed with exception 'java.lang.NullPointerException(Expected Accumulo table name to be provided in job configuration)'
+java.lang.NullPointerException: Expected Accumulo table name to be provided in job configuration
+	at com.google.common.base.Preconditions.checkNotNull(Preconditions.java:204)
+	at org.apache.hadoop.hive.accumulo.mr.HiveAccumuloTableOutputFormat.configureAccumuloOutputFormat(HiveAccumuloTableOutputFormat.java:61)
+	at org.apache.hadoop.hive.accumulo.mr.HiveAccumuloTableOutputFormat.checkOutputSpecs(HiveAccumuloTableOutputFormat.java:43)
+	at org.apache.hadoop.hive.ql.io.HivePassThroughOutputFormat.checkOutputSpecs(HivePassThroughOutputFormat.java:87)
+	at org.apache.hadoop.hive.ql.exec.FileSinkOperator.checkOutputSpecs(FileSinkOperator.java:1071)
+	at org.apache.hadoop.hive.ql.io.HiveOutputFormatImpl.checkOutputSpecs(HiveOutputFormatImpl.java:67)
+	at org.apache.hadoop.mapreduce.JobSubmitter.checkSpecs(JobSubmitter.java:465)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:343)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1294)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1291)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1614)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1291)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:562)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:557)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1614)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:557)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:548)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecDriver.execute(ExecDriver.java:420)
+	at org.apache.hadoop.hive.ql.exec.mr.MapRedTask.execute(MapRedTask.java:136)
+	at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:161)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:85)
+	at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1603)
+	at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1363)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1176)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1003)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:998)
+	at org.apache.hive.service.cli.operation.SQLOperation.runQuery(SQLOperation.java:144)
+	at org.apache.hive.service.cli.operation.SQLOperation.access$100(SQLOperation.java:69)
+	at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:196)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1614)
+	at org.apache.hadoop.hive.shims.HadoopShimsSecure.doAs(HadoopShimsSecure.java:508)
+	at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:208)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+b) There is a bug in HiveFileFormatUtils.getOutputFormatSubstitute, which, after it determines that PTOF should act as a substitute for a process, winds up registering PTOF in the substitute map. This seems innocuous, but in result, because it winds up registering it as a substitute, winds up short-circuiting and avoiding the path where it sets the real OF the next time. This is a problem, because if the same job were to prepare writing to a HBase table, then followed by preparing to write to an Accumulo table, followed by preparing to write to a HBase table, then the second time HBase comes along, the underlying "real" OF is set to accumulo, and the HBase map look up short circuits and avoids the path that would reset the real OF back to HBase.
+
+

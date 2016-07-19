@@ -1,0 +1,66 @@
+Description
+
+Running TPCDS query #17, given below, results IndexOutOfBoundsException: 
+
+
+14/10/06 12:24:05 ERROR executor.Executor: Exception in task 0.0 in stage 7.0 (TID 2)
+java.lang.IndexOutOfBoundsException: Index: 1902425, Size: 0
+	at java.util.ArrayList.rangeCheck(ArrayList.java:604)
+	at java.util.ArrayList.get(ArrayList.java:382)
+	at org.apache.hive.com.esotericsoftware.kryo.util.MapReferenceResolver.getReadObject(MapReferenceResolver.java:42)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readReferenceOrNull(Kryo.java:820)
+	at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:670)
+	at org.apache.hadoop.hive.ql.exec.spark.KryoSerializer.deserialize(KryoSerializer.java:51)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveKVResultCache.next(HiveKVResultCache.java:114)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveBaseFunctionResultList$ResultIterator.next(HiveBaseFunctionResultList.java:139)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveBaseFunctionResultList$ResultIterator.next(HiveBaseFunctionResultList.java:92)
+	at scala.collection.convert.Wrappers$JIteratorWrapper.next(Wrappers.scala:42)
+	at org.apache.spark.util.collection.ExternalSorter.insertAll(ExternalSorter.scala:210)
+	at org.apache.spark.shuffle.sort.SortShuffleWriter.write(SortShuffleWriter.scala:65)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:68)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:41)
+	at org.apache.spark.scheduler.Task.run(Task.scala:56)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:182)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:722)
+
+
+The query is:
+
+
+select
+  i_item_id,
+  avg(ss_quantity) agg1,
+  avg(ss_list_price) agg2,
+  avg(ss_coupon_amt) agg3,
+  avg(ss_sales_price) agg4
+from
+  store_sales,
+  customer_demographics,
+  date_dim,
+  item,
+  promotion
+where
+  ss_sold_date_sk = d_date_sk
+  and ss_item_sk = i_item_sk
+  and ss_cdemo_sk = cd_demo_sk
+  and ss_promo_sk = p_promo_sk
+  and cd_gender = 'F'
+  and cd_marital_status = 'W'
+  and cd_education_status = 'Primary'
+  and (p_channel_email = 'N'
+    or p_channel_event = 'N')
+  and d_year = 1998
+  and ss_sold_date_sk between 2450815 and 2451179 -- partition key filter
+group by
+  i_item_id
+order by
+  i_item_id
+limit 100;
+
+
+,
+though many other TPCDS queries give the same exception.
+
+

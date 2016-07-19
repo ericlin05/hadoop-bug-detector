@@ -1,0 +1,120 @@
+Description
+
+What I did:
+
+
+set spark.home=/home/xzhang/apache/spark;
+set spark.master=local-cluster[2,1,2048];
+set hive.execution.engine=spark; 
+set spark.executor.memory=2g;
+set spark.serializer=org.apache.spark.serializer.KryoSerializer;
+set spark.io.compression.codec=org.apache.spark.io.LZFCompressionCodec;
+select name, avg(value) as v from dec group by name order by v;
+
+
+Exeptions seen:
+
+
+14/11/23 10:42:15 INFO Worker: Spark home: /home/xzhang/apache/spark
+14/11/23 10:42:15 INFO AppClient$ClientActor: Connecting to master spark://xzdt.local:55151...
+14/11/23 10:42:15 INFO Master: Registering app Hive on Spark
+14/11/23 10:42:15 INFO Master: Registered app Hive on Spark with ID app-20141123104215-0000
+14/11/23 10:42:15 INFO SparkDeploySchedulerBackend: Connected to Spark cluster with app ID app-20141123104215-0000
+14/11/23 10:42:15 INFO NettyBlockTransferService: Server created on 41676
+14/11/23 10:42:15 INFO BlockManagerMaster: Trying to register BlockManager
+14/11/23 10:42:15 INFO BlockManagerMasterActor: Registering block manager xzdt.local:41676 with 265.0 MB RAM, BlockManagerId(&amp;lt;driver&amp;gt;, xzdt.local, 41676)
+14/11/23 10:42:15 INFO BlockManagerMaster: Registered BlockManager
+14/11/23 10:42:15 INFO SparkDeploySchedulerBackend: SchedulerBackend is ready for scheduling beginning after reached minRegisteredResourcesRatio: 0.0
+14/11/23 10:42:20 WARN AbstractLifeCycle: FAILED SelectChannelConnector@0.0.0.0:4040: java.net.BindException: Address already in use
+java.net.BindException: Address already in use
+	at sun.nio.ch.Net.bind0(Native Method)
+	at sun.nio.ch.Net.bind(Net.java:174)
+	at sun.nio.ch.ServerSocketChannelImpl.bind(ServerSocketChannelImpl.java:139)
+	at sun.nio.ch.ServerSocketAdaptor.bind(ServerSocketAdaptor.java:77)
+	at org.eclipse.jetty.server.nio.SelectChannelConnector.open(SelectChannelConnector.java:187)
+	at org.eclipse.jetty.server.AbstractConnector.doStart(AbstractConnector.java:316)
+	at org.eclipse.jetty.server.nio.SelectChannelConnector.doStart(SelectChannelConnector.java:265)
+	at org.eclipse.jetty.util.component.AbstractLifeCycle.start(AbstractLifeCycle.java:64)
+	at org.eclipse.jetty.server.Server.doStart(Server.java:293)
+	at org.eclipse.jetty.util.component.AbstractLifeCycle.start(AbstractLifeCycle.java:64)
+	at org.apache.spark.ui.JettyUtils$.org$apache$spark$ui$JettyUtils$$connect$1(JettyUtils.scala:194)
+	at org.apache.spark.ui.JettyUtils$$anonfun$2.apply(JettyUtils.scala:204)
+	at org.apache.spark.ui.JettyUtils$$anonfun$2.apply(JettyUtils.scala:204)
+	at org.apache.spark.util.Utils$$anonfun$startServiceOnPort$1.apply$mcVI$sp(Utils.scala:1676)
+	at scala.collection.immutable.Range.foreach$mVc$sp(Range.scala:141)
+	at org.apache.spark.util.Utils$.startServiceOnPort(Utils.scala:1667)
+	at org.apache.spark.ui.JettyUtils$.startJettyServer(JettyUtils.scala:204)
+	at org.apache.spark.ui.WebUI.bind(WebUI.scala:102)
+	at org.apache.spark.SparkContext$$anonfun$10.apply(SparkContext.scala:267)
+	at org.apache.spark.SparkContext$$anonfun$10.apply(SparkContext.scala:267)
+	at scala.Option.foreach(Option.scala:236)
+	at org.apache.spark.SparkContext.&amp;lt;init&amp;gt;(SparkContext.scala:267)
+	at org.apache.spark.api.java.JavaSparkContext.&amp;lt;init&amp;gt;(JavaSparkContext.scala:61)
+	at org.apache.hive.spark.client.RemoteDriver.&amp;lt;init&amp;gt;(RemoteDriver.java:106)
+	at org.apache.hive.spark.client.RemoteDriver.main(RemoteDriver.java:362)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.apache.spark.deploy.SparkSubmit$.launch(SparkSubmit.scala:353)
+	at org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:75)
+	at org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala)
+14/11/23 10:42:20 WARN AbstractLifeCycle: FAILED org.eclipse.jetty.server.Server@4c9fd062: java.net.BindException: Address already in use
+java.net.BindException: Address already in use
+	at sun.nio.ch.Net.bind0(Native Method)
+	at sun.nio.ch.Net.bind(Net.java:174)
+	at sun.nio.ch.ServerSocketChannelImpl.bind(ServerSocketChannelImpl.java:139)
+	at sun.nio.ch.ServerSocketAdaptor.bind(ServerSocketAdaptor.java:77)
+	at org.eclipse.jetty.server.nio.SelectChannelConnector.open(SelectChannelConnector.java:187)
+	at org.eclipse.jetty.server.AbstractConnector.doStart(AbstractConnector.java:316)
+	at org.eclipse.jetty.server.nio.SelectChannelConnector.doStart(SelectChannelConnector.java:265)
+	at org.eclipse.jetty.util.component.AbstractLifeCycle.start(AbstractLifeCycle.java:64)
+	at org.eclipse.jetty.server.Server.doStart(Server.java:293)
+	at org.eclipse.jetty.util.component.AbstractLifeCycle.start(AbstractLifeCycle.java:64)
+	at org.apache.spark.ui.JettyUtils$.org$apache$spark$ui$JettyUtils$$connect$1(JettyUtils.scala:194)
+	at org.apache.spark.ui.JettyUtils$$anonfun$2.apply(JettyUtils.scala:204)
+	at org.apache.spark.ui.JettyUtils$$anonfun$2.apply(JettyUtils.scala:204)
+	at org.apache.spark.util.Utils$$anonfun$startServiceOnPort$1.apply$mcVI$sp(Utils.scala:1676)
+	at scala.collection.immutable.Range.foreach$mVc$sp(Range.scala:141)
+	at org.apache.spark.util.Utils$.startServiceOnPort(Utils.scala:1667)
+	at org.apache.spark.ui.JettyUtils$.startJettyServer(JettyUtils.scala:204)
+	at org.apache.spark.ui.WebUI.bind(WebUI.scala:102)
+	at org.apache.spark.SparkContext$$anonfun$10.apply(SparkContext.scala:267)
+	at org.apache.spark.SparkContext$$anonfun$10.apply(SparkContext.scala:267)
+	at scala.Option.foreach(Option.scala:236)
+	at org.apache.spark.SparkContext.&amp;lt;init&amp;gt;(SparkContext.scala:267)
+	at org.apache.spark.api.java.JavaSparkContext.&amp;lt;init&amp;gt;(JavaSparkContext.scala:61)
+	at org.apache.hive.spark.client.RemoteDriver.&amp;lt;init&amp;gt;(RemoteDriver.java:106)
+	at org.apache.hive.spark.client.RemoteDriver.main(RemoteDriver.java:362)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.apache.spark.deploy.SparkSubmit$.launch(SparkSubmit.scala:353)
+	at org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:75)
+	at org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala)
+
+
+
+I also saw SparkSubmit process is working hard launching some other processes:
+
+
+xzhang@xzdt:~/apache/spark$ jps
+12731 CoarseGrainedExecutorBackend
+11746 RunJar
+25974 TaskTracker
+12067 SparkSubmit
+25524 SecondaryNameNode
+25771 JobTracker
+25280 DataNode
+25108 NameNode
+12885 Jps
+12742 CoarseGrainedExecutorBackend
+12408 CoarseGrainedExecutorBackend
+12409 CoarseGrainedExecutorBackend
+11879 SparkSubmit
+
+
+If I change spark.master to point to a standalone, it works fine.
+
+

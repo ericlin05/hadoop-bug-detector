@@ -1,0 +1,91 @@
+Description
+
+When we use current [Spark Branch] to build hive package. deploy it on our cluster and execute hive queries (e.g. BigBench case Q10, Q18, Q19, Q27) by default mode (i.e. just Hive on MR, not HiveOnSpark),  Error 'java.lang.ClassNotFoundException: org.apache.commons.logging.impl.SLF4JLocationAwareLog' will occurs.
+For other released apache or CDH hive version(e.g. apache hive 0.14), there is no this issue.
+By the way, if we use 'add jar /location/to/jcl-over-slf4j-1.7.5.jar' before hive query execution, the issue will be workaround. 
+The detail diagnostic messages are as below:
+==========================================================
+Diagnostic Messages for this Task:
+Error: java.lang.RuntimeException: Failed to load plan: hdfs://bhx1:8020/tmp/hive/root/4a4cbeb2-cf42-4eb7-a78a-7ecea6af2aff/hive_2015-01-17_10-45-51_360_5581900288096206774-1/-mr-10004/1c6c4667-8b81-41ed-a42e-fe099ae3379f/map.xml: org.apache.hive.com.esotericsoftware.kryo.KryoException: Unable to find class: org.apache.commons.logging.impl.SLF4JLocationAwareLog
+Serialization trace:
+LOG (org.apache.hadoop.hive.ql.exec.UDTFOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.SelectOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.TableScanOperator)
+aliasToWork (org.apache.hadoop.hive.ql.plan.MapWork)
+        at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:431)
+        at org.apache.hadoop.hive.ql.exec.Utilities.getMapWork(Utilities.java:287)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.init(HiveInputFormat.java:268)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:484)
+        at org.apache.hadoop.hive.ql.io.HiveInputFormat.pushProjectionsAndFilters(HiveInputFormat.java:477)
+        at org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.getRecordReader(CombineHiveInputFormat.java:657)
+        at org.apache.hadoop.mapred.MapTask$TrackedRecordReader.&amp;lt;init&amp;gt;(MapTask.java:169)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:429)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:168)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1642)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:163)
+Caused by: org.apache.hive.com.esotericsoftware.kryo.KryoException: Unable to find cl
+Caused by: org.apache.hive.com.esotericsoftware.kryo.KryoException: Unable to find class: org.apache.commons.logging.impl.SLF4JLocationAwareLog
+Serialization trace:
+LOG (org.apache.hadoop.hive.ql.exec.UDTFOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.SelectOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.TableScanOperator)
+aliasToWork (org.apache.hadoop.hive.ql.plan.MapWork)
+        at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readName(DefaultClassResolver.java:138)
+        at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readClass(DefaultClassResolver.java:115)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClass(Kryo.java:656)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:99)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:139)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:17)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:139)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.MapSerializer.read(MapSerializer.java:17)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:672)
+        at org.apache.hadoop.hive.ql.exec.Utilities.deserializeObjectByKryo(Utilities.java:1050)
+        at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:941)
+        at org.apache.hadoop.hive.ql.exec.Utilities.deserializePlan(Utilities.java:955)
+        at org.apache.hadoop.hive.ql.exec.Utilities.getBaseWork(Utilities.java:396)
+        ... 13 more
+Caused by: java.lang.ClassNotFoundException: org.apache.commons.logging.impl.SLF4JLocationAwareLog
+        at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+        at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+        at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+        at java.lang.Class.forName0(Native Method)
+        at java.lang.Class.forName(Class.java:270)
+        at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readName(DefaultClassResolver.java:136)
+        ... 40 more
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+MapReduce Jobs Launched:
+Stage-Stage-1: Map: 2   HDFS Read: 0 HDFS Write: 0 FAIL
+Total MapReduce CPU Time Spent: 0 msec
+WARN: The method class org.apache.commons.logging.impl.SLF4JLogFactory#release() was invoked.
+WARN: Please see http://www.slf4j.org/codes.html#release for an explanation.
+==========================================================
+
+

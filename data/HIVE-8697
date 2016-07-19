@@ -1,0 +1,6 @@
+Description
+
+Separated a 2nd issue – wrong result – found by Thiruvel Thirumoolan in HIVE-8417 from 1st issue (IndexOutOfBoundsException due to scratch columns in reduce-side).
+Interesting to note that in HIVE-8461 we converted Vectorization to use HiveDecimal instead of Decimal128, yet the rounding problem still occurs...
+
+

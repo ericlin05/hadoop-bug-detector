@@ -1,0 +1,35 @@
+Description
+
+For each query, I have this error in logs :
+
+2015-02-24 15:26:13,011 WARN  [HiveServer2-Handler-Pool: Thread-308]: thrift.ThriftCLIService (ThriftCLIService.java:FetchResults(596)) - Error fetching results:
+org.apache.hive.service.cli.HiveSQLException: Couldn't find log associated with operation handle: OperationHandle [opType=EXECUTE_STATEMENT, getHandleIdentifier()=9b9a9541-a29e-460b-bc8c-344452a02b96]
+        at org.apache.hive.service.cli.operation.OperationManager.getOperationLogRowSet(OperationManager.java:257)
+        at org.apache.hive.service.cli.session.HiveSessionImpl.fetchResults(HiveSessionImpl.java:656)
+        at sun.reflect.GeneratedMethodAccessor11.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hive.service.cli.session.HiveSessionProxy.invoke(HiveSessionProxy.java:79)
+        at org.apache.hive.service.cli.session.HiveSessionProxy.access$000(HiveSessionProxy.java:37)
+        at org.apache.hive.service.cli.session.HiveSessionProxy$1.run(HiveSessionProxy.java:64)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1548)
+        at org.apache.hadoop.hive.shims.HadoopShimsSecure.doAs(HadoopShimsSecure.java:536)
+        at org.apache.hive.service.cli.session.HiveSessionProxy.invoke(HiveSessionProxy.java:60)
+        at com.sun.proxy.$Proxy22.fetchResults(Unknown Source)
+        at org.apache.hive.service.cli.CLIService.fetchResults(CLIService.java:450)
+        at org.apache.hive.service.cli.thrift.ThriftCLIService.FetchResults(ThriftCLIService.java:587)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$FetchResults.getResult(TCLIService.java:1553)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$FetchResults.getResult(TCLIService.java:1538)
+        at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+        at org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:39)
+        at org.apache.hive.service.auth.TSetIpAddressProcessor.process(TSetIpAddressProcessor.java:56)
+        at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:206)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:744)
+
+
+
+

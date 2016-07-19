@@ -1,0 +1,75 @@
+Description
+
+I got a IndexOutOfBoundsException with a SQL in hive0.13.1. But it runs well on hive0.11. Here is the example sql which can trigger the exception.
+
+
+create table test_join_1(a string, b string);
+create table test_join_2(a string, b string);
+-- got an IndexOutOfBoundsException error
+explain 
+select * from
+
+(
+    SELECT a a, b b
+    FROM test_join_1
+)t1
+join 
+(
+    SELECT a a, b b
+    FROM test_join_1
+)t2
+    on  t1.a = t2.a
+    and t1.a = t2.b
+join
+(
+    select a from test_join_2
+)t3 on t1.a = t3.a;
+
+
+And here is some stack information:
+
+
+java.lang.IndexOutOfBoundsException: Index: 1, Size: 1
+    at java.util.ArrayList.rangeCheck(ArrayList.java:604)
+    at java.util.ArrayList.get(ArrayList.java:382)
+    at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.mergeJoins(SemanticAnalyzer.java:7403)
+    at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.mergeJoinTree(SemanticAnalyzer.java:7616)
+    at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genPlan(SemanticAnalyzer.java:8946)
+    at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.analyzeInternal(SemanticAnalyzer.java:9220)
+    ...
+
+
+But sql as below runs well.
+
+
+explain select * from
+(
+    SELECT a a, b b
+    FROM test_join_1
+)t1
+join 
+(
+    SELECT a a, b b
+    FROM test_join_1
+)t2
+    on  t1.a = t2.a
+    and t2.a = t2.b
+join
+(
+    select a from test_join_2
+)t3 on t1.a = t3.a;
+
+
+I didn't quite understand the details of mergejoin. But I noticed the patch in HIVE-5556 edited SemanticAnalyzer.java with the change below:
+
+
+-    if ((targetCondn == null) || (nodeCondn.size() != targetCondn.size())) {
+-      return -1;
++    if ( targetCondn == null ) {
++      return new ObjectPair(-1, null);
++    }
+
+
+Maybe it's a good idea to revert the logic of the 'if' statement as before.
+
+

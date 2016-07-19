@@ -1,0 +1,15 @@
+Description
+
+This was added by Jason Dere in HIVE-8411. I don't fully understand the code (i.e. what it means when desc is null) but I'm sure, Jason, you can fix it without much trouble?
+
+
+if (desc == null || !AlterTableDesc.doesAlterTableTypeSupportPartialPartitionSpec(desc.getOp())) {
+  throw new SemanticException( ErrorMsg.ALTER_TABLE_TYPE_PARTIAL_PARTITION_SPEC_NO_SUPPORTED, desc.getOp().name());
+        } else if (!conf.getBoolVar(HiveConf.ConfVars.DYNAMICPARTITIONING)) {
+          throw new SemanticException(ErrorMsg.DYNAMIC_PARTITION_DISABLED);
+        }
+
+
+You check for whether desc is null but then use it to do desc.getOp().
+
+

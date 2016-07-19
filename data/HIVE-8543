@@ -1,0 +1,10 @@
+Description
+
+The worker fails to update the stats when the metastore is using Postgres as the RDBMS.  
+
+
+org.postgresql.util.PSQLException: ERROR: relation "tab_col_stats" does not exist
+
+
+
+

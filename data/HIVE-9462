@@ -1,0 +1,5 @@
+Description
+
+If you write an avro field out as int and then change it's type to long you will get an UnresolvedUnionException due to code in HIVE-8577.
+
+

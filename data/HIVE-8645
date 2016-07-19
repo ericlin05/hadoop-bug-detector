@@ -1,0 +1,11 @@
+Description
+
+
+
+    Object nextVector(Object previousVector, long batchSize) throws IOException {
+      LongColumnVector result = null;
+
+
+Call to TreeReader.nextVector() is missing.
+
+

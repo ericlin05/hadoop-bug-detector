@@ -1,0 +1,40 @@
+Description
+
+The test list_bucket_dml_2 fails in FileSinkOperator.publishStats:
+org.apache.hadoop.hive.ql.metadata.HiveException: [Error 30002]: StatsPublisher cannot be connected to.There was a error while connecting to the StatsPublisher, and retrying might help. If you dont want the query to fail because accurate statistics could not be collected, set hive.stats.reliable=false
+at org.apache.hadoop.hive.ql.exec.FileSinkOperator.publishStats(FileSinkOperator.java:1079)
+at org.apache.hadoop.hive.ql.exec.FileSinkOperator.closeOp(FileSinkOperator.java:971)
+at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:582)
+at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:594)
+at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:594)
+at org.apache.hadoop.hive.ql.exec.Operator.close(Operator.java:594)
+at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.close(SparkMapRecordHandler.java:175)
+at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.closeRecordProcessor(HiveMapFunctionResultList.java:57)
+at org.apache.hadoop.hive.ql.exec.spark.HiveBaseFunctionResultList$ResultIterator.hasNext(HiveBaseFunctionResultList.java:121)
+I debugged and found that FileSinkOperator.publishStats throws the exception when calling statsPublisher.connect here:
+if (!statsPublisher.connect(hconf)) {
+// just return, stats gathering should not block the main query
+LOG.error("StatsPublishing error: cannot connect to database");
+if (isStatsReliable)
+{ throw new HiveException(ErrorMsg.STATSPUBLISHER_CONNECTION_ERROR.getErrorCodedMsg()); }
+
+return;
+}
+With the hive.stats.dbclass set to counter in data/conf/spark/hive-site.xml, the statsPuvlisher is of type CounterStatsPublisher.
+In CounterStatsPublisher, the exception is thrown because getReporter() returns null for the MapredContext:
+MapredContext context = MapredContext.get();
+if (context == null || context.getReporter() == null)
+{ return false; }
+
+When changing hive.stats.dbclass to jdbc:derby in data/conf/spark/hive-site.xml, similar to TestCliDriver it works:
+&amp;lt;property&amp;gt;
+&amp;lt;name&amp;gt;hive.stats.dbclass&amp;lt;/name&amp;gt;
+&amp;lt;!-- &amp;lt;value&amp;gt;counter&amp;lt;/value&amp;gt; --&amp;gt;
+&amp;lt;value&amp;gt;jdbc:derby&amp;lt;/value&amp;gt;
+&amp;lt;description&amp;gt;The default storatge that stores temporary hive statistics. Currently, jdbc, hbase and counter type is supported&amp;lt;/description&amp;gt;
+&amp;lt;/property&amp;gt;
+In addition, I had to generate the out file for the test case for spark.
+When running this test with TestCliDriver and hive.stats.dbclass set to counter, the test case still works. The reporter is set to org.apache.hadoop.mapred.Task$TaskReporter. 
+Might need some additional investigation why the CounterStatsPublisher has no reporter in case of spark.
+
+

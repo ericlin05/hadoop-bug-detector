@@ -1,0 +1,15 @@
+Description
+
+If there are any exceptions trying to fork a local task, the exception message is logged but not the stack trace.  There can be a lot of issues forking a process, so we should log the stack trace for better debuggability.
+Code in MapRedLocalTask.executeInChildJVM(DriverContext ctx):
+
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      LOG.error("Exception: " + e.getMessage());
+      return (1);
+    }
+
+
+
+

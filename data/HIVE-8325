@@ -1,0 +1,21 @@
+Description
+
+Exec context doesn't get created in this code path.
+
+Exception in thread "main" java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.mr.MapredLocalTask.executeInProcess(MapredLocalTask.java:310)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecDriver.main(ExecDriver.java:735)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+Execution failed with exit status: 1
+Obtaining error information
+
+Task failed!
+
+
+
+

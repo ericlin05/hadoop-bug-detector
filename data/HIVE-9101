@@ -1,0 +1,42 @@
+Description
+
+bucket_map_join_spark4.q failed due to the following exception after HIVE-9078:
+
+2014-12-15 04:48:56,241 ERROR [Executor task launch worker-0]: executor.Executor (Logging.scala:logError(96)) - Exception in task 0.3 in stage 7.0 (TID 15)
+java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.processRow(SparkMapRecordHandler.java:160)
+        at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:47)
+        at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:28)
+        at org.apache.hadoop.hive.ql.exec.spark.HiveBaseFunctionResultList$ResultIterator.hasNext(HiveBaseFunctionResultList.java:96)
+        at scala.collection.convert.Wrappers$JIteratorWrapper.hasNext(Wrappers.scala:41)
+        at scala.collection.Iterator$class.foreach(Iterator.scala:727)
+        at scala.collection.AbstractIterator.foreach(Iterator.scala:1157)
+        at org.apache.spark.rdd.AsyncRDDActions$$anonfun$foreachAsync$2.apply(AsyncRDDActions.scala:115)
+        at org.apache.spark.rdd.AsyncRDDActions$$anonfun$foreachAsync$2.apply(AsyncRDDActions.scala:115)
+        at org.apache.spark.SparkContext$$anonfun$30.apply(SparkContext.scala:1390)
+        at org.apache.spark.SparkContext$$anonfun$30.apply(SparkContext.scala:1390)
+        at org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:61)
+        at org.apache.spark.scheduler.Task.run(Task.scala:56)
+        at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:196)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:722)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.exec.spark.HashTableLoader.load(HashTableLoader.java:114)
+        at org.apache.hadoop.hive.ql.exec.MapJoinOperator.loadHashTable(MapJoinOperator.java:193)
+        at org.apache.hadoop.hive.ql.exec.MapJoinOperator.cleanUpInputFileChangedOp(MapJoinOperator.java:219)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1051)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+        at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+        at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:486)
+        at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.processRow(SparkMapRecordHandler.java:149)
+        ... 16 more
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.exec.spark.HashTableLoader.load(HashTableLoader.java:104)
+        ... 25 more
+
+
+
+

@@ -1,0 +1,13 @@
+Description
+
+Currently, compactor thread try to compact temp table.
+This throws errors like this one :
+
+2014-09-26 15:32:18,483 ERROR [Thread-8]: compactor.Initiator (Initiator.java:run(111)) - Caught exception while trying to determine if we should compact testsimon.values__tmp__table__11.  Marking clean to avoid repeated failures, java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.txn.compactor.Initiator.run(Initiator.java:88)
+
+2014-09-26 15:32:18,484 ERROR [Thread-8]: txn.CompactionTxnHandler (CompactionTxnHandler.java:markCleaned(355)) - Unable to delete compaction record
+
+
+
+

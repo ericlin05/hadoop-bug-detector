@@ -1,0 +1,8 @@
+Description
+
+Customer has deeply nested avro structure and is receiving the following error when performing queries.
+15/01/09 20:59:29 ERROR ql.Driver: FAILED: SemanticException org.apache.hadoop.hive.serde2.SerDeException: Number of levels of nesting supported for LazySimpleSerde is 23 Unable to work with level 24
+Currently we support up to 24 levels of nested structs when hive.serialization.extend.nesting.levels is set to true, while the customers have the requirement to support more than that. 
+It would be better to make the supported levels configurable or completely removed (i.e., we can support any number of levels). 
+
+

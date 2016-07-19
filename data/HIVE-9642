@@ -1,0 +1,7 @@
+Description
+
+When org.apache.thrift.transport.TTransportException is thrown for issues like socket timeout, the retry via RetryingMetaStoreClient happens only in certain cases.
+Retry happens for the getDatabase call in but not for getAllDatabases().
+The reason is RetryingMetaStoreClient checks for TTransportException being the cause for InvocationTargetException. But in case of some calls such as getAllDatabases in HiveMetastoreClient, all exceptions get wrapped in a MetaException. We should remove this unnecessary wrapping of exceptions for certain functions in HMC.
+
+

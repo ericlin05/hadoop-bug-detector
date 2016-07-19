@@ -1,0 +1,6 @@
+Description
+
+It is legal for long values in the config file to have an L or for float values to have an f.  For example, the default value for hive.compactor.check.interval was 300L.  As part of HIVE-5799, many long values were converted to TimeUnit.  Attempts to read these values now throw "java.lang.IllegalArgumentException: Invalid time unit l"
+We need to change this to ignore the L or f, so that users existing config files don't break.  I propose to do this by changing HiveConf.unitFor to detect the L or f and interpret it to mean the default time unit.
+
+

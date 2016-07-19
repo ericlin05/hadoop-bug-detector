@@ -1,0 +1,23 @@
+Description
+
+JavaEWAH has removed the restriction that bitsets can only be set in order in the latest release. 
+Currently the use of ewah_bitmap UDAF requires a SORT BY.
+
+
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.RuntimeException: Can't set bits out of order with EWAHCompressedBitmap
+        at org.apache.hadoop.hive.ql.exec.GroupByOperator.processOp(GroupByOperator.java:824)
+        at org.apache.hadoop.hive.ql.exec.Operator.process(Operator.java:474)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:800)
+        at org.apache.hadoop.hive.ql.exec.SelectOperator.processOp(SelectOperator.java:84)
+        at org.apache.hadoop.hive.ql.exec.Operator.process(Operator.java:474)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:800)
+        at org.apache.hadoop.hive.ql.exec.ExtractOperator.processOp(ExtractOperator.java:45)
+        at org.apache.hadoop.hive.ql.exec.Operator.process(Operator.java:474)
+        at org.apache.hadoop.hive.ql.exec.ExecReducer.reduce(ExecReducer.java:249)
+        ... 7 more
+Caused by: java.lang.RuntimeException: Can't set bits out of order with EWAHCompressedBitmap
+        at 
+
+
+
+

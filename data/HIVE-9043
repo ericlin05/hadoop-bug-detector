@@ -1,0 +1,33 @@
+Description
+
+
+ava.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.init(SparkMapRecordHandler.java:136)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunction.call(HiveMapFunction.java:54)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunction.call(HiveMapFunction.java:29)
+	at org.apache.spark.api.java.JavaRDDLike$$anonfun$fn$7$1.apply(JavaRDDLike.scala:167)
+	at org.apache.spark.api.java.JavaRDDLike$$anonfun$fn$7$1.apply(JavaRDDLike.scala:167)
+	at org.apache.spark.rdd.RDD$$anonfun$13.apply(RDD.scala:601)
+	at org.apache.spark.rdd.RDD$$anonfun$13.apply(RDD.scala:601)
+	at org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:35)
+	at org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:263)
+	at org.apache.spark.rdd.RDD.iterator(RDD.scala:230)
+	at org.apache.spark.rdd.UnionRDD.compute(UnionRDD.scala:87)
+	at org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:263)
+	at org.apache.spark.rdd.RDD.iterator(RDD.scala:230)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:68)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:41)
+	at org.apache.spark.scheduler.Task.run(Task.scala:56)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:196)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Conflict on row inspector for store_sales
+	at org.apache.hadoop.hive.ql.exec.MapOperator.initOperatorContext(MapOperator.java:381)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.setChildren(MapOperator.java:365)
+	at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.init(SparkMapRecordHandler.java:101)
+	... 19 more
+
+
+
+

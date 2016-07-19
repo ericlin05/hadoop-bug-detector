@@ -1,0 +1,5 @@
+Description
+
+HIVE-4732 introduces an unique id for record reader in AvroGenericRecordWritable. By the design, AvroGenericRecordReader would set the recordReaderID for generated Avro writable. However, when we want to use AvroSerDe in Hive's transform syntax, Avro writable's recordReaderID is not set and causes NullPointerException.
+
+

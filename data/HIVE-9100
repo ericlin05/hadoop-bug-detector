@@ -1,0 +1,14 @@
+Description
+
+Secure cluster with kerberos,remote metastore.
+How to reproduce :
+1,use beeline to connect to HiveServer2
+2,restart the MetaStore process
+3,type command like 'show tables' in beeline
+Client side will report this error:
+
+Error: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. MetaException(message:Could not connect to meta store using any of the URIs provided. Most recent failure: org.apache.thrift.transport.TTransportException: Peer indicated failure: DIGEST-MD5: IO error acquiring password
+	at org.apache.thrift.transport.TSaslTransport.receiveSaslMessage(TSaslTransport.java:190)
+HiveServer2's log and metastore's log are uploaded as attachments.
+
+

@@ -1,0 +1,116 @@
+Description
+
+The Operation System，CentOS 6
+Software version, Hadoop 2.4.1, Tez 0.5.3, Hive 0.14.0.
+The hive table structure is 
+CREATE EXTERNAL TABLE IF NOT EXISTS inv_info(optDate string, code int, custno int, sku int, euno int, totalamount double, price double, type int, finalamout double) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LOCATION '/user/hadoop/inv';
+Use Hive local Cli for query,
+1. Use the default engine "mr", execute the Hive QL, it's normal
+hive&amp;gt; select count from inv_info;
+Automatically selecting local only mode for query
+Query ID = root_20141221181313_60e150e1-34dd-4bea-8d4f-1a703c5516d6
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=&amp;lt;number&amp;gt;
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=&amp;lt;number&amp;gt;
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=&amp;lt;number&amp;gt;
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/webapp/hadoop-2.4.1/share/hadoop/common/lib/slf4j-log4j12-1.7.5.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/webapp/apache-hive-0.14.0-bin/lib/hive-jdbc-0.14.0-standalone.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+14/12/21 18:13:50 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+14/12/21 18:13:51 WARN conf.Configuration: file:/tmp/root/2006970b-1b5e-41e7-a604-4ed7405cc7e9/hive_2014-12-21_18-13-41_747_2372484449278617092-3/-local-10003/jobconf.xml:an attempt to override final parameter: mapreduce.job.end-notification.max.retry.interval;  Ignoring.
+14/12/21 18:13:51 WARN conf.Configuration: file:/tmp/root/2006970b-1b5e-41e7-a604-4ed7405cc7e9/hive_2014-12-21_18-13-41_747_2372484449278617092-3/-local-10003/jobconf.xml:an attempt to override final parameter: mapreduce.job.end-notification.max.attempts;  Ignoring.
+Execution log at: /tmp/root/root_20141221181313_60e150e1-34dd-4bea-8d4f-1a703c5516d6.log
+Job running in-process (local Hadoop)
+Hadoop job information for null: number of mappers: 0; number of reducers: 0
+2014-12-21 18:14:00,666 null map = 0%,  reduce = 0%
+2014-12-21 18:14:05,365 null map = 100%,  reduce = 100%
+Ended Job = job_local886866076_0001
+Execution completed successfully
+MapredLocal task succeeded
+OK
+2146872
+Time taken: 26.281 seconds, Fetched: 1 row(s)
+2. when I  set hive.execution.engine=tez; the query is fail, can anyone help me to find the reason? I looked up for many reference materials, can't resolve it.
+hive&amp;gt; select count from inv_info;
+Query ID = root_20141221181515_cbf8f20b-e105-441e-b044-269266088c48
+Total jobs = 1
+Launching Job 1 out of 1
+Status: Running (Executing on YARN cluster with App id application_1418953370736_0009)
+--------------------------------------------------------------------------------
+        VERTICES      STATUS  TOTAL  COMPLETED  RUNNING  PENDING  FAILED  KILLED
+--------------------------------------------------------------------------------
+Map 1                 FAILED      4          0        0        4       9       3
+Reducer 2             KILLED      1          0        0        1       0       1
+--------------------------------------------------------------------------------
+VERTICES: 00/02  [&amp;gt;&amp;gt;--------------------------] 0%    ELAPSED TIME: 29.57 s
+--------------------------------------------------------------------------------
+Status: Failed
+Vertex failed, vertexName=Map 1, vertexId=vertex_1418953370736_0009_1_00, diagnostics=[Task failed, taskId=task_1418953370736_0009_1_00_000000, diagnostics=[TaskAttempt 0 failed, info=[Container container_1418953370736_0009_01_000002 finished with diagnostics set to [Container failed. Exception from container-launch: org.apache.hadoop.util.Shell$ExitCodeException:
+org.apache.hadoop.util.Shell$ExitCodeException:
+        at org.apache.hadoop.util.Shell.runCommand(Shell.java:505)
+        at org.apache.hadoop.util.Shell.run(Shell.java:418)
+        at org.apache.hadoop.util.Shell$ShellCommandExecutor.execute(Shell.java:650)
+        at org.apache.hadoop.yarn.server.nodemanager.DefaultContainerExecutor.launchContainer(DefaultContainerExecutor.java:195)
+        at org.apache.hadoop.yarn.server.nodemanager.containermanager.launcher.ContainerLaunch.call(ContainerLaunch.java:300)
+        at org.apache.hadoop.yarn.server.nodemanager.containermanager.launcher.ContainerLaunch.call(ContainerLaunch.java:81)
+        at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:334)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:166)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1146)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:701)
+Container exited with a non-zero exit code 1
+]], TaskAttempt 1 failed, info=[Container container_1418953370736_0009_01_000009 finished with diagnostics set to [Container failed. Exception from container-launch: org.apache.hadoop.util.Shell$ExitCodeException:
+org.apache.hadoop.util.Shell$ExitCodeException:
+        at org.apache.hadoop.util.Shell.runCommand(Shell.java:505)
+        at org.apache.hadoop.util.Shell.run(Shell.java:418)
+        at org.apache.hadoop.util.Shell$ShellCommandExecutor.execute(Shell.java:650)
+        at org.apache.hadoop.yarn.server.nodemanager.DefaultContainerExecutor.launchContainer(DefaultContainerExecutor.java:195)
+        at org.apache.hadoop.yarn.server.nodemanager.containermanager.launcher.ContainerLaunch.call(ContainerLaunch.java:300)
+        at org.apache.hadoop.yarn.server.nodemanager.containermanager.launcher.ContainerLaunch.call(ContainerLaunch.java:81)
+        at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:334)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:166)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1146)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:701)
+Container exited with a non-zero exit code 1
+]], TaskAttempt 2 failed, info=[Container container_1418953370736_0009_01_000010 finished with diagnostics set to [Container failed. Exception from container-launch: org.apache.hadoop.util.Shell$ExitCodeException:
+org.apache.hadoop.util.Shell$ExitCodeException:
+        at org.apache.hadoop.util.Shell.runCommand(Shell.java:505)
+        at org.apache.hadoop.util.Shell.run(Shell.java:418)
+        at org.apache.hadoop.util.Shell$ShellCommandExecutor.execute(Shell.java:650)
+        at org.apache.hadoop.yarn.server.nodemanager.DefaultContainerExecutor.launchContainer(DefaultContainerExecutor.java:195)
+        at org.apache.hadoop.yarn.server.nodemanager.containermanager.launcher.ContainerLaunch.call(ContainerLaunch.java:300)
+        at org.apache.hadoop.yarn.server.nodemanager.containermanager.launcher.ContainerLaunch.call(ContainerLaunch.java:81)
+        at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:334)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:166)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1146)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:701)
+Container exited with a non-zero exit code 1
+]], TaskAttempt 3 failed, info=[Container container_1418953370736_0009_01_000013 finished with diagnostics set to [Container failed. Exception from container-launch: org.apache.hadoop.util.Shell$ExitCodeException:
+org.apache.hadoop.util.Shell$ExitCodeException:
+        at org.apache.hadoop.util.Shell.runCommand(Shell.java:505)
+        at org.apache.hadoop.util.Shell.run(Shell.java:418)
+        at org.apache.hadoop.util.Shell$ShellCommandExecutor.execute(Shell.java:650)
+        at org.apache.hadoop.yarn.server.nodemanager.DefaultContainerExecutor.launchContainer(DefaultContainerExecutor.java:195)
+        at org.apache.hadoop.yarn.server.nodemanager.containermanager.launcher.ContainerLaunch.call(ContainerLaunch.java:300)
+        at org.apache.hadoop.yarn.server.nodemanager.containermanager.launcher.ContainerLaunch.call(ContainerLaunch.java:81)
+        at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:334)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:166)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1146)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:701)
+Container exited with a non-zero exit code 1
+]]], Vertex failed as one or more tasks failed. failedTasks:1, Vertex vertex_1418953370736_0009_1_00 [Map 1] killed/failed due to:null]
+Vertex killed, vertexName=Reducer 2, vertexId=vertex_1418953370736_0009_1_01, diagnostics=[Vertex received Kill while in RUNNING state., Vertex killed as other vertex failed. failedTasks:0, Vertex vertex_1418953370736_0009_1_01 [Reducer 2] killed/failed due to:null]
+DAG failed due to vertex failure. failedVertices:1 killedVertices:1
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.tez.TezTask
+
+

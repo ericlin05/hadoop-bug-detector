@@ -1,0 +1,17 @@
+Description
+
+
+Caused by: java.lang.RuntimeException: Ambigous Column Names
+	at org.apache.hadoop.hive.ql.parse.RowResolver.add(RowResolver.java:381)
+	at org.apache.hadoop.hive.ql.parse.RowResolver.add(RowResolver.java:400)
+	at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer$OptiqBasedPlanner.genOBLogicalPlan(SemanticAnalyzer.java:13366)
+	at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer$OptiqBasedPlanner.genLogicalPlan(SemanticAnalyzer.java:13912)
+	at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer$OptiqBasedPlanner.apply(SemanticAnalyzer.java:12204)
+	at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer$OptiqBasedPlanner.apply(SemanticAnalyzer.java:12154)
+	at net.hydromatic.optiq.tools.Frameworks$1.apply(Frameworks.java:110)
+	at net.hydromatic.optiq.prepare.OptiqPrepareImpl.perform(OptiqPrepareImpl.java:613)
+	at net.hydromatic.optiq.tools.Frameworks.withPrepare(Frameworks.java:143)
+
+
+
+

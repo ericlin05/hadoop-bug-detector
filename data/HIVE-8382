@@ -1,0 +1,21 @@
+Description
+
+Makes it hard to go over the hive log to figure out real errors:
+
+
+try {
+        UDF udfInternal =
+            (UDF) Class.forName(bridge.getUdfClassName(), true, Utilities.getSessionSpecifiedClassLoader())
+                .newInstance();
+        files = udfInternal.getRequiredFiles();
+        jars = udf.getRequiredJars();
+      } catch (Exception e) {
+        LOG.error("The UDF implementation class '" + udfClassName
+            + "' is not present in the class path");
+        return false;
+      }
+
+
+I think we should either log this at INFO or DEBUG level.
+
+

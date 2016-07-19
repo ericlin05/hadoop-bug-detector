@@ -1,0 +1,48 @@
+Description
+
+From the hive-user email group:
+
+While executing a simple select query using a custom windowing UDAF I created I am constantly running into this error.
+ 
+Error: java.lang.RuntimeException: Error in configuring object
+        at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:109)
+        at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:75)
+        at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:133)
+        at org.apache.hadoop.mapred.ReduceTask.runOldReducer(ReduceTask.java:409)
+        at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:392)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:168)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1594)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:163)
+Caused by: java.lang.reflect.InvocationTargetException
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:106)
+        ... 9 more
+Caused by: java.lang.RuntimeException: Reduce operator initialization failed
+        at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.configure(ExecReducer.java:173)
+        ... 14 more
+Caused by: java.lang.NullPointerException
+        at org.apache.hadoop.hive.ql.exec.FunctionRegistry.getFunctionInfo(FunctionRegistry.java:647)
+        at org.apache.hadoop.hive.ql.exec.FunctionRegistry.getWindowFunctionInfo(FunctionRegistry.java:1875)
+        at org.apache.hadoop.hive.ql.udf.ptf.WindowingTableFunction.streamingPossible(WindowingTableFunction.java:150)
+        at org.apache.hadoop.hive.ql.udf.ptf.WindowingTableFunction.setCanAcceptInputAsStream(WindowingTableFunction.java:221)
+        at org.apache.hadoop.hive.ql.udf.ptf.WindowingTableFunction.initializeStreaming(WindowingTableFunction.java:266)
+        at org.apache.hadoop.hive.ql.exec.PTFOperator$PTFInvocation.initializeStreaming(PTFOperator.java:292)
+        at org.apache.hadoop.hive.ql.exec.PTFOperator.initializeOp(PTFOperator.java:86)
+        at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:376)
+        at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:460)
+        at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:416)
+        at org.apache.hadoop.hive.ql.exec.ExtractOperator.initializeOp(ExtractOperator.java:40)
+        at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:376)
+        at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.configure(ExecReducer.java:166)
+        ... 14 more
+ 
+Just wanted to check if any of you have faced this earlier. Also when I try to run the Custom UDAF on another server it works fine. The only difference I can see it that the hive version I am using on my local machine is 0.13.1 where it is working and on the other machine it is 0.13.0 where I see the above mentioned error. I am not sure if this was a bug which was fixed in the later release but I just wanted to confirm the same.
+
+
+
+

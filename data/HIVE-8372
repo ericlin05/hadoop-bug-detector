@@ -1,0 +1,5 @@
+Description
+
+MergeFileRecordProcessor retrieves map work from cache. This map work can be instance of merge file work. When the merge file work already exists in the cache casting the map work to merge file work is missing which will result in NullPointerException.
+
+

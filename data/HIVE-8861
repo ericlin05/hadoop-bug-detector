@@ -1,0 +1,10 @@
+Description
+
+In loading test schema to a standalone cluster, I got this error:
+
+FAILED: SemanticException Line 3:23 Invalid path ''/home/jxiang/data/files/cbo_t1.txt''
+
+
+We should use hiveconf:test.data.dir instead of ../../data/files
+
+

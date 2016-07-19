@@ -1,0 +1,72 @@
+Description
+
+The 4 tests
+bucketsortoptimize_insert_2
+bucketsortoptimize_insert_4
+bucketsortoptimize_insert_6
+bucketsortoptimize_insert_7
+bucketsortoptimize_insert_8
+all fail with the same NPE related in SMBMapJoinOperator:
+order object is null in SMBMapJoinOperator:
+// fetch the first group for all small table aliases
+for (byte pos = 0; pos &amp;lt; order.length; pos++) {
+if (pos != posBigTable)
+{ fetchNextGroup(pos); }
+
+Daemon Thread [Executor task launch worker-3] (Suspended (exception NullPointerException))
+SMBMapJoinOperator.processOp(Object, int) line: 258
+FilterOperator(Operator&amp;lt;T&amp;gt;).forward(Object, ObjectInspector) line: 799
+FilterOperator.processOp(Object, int) line: 137
+TableScanOperator(Operator&amp;lt;T&amp;gt;).forward(Object, ObjectInspector) line: 799
+TableScanOperator.processOp(Object, int) line: 95
+MapOperator(Operator&amp;lt;T&amp;gt;).forward(Object, ObjectInspector) line: 799
+MapOperator.process(Writable) line: 536
+SparkMapRecordHandler.processRow(Object, Object) line: 139
+HiveMapFunctionResultList.processNextRecord(Tuple2&amp;lt;BytesWritable,BytesWritable&amp;gt;) line: 47
+HiveMapFunctionResultList.processNextRecord(Object) line: 28
+HiveBaseFunctionResultList$ResultIterator.hasNext() line: 108
+Wrappers$JIteratorWrapper&amp;lt;A&amp;gt;.hasNext() line: 41
+Iterator$class.foreach(Iterator, Function1) line: 727
+Wrappers$JIteratorWrapper&amp;lt;A&amp;gt;(AbstractIterator&amp;lt;A&amp;gt;).foreach(Function1&amp;lt;A,U&amp;gt;) line: 1157
+RDD$$anonfun$foreach$1.apply(Iterator&amp;lt;T&amp;gt;) line: 760
+RDD$$anonfun$foreach$1.apply(Object) line: 760
+SparkContext$$anonfun$runJob$3.apply(TaskContext, Iterator&amp;lt;T&amp;gt;) line: 1118
+SparkContext$$anonfun$runJob$3.apply(Object, Object) line: 1118
+ResultTask&amp;lt;T,U&amp;gt;.runTask(TaskContext) line: 61
+ResultTask&amp;lt;T,U&amp;gt;(Task&amp;lt;T&amp;gt;).run(long) line: 56
+Executor$TaskRunner.run() line: 182
+ThreadPoolExecutor.runWorker(ThreadPoolExecutor$Worker) line: 1145
+ThreadPoolExecutor$Worker.run() line: 615
+Thread.run() line: 745
+There is also a NPE in the FileSinkOperator: the FileSystem object fs is null:
+// in recent hadoop versions, use deleteOnExit to clean tmp files.
+if (isNativeTable) {
+autoDelete = fs.deleteOnExit(fsp.outPaths[0]);
+Daemon Thread [Executor task launch worker-1] (Suspended (exception NullPointerException))
+FileSinkOperator.createBucketFiles(FileSinkOperator$FSPaths) line: 495
+FileSinkOperator.closeOp(boolean) line: 925
+FileSinkOperator(Operator&amp;lt;T&amp;gt;).close(boolean) line: 582
+SelectOperator(Operator&amp;lt;T&amp;gt;).close(boolean) line: 594
+SMBMapJoinOperator(Operator&amp;lt;T&amp;gt;).close(boolean) line: 594
+DummyStoreOperator(Operator&amp;lt;T&amp;gt;).close(boolean) line: 594
+FilterOperator(Operator&amp;lt;T&amp;gt;).close(boolean) line: 594
+TableScanOperator(Operator&amp;lt;T&amp;gt;).close(boolean) line: 594
+MapOperator(Operator&amp;lt;T&amp;gt;).close(boolean) line: 594
+SparkMapRecordHandler.close() line: 175
+HiveMapFunctionResultList.closeRecordProcessor() line: 57
+HiveBaseFunctionResultList$ResultIterator.hasNext() line: 122
+Wrappers$JIteratorWrapper&amp;lt;A&amp;gt;.hasNext() line: 41
+Iterator$class.foreach(Iterator, Function1) line: 727
+Wrappers$JIteratorWrapper&amp;lt;A&amp;gt;(AbstractIterator&amp;lt;A&amp;gt;).foreach(Function1&amp;lt;A,U&amp;gt;) line: 1157
+RDD$$anonfun$foreach$1.apply(Iterator&amp;lt;T&amp;gt;) line: 760
+RDD$$anonfun$foreach$1.apply(Object) line: 760
+SparkContext$$anonfun$runJob$3.apply(TaskContext, Iterator&amp;lt;T&amp;gt;) line: 1118
+SparkContext$$anonfun$runJob$3.apply(Object, Object) line: 1118
+ResultTask&amp;lt;T,U&amp;gt;.runTask(TaskContext) line: 61
+ResultTask&amp;lt;T,U&amp;gt;(Task&amp;lt;T&amp;gt;).run(long) line: 56
+Executor$TaskRunner.run() line: 182
+ThreadPoolExecutor.runWorker(ThreadPoolExecutor$Worker) line: 1145
+ThreadPoolExecutor$Worker.run() line: 615
+Thread.run() line: 745
+
+

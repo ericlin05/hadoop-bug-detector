@@ -1,0 +1,5 @@
+Description
+
+ORC is in some instances pushing SARGs into delta files.  This is wrong behavior in general as it may result in failing to pull the most recent version of a row.  When the SARG is applied to a row that is deleted it causes an ArrayOutOfBoundsException because there is no data in the row.
+
+

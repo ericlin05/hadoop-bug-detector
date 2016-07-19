@@ -1,0 +1,49 @@
+Description
+
+Fail to LOAD DATA INTO table after ALTER TABLE..SET LOCATION. 
+Repro steps:
+
+1. hadoop fs -put table.dat /data/table.dat
+2. drop table if exists hcat_altertable_16;
+3. create table hcat_altertable_16(a int, b string) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' stored as textfile;
+4. LOAD DATA INPATH '/data/table.dat' OVERWRITE INTO TABLE hcat_altertable_16;
+5. hadoop fs -put table.dat /data/table.dat
+6. hadoop fs -mkdir /tmp/table_has_moved
+7. alter table hcat_altertable_16 set location 'hdfs:///tmp/table_has_moved/';
+8. LOAD DATA INPATH '/data/table.dat' OVERWRITE INTO TABLE hcat_altertable_16; 
+
+
+Step 8 will complain:
+
+FAILED: SemanticException [Error 10028]: Line 1:17 Path is not legal ''/data/table.dat'': Move from: hdfs://hhuang-clst21:8020/data/table.dat to: hdfs:/tmp/table_has_moved is not valid. Please check that values for params "default.fs.name" and "hive.metastore.warehouse.dir" do not conflict.
+
+
+Stack trace:
+
+2014-09-16 21:37:45,020 ERROR ql.Driver (SessionState.java:printError(824)) - FAILED: SemanticException [Error 10028]: Line 1:17 Path is not legal ''/data/bug-22915'': Move from: hdfs://hhuang-clst21:8020/data/bug-22915 to: hdfs:/tmp/table_has_moved is not valid. Please check that values for params "default.fs.name" and "hive.metastore.warehouse.dir" do not conflict.
+org.apache.hadoop.hive.ql.parse.SemanticException: Line 1:17 Path is not legal ''/data/bug-22915'': Move from: hdfs://hhuang-clst21:8020/data/bug-22915 to: hdfs:/tmp/table_has_moved is not valid. Please check that values for params "default.fs.name" and "hive.metastore.warehouse.dir" do not conflict.
+	at org.apache.hadoop.hive.ql.parse.LoadSemanticAnalyzer.applyConstraints(LoadSemanticAnalyzer.java:169)
+	at org.apache.hadoop.hive.ql.parse.LoadSemanticAnalyzer.analyzeInternal(LoadSemanticAnalyzer.java:235)
+	at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:217)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:407)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:303)
+	at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1058)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1128)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:995)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:985)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:246)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:198)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:408)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:781)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:675)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:614)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:601)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+
+
+
+

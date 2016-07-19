@@ -1,0 +1,20 @@
+Description
+
+When running "alter table test_table concatenate;" on an ORC table an error is raised:
+Error: java.lang.IllegalArgumentException: Column has wrong number of index entries found: 0 expected: 1
+        at org.apache.hadoop.hive.ql.io.orc.WriterImpl$TreeWriter.writeStripe(WriterImpl.java:726)
+        at org.apache.hadoop.hive.ql.io.orc.WriterImpl$StructTreeWriter.writeStripe(WriterImpl.java:1614)
+        at org.apache.hadoop.hive.ql.io.orc.WriterImpl.flushStripe(WriterImpl.java:1996)
+        at org.apache.hadoop.hive.ql.io.orc.WriterImpl.close(WriterImpl.java:2288)
+        at org.apache.hadoop.hive.ql.exec.OrcFileMergeOperator.closeOp(OrcFileMergeOperator.java:215)
+        at org.apache.hadoop.hive.ql.io.merge.MergeFileMapper.close(MergeFileMapper.java:98)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:61)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+
+

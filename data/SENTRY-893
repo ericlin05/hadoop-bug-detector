@@ -1,0 +1,7 @@
+Description
+
+We periodically see "out of sequence response" error from thrift layer as thrift itself is not thread safe and lets mutliple clients read each other's sockets. See http://mail-archives.apache.org/mod_mbox/thrift-user/201208.mbox/%3CA0F963DCF29346458CDF2969683DF6CC70F90B3A@SC-MBX01-2.TheFacebook.com%3E
+Caused by: sentry.org.apache.thrift.TApplicationException: list_sentry_privileges_for_provider failed: out of sequence response at sentry.org.apache.thrift.TServiceClient.receiveBase(TServiceClient.java:76) 
+Would be best to synchronize the calls on client side to avoid this situation. We might follow up to allow locking just the transport.
+
+

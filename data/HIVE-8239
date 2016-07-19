@@ -1,0 +1,29 @@
+Description
+
+In Transaction related tables, Java long column fields are mapped to int which results in failure as shown:
+
+2014-09-23 18:08:00,030 DEBUG txn.TxnHandler (TxnHandler.java:lock(1243)) - Going to execute update &amp;lt;insert into HIVE_LOCKS  (hl_lock_ext_id, hl_lock_int_id, hl_txnid, hl_db, hl_table, hl_partition, hl_lock_state, hl_lock_type, hl_last_heartbeat, hl_user, hl_host) values (28, 1,0, 'default', null, null, 'w', 'r', 1411495679547, 'hadoopqa', 'onprem-sqoop1')&amp;gt;
+2014-09-23 18:08:00,033 DEBUG txn.TxnHandler (TxnHandler.java:lock(406)) - Going to rollback
+2014-09-23 18:08:00,045 ERROR metastore.RetryingHMSHandler (RetryingHMSHandler.java:invoke(139)) - org.apache.thrift.TException: MetaException(message:Unable to update transaction database com.microsoft.sqlserver.jdbc.SQLServerException: Arithmetic overflow error converting expression to data type int.
+        at com.microsoft.sqlserver.jdbc.SQLServerException.makeFromDatabaseError(SQLServerException.java:197)
+        at com.microsoft.sqlserver.jdbc.TDSTokenHandler.onEOF(tdsparser.java:246)
+        at com.microsoft.sqlserver.jdbc.TDSParser.parse(tdsparser.java:83)
+        at com.microsoft.sqlserver.jdbc.SQLServerStatement.getNextResult(SQLServerStatement.java:1488)
+        at com.microsoft.sqlserver.jdbc.SQLServerStatement.doExecuteStatement(SQLServerStatement.java:775)
+        at com.microsoft.sqlserver.jdbc.SQLServerStatement$StmtExecCmd.doExecute(SQLServerStatement.java:676)
+        at com.microsoft.sqlserver.jdbc.TDSCommand.execute(IOBuffer.java:4615)
+        at com.microsoft.sqlserver.jdbc.SQLServerConnection.executeCommand(SQLServerConnection.java:1400)
+        at com.microsoft.sqlserver.jdbc.SQLServerStatement.executeCommand(SQLServerStatement.java:179)
+        at com.microsoft.sqlserver.jdbc.SQLServerStatement.executeStatement(SQLServerStatement.java:154)
+        at com.microsoft.sqlserver.jdbc.SQLServerStatement.executeUpdate(SQLServerStatement.java:633)
+        at com.jolbox.bonecp.StatementHandle.executeUpdate(StatementHandle.java:497)
+        at org.apache.hadoop.hive.metastore.txn.TxnHandler.lock(TxnHandler.java:1244)
+        at org.apache.hadoop.hive.metastore.txn.TxnHandler.lock(TxnHandler.java:403)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.lock(HiveMetaStore.java:5255)
+        ...
+
+
+In this query one of the column HL_LAST_HEARTBEAT defined as int datatype in HIVE_LOCKS is trying to take in a long value (1411495679547) and throws the error. We should use bigint as column type instead.
+NO PRECOMMIT TESTS
+
+

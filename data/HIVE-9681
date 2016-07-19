@@ -1,0 +1,16 @@
+Description
+
+HiveAuthorizationProvider allows only for the authorization of a single partition at a time. For instance, when the StorageBasedAuthProvider must authorize an operation on a set of partitions (say from a PreDropPartitionEvent), each partition's data-directory needs to be checked individually. For N partitions, this results in N namenode calls.
+I'd like to add authorize() overloads that accept multiple partitions. This will allow StorageBasedAuthProvider to make batched namenode calls. 
+P.S. There's 2 further optimizations that are possible:
+1. In the ideal case, we'd have a single call in org.apache.hadoop.fs.FileSystem to check access for an array of Paths, something like:
+FileSystem.java
+
+@InterfaceAudience.LimitedPrivate({"HDFS", "Hive"})
+  public void access(Path [] paths, FsAction mode) throws AccessControlException, FileNotFoundException, IOException 
+{...}
+
+
+2. We can go one better if we could retrieve partition-locations in DirectSQL and use those for authorization. The EventListener-abstraction behind which the AuthProviders operate make this difficult. I can attempt to solve this using a PartitionSpec and a call-back into the ObjectStore from StorageBasedAuthProvider. I'll save this rigmarole for later.
+
+

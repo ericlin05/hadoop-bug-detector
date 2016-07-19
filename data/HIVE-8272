@@ -1,0 +1,47 @@
+Description
+
+Query:
+
+
+select 
+  cast(sum(dc)*100 as decimal(11,3)) as c1
+  from somedecimaltable
+  order by c1
+  limit 100;
+
+
+Fails during execution initialization due to null ExprNodeDesc.
+Noticed while trying to simplify a Vectorization issue and realized it was a more general issue.
+
+
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.configure(ExecMapper.java:154)
+	... 22 more
+Caused by: java.lang.RuntimeException: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.ReduceSinkOperator.initializeOp(ReduceSinkOperator.java:215)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:380)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:464)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:420)
+	at org.apache.hadoop.hive.ql.exec.GroupByOperator.initializeOp(GroupByOperator.java:427)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:380)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:464)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:420)
+	at org.apache.hadoop.hive.ql.exec.SelectOperator.initializeOp(SelectOperator.java:65)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:380)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:464)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:420)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.initializeOp(TableScanOperator.java:193)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:380)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.initializeOp(MapOperator.java:425)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:380)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.configure(ExecMapper.java:133)
+	... 22 more
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc.getExprString(ExprNodeGenericFuncDesc.java:154)
+	at org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc.getExprString(ExprNodeGenericFuncDesc.java:154)
+	at org.apache.hadoop.hive.ql.exec.ReduceSinkOperator.initializeOp(ReduceSinkOperator.java:148)
+	... 38 more
+
+
+
+

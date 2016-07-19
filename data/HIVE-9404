@@ -1,0 +1,17 @@
+Description
+
+
+Caused by: java.lang.NullPointerException
+
+	at org.apache.hadoop.hive.metastore.txn.TxnHandler.determineDatabaseProduct(TxnHandler.java:1015)
+
+	at org.apache.hadoop.hive.metastore.txn.TxnHandler.checkRetryable(TxnHandler.java:906)
+
+	at org.apache.hadoop.hive.metastore.txn.TxnHandler.getOpenTxns(TxnHandler.java:238)
+
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.get_open_txns(HiveMetaStore.java:5321)
+
+
+
+
+

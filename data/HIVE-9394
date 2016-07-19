@@ -1,0 +1,61 @@
+Description
+
+There have been some sporadic exceptions in pre-commit tests like:
+
+2015-01-15 08:31:40,805 WARN  [main]: client.SparkClientImpl (SparkClientImpl.java:&amp;lt;init&amp;gt;(90)) - Error while waiting for client to connect.
+java.util.concurrent.ExecutionException: java.util.concurrent.TimeoutException: Timed out waiting for client connection.
+	at io.netty.util.concurrent.AbstractFuture.get(AbstractFuture.java:37)
+	at org.apache.hive.spark.client.SparkClientImpl.&amp;lt;init&amp;gt;(SparkClientImpl.java:88)
+	at org.apache.hive.spark.client.SparkClientFactory.createClient(SparkClientFactory.java:75)
+	at org.apache.hadoop.hive.ql.exec.spark.RemoteHiveSparkClient.&amp;lt;init&amp;gt;(RemoteHiveSparkClient.java:82)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveSparkClientFactory.createHiveSparkClient(HiveSparkClientFactory.java:53)
+	at org.apache.hadoop.hive.ql.exec.spark.session.SparkSessionImpl.open(SparkSessionImpl.java:56)
+	at org.apache.hadoop.hive.ql.exec.spark.session.SparkSessionManagerImpl.getSession(SparkSessionManagerImpl.java:128)
+	at org.apache.hadoop.hive.ql.exec.spark.SparkUtilities.getSparkSession(SparkUtilities.java:84)
+	at org.apache.hadoop.hive.ql.exec.spark.SparkTask.execute(SparkTask.java:96)
+	at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:160)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:88)
+	at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1634)
+	at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1393)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1179)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1045)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1035)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:207)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:159)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:370)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:305)
+	at org.apache.hadoop.hive.ql.QTestUtil.executeClient(QTestUtil.java:882)
+	at org.apache.hadoop.hive.cli.TestSparkCliDriver.runTest(TestSparkCliDriver.java:234)
+	at org.apache.hadoop.hive.cli.TestSparkCliDriver.testCliDriver_alter_merge_orc(TestSparkCliDriver.java:162)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at junit.framework.TestCase.runTest(TestCase.java:176)
+	at junit.framework.TestCase.runBare(TestCase.java:141)
+	at junit.framework.TestResult$1.protect(TestResult.java:122)
+	at junit.framework.TestResult.runProtected(TestResult.java:142)
+	at junit.framework.TestResult.run(TestResult.java:125)
+	at junit.framework.TestCase.run(TestCase.java:129)
+	at junit.framework.TestSuite.runTest(TestSuite.java:255)
+	at junit.framework.TestSuite.run(TestSuite.java:250)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:84)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:264)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:153)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:124)
+	at org.apache.maven.surefire.booter.ForkedBooter.invokeProviderInSameClassLoader(ForkedBooter.java:200)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:153)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:103)
+Caused by: java.util.concurrent.TimeoutException: Timed out waiting for client connection.
+	at org.apache.hive.spark.client.rpc.RpcServer$2.run(RpcServer.java:125)
+	at io.netty.util.concurrent.PromiseTask$RunnableAdapter.call(PromiseTask.java:38)
+	at io.netty.util.concurrent.ScheduledFutureTask.run(ScheduledFutureTask.java:123)
+	at io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:380)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:357)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:116)
+	at java.lang.Thread.run(Thread.java:744)
+
+
+I think this is caused by the RemoteDriver not sending the "Hello" message to the client, which causes it to timeout.
+
+

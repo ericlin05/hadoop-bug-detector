@@ -1,0 +1,16 @@
+Description
+
+The test case references ../../data/files/test2.dat, but for some reasons it can't find the file:
+2014-12-18 17:59:46,360 ERROR [main]: CliDriver (SessionState.java:printError(834)) - Failed with exception java.io.IOException:org.apache.hadoop.hive.ql.metadata.HiveException: java.io.FileNotFoundException: test2.dat (No such file or directory)
+java.io.IOException: org.apache.hadoop.hive.ql.metadata.HiveException: java.io.FileNotFoundException: test2.dat (No such file or directory)
+	at org.apache.hadoop.hive.ql.exec.FetchTask.fetch(FetchTask.java:152)
+	at org.apache.hadoop.hive.ql.Driver.getResults(Driver.java:1648)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:226)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:158)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:369)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:304)
+	at org.apache.hadoop.hive.ql.QTestUtil.executeClient(QTestUtil.java:837)
+	at org.apache.hadoop.hive.cli.TestSparkCliDriver.runTest(TestSparkCliDriver.java:136)
+	at org.apache.hadoop.hive.cli.TestSparkCliDriver.testCliDriver_udf_in_file(TestSparkCliDriver.java:120)
+
+

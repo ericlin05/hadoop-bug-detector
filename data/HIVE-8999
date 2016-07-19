@@ -1,0 +1,60 @@
+Description
+
+Planned to secure the hiverserver2 Using Custom authentication Method. 
+But when the beeline starts and sets the server Ip and port using command. It hanges in the terminal after providing the username and Password.
+*****************************Procedure Followed***********************************
+*Compiled Java File to create a jar
+import java.util.Hashtable;
+import javax.security.sasl.AuthenticationException;
+import org.apache.hive.service.auth.PasswdAuthenticationProvider;
+public class SampleAuthenticator implements PasswdAuthenticationProvider {
+  Hashtable&amp;lt;String, String&amp;gt; store = null;
+  public SampleAuthenticator () 
+{
+    store = new Hashtable&amp;lt;String, String&amp;gt;();
+    store.put("user1", "passwd1");
+    store.put("user2", "passwd2");
+  }
+
+  @Override
+  public void Authenticate(String user, String  password)
+      throws AuthenticationException 
+{
+
+    String storedPasswd = store.get(user);
+
+    if (storedPasswd != null &amp;amp;&amp;amp; storedPasswd.equals(password))
+      return;
+
+    throw new AuthenticationException("SampleAuthenticator: Error validating user");
+  }
+
+}
+---------------------------------------------------------------------------------------------
+*Properties Used in Hive-site.xml
+&amp;lt;property&amp;gt;
+  &amp;lt;name&amp;gt;hive.server2.authentication&amp;lt;/name&amp;gt;
+  &amp;lt;value&amp;gt;CUSTOM&amp;lt;/value&amp;gt;
+&amp;lt;/property&amp;gt;
+&amp;lt;property&amp;gt;
+  &amp;lt;name&amp;gt;hive.server2.custom.authentication.class&amp;lt;/name&amp;gt;
+  &amp;lt;value&amp;gt;org.apache.hive.service.auth.PasswdAuthenticationProvider.SampleAuth&amp;lt;/value&amp;gt;
+&amp;lt;/property&amp;gt;
+--------------------------------------------------------------------------
+*Started Beeline 
+beeline&amp;gt; !connect jdbc:hive2://localhost:10000/default
+scan complete in 13ms
+Connecting to jdbc:hive2://localhost:10000/default
+Enter username for jdbc:hive2://localhost:10000/default: user1
+Enter password for jdbc:hive2://localhost:10000/default: *******
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/hadoop/share/hadoop/common/lib/slf4j-log4j12-1.7.5.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/apache-hive/lib/hive-jdbc-0.14.0-standalone.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+------------------------------------------------------------------------------------------
+Can Anyone help me by providing the correct Java file and Procedures to use Custom Authentication
+Thank you
+Amithsha.S
+
+

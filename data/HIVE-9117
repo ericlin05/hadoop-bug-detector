@@ -1,0 +1,5 @@
+Description
+
+Using webhcat to retrieve table information on tables with custom SerDes errors with a ClassNotFoundException.  Even sending specific DDL commands starting with ADD JAR fail because ADD JAR doesn't seem to be part of HCatalog's DDL grammar.  As a result, no table actions work on tables that require custom jars.
+
+

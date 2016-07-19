@@ -1,0 +1,46 @@
+Description
+
+When reading a Parquet file written by Hive &amp;lt;= 0.12, the following error is thrown:
+
+Caused by: java.lang.ArrayIndexOutOfBoundsException: 1
+        at org.apache.hadoop.hive.ql.io.parquet.serde.AbstractParquetMapInspector.getMap(AbstractParquetMapInspector.java:73)
+        at org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe.serialize(LazySimpleSerDe.java:519)
+        at org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe.serializeField(LazySimpleSerDe.java:443)
+        at org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe.serialize(LazySimpleSerDe.java:427)
+        at org.apache.hadoop.hive.ql.exec.FileSinkOperator.processOp(FileSinkOperator.java:582)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+        at org.apache.hadoop.hive.ql.exec.LimitOperator.processOp(LimitOperator.java:51)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+        at org.apache.hadoop.hive.ql.exec.SelectOperator.processOp(SelectOperator.java:87)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+        at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:92)
+        at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:796)
+        at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:539)
+        ... 9 more
+
+
+This is because old versions of Hive (&amp;lt;= 0.12) write Map types using the following schema:
+
+optional group m1 (MAP_KEY_VALUE) {
+	repeated group map {
+		required binary key;
+		optional binary key;
+	}
+}	
+
+
+PARQUET-113 mentions new annotations for Parquet nested types. 
+https://github.com/rdblue/incubator-parquet-format/blob/PARQUET-113-add-list-and-map-spec/LogicalTypes.md#maps
+And now the correct schema is:
+
+optional group m1f (MAP) {
+	repeated group map (MAP_KEY_VALUE) {
+		required binary key;
+		optional binary key;
+	}
+}
+
+
+We should be backwards compatible to the old schema as well.
+
+

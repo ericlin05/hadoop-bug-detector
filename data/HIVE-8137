@@ -1,0 +1,16 @@
+Description
+
+Hive 13 does not handle reading of a zero size Orc File properly. An Orc file is suposed to have a post-script
+which the ReaderIml class tries to read and initialize the footer with it. But in case, the file is empty 
+or is of zero size, then it runs into an IndexOutOfBound Exception because of ReaderImpl trying to read in its constructor.
+Code Snippet : 
+//get length of PostScript
+int psLen = buffer.get(readSize - 1) &amp;amp; 0xff; 
+In the above code, readSize for an empty file is zero.
+I see that ensureOrcFooter() method performs some sanity checks for footer , 
+so, either we can move the above code snippet to ensureOrcFooter() and throw a "Malformed ORC file exception" or we can create a dummy Reader that does not initialize footer and basically has hasNext() set to false so that it returns false on the first call.
+Basically, I would like to know what might be the correct way to handle an empty ORC file in a mapred job?
+Should we neglect it and not throw an exception or we can throw an exeption that the ORC file is malformed.
+Please let me know your thoughts on this.
+
+

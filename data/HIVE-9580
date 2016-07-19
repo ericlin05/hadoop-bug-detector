@@ -1,0 +1,241 @@
+Description
+
+The database erroneously returns rows when joining two tables which each contain a VARCHAR column and the join's ON condition uses the equality operator on the VARCHAR columns.
+******The following JDBC method exhibits the problem:
+	static void joinIssue() 
+		throws SQLException {
+		String sql;
+		int rowsAffected;
+		ResultSet rs;
+		Statement stmt = con.createStatement();
+		String table1_Name = "blahtab1";
+		String table1A_Name = "blahtab1A";
+		String table1B_Name = "blahtab1B";
+		String table2_Name = "blahtab2";
+		try 
+{
+			sql = "drop table " + table1_Name;
+			System.out.println("\nsql=" + sql);
+			rowsAffected = stmt.executeUpdate(sql);
+		}
+		catch (SQLException se) 
+{
+			println("Drop table error:" + se.getMessage());
+		}
+
+		try 
+{
+			sql = "CREATE TABLE " + table1_Name + "(" +
+						"VCHARCOL VARCHAR(10) " +
+						",INTEGERCOL INT " +
+					") "
+			;
+			System.out.println("\nsql=" + sql);
+			rowsAffected = stmt.executeUpdate(sql);
+		}
+		catch (SQLException se) 
+{
+			println("create table error:" + se.getMessage());
+		}
+
+		sql = "insert into " + table1_Name + " values ('jklmnopqrs', 99)";
+		System.out.println("\nsql=" + sql);
+		stmt.executeUpdate(sql);
+		System.out.println("=======================================================================================================================================");
+		try 
+{
+			sql = "drop table " + table1A_Name;
+			System.out.println("\nsql=" + sql);
+			rowsAffected = stmt.executeUpdate(sql);
+		}
+		catch (SQLException se) 
+{
+			println("Drop table error:" + se.getMessage());
+		}
+
+		try 
+{
+			sql = "CREATE TABLE " + table1A_Name + "(" +
+						"VCHARCOL VARCHAR(10) " +
+					") "
+			;
+			System.out.println("\nsql=" + sql);
+			rowsAffected = stmt.executeUpdate(sql);
+		}
+		catch (SQLException se) 
+{
+			println("create table error:" + se.getMessage());
+		}
+
+		sql = "insert into " + table1A_Name + " values ('jklmnopqrs')";
+		System.out.println("\nsql=" + sql);
+		stmt.executeUpdate(sql);
+		System.out.println("=======================================================================================================================================");
+		try 
+{
+			sql = "drop table " + table1B_Name;
+			System.out.println("\nsql=" + sql);
+			rowsAffected = stmt.executeUpdate(sql);
+		}
+		catch (SQLException se) 
+{
+			println("Drop table error:" + se.getMessage());
+		}
+
+		try 
+{
+			sql = "CREATE TABLE " + table1B_Name + "(" +
+						"VCHARCOL VARCHAR(11) " +
+						",INTEGERCOL INT " +
+					") "
+			;
+			System.out.println("\nsql=" + sql);
+			rowsAffected = stmt.executeUpdate(sql);
+		}
+		catch (SQLException se) 
+{
+			println("create table error:" + se.getMessage());
+		}
+
+		sql = "insert into " + table1B_Name + " values ('jklmnopqrs', 99)";
+		System.out.println("\nsql=" + sql);
+		stmt.executeUpdate(sql);
+		System.out.println("=======================================================================================================================================");
+		try 
+{
+			sql = "drop table " + table2_Name;
+			System.out.println("\nsql=" + sql);
+			rowsAffected = stmt.executeUpdate(sql);
+		}
+		catch (SQLException se) 
+{
+			println("Drop table error:" + se.getMessage());
+		}
+
+		try 
+{
+			sql = "CREATE TABLE " + table2_Name + "(" +
+						"VCHARCOL VARCHAR(30) " +
+					") "
+					;
+			System.out.println("\nsql=" + sql);
+			rowsAffected = stmt.executeUpdate(sql);
+		}
+		catch (SQLException se) 
+{
+			println("create table error:" + se.getMessage());
+		}
+
+		sql = "insert into " + table2_Name + " values ('jklmnopqrsX')";
+		System.out.println("\nsql=" + sql);
+		stmt.executeUpdate(sql);
+		System.out.println("=======================================================================================================================================");
+		sql = "select * from " + table1_Name;
+		System.out.println("\nsql=" + sql);
+		rs = stmt.executeQuery(sql);
+		dispResultSet(rs, true, true);
+		System.out.println("=======================================================================================================================================");
+		sql = "select * from " + table1A_Name;
+		System.out.println("\nsql=" + sql);
+		rs = stmt.executeQuery(sql);
+		dispResultSet(rs, true, true);
+		System.out.println("=======================================================================================================================================");
+		sql = "select * from " + table1B_Name;
+		System.out.println("\nsql=" + sql);
+		rs = stmt.executeQuery(sql);
+		dispResultSet(rs, true, true);
+		System.out.println("=======================================================================================================================================");
+		sql = "select * from " + table2_Name;
+		System.out.println("\nsql=" + sql);
+		rs = stmt.executeQuery(sql);
+		dispResultSet(rs, true, true);
+		System.out.println("=======================================================================================================================================");
+		sql = "SELECT " + 
+				table1_Name + ".VCHARCOL, " + 
+				table2_Name + ".VCHARCOL " +
+				"FROM " + table1_Name + " JOIN " + table2_Name + 
+					" ON (" + table1_Name + ".VCHARCOL = " + table2_Name + ".VCHARCOL)";
+		System.out.println("\nsql=" + sql);
+		rs = stmt.executeQuery(sql);
+		dispResultSet(rs, true, true);
+		System.out.println("=======================================================================================================================================");
+		sql = "SELECT " + 
+				table1_Name + ".VCHARCOL, " + 
+				table2_Name + ".VCHARCOL " +
+				"FROM " + table2_Name + " JOIN " + table1_Name + 
+					" ON (" + table2_Name + ".VCHARCOL = " + table1_Name + ".VCHARCOL)";
+		System.out.println("\nsql=" + sql);
+		rs = stmt.executeQuery(sql);
+		dispResultSet(rs, true, true);
+		System.out.println("=======================================================================================================================================");
+		sql = "SELECT " + 
+				table1A_Name + ".VCHARCOL, " + 
+				table2_Name + ".VCHARCOL " +
+				"FROM " + table1A_Name + " JOIN " + table2_Name + 
+					" ON (" + table1A_Name + ".VCHARCOL = " + table2_Name + ".VCHARCOL)";
+		System.out.println("\nsql=" + sql);
+		rs = stmt.executeQuery(sql);
+		dispResultSet(rs, true, true);
+		System.out.println("=======================================================================================================================================");
+		sql = "SELECT " + 
+				table1B_Name + ".VCHARCOL, " + 
+				table2_Name + ".VCHARCOL " +
+				"FROM " + table1B_Name + " JOIN " + table2_Name + 
+					" ON (" + table1B_Name + ".VCHARCOL = " + table2_Name + ".VCHARCOL)";
+		System.out.println("\nsql=" + sql);
+		rs = stmt.executeQuery(sql);
+		dispResultSet(rs, true, true);
+		stmt.close();
+	}
+******The output generated by program run is as follows (for 0.13):
+sql=drop table blahtab1
+sql=CREATE TABLE blahtab1(VCHARCOL VARCHAR(10) ,INTEGERCOL INT ) 
+sql=insert into blahtab1 values ('jklmnopqrs', 99)
+=======================================================================================================================================
+sql=drop table blahtab1A
+sql=CREATE TABLE blahtab1A(VCHARCOL VARCHAR(10) ) 
+sql=insert into blahtab1A values ('jklmnopqrs')
+=======================================================================================================================================
+sql=drop table blahtab1B
+sql=CREATE TABLE blahtab1B(VCHARCOL VARCHAR(11) ,INTEGERCOL INT ) 
+sql=insert into blahtab1B values ('jklmnopqrs', 99)
+=======================================================================================================================================
+sql=drop table blahtab2
+sql=CREATE TABLE blahtab2(VCHARCOL VARCHAR(30) ) 
+sql=insert into blahtab2 values ('jklmnopqrsX')
+=======================================================================================================================================
+sql=select * from blahtab1
+vcharcol(10):jklmnopqrs|integercol(10):99|
+Num rows in result set = 1
+=======================================================================================================================================
+sql=select * from blahtab1A
+vcharcol(10):jklmnopqrs|
+Num rows in result set = 1
+=======================================================================================================================================
+sql=select * from blahtab1B
+vcharcol(11):jklmnopqrs|integercol(10):99|
+Num rows in result set = 1
+=======================================================================================================================================
+sql=select * from blahtab2
+vcharcol(30):jklmnopqrsX|
+Num rows in result set = 1
+=======================================================================================================================================
+sql=SELECT blahtab1.VCHARCOL, blahtab2.VCHARCOL FROM blahtab1 JOIN blahtab2 ON (blahtab1.VCHARCOL = blahtab2.VCHARCOL)
+vcharcol(10):jklmnopqrs|vcharcol(30):jklmnopqrsX|
+Num rows in result set = 1
+=======================================================================================================================================
+sql=SELECT blahtab1.VCHARCOL, blahtab2.VCHARCOL FROM blahtab2 JOIN blahtab1 ON (blahtab2.VCHARCOL = blahtab1.VCHARCOL)
+Num rows in result set = 0
+=======================================================================================================================================
+sql=SELECT blahtab1A.VCHARCOL, blahtab2.VCHARCOL FROM blahtab1A JOIN blahtab2 ON (blahtab1A.VCHARCOL = blahtab2.VCHARCOL)
+Num rows in result set = 0
+=======================================================================================================================================
+sql=SELECT blahtab1B.VCHARCOL, blahtab2.VCHARCOL FROM blahtab1B JOIN blahtab2 ON (blahtab1B.VCHARCOL = blahtab2.VCHARCOL)
+Num rows in result set = 0
+******The server should NOT return any rows for the following query, but it does:
+SELECT blahtab1.VCHARCOL, blahtab2.VCHARCOL FROM blahtab1 JOIN blahtab2 ON (blahtab1.VCHARCOL = blahtab2.VCHARCOL)
+Result:
+vcharcol(10):jklmnopqrs|vcharcol(30):jklmnopqrsX|
+Num rows in result set = 1
+
+

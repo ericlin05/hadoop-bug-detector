@@ -1,0 +1,11 @@
+Description
+
+If Hive permission inheritance is turned on, ACL's are inherited from parent directories.  However, on s3 file system, ACL is not supported.
+Hence Hive throws the following exception if hadoop is configured with "dfs.namenode.acls.enabled":
+
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. MetaException(message:java.lang.UnsupportedOperationException: NativeS3FileSystem doesn't support getAclStatus)
+
+
+  Workaround is to set this flag to false.
+
+

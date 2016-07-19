@@ -1,0 +1,10 @@
+Description
+
+
+hive&amp;gt; select c1, date_add('1985-01-01', c1) from short1;
+FAILED: SemanticException [Error 10014]: Line 1:11 Wrong arguments 'c1':  DATE_ADD() only takes INT types as second  argument, got SHORT
+
+
+We should allow date_add()/date_sub() to take any integral type for the 2nd argument, rather than just int.
+
+

@@ -1,0 +1,25 @@
+Description
+
+Specifically when the versions are the same, we still try and record a new version:
+
+
+      // metastore schema version is different than Hive distribution needs
+      if (strictValidation) {
+        if (!schemaVer.equalsIgnoreCase(MetaStoreSchemaInfo.getHiveSchemaVersion())) {
+          throw new MetaException("Hive Schema version "
+              + MetaStoreSchemaInfo.getHiveSchemaVersion() +
+              " does not match metastore's schema version " + schemaVer +
+              " Metastore is not upgraded or corrupt");
+        } else {
+          LOG.warn("Metastore version was " + schemaVer + " " +
+              HiveConf.ConfVars.METASTORE_SCHEMA_VERIFICATION.toString() +
+              " is not enabled so recording the new schema version " +
+              MetaStoreSchemaInfo.getHiveSchemaVersion());
+          setMetaStoreSchemaVersion(MetaStoreSchemaInfo.getHiveSchemaVersion(),
+              "Set by MetaStore");
+        }
+
+
+additionally an ObjectStore object is created for all clients. As such we'll also make the verification complete flag static.
+
+

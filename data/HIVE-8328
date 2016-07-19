@@ -1,0 +1,20 @@
+Description
+
+
+
+ private void loadHashTable() throws HiveException {
+
+    if ((this.getExecContext() != null)
+        &amp;amp;&amp;amp; ((this.getExecContext().getLocalWork() == null) || (!this.getExecContext()
+            .getLocalWork().getInputFileChangeSensitive()))) {
+      if (hashTblInitedOnce) {
+        return;
+      } else {
+        hashTblInitedOnce = true;
+      }
+    }
+
+
+This is not exiting in Tez, even if hashTblInitedOnce=true;
+
+

@@ -1,0 +1,6 @@
+Description
+
+HiveConnection should verify the session handle in openSession and throw a SQLException if null.
+Ran into this problem by trying to send configs that change restricted params. Without a valid session handle, all subsequent operation with the connection will fail.
+
+

@@ -1,0 +1,32 @@
+Description
+
+ If empty partitions and partitions containing data are queried together, and the first partition referred in the query is empty, then exceptions are thrown and query fails. 
+Diagnostic Messages for this Task: 
+Error: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing writable 
+at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:195) 
+at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54) 
+at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:439) 
+at org.apache.hadoop.mapred.MapTask.run(MapTask.java:351) 
+at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:167) 
+at java.security.AccessController.doPrivileged(Native Method) 
+at javax.security.auth.Subject.doAs(Unknown Source) 
+at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1548) 
+at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:162) 
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing writable 
+at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:580) 
+at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:177) 
+... 8 more 
+Caused by: java.lang.ClassCastException: org.apache.hadoop.io.Text cannot be cast to org.apache.hadoop.io.BytesWritable 
+at org.apache.hadoop.hive.serde2.ByteStreamTypedSerDe.deserialize(ByteStreamTypedSerDe.java:44) 
+at org.apache.hadoop.hive.serde2.thrift.ThriftByteStreamTypedSerDe.deserialize(ThriftByteStreamTypedSerDe.java:76) 
+at org.apache.hadoop.hive.serde2.thrift.ThriftDeserializer.deserialize(ThriftDeserializer.java:74) 
+at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.readRow(MapOperator.java:156) 
+at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.access$200(MapOperator.java:129) 
+at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:555) 
+... 9 more 
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask 
+MapReduce Jobs Launched: 
+Job 0: Map: 1 Reduce: 1 HDFS Read: 0 HDFS Write: 0 FAIL 
+Total MapReduce CPU Time Spent: 0 msec 
+
+

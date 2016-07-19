@@ -1,0 +1,61 @@
+Description
+
+Exception:
+Diagnostic Messages for this Task:
+java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error: Unable to deserialize reduce input key from x1x129x51x83x14x1x128x0x0x2x1x1x1x120x95x112x114x111x100x117x99x116x95x105x100x0x1x0x0x255 with properties 
+{columns=reducesinkkey0,reducesinkkey1,reducesinkkey2, serialization.lib=org.apache.hadoop.hive.serde2.binarysortable.BinarySortableSerDe, serialization.sort.order=+++, columns.types=int,map&amp;lt;string,string&amp;gt;,int}
+	at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.reduce(ExecReducer.java:283)
+	at org.apache.hadoop.mapred.ReduceTask.runOldReducer(ReduceTask.java:518)
+	at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:462)
+	at org.apache.hadoop.mapred.Child$4.run(Child.java:282)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1122)
+	at org.apache.hadoop.mapred.Child.main(Child.java:271)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error: Unable to deserialize reduce input key from x1x129x51x83x14x1x128x0x0x2x1x1x1x120x95x112x114x111x100x117x99x116x95x105x100x0x1x0x0x255 with properties {columns=reducesinkkey0,reducesinkkey1,reducesinkkey2, serialization.lib=org.apache.hadoop.hive.serde2.binarysortable.BinarySortableSerDe, serialization.sort.order=+++, columns.types=int,map&amp;lt;string,string&amp;gt;,int}
+	at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.reduce(ExecReducer.java:222)
+	... 7 more
+Caused by: org.apache.hadoop.hive.serde2.SerDeException: java.io.EOFException
+	at org.apache.hadoop.hive.serde2.binarysortable.BinarySortableSerDe.deserialize(BinarySortableSerDe.java:189)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecReducer.reduce(ExecReducer.java:220)
+	... 7 more
+Caused by: java.io.EOFException
+	at org.apache.hadoop.hive.serde2.binarysortable.InputByteBuffer.read(InputByteBuffer.java:54)
+	at org.apache.hadoop.hive.serde2.binarysortable.BinarySortableSerDe.deserializeInt(BinarySortableSerDe.java:533)
+	at org.apache.hadoop.hive.serde2.binarysortable.BinarySortableSerDe.deserialize(BinarySortableSerDe.java:236)
+	at org.apache.hadoop.hive.serde2.binarysortable.BinarySortableSerDe.deserialize(BinarySortableSerDe.java:185)
+	... 8 more
+Step to reproduce the exception:
+-------------------------------------------------
+CREATE TABLE associateddata(creative_id int,creative_group_id int,placement_id
+int,sm_campaign_id int,browser_id string, trans_type_p string,trans_time_p
+string,group_name string,event_name string,order_id string,revenue
+float,currency string, trans_type_ci string,trans_time_ci string,f16
+map&amp;lt;string,string&amp;gt;,campaign_id int,user_agent_cat string,geo_country
+string,geo_city string,geo_state string,geo_zip string,geo_dma string,geo_area
+string,geo_isp string,site_id int,section_id int,f16_ci map&amp;lt;string,string&amp;gt;)
+PARTITIONED BY(day_id int, hour_id int) ROW FORMAT DELIMITED FIELDS TERMINATED
+BY '\t';
+LOAD DATA LOCAL INPATH '/tmp/47rows.txt' INTO TABLE associateddata
+PARTITION(day_id=20140814,hour_id=2014081417);
+set hive.exec.dynamic.partition=true;
+set hive.exec.dynamic.partition.mode=nonstrict; 
+CREATE  EXTERNAL TABLE IF NOT EXISTS agg_pv_associateddata_c (
+ vt_tran_qty             int                     COMMENT 'The count of view
+thru transactions'
+, pair_value_txt          string                  COMMENT 'F16 name values
+pairs'
+)
+PARTITIONED BY (day_id int)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
+STORED AS TEXTFILE
+LOCATION '/user/prodman/agg_pv_associateddata_c';
+INSERT INTO TABLE agg_pv_associateddata_c PARTITION (day_id)
+select 2 as vt_tran_qty, pair_value_txt, day_id
+ from (select map( 'x_product_id',coalesce(F16['x_product_id'],'') ) as pair_value_txt , day_id , hour_id 
+from associateddata where hour_id = 2014081417 and sm_campaign_id in
+(10187171,1090942,10541943,10833443,8635630,10187170,9445296,10696334,11398585,9524211,1145211)
+) a GROUP BY pair_value_txt, day_id;
+The query worked fine in Hive-0.12 and Hive-0.13. It starts failing in Hive-0.13. If hive.optimize.sort.dynamic.partition is turned off in Hive-0.13, the exception is gone. 
+
+

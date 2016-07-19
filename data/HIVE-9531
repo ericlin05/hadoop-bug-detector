@@ -1,0 +1,19 @@
+Description
+
+lift the documented restriction that a exists/not exists must involve a correlated sub-query
+SQL:
+
+
+select rnum, c1, c2
+from tjoin2
+where exists (
+  select c1 from tjoin1
+);
+
+FAILED: SemanticException Line 1:62 Invalid SubQuery expression 'c1' in definition of SubQuery sq_1 [
+exists (select c1 from tjoin1)
+] used as sq_1 at Line 1:38: For Exists/Not Exists operator SubQuery must be Correlated.
+
+
+
+

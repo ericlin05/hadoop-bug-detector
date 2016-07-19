@@ -1,0 +1,11 @@
+Description
+
+On a transactional table, insert some data, then with vectorization turned on do a select.  The result is:
+
+
+Caused by: java.lang.NullPointerException at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat$1.getObjectInspector(OrcInputFormat.java:1137) at org.apache.hadoop.hive.ql.io.orc.VectorizedOrcAcidRowReader.&amp;lt;init&amp;gt;(VectorizedOrcAcidRowReader.java:61) at org.apache.hadoop.hive.ql.io.orc.OrcInputFormat.getRecordReader(OrcInputFormat.java:1041) at org.apache.hadoop.hive.ql.io.HiveInputFormat.getRecordReader(HiveInputFormat.java:246)
+	... 25 more
+
+
+
+

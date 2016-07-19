@@ -1,0 +1,13 @@
+Description
+
+The parser can currently recognize 
+
+ select * from (values(1,2)) as T(a,b); 
+
+but then 
+
+FAILED: SemanticException [Error 10296]: Values clause with table constructor not yet supported
+
+ is produced.  It's convenient for writing tests to make this actually work.
+
+

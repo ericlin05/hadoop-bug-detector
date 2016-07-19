@@ -1,0 +1,8 @@
+Description
+
+A Null pointer exception in parsePath is manifested as :
+java.sql.SQLException: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.SentryFilterDDLTask. Unable to alter table. java.lang.NullPointerException
+	at org.apache.hive.jdbc.HiveStatement.execute(HiveStatement.java:279)
+SentryMetastorePostEventListener is called from the DDLTask and the NullPointerException stack trace seems to be lost due to Sun optimization (see http://stackoverflow.com/a/3010106). 
+
+

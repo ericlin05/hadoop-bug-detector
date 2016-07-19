@@ -1,0 +1,5 @@
+Description
+
+Row group elimination has protection for NULL statistics values in RecordReaderImpl.evaluatePredicate() which then calls evaluatePredicateRange(). But split elimination directly calls evaluatePredicateRange() without NULL protection. This can lead to NullPointerException when a column is NULL in entire stripe. 
+
+

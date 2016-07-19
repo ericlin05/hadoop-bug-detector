@@ -1,0 +1,13 @@
+Description
+
+With hive.security.metastore.authorization.manager set to org.apache.hadoop.hive.ql.security.authorization.StorageBasedAuthorizationProvider.
+It seem that on a read request, write permissions are check on the HDFS by the metastore.
+sample :
+bash# hive 
+hive (default)&amp;gt; use database;
+OK
+Time taken: 0.747 seconds
+hive (database)&amp;gt; SELECT * FROM  table LIMIT 10;
+FAILED: HiveException java.security.AccessControlException: action WRITE not permitted on path hdfs://cluster/hive_warehouse/database.db/table for user myuser
+
+

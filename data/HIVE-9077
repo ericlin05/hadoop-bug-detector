@@ -1,0 +1,25 @@
+Description
+
+NO PRECOMMIT TESTS
+Seemed broken in HIVE-8609
+
+hive (default)&amp;gt; set Exception in thread "main" java.lang.NullPointerException
+	at jline.console.completer.ArgumentCompleter$AbstractArgumentDelimiter.delimit(ArgumentCompleter.java:283)
+	at jline.console.completer.ArgumentCompleter.complete(ArgumentCompleter.java:116)
+	at jline.console.completer.ArgumentCompleter.complete(ArgumentCompleter.java:152)
+	at org.apache.hadoop.hive.cli.CliDriver$6.complete(CliDriver.java:567)
+	at jline.console.ConsoleReader.complete(ConsoleReader.java:3261)
+	at jline.console.ConsoleReader.readLine(ConsoleReader.java:2621)
+	at jline.console.ConsoleReader.readLine(ConsoleReader.java:2269)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:714)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:639)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:578)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:212)
+
+
+
+

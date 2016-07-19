@@ -1,0 +1,145 @@
+Description
+
+We found that 'Error while trying to create table container'  occurs during Big-Bench Q12 case execution when hive.optimize.skewjoin set to 'true'.
+If hive.optimize.skewjoin set to 'false', the case could pass.
+How to reproduce:
+1. set hive.optimize.skewjoin=true;
+2. Run BigBench case Q12 and it will fail. 
+Check the executor log (e.g. /usr/lib/spark/work/app-XXXX/2/stderr) and you will found error 'Error while trying to create table container' in the log and also a NullPointerException near the end of the log.
+(a) Detail error message for 'Error while trying to create table container':
+
+15/02/12 01:29:49 ERROR SparkMapRecordHandler: Error processing row: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: Error while trying to create table container
+org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: Error while trying to create table container
+	at org.apache.hadoop.hive.ql.exec.spark.HashTableLoader.load(HashTableLoader.java:118)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.loadHashTable(MapJoinOperator.java:193)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.cleanUpInputFileChangedOp(MapJoinOperator.java:219)
+	at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1051)
+	at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+	at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+	at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:486)
+	at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.processRow(SparkMapRecordHandler.java:141)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:47)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:27)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveBaseFunctionResultList$ResultIterator.hasNext(HiveBaseFunctionResultList.java:98)
+	at scala.collection.convert.Wrappers$JIteratorWrapper.hasNext(Wrappers.scala:41)
+	at org.apache.spark.util.collection.ExternalSorter.insertAll(ExternalSorter.scala:217)
+	at org.apache.spark.shuffle.sort.SortShuffleWriter.write(SortShuffleWriter.scala:65)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:68)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:41)
+	at org.apache.spark.scheduler.Task.run(Task.scala:56)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:196)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Error while trying to create table container
+	at org.apache.hadoop.hive.ql.exec.persistence.MapJoinTableContainerSerDe.load(MapJoinTableContainerSerDe.java:158)
+	at org.apache.hadoop.hive.ql.exec.spark.HashTableLoader.load(HashTableLoader.java:115)
+	... 21 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Error, not a directory: hdfs://bhx1:8020/tmp/hive/root/d22ef465-bff5-4edb-a822-0a9f1c25b66c/hive_2015-02-12_01-28-10_008_6897031694580088767-1/-mr-10009/HashTable-Stage-6/MapJoin-mapfile01--.hashtable
+	at org.apache.hadoop.hive.ql.exec.persistence.MapJoinTableContainerSerDe.load(MapJoinTableContainerSerDe.java:106)
+	... 22 more
+15/02/12 01:29:49 INFO SparkRecordHandler: maximum memory = 40939028480
+15/02/12 01:29:49 INFO PerfLogger: &amp;lt;PERFLOG method=SparkInitializeOperators from=org.apache.hadoop.hive.ql.exec.spark.SparkRecordHandler&amp;gt;
+
+
+(b) Detail error message for NullPointerException:
+
+5/02/12 01:29:50 ERROR MapJoinOperator: Unexpected exception: null
+java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.setMapJoinKey(MapJoinOperator.java:227)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.processOp(MapJoinOperator.java:271)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+	at org.apache.hadoop.hive.ql.exec.FilterOperator.processOp(FilterOperator.java:120)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:95)
+	at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:157)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:493)
+	at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.processRow(SparkMapRecordHandler.java:141)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:47)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:27)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveBaseFunctionResultList$ResultIterator.hasNext(HiveBaseFunctionResultList.java:98)
+	at scala.collection.convert.Wrappers$JIteratorWrapper.hasNext(Wrappers.scala:41)
+	at org.apache.spark.util.collection.ExternalSorter.insertAll(ExternalSorter.scala:217)
+	at org.apache.spark.shuffle.sort.SortShuffleWriter.write(SortShuffleWriter.scala:65)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:68)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:41)
+	at org.apache.spark.scheduler.Task.run(Task.scala:56)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:196)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+15/02/12 01:29:50 INFO Executor: Executor is trying to kill task 144.2 in stage 3.0 (TID 1500)
+15/02/12 01:29:50 INFO MapOperator: Initializing Self MAP[1800]
+15/02/12 01:29:50 ERROR SparkMapRecordHandler: Error processing row: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"wcs_click_date_sk":37793,"wcs_click_time_sk":null,"wcs_sales_sk":null,"wcs_item_sk":51402,"wcs_web_page_sk":null,"wcs_user_sk":2541920}
+org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"wcs_click_date_sk":37793,"wcs_click_time_sk":null,"wcs_sales_sk":null,"wcs_item_sk":51402,"wcs_web_page_sk":null,"wcs_user_sk":2541920}
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:503)
+	at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.processRow(SparkMapRecordHandler.java:141)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:47)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:27)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveBaseFunctionResultList$ResultIterator.hasNext(HiveBaseFunctionResultList.java:98)
+	at scala.collection.convert.Wrappers$JIteratorWrapper.hasNext(Wrappers.scala:41)
+	at org.apache.spark.util.collection.ExternalSorter.insertAll(ExternalSorter.scala:217)
+	at org.apache.spark.shuffle.sort.SortShuffleWriter.write(SortShuffleWriter.scala:65)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:68)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:41)
+	at org.apache.spark.scheduler.Task.run(Task.scala:56)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:196)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Unexpected exception: null
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.processOp(MapJoinOperator.java:314)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+	at org.apache.hadoop.hive.ql.exec.FilterOperator.processOp(FilterOperator.java:120)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:95)
+	at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:157)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:493)
+	... 14 more
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.setMapJoinKey(MapJoinOperator.java:227)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.processOp(MapJoinOperator.java:271)
+	... 20 more
+15/02/12 01:29:50 INFO MapOperator: MAP[1797]: records read - 1
+15/02/12 01:29:50 INFO Executor: Executor is trying to kill task 96.3 in stage 3.0 (TID 1515)
+15/02/12 01:29:50 INFO PerfLogger: &amp;lt;PERFLOG method=SparkInitializeOperators from=org.apache.hadoop.hive.ql.exec.spark.SparkRecordHandler&amp;gt;
+15/02/12 01:29:50 INFO MapOperator: Initialization Done 1800 MAP
+15/02/12 01:29:50 INFO SparkRecordHandler: processing 1 rows: used memory = 12023782616
+15/02/12 01:29:50 ERROR Executor: Exception in task 16.2 in stage 3.0 (TID 1488)
+java.lang.RuntimeException: Error processing row: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"wcs_click_date_sk":37793,"wcs_click_time_sk":null,"wcs_sales_sk":null,"wcs_item_sk":51402,"wcs_web_page_sk":null,"wcs_user_sk":2541920}
+	at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.processRow(SparkMapRecordHandler.java:153)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:47)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:27)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveBaseFunctionResultList$ResultIterator.hasNext(HiveBaseFunctionResultList.java:98)
+	at scala.collection.convert.Wrappers$JIteratorWrapper.hasNext(Wrappers.scala:41)
+	at org.apache.spark.util.collection.ExternalSorter.insertAll(ExternalSorter.scala:217)
+	at org.apache.spark.shuffle.sort.SortShuffleWriter.write(SortShuffleWriter.scala:65)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:68)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:41)
+	at org.apache.spark.scheduler.Task.run(Task.scala:56)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:196)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"wcs_click_date_sk":37793,"wcs_click_time_sk":null,"wcs_sales_sk":null,"wcs_item_sk":51402,"wcs_web_page_sk":null,"wcs_user_sk":2541920}
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:503)
+	at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.processRow(SparkMapRecordHandler.java:141)
+	... 13 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Unexpected exception: null
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.processOp(MapJoinOperator.java:314)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+	at org.apache.hadoop.hive.ql.exec.FilterOperator.processOp(FilterOperator.java:120)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:95)
+	at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:157)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:493)
+	... 14 more
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.setMapJoinKey(MapJoinOperator.java:227)
+	at org.apache.hadoop.hive.ql.exec.MapJoinOperator.processOp(MapJoinOperator.java:271)
+	... 20 more
+
+
+
+

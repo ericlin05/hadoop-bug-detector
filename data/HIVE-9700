@@ -1,0 +1,52 @@
+Description
+
+I have a HiveStorageHandler if I do select * from myTable it returns all the rows in the underlying storage.
+When I do something like select col1 from myTable the underlying mapreduce job throws an exception
+
+
+java.lang.RuntimeException: Error in configuring object
+    at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:109)
+    at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:75)
+    at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:133)
+    at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:413)
+    at org.apache.hadoop.mapred.MapTask.run(MapTask.java:332)
+    at org.apache.hadoop.mapred.Child$4.run(Child.java:268)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at javax.security.auth.Subject.doAs(Subject.java:415)
+    at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1438)
+    at org.apache.hadoop.mapred.Child.main(Child.java:262)
+Caused by: java.lang.reflect.InvocationTargetException
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:606)
+    at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:106)
+    ... 9 more
+Caused by: java.lang.RuntimeException: Error in configuring object
+    at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:109)
+    at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:75)
+    at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:133)
+    at org.apache.hadoop.mapred.MapRunner.configure(MapRunner.java:34)
+    ... 14 more
+Caused by: java.lang.reflect.InvocationTargetException
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:606)
+    at org.apache.hadoop.util.ReflectionUtils.setJobConf(ReflectionUtils.java:106)
+    ... 17 more
+Caused by: java.lang.RuntimeException: Map operator initialization failed
+    at org.apache.hadoop.hive.ql.exec.ExecMapper.configure(ExecMapper.java:119)
+    ... 22 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: Configuration and input path are inconsistent
+    at org.apache.hadoop.hive.ql.exec.MapOperator.setChildren(MapOperator.java:526)
+    at org.apache.hadoop.hive.ql.exec.ExecMapper.configure(ExecMapper.java:90)
+    ... 22 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Configuration and input path are inconsistent
+    at org.apache.hadoop.hive.ql.exec.MapOperator.setChildren(MapOperator.java:520)
+    ... 23 more
+2015-02-12 15:45:51,881 INFO org.apache.hadoop.mapred.Task: Runnning cleanup for the task
+
+
+
+

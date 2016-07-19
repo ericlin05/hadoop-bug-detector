@@ -1,0 +1,23 @@
+Description
+
+This is a followup for HIVE-7053. Currently the code to split the operator tree and to generate tasks is mingled and thus hard to understand and maintain. Logically the two seems independent. This can be improved by modulizing both. The following might be helpful:
+
+
+@Override
+protected void generateTaskTree(List&amp;lt;Task&amp;lt;? extends Serializable&amp;gt;&amp;gt; rootTasks, ParseContext pCtx,
+      List&amp;lt;Task&amp;lt;MoveWork&amp;gt;&amp;gt; mvTask, Set&amp;lt;ReadEntity&amp;gt; inputs, Set&amp;lt;WriteEntity&amp;gt; outputs)
+      throws SemanticException {
+// 1. Identify if the plan is for multi-insert and split the plan if necessary
+List&amp;lt;Set&amp;lt;Operator&amp;gt;&amp;gt; operatorSets = multiInsertSplit(...);
+// 2. For each operator set, generate a task.
+for (Set&amp;lt;Operator&amp;gt; topOps : operatorSets) {
+  SparkTask task = generateTask(topOps);
+  ...
+}
+// 3. wire up the tasks
+...
+}
+
+
+
+

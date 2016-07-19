@@ -1,0 +1,37 @@
+Description
+
+enable hive on spark and run BigBench Query 8 then got the following exception:
+2015-01-14 11:43:46,057 INFO  [main]: impl.RemoteSparkJobStatus (RemoteSparkJobStatus.java:getSparkJobInfo(143)) - Job hasn't been submitted after 30s. Aborting it.
+2015-01-14 11:43:46,061 INFO  [main]: impl.RemoteSparkJobStatus (RemoteSparkJobStatus.java:getSparkJobInfo(143)) - Job hasn't been submitted after 30s. Aborting it.
+2015-01-14 11:43:46,061 ERROR [main]: status.SparkJobMonitor (SessionState.java:printError(839)) - Status: Failed
+2015-01-14 11:43:46,062 INFO  [main]: log.PerfLogger (PerfLogger.java:PerfLogEnd(148)) - &amp;lt;/PERFLOG method=SparkRunJob start=1421206996052 end=1421207026062 duration=30010 from=org.apache.hadoop.hive.ql.exec.spark.status.SparkJobMonitor&amp;gt;
+2015-01-14 11:43:46,071 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) - 15/01/14 11:43:46 INFO RemoteDriver: Failed to run job 0a9a7782-0e0b-4561-8468-959a6d8df0a3
+2015-01-14 11:43:46,071 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) - java.lang.InterruptedException
+2015-01-14 11:43:46,071 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at java.lang.Object.wait(Native Method)
+2015-01-14 11:43:46,071 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at java.lang.Object.wait(Object.java:503)
+2015-01-14 11:43:46,071 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.spark.scheduler.JobWaiter.awaitResult(JobWaiter.scala:73)
+2015-01-14 11:43:46,071 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.spark.scheduler.DAGScheduler.runJob(DAGScheduler.scala:514)
+2015-01-14 11:43:46,071 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.spark.SparkContext.runJob(SparkContext.scala:1282)
+2015-01-14 11:43:46,072 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.spark.SparkContext.runJob(SparkContext.scala:1300)
+2015-01-14 11:43:46,072 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.spark.SparkContext.runJob(SparkContext.scala:1314)
+2015-01-14 11:43:46,072 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.spark.SparkContext.runJob(SparkContext.scala:1328)
+2015-01-14 11:43:46,072 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.spark.rdd.RDD.collect(RDD.scala:780)
+2015-01-14 11:43:46,072 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.spark.RangePartitioner$.sketch(Partitioner.scala:262)
+2015-01-14 11:43:46,072 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.spark.RangePartitioner.&amp;lt;init&amp;gt;(Partitioner.scala:124)
+2015-01-14 11:43:46,072 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.spark.rdd.OrderedRDDFunctions.sortByKey(OrderedRDDFunctions.scala:63)
+2015-01-14 11:43:46,073 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.spark.api.java.JavaPairRDD.sortByKey(JavaPairRDD.scala:894)
+2015-01-14 11:43:46,073 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.spark.api.java.JavaPairRDD.sortByKey(JavaPairRDD.scala:864)
+2015-01-14 11:43:46,073 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.hadoop.hive.ql.exec.spark.SortByShuffler.shuffle(SortByShuffler.java:48)
+2015-01-14 11:43:46,073 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.hadoop.hive.ql.exec.spark.ShuffleTran.transform(ShuffleTran.java:45)
+2015-01-14 11:43:46,073 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.hadoop.hive.ql.exec.spark.SparkPlan.generateGraph(SparkPlan.java:69)
+2015-01-14 11:43:46,073 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.hadoop.hive.ql.exec.spark.RemoteHiveSparkClient$JobStatusJob.call(RemoteHiveSparkClient.java:223)
+2015-01-14 11:43:46,073 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.hive.spark.client.RemoteDriver$JobWrapper.call(RemoteDriver.java:298)
+2015-01-14 11:43:46,073 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at org.apache.hive.spark.client.RemoteDriver$JobWrapper.call(RemoteDriver.java:269)
+2015-01-14 11:43:46,073 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+2015-01-14 11:43:46,074 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+2015-01-14 11:43:46,074 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+2015-01-14 11:43:46,074 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(436)) -        at java.lang.Thread.run(Thread.java:745)
+2015-01-14 11:43:46,077 WARN  [RPC-Handler-3]: client.SparkClientImpl (SparkClientImpl.java:handle(407)) - Received result for unknown job 0a9a7782-0e0b-4561-8468-959a6d8df0a3
+2015-01-14 11:43:46,091 ERROR [main]: ql.Driver (SessionState.java:printError(839)) - FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.spark.SparkTask
+
+

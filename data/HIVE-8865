@@ -1,0 +1,5 @@
+Description
+
+If this part is not done, hashTableMemoryUsage is always 0.0, which will cause MapJoinMemoryExhaustionException.
+
+

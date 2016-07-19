@@ -1,0 +1,12 @@
+Description
+
+While investigating long build times I found this and the test had been running for hours.
+
+Exception in thread "Thread-185" java.lang.IncompatibleClassChangeError: Found interface org.apache.hadoop.mapred.JobContext, but class was expected
+	at org.apache.hadoop.hive.ql.txn.compactor.CompactorMR$CompactorOutputCommitter.abortJob(CompactorMR.java:716)
+	at org.apache.hadoop.mapred.OutputCommitter.abortJob(OutputCommitter.java:255)
+	at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:471)
+
+
+
+

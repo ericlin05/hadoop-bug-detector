@@ -1,0 +1,28 @@
+Description
+
+
+15/01/20 00:27:31 INFO cluster.YarnClusterScheduler: YarnClusterScheduler.postStartHook done
+15/01/20 00:27:31 ERROR spark.SparkContext: Error adding jar (java.io.FileNotFoundException: hive-exec-0.15.0-SNAPSHOT.jar (No such file or directory)), was the --addJars option used?
+15/01/20 00:27:31 ERROR spark.SparkContext: Error adding jar (java.io.FileNotFoundException: opennlp-maxent-3.0.3.jar (No such file or directory)), was the --addJars option used?
+15/01/20 00:27:31 ERROR spark.SparkContext: Error adding jar (java.io.FileNotFoundException: bigbenchqueriesmr.jar (No such file or directory)), was the --addJars option used?
+15/01/20 00:27:31 ERROR spark.SparkContext: Error adding jar (java.io.FileNotFoundException: opennlp-tools-1.5.3.jar (No such file or directory)), was the --addJars option used?
+15/01/20 00:27:31 ERROR spark.SparkContext: Error adding jar (java.io.FileNotFoundException: jcl-over-slf4j-1.7.5.jar (No such file or directory)), was the --addJars option used?
+15/01/20 00:27:31 INFO client.RemoteDriver: Received job request fef081b0-5408-4804-9531-d131fdd628e6
+15/01/20 00:27:31 INFO Configuration.deprecation: mapred.max.split.size is deprecated. Instead, use mapreduce.input.fileinputformat.split.maxsize
+15/01/20 00:27:31 INFO Configuration.deprecation: mapred.min.split.size is deprecated. Instead, use mapreduce.input.fileinputformat.split.minsize
+15/01/20 00:27:31 INFO client.RemoteDriver: Failed to run job fef081b0-5408-4804-9531-d131fdd628e6
+org.apache.hive.com.esotericsoftware.kryo.KryoException: Unable to find class: de.bankmark.bigbench.queries.q10.SentimentUDF
+Serialization trace:
+genericUDTF (org.apache.hadoop.hive.ql.plan.UDTFDesc)
+conf (org.apache.hadoop.hive.ql.exec.UDTFOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.SelectOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.TableScanOperator)
+aliasToWork (org.apache.hadoop.hive.ql.plan.MapWork)
+invertedWorkGraph (org.apache.hadoop.hive.ql.plan.SparkWork)
+	at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readName(DefaultClassResolver.java:138)
+	at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readClass(DefaultClassResolver.java:115)
+
+
+It seems the additional Jar files are not uploaded to DistributedCache, so that the Driver cannot access it.
+
+

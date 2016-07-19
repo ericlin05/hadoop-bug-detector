@@ -1,0 +1,12 @@
+Description
+
+HADOOP-11356 removes org.apache.hadoop.fs.permission.AccessControlException, causing build break on Hive when compiling against hadoop-2.7:
+
+shims/0.23/src/main/java/org/apache/hadoop/hive/shims/Hadoop23Shims.java:[808,63] cannot find symbol
+  symbol:   class AccessControlException
+  location: package org.apache.hadoop.fs.permission
+[INFO] 1 error
+
+
+
+

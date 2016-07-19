@@ -1,0 +1,44 @@
+Description
+
+Using:
+Hadoop 2.5.0-cdh5.2.0 
+Pig 0.12.0-cdh5.2.0
+Hive 0.13.1-cdh5.2.0
+When using pig -useHCatalog to load a Hive table that has a DATE field, when trying to DUMP the field, the following error occurs:
+
+
+2014-10-30 22:58:05,469 [main] ERROR org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.Launcher - org.apache.pig.backend.executionengine.ExecException: ERROR 6018: Error converting read value to tuple
+        at org.apache.hive.hcatalog.pig.HCatBaseLoader.getNext(HCatBaseLoader.java:76)
+        at org.apache.hive.hcatalog.pig.HCatLoader.getNext(HCatLoader.java:58)
+        at org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigRecordReader.nextKeyValue(PigRecordReader.java:211)
+        at org.apache.hadoop.mapred.MapTask$NewTrackingRecordReader.nextKeyValue(MapTask.java:553)
+        at org.apache.hadoop.mapreduce.task.MapContextImpl.nextKeyValue(MapContextImpl.java:80)
+        at org.apache.hadoop.mapreduce.lib.map.WrappedMapper$Context.nextKeyValue(WrappedMapper.java:91)
+        at org.apache.hadoop.mapreduce.Mapper.run(Mapper.java:144)
+        at org.apache.hadoop.mapred.MapTask.runNewMapper(MapTask.java:784)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:341)
+        at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:168)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1614)
+        at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:163)
+Caused by: java.lang.ClassCastException: java.lang.String cannot be cast to java.sql.Date
+        at org.apache.hive.hcatalog.pig.PigHCatUtil.extractPigObject(PigHCatUtil.java:420)
+        at org.apache.hive.hcatalog.pig.PigHCatUtil.transformToTuple(PigHCatUtil.java:457)
+        at org.apache.hive.hcatalog.pig.PigHCatUtil.transformToTuple(PigHCatUtil.java:375)
+        at org.apache.hive.hcatalog.pig.HCatBaseLoader.getNext(HCatBaseLoader.java:64)
+
+2014-10-30 22:58:05,469 [main] ERROR org.apache.pig.tools.pigstats.SimplePigStats - ERROR 6018: Error converting read value to tuple
+
+
+It seems to be occuring here: https://github.com/apache/hive/blob/trunk/hcatalog/hcatalog-pig-adapter/src/main/java/org/apache/hive/hcatalog/pig/PigHCatUtil.java#L433
+and that it should be:
+
+Date d = Date.valueOf(o);
+
+instead of 
+
+Date d = (Date) o;
+
+
+

@@ -1,0 +1,9 @@
+Description
+
+Exception in Hive logs (I spent all of 20 seconds looking at this for now)
+
+2014-10-29 13:27:34,019 ERROR ql.Driver (SessionState.java:printError(825)) - FAILED: EigenbaseException Failed to encode '??' in character set 'ISO-8859-1'
+
+
+
+

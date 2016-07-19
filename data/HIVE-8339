@@ -1,0 +1,37 @@
+Description
+
+According to the logs it seems that the jobs 100% succeed for both map and reduce but then wasn't able to get the status of the job from job history server.
+Hive logs:
+2014-10-03 07:57:26,593 INFO  [main]: exec.Task (SessionState.java:printInfo(536)) - 2014-10-03 07:57:26,593 Stage-1 map = 100%, reduce = 99%, Cumulative CPU 872541.02 sec
+2014-10-03 07:57:47,447 INFO  [main]: exec.Task (SessionState.java:printInfo(536)) - 2014-10-03 07:57:47,446 Stage-1 map = 100%, reduce = 100%, Cumulative CPU 872566.55 sec
+2014-10-03 07:57:48,710 INFO  [main]: mapred.ClientServiceDelegate (ClientServiceDelegate.java:getProxy(273)) - Application state is completed. FinalApplicationStatus=SUCCEEDED. Redirecting to job history server
+2014-10-03 07:57:48,716 ERROR [main]: exec.Task (SessionState.java:printError(545)) - Ended Job = job_1412263771568_0002 with exception 'java.io.IOException(Could not find status of job:job_1412263771568_0002)'
+java.io.IOException: Could not find status of job:job_1412263771568_0002
+       at org.apache.hadoop.hive.ql.exec.mr.HadoopJobExecHelper.progress(HadoopJobExecHelper.java:294)
+       at org.apache.hadoop.hive.ql.exec.mr.HadoopJobExecHelper.progress(HadoopJobExecHelper.java:547)
+       at org.apache.hadoop.hive.ql.exec.mr.ExecDriver.execute(ExecDriver.java:426)
+       at org.apache.hadoop.hive.ql.exec.mr.MapRedTask.execute(MapRedTask.java:136)
+       at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:153)
+       at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:85)
+       at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:1503)
+       at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1270)
+       at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1088)
+       at org.apache.hadoop.hive.ql.Driver.run(Driver.java:911)
+       at org.apache.hadoop.hive.ql.Driver.run(Driver.java:901)
+       at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:275)
+       at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:227)
+       at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:430)
+       at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:366)
+       at org.apache.hadoop.hive.cli.CliDriver.processReader(CliDriver.java:463)
+       at org.apache.hadoop.hive.cli.CliDriver.processFile(CliDriver.java:479)
+       at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:759)
+       at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:697)
+       at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:636)
+       at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+       at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+       at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+       at java.lang.reflect.Method.invoke(Method.java:606)
+       at org.apache.hadoop.util.RunJar.main(RunJar.java:212)
+2014-10-03 07:57:48,763 ERROR [main]: ql.Driver (SessionState.java:printError(545)) - FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+
+

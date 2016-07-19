@@ -1,0 +1,11 @@
+Description
+
+The tests 
+bucket_num_reducers
+bucket_num_reducers2
+fail with a error:
+Exception: Number of MapReduce jobs is incorrect expected:&amp;lt;1&amp;gt; but was:&amp;lt;0&amp;gt;
+junit.framework.AssertionFailedError: Number of MapReduce jobs is incorrect expected:&amp;lt;1&amp;gt; but was:&amp;lt;0&amp;gt;
+at org.apache.hadoop.hive.ql.hooks.VerifyNumReducersHook.run(VerifyNumReducersHook.java:46)
+
+

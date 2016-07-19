@@ -1,0 +1,53 @@
+Description
+
+Use impala 2.0 to connect to hive-0.13 Metastore.
+From impala, run the following queries:
+
+create table voter1(voter_id int,name string,age tinyint, registration
+string,contributions decimal(5,2),voterzone smallint,create_time timestamp) row
+format delimited fields terminated by '\t';
+load data inpath '/tmp/votertab' into table voter1;
+
+
+After this, can successfully select from table voter 1.
+Execute the following from impala shell:
+
+&amp;gt; compute stats voter1;
+
+
+After this, got the following error selecting from table voter1:
+
+&amp;gt; select * from voter1 limit 5;
+Query: select * from voter1 limit 5
+ERROR: AnalysisException: Failed to load metadata for table: default.voter1
+CAUSED BY: TableLoadingException: Failed to load metadata for table: voter1
+CAUSED BY: TTransportException: java.net.SocketException: Broken pipe
+CAUSED BY: SocketException: Broken pipe
+
+
+Below is the exception found in Hive log:
+
+org.apache.thrift.protocol.TProtocolException: Cannot write a TUnion with no set value!
+at org.apache.thrift.TUnion$TUnionStandardScheme.write(TUnion.java:240)
+at org.apache.thrift.TUnion$TUnionStandardScheme.write(TUnion.java:213)
+at org.apache.thrift.TUnion.write(TUnion.java:152)
+at org.apache.hadoop.hive.metastore.api.ColumnStatisticsObj$ColumnStatisticsObjStandardScheme.write(ColumnStatisticsObj.java:550)
+at org.apache.hadoop.hive.metastore.api.ColumnStatisticsObj$ColumnStatisticsObjStandardScheme.write(ColumnStatisticsObj.java:488)
+at org.apache.hadoop.hive.metastore.api.ColumnStatisticsObj.write(ColumnStatisticsObj.java:414)
+at org.apache.hadoop.hive.metastore.api.TableStatsResult$TableStatsResultStandardScheme.write(TableStatsResult.java:388)
+at org.apache.hadoop.hive.metastore.api.TableStatsResult$TableStatsResultStandardScheme.write(TableStatsResult.java:338)
+at org.apache.hadoop.hive.metastore.api.TableStatsResult.write(TableStatsResult.java:288)
+at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$get_table_statistics_req_result$get_table_statistics_req_resultStandardScheme.write(ThriftHiveMetastore.java)
+at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$get_table_statistics_req_result$get_table_statistics_req_resultStandardScheme.write(ThriftHiveMetastore.java)
+at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$get_table_statistics_req_result.write(ThriftHiveMetastore.java)
+at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:53)
+at org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:39)
+at org.apache.hadoop.hive.metastore.TSetIpAddressProcessor.process(TSetIpAddressProcessor.java:48)
+at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:206)
+at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+at java.lang.Thread.run(Thread.java:745)
+
+
+
+

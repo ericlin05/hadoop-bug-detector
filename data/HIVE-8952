@@ -1,0 +1,7 @@
+Description
+
+1) In the write(final ArrayWritable record) method we should be logging the stack trace as well as the message.
+2) We should be passing the caught exception into the arguments of the RuntimeException 
+3) Instead of throwing RuntimeException we should throw IllegalArgumentException since it gives some additional semantics (i.e. the argument to this method was the problem)
+
+

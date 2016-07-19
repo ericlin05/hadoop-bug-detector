@@ -1,0 +1,38 @@
+Description
+
+
+2014-12-02 11:25:40,855 WARN  [HiveServer2-Background-Pool: Thread-17]: ql.Driver (DriverContext.java:shutdown(137)) - Shutting down task : Stage-1:MAPRED
+2014-12-02 11:25:41,898 INFO  [HiveServer2-Background-Pool: Thread-30]: exec.Task (SessionState.java:printInfo(536)) - Hadoop job information for Stage-1: number of mappers: 0; number of reducers: 0
+2014-12-02 11:25:41,942 WARN  [HiveServer2-Background-Pool: Thread-30]: mapreduce.Counters (AbstractCounters.java:getGroup(234)) - Group org.apache.hadoop.mapred.Task$Counter is deprecated. Use org.apache.hadoop.mapreduce.TaskCounter instead
+2014-12-02 11:25:41,942 INFO  [HiveServer2-Background-Pool: Thread-30]: exec.Task (SessionState.java:printInfo(536)) - 2014-12-02 11:25:41,939 Stage-1 map = 0%,  reduce = 0%
+2014-12-02 11:25:41,945 WARN  [HiveServer2-Background-Pool: Thread-30]: mapreduce.Counters (AbstractCounters.java:getGroup(234)) - Group org.apache.hadoop.mapred.Task$Counter is deprecated. Use org.apache.hadoop.mapreduce.TaskCounter instead
+2014-12-02 11:25:41,952 ERROR [HiveServer2-Background-Pool: Thread-30]: exec.Task (SessionState.java:printError(545)) - Ended Job = job_1413717733669_207982 with errors
+2014-12-02 11:25:41,954 ERROR [Thread-39]: exec.Task (SessionState.java:printError(545)) - Error during job, obtaining debugging information...
+2014-12-02 11:25:41,957 ERROR [HiveServer2-Background-Pool: Thread-30]: ql.Driver (SessionState.java:printError(545)) - FAILED: Operation cancelled
+2014-12-02 11:25:41,957 INFO  [HiveServer2-Background-Pool: Thread-30]: ql.Driver (SessionState.java:printInfo(536)) - MapReduce Jobs Launched:
+2014-12-02 11:25:41,960 WARN  [HiveServer2-Background-Pool: Thread-30]: mapreduce.Counters (AbstractCounters.java:getGroup(234)) - Group FileSystemCounters is deprecated. Use org.apache.hadoop.mapreduce.FileSystemCounter instead
+2014-12-02 11:25:41,961 INFO  [HiveServer2-Background-Pool: Thread-30]: ql.Driver (SessionState.java:printInfo(536)) - Stage-Stage-1:  HDFS Read: 0 HDFS Write: 0 FAIL
+2014-12-02 11:25:41,961 INFO  [HiveServer2-Background-Pool: Thread-30]: ql.Driver (SessionState.java:printInfo(536)) - Total MapReduce CPU Time Spent: 0 msec
+2014-12-02 11:25:41,965 ERROR [HiveServer2-Background-Pool: Thread-30]: operation.Operation (SQLOperation.java:run(205)) - Error running hive query:
+org.apache.hive.service.cli.HiveSQLException: Illegal Operation state transition from CLOSED to ERROR
+	at org.apache.hive.service.cli.OperationState.validateTransition(OperationState.java:91)
+	at org.apache.hive.service.cli.OperationState.validateTransition(OperationState.java:97)
+	at org.apache.hive.service.cli.operation.Operation.setState(Operation.java:116)
+	at org.apache.hive.service.cli.operation.SQLOperation.runInternal(SQLOperation.java:161)
+	at org.apache.hive.service.cli.operation.SQLOperation.access$000(SQLOperation.java:71)
+	at org.apache.hive.service.cli.operation.SQLOperation$1$1.run(SQLOperation.java:202)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:396)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1589)
+	at org.apache.hadoop.hive.shims.HadoopShimsSecure.doAs(HadoopShimsSecure.java:504)
+	at org.apache.hive.service.cli.operation.SQLOperation$1.run(SQLOperation.java:215)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:439)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+
+
+
+

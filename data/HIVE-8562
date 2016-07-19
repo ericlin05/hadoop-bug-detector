@@ -1,0 +1,5 @@
+Description
+
+Calls to ResultSet.isClosed are sometimes throwing an AbstractMethodException when used against MySQL.  This is causing issues for the compactor when it tries to update stats.  As far as I can tell it only happens when the result set is empty (which is weird).
+
+

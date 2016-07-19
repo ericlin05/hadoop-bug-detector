@@ -1,0 +1,51 @@
+Description
+
+AbstractFileMergeOperator moves incompatible files (files which cannot be merged) to final destination. The destination path must be directory instead of file. This causes orc_merge_incompat2.q to fail under CentOS with IOException failing to rename/move files.
+Stack trace:
+
+
+2014-11-05 02:38:56,588 DEBUG fs.FileSystem (RawLocalFileSystem.java:rename(337)) - Falling through to a copy of file:/home/prasanth/hive/itests/qtest/target/warehouse/orc_merge5a/st=80.0/000000_0 to file:/home/prasanth/hive/itests/qtest/target/tmp/scratchdir/prasanth/0de64e52-6615-4c5a-bdfb-c3b2c28131f6/hive_2014-11-05_02-38-55_511_7578595409877157627-1/_tmp.-ext-10000/000000_0/000000_0
+2014-11-05 02:38:56,589 INFO  mapred.LocalJobRunner (LocalJobRunner.java:runTasks(456)) - map task executor complete.
+2014-11-05 02:38:56,590 WARN  mapred.LocalJobRunner (LocalJobRunner.java:run(560)) - job_local1144733438_0036
+java.lang.Exception: java.io.IOException: org.apache.hadoop.hive.ql.metadata.HiveException: Failed to close AbstractFileMergeOperator
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.runTasks(LocalJobRunner.java:462)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job.run(LocalJobRunner.java:522)
+Caused by: java.io.IOException: org.apache.hadoop.hive.ql.metadata.HiveException: Failed to close AbstractFileMergeOperator
+        at org.apache.hadoop.hive.ql.io.merge.MergeFileMapper.close(MergeFileMapper.java:100)
+        at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:61)
+        at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:430)
+        at org.apache.hadoop.mapred.MapTask.run(MapTask.java:342)
+        at org.apache.hadoop.mapred.LocalJobRunner$Job$MapTaskRunnable.run(LocalJobRunner.java:243)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+        at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:334)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:166)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1146)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:679)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Failed to close AbstractFileMergeOperator
+        at org.apache.hadoop.hive.ql.exec.AbstractFileMergeOperator.closeOp(AbstractFileMergeOperator.java:233)
+        at org.apache.hadoop.hive.ql.exec.OrcFileMergeOperator.closeOp(OrcFileMergeOperator.java:220)
+        at org.apache.hadoop.hive.ql.io.merge.MergeFileMapper.close(MergeFileMapper.java:98)
+        ... 10 more
+Caused by: java.io.FileNotFoundException: Destination exists and is not a directory: /home/prasanth/hive/itests/qtest/target/tmp/scratchdir/prasanth/0de64e52-6615-4c5a-bdfb-c3b2c28131f6/hive_2014-11-05_02-38-55_511_7578595409877157627-1/_tmp.-ext-10000/000000_0
+        at org.apache.hadoop.fs.RawLocalFileSystem.mkdirs(RawLocalFileSystem.java:423)
+        at org.apache.hadoop.fs.RawLocalFileSystem.create(RawLocalFileSystem.java:267)
+        at org.apache.hadoop.fs.RawLocalFileSystem.create(RawLocalFileSystem.java:257)
+        at org.apache.hadoop.fs.FileSystem.create(FileSystem.java:887)
+        at org.apache.hadoop.fs.FileSystem.create(FileSystem.java:784)
+        at org.apache.hadoop.fs.FileUtil.copy(FileUtil.java:365)
+        at org.apache.hadoop.fs.FileUtil.copy(FileUtil.java:338)
+        at org.apache.hadoop.fs.FileUtil.copy(FileUtil.java:289)
+        at org.apache.hadoop.fs.RawLocalFileSystem.rename(RawLocalFileSystem.java:339)
+        at org.apache.hadoop.fs.ChecksumFileSystem.rename(ChecksumFileSystem.java:507)
+        at org.apache.hadoop.fs.FilterFileSystem.rename(FilterFileSystem.java:214)
+        at org.apache.hadoop.fs.ProxyFileSystem.rename(ProxyFileSystem.java:177)
+        at org.apache.hadoop.fs.FilterFileSystem.rename(FilterFileSystem.java:214)
+        at org.apache.hadoop.hive.ql.exec.Utilities.renameOrMoveFiles(Utilities.java:1589)
+        at org.apache.hadoop.hive.ql.exec.AbstractFileMergeOperator.closeOp(AbstractFileMergeOperator.java:218)
+        ... 12 more
+
+
+
+
+

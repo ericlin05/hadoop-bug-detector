@@ -1,0 +1,91 @@
+Description
+
+If there is a none date value in the PART_KEY_VAL column within the PARTITION_KEY_VALS table in the metastore db, this will cause the HIVE-5700 script to fail. The failure will be picked up by the schemaTool causing the upgrade to fail. A classic example of a value that can be present without users really being aware is _HIVE_DEFAULT_PARTITION_ which is filled in by hive automatically when doing dynamic partitioning and value is not present in source data for the partition column.
+The reason for the failure is that the upgrade script does not account for none date values. What it is currently:
+
+
+UPDATE PARTITION_KEY_VALS
+  INNER JOIN PARTITIONS ON PARTITION_KEY_VALS.PART_ID = PARTITIONS.PART_ID
+  INNER JOIN PARTITION_KEYS ON PARTITION_KEYS.TBL_ID = PARTITIONS.TBL_ID
+    AND PARTITION_KEYS.INTEGER_IDX = PARTITION_KEY_VALS.INTEGER_IDX
+    AND PARTITION_KEYS.PKEY_TYPE = 'date'
+SET PART_KEY_VAL = IFNULL(DATE_FORMAT(cast(PART_KEY_VAL as date),'%Y-%m-%d'), PART_KEY_VAL);
+
+
+What it should be to avoid issue: 
+
+
+UPDATE PARTITION_KEY_VALS
+  INNER JOIN PARTITIONS ON PARTITION_KEY_VALS.PART_ID = PARTITIONS.PART_ID
+  INNER JOIN PARTITION_KEYS ON PARTITION_KEYS.TBL_ID = PARTITIONS.TBL_ID
+    AND PARTITION_KEYS.INTEGER_IDX = PARTITION_KEY_VALS.INTEGER_IDX
+    AND PARTITION_KEYS.PKEY_TYPE = 'date'
+    AND PART_KEY_VAL != '__HIVE_DEFAULT_PARTITION__'
+SET PART_KEY_VAL = IFNULL(DATE_FORMAT(cast(PART_KEY_VAL as date),'%Y-%m-%d'), PART_KEY_VAL);
+
+
+== Metastore DB
+
+
+mysql&amp;gt; select * from PARTITION_KEY_VALS;
++---------+----------------------------+-------------+
+| PART_ID | PART_KEY_VAL               | INTEGER_IDX |
++---------+----------------------------+-------------+
+|     171 | 2099-12-31                 |           0 |
+|     172 | __HIVE_DEFAULT_PARTITION__ |           0 |
+|     184 | 2099-12-01                 |           0 |
+|     185 | 2099-12-30                 |           0 |
++---------+----------------------------+-------------+
+
+
+== stdout.log
+
+
+0: jdbc:mysql://10.16.8.121:3306/metastore&amp;gt; !autocommit on
+0: jdbc:mysql://10.16.8.121:3306/metastore&amp;gt; SELECT 'Upgrading MetaStore schema from 0.12.0 to 0.13.0' AS ' '
++---------------------------------------------------+--+
+|                                                   |
++---------------------------------------------------+--+
+| Upgrading MetaStore schema from 0.12.0 to 0.13.0  |
++---------------------------------------------------+--+
+0: jdbc:mysql://10.16.8.121:3306/metastore&amp;gt; SELECT '&amp;lt; HIVE-5700 enforce single date format for partition column storage &amp;gt;' AS ' '
++------------------------------------------------------------------------+--+
+|                                                                        |
++------------------------------------------------------------------------+--+
+| &amp;lt; HIVE-5700 enforce single date format for partition column storage &amp;gt;  |
++------------------------------------------------------------------------+--+
+0: jdbc:mysql://10.16.8.121:3306/metastore&amp;gt; UPDATE PARTITION_KEY_VALS INNER JOIN PARTITIONS ON PARTITION_KEY_VALS.PART_ID = PARTITIONS.PART_ID INNER JOIN PARTITION_KEYS ON PARTITION_KEYS.TBL_ID = PARTITIONS.TBL_ID AND PARTITION_KEYS.INTEGER_IDX = PARTITION_KEY_VALS.INTEGER_IDX AND PARTITION_KEYS.PKEY_TYPE = 'date' SET PART_KEY_VAL = IFNULL(DATE_FORMAT(cast(PART_KEY_VAL as date),'%Y-%m-%d'), PART_KEY_VAL)
+
+
+== stderr.log
+
+
+exec /opt/cloudera/parcels/CDH-5.2.0-1.cdh5.2.0.p0.36/lib/hadoop/bin/hadoop jar /opt/cloudera/parcels/CDH-5.2.0-1.cdh5.2.0.p0.36/lib/hive/lib/hive-cli-0.13.1-cdh5.2.0.jar org.apache.hive.beeline.HiveSchemaTool -verbose -dbType mysql -upgradeSchema
+Connecting to jdbc:mysql://10.16.8.121:3306/metastore?useUnicode=true&amp;amp;characterEncoding=UTF-8
+Connected to: MySQL (version 5.1.73)
+Driver: MySQL-AB JDBC Driver (version mysql-connector-java-5.1.17-SNAPSHOT ( Revision: ${bzr.revision-id} ))
+Transaction isolation: TRANSACTION_READ_COMMITTED
+Autocommit status: true
+1 row selected (0.025 seconds)
+1 row selected (0.004 seconds)
+Closing: 0: jdbc:mysql://10.16.8.121:3306/metastore?useUnicode=true&amp;amp;characterEncoding=UTF-8
+org.apache.hadoop.hive.metastore.HiveMetaException: Upgrade FAILED! Metastore state would be inconsistent !!
+org.apache.hadoop.hive.metastore.HiveMetaException: Upgrade FAILED! Metastore state would be inconsistent !!
+	at org.apache.hive.beeline.HiveSchemaTool.doUpgrade(HiveSchemaTool.java:252)
+	at org.apache.hive.beeline.HiveSchemaTool.doUpgrade(HiveSchemaTool.java:220)
+	at org.apache.hive.beeline.HiveSchemaTool.main(HiveSchemaTool.java:530)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:212)
+Caused by: java.io.IOException: Schema script failed, errorcode 2
+	at org.apache.hive.beeline.HiveSchemaTool.runBeeLine(HiveSchemaTool.java:410)
+	at org.apache.hive.beeline.HiveSchemaTool.runBeeLine(HiveSchemaTool.java:383)
+	at org.apache.hive.beeline.HiveSchemaTool.doUpgrade(HiveSchemaTool.java:247)
+	... 7 more
+*** schemaTool failed ***
+
+
+
+

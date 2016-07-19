@@ -1,0 +1,11 @@
+Description
+
+UDF from_utc_timestamp throws NPE if the second argument is null
+
+
+select from_utc_timestamp('2015-02-06 10:30:00', cast(null as string));
+FAILED: NullPointerException null
+
+
+
+

@@ -1,0 +1,50 @@
+Description
+
+Run the below CREATE table statement is successful in Hive 0.13.0 and 0.14.0. However, it is failed in the 1.0.0 of Hive.
+CREATE TABLE test_serde_rex(
+name string,
+sex string,
+age string
+)
+ROW FORMAT SERDE
+'org.apache.hadoop.hive.contrib.serde2.RegexSerDe'
+WITH SERDEPROPERTIES(
+'input.regex' = '([^;]);([^;]);([^;]*)',
+'output.format.string' = '%1$s %2$s %3$s'
+)
+STORED AS TEXTFILE;
+The exception in Hive 1.0.0 is as follows
+MismatchedTokenException(283!=300)
+	at org.antlr.runtime.BaseRecognizer.recoverFromMismatchedToken(BaseRecognizer.java:617)
+	at org.antlr.runtime.BaseRecognizer.match(BaseRecognizer.java:115)
+	at org.apache.hadoop.hive.ql.parse.HiveParser.keyValueProperty(HiveParser.java:33488)
+	at org.apache.hadoop.hive.ql.parse.HiveParser.tablePropertiesList(HiveParser.java:33258)
+	at org.apache.hadoop.hive.ql.parse.HiveParser.tableProperties(HiveParser.java:33121)
+	at org.apache.hadoop.hive.ql.parse.HiveParser.rowFormatSerde(HiveParser.java:32497)
+	at org.apache.hadoop.hive.ql.parse.HiveParser.tableRowFormat(HiveParser.java:32962)
+	at org.apache.hadoop.hive.ql.parse.HiveParser.createTableStatement(HiveParser.java:4916)
+	at org.apache.hadoop.hive.ql.parse.HiveParser.ddlStatement(HiveParser.java:2350)
+	at org.apache.hadoop.hive.ql.parse.HiveParser.execStatement(HiveParser.java:1574)
+	at org.apache.hadoop.hive.ql.parse.HiveParser.statement(HiveParser.java:1052)
+	at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:199)
+	at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:166)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:389)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:303)
+	at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1067)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1129)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1004)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:994)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:201)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:153)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:364)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:712)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:631)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:570)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:212)
+FAILED: ParseException line 9:17 mismatched input '(' expecting StringLiteral near '=' in specifying key/value property
+
+

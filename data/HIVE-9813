@@ -1,0 +1,95 @@
+Description
+
+Execute following JDBC client program:
+
+
+import java.sql.*;
+
+public class TestAddJar {
+    private static Connection makeConnection(String connString, String classPath) throws ClassNotFoundException, SQLException
+    {
+        System.out.println("Current Connection info: "+ connString);
+        Class.forName(classPath);
+        System.out.println("Current driver info: "+ classPath);
+        return DriverManager.getConnection(connString);
+    }
+
+    public static void main(String[] args)
+    {
+        if(2 != args.length)
+        {
+            System.out.println("Two arguments needed: connection string, path to jar to be added (include jar name)");
+            System.out.println("Example: java -jar TestApp.jar jdbc:hive2://192.168.111.111 /tmp/json-serde-1.3-jar-with-dependencies.jar");
+            return;
+        }
+        Connection conn;
+        try
+        {
+            conn = makeConnection(args[0], "org.apache.hive.jdbc.HiveDriver");
+            System.out.println("-----------------------------------------------------------------------");
+            System.out.println("DONE");
+
+            System.out.println("-----------------------------------------------------------------------");
+            System.out.println("Execute query: add jar " + args[1] + ";");
+            Statement stmt = conn.createStatement();
+            int c = stmt.executeUpdate("add jar " + args[1]);
+            System.out.println("Returned value is: [" + c + "]\n");
+
+            System.out.println("-----------------------------------------------------------------------");
+            final String createTableQry = "Create table if not exists json_test(id int, content string) " +
+                    "row format serde 'org.openx.data.jsonserde.JsonSerDe'";
+            System.out.println("Execute query:" + createTableQry + ";");
+            stmt.execute(createTableQry);
+
+            System.out.println("-----------------------------------------------------------------------");
+            System.out.println("----------------------------getColumn() Call---------------------------\n");
+            DatabaseMetaData md = conn.getMetaData();
+            System.out.println("Test get all column in a schema:");
+            ResultSet rs = md.getColumns("Hive", "default", "json_test", null);
+            while (rs.next()) {
+                System.out.println(rs.getString(1));
+            }
+            conn.close();
+        }
+        catch (ClassNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+Get Exception, and from metastore log:
+7:41:30.316 PM	ERROR	hive.log	
+error in initSerDe: java.lang.ClassNotFoundException Class org.openx.data.jsonserde.JsonSerDe not found
+java.lang.ClassNotFoundException: Class org.openx.data.jsonserde.JsonSerDe not found
+at org.apache.hadoop.conf.Configuration.getClassByName(Configuration.java:1803)
+at org.apache.hadoop.hive.metastore.MetaStoreUtils.getDeserializer(MetaStoreUtils.java:183)
+at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.get_fields(HiveMetaStore.java:2487)
+at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.get_schema(HiveMetaStore.java:2542)
+at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.lang.reflect.Method.invoke(Method.java:606)
+at org.apache.hadoop.hive.metastore.RetryingHMSHandler.invoke(RetryingHMSHandler.java:105)
+at com.sun.proxy.$Proxy5.get_schema(Unknown Source)
+at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Processor$get_schema.getResult(ThriftHiveMetastore.java:6425)
+at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Processor$get_schema.getResult(ThriftHiveMetastore.java:6409)
+at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+at org.apache.hadoop.hive.metastore.TUGIBasedProcessor$1.run(TUGIBasedProcessor.java:110)
+at org.apache.hadoop.hive.metastore.TUGIBasedProcessor$1.run(TUGIBasedProcessor.java:107)
+at java.security.AccessController.doPrivileged(Native Method)
+at javax.security.auth.Subject.doAs(Subject.java:415)
+at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1554)
+at org.apache.hadoop.hive.shims.HadoopShimsSecure.doAs(HadoopShimsSecure.java:556)
+at org.apache.hadoop.hive.metastore.TUGIBasedProcessor.process(TUGIBasedProcessor.java:118)
+at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:244)
+at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+at java.lang.Thread.run(Thread.java:745)
+
+

@@ -1,0 +1,5 @@
+Description
+
+Vectorization assumes partitions are of same number of columns, and takes upon # of columns on first read. consequent addPartitionColsToBatch throws ArrayIndexOutOfboundsException if the # columns is bigger.
+
+

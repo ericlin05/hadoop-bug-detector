@@ -1,0 +1,23 @@
+Description
+
+We got thie following exception in hive.log:
+
+2014-11-03 11:45:49,865 DEBUG rdd.HadoopRDD
+(Logging.scala:logDebug(84)) - Failed to use InputSplitWithLocations.
+java.lang.ClassCastException: Cannot cast
+org.apache.hadoop.hive.ql.io.CombineHiveInputFormat$CombineHiveInputSplit
+to org.apache.hadoop.mapred.InputSplitWithLocationInfo
+        at java.lang.Class.cast(Class.java:3094)
+        at org.apache.spark.rdd.HadoopRDD.getPreferredLocations(HadoopRDD.scala:278)
+        at org.apache.spark.rdd.RDD$$anonfun$preferredLocations$2.apply(RDD.scala:216)
+        at org.apache.spark.rdd.RDD$$anonfun$preferredLocations$2.apply(RDD.scala:216)
+        at scala.Option.getOrElse(Option.scala:120)
+        at org.apache.spark.rdd.RDD.preferredLocations(RDD.scala:215)
+        at org.apache.spark.scheduler.DAGScheduler.org$apache$spark$scheduler$DAGScheduler$$getPreferredLocsInternal(DAGScheduler.scala:1303)
+        at org.apache.spark.scheduler.DAGScheduler$$anonfun$org$apache$spark$scheduler$DAGScheduler$$getPreferredLocsInternal$2$$anonfun$apply$2.apply$mcVI$sp(DAGScheduler.scala:1313)
+        at org.apache.spark.scheduler.DAGScheduler$$anonfun$org$apache$spark$scheduler$DAGScheduler$$getPreferredLocsInternal$2$$anonfun$apply$2.apply(DAGScheduler.scala:1312)
+
+
+My understanding is that the split location info helps Spark to execute tasks more efficiently. This could help other execution engine too. So we should consider to enhance InputSplitShim to implement InputSplitWithLocationInfo if possible.
+
+

@@ -1,0 +1,14 @@
+Description
+
+
+
+    try {
+      FSDataOutputStream strm = fs.create(new Path(path, ACID_FORMAT), false);
+      strm.writeInt(ORC_ACID_VERSION);
+      strm.close();
+    } catch (IOException ioe) {
+
+
+If strm.writeInt() throws IOE, strm would be left unclosed.
+
+

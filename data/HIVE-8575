@@ -1,0 +1,18 @@
+Description
+
+Seems like unqualified integral values went from ints to bigints
+
+EXPLAIN SELECT histogram_numeric(key, 3) FROM DECIMAL_UDF
+
+org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException: Only an integer argument is accepted as parameter 2, but bigint was passed instead.
+    at org.apache.hadoop.hive.ql.udf.generic.GenericUDAFHistogramNumeric.getEvaluator(GenericUDAFHistogramNumeric.java:103)
+    at org.apache.hadoop.hive.ql.udf.generic.AbstractGenericUDAFResolver.getEvaluator(AbstractGenericUDAFResolver.java:47)
+    at org.apache.hadoop.hive.ql.exec.FunctionRegistry.getGenericUDAFEvaluator(FunctionRegistry.java:1143)
+    at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.getGenericUDAFEvaluator(SemanticAnalyzer.java:3717)
+    at org.apache.hadoop.hive.ql.parse.SemanticAnalyzer.genGroupByPlanMapGroupByOperator(SemanticAnalyzer.java:4392)
+... snip
+
+
+
+
+

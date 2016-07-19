@@ -1,0 +1,7 @@
+Description
+
+As title indicates, when executing a multi-line query with trailing spaces, beeline reports syntax error: 
+Error: Error while compiling statement: FAILED: ParseException line 1:76 extraneous input ';' expecting EOF near '&amp;lt;EOF&amp;gt;' (state=42000,code=40000)
+If put this query in one single line, beeline succeeds to execute it.
+
+

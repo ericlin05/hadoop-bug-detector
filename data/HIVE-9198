@@ -1,0 +1,102 @@
+Description
+
+Spark depends on derby-10.10.1.1 while hive-on-spark depneds on derby-10.11.1.1. They will be conflict. Maybe we can adapt the classpath in bin/hive.
+The detailed bug is described as bellows.
+1. get spark-1.2.0-rc2 code and build spark-assembly-1.2.0-hadoop2.4.1.jar
+2. get latest code from hive and make packages.
+3. run hive -auxpath /path/to/spark-assembly*.jar
+Hive report the following exception:
+Logging initialized using configuration in jar:file:/home/realityload/hive-0.15.0-SNAPSHOT/lib/hive-common-0.15.0-SNAPSHOT.jar!/hive-log4j.properties
+Exception in thread "main" java.lang.RuntimeException: java.lang.RuntimeException: Unable to instantiate org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient
+        at org.apache.hadoop.hive.ql.session.SessionState.start(SessionState.java:449)
+        at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:634)
+        at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:578)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:212)
+Caused by: java.lang.RuntimeException: Unable to instantiate org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient
+        at org.apache.hadoop.hive.metastore.MetaStoreUtils.newInstance(MetaStoreUtils.java:1481)
+        at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.&amp;lt;init&amp;gt;(RetryingMetaStoreClient.java:64)
+        at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.getProxy(RetryingMetaStoreClient.java:74)
+        at org.apache.hadoop.hive.ql.metadata.Hive.createMetaStoreClient(Hive.java:2674)
+        at org.apache.hadoop.hive.ql.metadata.Hive.getMSC(Hive.java:2693)
+        at org.apache.hadoop.hive.ql.session.SessionState.start(SessionState.java:430)
+        ... 7 more
+Caused by: java.lang.reflect.InvocationTargetException
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:57)
+        at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+        at java.lang.reflect.Constructor.newInstance(Constructor.java:526)
+        at org.apache.hadoop.hive.metastore.MetaStoreUtils.newInstance(MetaStoreUtils.java:1479)
+        ... 12 more
+Caused by: javax.jdo.JDOFatalInternalException: Error creating transactional connection factory
+NestedThrowables:
+java.lang.reflect.InvocationTargetException
+        at org.datanucleus.api.jdo.NucleusJDOHelper.getJDOExceptionForNucleusException(NucleusJDOHelper.java:587)
+        at org.datanucleus.api.jdo.JDOPersistenceManagerFactory.freezeConfiguration(JDOPersistenceManagerFactory.java:788)
+        at org.datanucleus.api.jdo.JDOPersistenceManagerFactory.createPersistenceManagerFactory(JDOPersistenceManagerFactory.java:333)
+        at org.datanucleus.api.jdo.JDOPersistenceManagerFactory.getPersistenceManagerFactory(JDOPersistenceManagerFactory.java:202)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at javax.jdo.JDOHelper$16.run(JDOHelper.java:1965)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.jdo.JDOHelper.invoke(JDOHelper.java:1960)
+        at javax.jdo.JDOHelper.invokeGetPersistenceManagerFactoryOnImplementation(JDOHelper.java:1166)
+        at javax.jdo.JDOHelper.getPersistenceManagerFactory(JDOHelper.java:808)
+        at javax.jdo.JDOHelper.getPersistenceManagerFactory(JDOHelper.java:701)
+        at org.apache.hadoop.hive.metastore.ObjectStore.getPMF(ObjectStore.java:341)
+        at org.apache.hadoop.hive.metastore.ObjectStore.getPersistenceManager(ObjectStore.java:370)
+        at org.apache.hadoop.hive.metastore.ObjectStore.initialize(ObjectStore.java:267)
+        at org.apache.hadoop.hive.metastore.ObjectStore.setConf(ObjectStore.java:234)
+        at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:73)
+        at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:133)
+        at org.apache.hadoop.hive.metastore.RawStoreProxy.&amp;lt;init&amp;gt;(RawStoreProxy.java:56)
+        at org.apache.hadoop.hive.metastore.RawStoreProxy.getProxy(RawStoreProxy.java:65)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.newRawStore(HiveMetaStore.java:572)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.getMS(HiveMetaStore.java:550)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.createDefaultDB(HiveMetaStore.java:603)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.init(HiveMetaStore.java:441)
+        at org.apache.hadoop.hive.metastore.RetryingHMSHandler.&amp;lt;init&amp;gt;(RetryingHMSHandler.java:66)
+        at org.apache.hadoop.hive.metastore.RetryingHMSHandler.getProxy(RetryingHMSHandler.java:72)
+        at org.apache.hadoop.hive.metastore.HiveMetaStore.newRetryingHMSHandler(HiveMetaStore.java:5598)
+        at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.&amp;lt;init&amp;gt;(HiveMetaStoreClient.java:182)
+        at org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient.&amp;lt;init&amp;gt;(SessionHiveMetaStoreClient.java:73)
+        ... 17 more
+Caused by: java.lang.reflect.InvocationTargetException
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:57)
+        at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+        at java.lang.reflect.Constructor.newInstance(Constructor.java:526)
+        at org.datanucleus.plugin.NonManagedPluginRegistry.createExecutableExtension(NonManagedPluginRegistry.java:631)
+        at org.datanucleus.plugin.PluginManager.createExecutableExtension(PluginManager.java:325)
+        at org.datanucleus.store.AbstractStoreManager.registerConnectionFactory(AbstractStoreManager.java:282)
+        at org.datanucleus.store.AbstractStoreManager.&amp;lt;init&amp;gt;(AbstractStoreManager.java:240)
+        at org.datanucleus.store.rdbms.RDBMSStoreManager.&amp;lt;init&amp;gt;(RDBMSStoreManager.java:286)
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:57)
+        at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+        at java.lang.reflect.Constructor.newInstance(Constructor.java:526)
+        at org.datanucleus.plugin.NonManagedPluginRegistry.createExecutableExtension(NonManagedPluginRegistry.java:631)
+        at org.datanucleus.plugin.PluginManager.createExecutableExtension(PluginManager.java:301)
+        at org.datanucleus.NucleusContext.createStoreManagerForProperties(NucleusContext.java:1187)
+        at org.datanucleus.NucleusContext.initialise(NucleusContext.java:356)
+        at org.datanucleus.api.jdo.JDOPersistenceManagerFactory.freezeConfiguration(JDOPersistenceManagerFactory.java:775)
+        ... 46 more
+Caused by: java.lang.NoClassDefFoundError: Could not initialize class org.apache.derby.jdbc.EmbeddedDriver
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:57)
+        at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+        at java.lang.reflect.Constructor.newInstance(Constructor.java:526)
+        at java.lang.Class.newInstance(Class.java:379)
+        at org.datanucleus.store.rdbms.connectionpool.AbstractConnectionPoolFactory.loadDriver(AbstractConnectionPoolFactory.java:47)
+        at org.datanucleus.store.rdbms.connectionpool.BoneCPConnectionPoolFactory.createConnectionPool(BoneCPConnectionPoolFactory.java:54)
+        at org.datanucleus.store.rdbms.ConnectionFactoryImpl.generateDataSources(ConnectionFactoryImpl.java:238)
+        at org.datanucleus.store.rdbms.ConnectionFactoryImpl.initialiseDataSources(ConnectionFactoryImpl.java:131)
+        at org.datanucleus.store.rdbms.ConnectionFactoryImpl.&amp;lt;init&amp;gt;(ConnectionFactoryImpl.java:85)
+        ... 64 more
+
+

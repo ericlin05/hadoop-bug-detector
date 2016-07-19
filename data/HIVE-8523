@@ -1,0 +1,14 @@
+Description
+
+Here is related code:
+
+
+        if (desc == null
+            || !AlterTableDesc.doesAlterTableTypeSupportPartialPartitionSpec(desc.getOp())) {
+          throw new SemanticException(
+              ErrorMsg.ALTER_TABLE_TYPE_PARTIAL_PARTITION_SPEC_NO_SUPPORTED, desc.getOp().name());
+
+
+If desc is null, the construction of SemanticException would trigger NPE due to the call to desc.getOp().
+
+

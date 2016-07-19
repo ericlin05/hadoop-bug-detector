@@ -1,0 +1,52 @@
+Description
+
+We have a hive query case with UDF defined (i.e. BigBench case Q10, Q18 etc.). It will be passed for default Hive (on MR) mode, while failed for Hive On Spark mode (both Standalone and Yarn-Client). 
+Although we use 'add jar XXXX.jar;' to add the UDF jar explicitly, the issue still exists. 
+BTW, if we put the UDF jar into $HIVE_HOME/lib dir, the case will be passed.
+Detail Error Message is as below (NOTE: de.bankmark.bigbench.queries.q10.SentimentUDF is the UDF which contained in jar bigbenchqueriesmr.jar, and we have add command like 'add jar /location/to/bigbenchqueriesmr.jar;' into .sql explicitly)
+
+
+INFO  [pool-1-thread-1]: client.RemoteDriver (RemoteDriver.java:call(316)) - Failed to run job 8dd120cb-1a4d-4d1c-ba31-61eac648c27d
+org.apache.hive.com.esotericsoftware.kryo.KryoException: Unable to find class: de.bankmark.bigbench.queries.q10.SentimentUDF
+Serialization trace:
+genericUDTF (org.apache.hadoop.hive.ql.plan.UDTFDesc)
+conf (org.apache.hadoop.hive.ql.exec.UDTFOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.SelectOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.MapJoinOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.FilterOperator)
+childOperators (org.apache.hadoop.hive.ql.exec.TableScanOperator)
+aliasToWork (org.apache.hadoop.hive.ql.plan.MapWork)
+right (org.apache.commons.lang3.tuple.ImmutablePair)
+edgeProperties (org.apache.hadoop.hive.ql.plan.SparkWork)
+        at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readName(DefaultClassResolver.java:138)
+        at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readClass(DefaultClassResolver.java:115)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClass(Kryo.java:656)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:99)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:18)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readObject(Kryo.java:694)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.ObjectField.read(ObjectField.java:106)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.FieldSerializer.read(FieldSerializer.java:507)
+        at org.apache.hive.com.esotericsoftware.kryo.Kryo.readClassAndObject(Kryo.java:776)
+        at org.apache.hive.com.esotericsoftware.kryo.serializers.CollectionSerializer.read(CollectionSerializer.java:112)
+...
+Caused by: java.lang.ClassNotFoundException: de.bankmark.bigbench.queries.q10.SentimentUDF
+        at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+        at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+        at java.lang.Class.forName0(Native Method)
+        at java.lang.Class.forName(Class.java:270)
+        at org.apache.hive.com.esotericsoftware.kryo.util.DefaultClassResolver.readName(DefaultClassResolver.java:136)
+        ... 55 more
+
+
+
+

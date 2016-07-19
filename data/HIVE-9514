@@ -1,0 +1,13 @@
+Description
+
+Schematool gives following error - 
+
+
+bin/schematool -dbType derby -initSchema
+Starting metastore schema initialization to 1.0
+org.apache.hadoop.hive.metastore.HiveMetaException: Unknown version specified for initialization: 1.0
+
+
+Metastore schema hasn't changed from 0.14.0 to 1.0.0. So there is no need for new .sql files for 1.0.0. However, schematool needs to be made aware of the metastore schema equivalence.
+
+

@@ -1,0 +1,15 @@
+Description
+
+If you use hive.limit.query.max.table.partition to limit the amount of partitions that can be queried it makes queries on non-partitioned tables fail.
+Example:
+
+CREATE TABLE tmp(test INT);
+SELECT COUNT(*) FROM TMP; -- works fine
+SET hive.limit.query.max.table.partition=20;
+SELECT COUNT(*) FROM TMP; -- generates NPE (FAILED: NullPointerException null)
+SET hive.limit.query.max.table.partition=-1;
+SELECT COUNT(*) FROM TMP; -- works fine again
+
+
+
+

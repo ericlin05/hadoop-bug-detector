@@ -1,0 +1,75 @@
+Description
+
+I am unable to successfully run a "SQL" query that groups by a timestamp column when the underlying table is created as ORC and TBLPROPERTIES ('transactional'='true').  If I remove ('transactional'='true') when creating the table then I can run the group by query correctly.
+(Additionally, pig does not read tables created with TBLPROPERTIES ('transactional'='true')).
+Error output
+hive&amp;gt; select to_date(createdat), count( * ) from entrance_t
+    &amp;gt; group by to_date(createdat);
+Query ID = root_20150107131414_f6739293-a87f-4c05-8100-b86ae060be3a
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks not specified. Estimated from input data size: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=&amp;lt;number&amp;gt;
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=&amp;lt;number&amp;gt;
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=&amp;lt;number&amp;gt;
+Starting Job = job_1420194485920_0106, Tracking URL = http://sandbox.hortonworks.com:8088/proxy/application_1420194485920_0106/
+Kill Command = /usr/hdp/2.2.0.0-2041/hadoop/bin/hadoop job  -kill job_1420194485920_0106
+Hadoop job information for Stage-1: number of mappers: 3; number of reducers: 1
+2015-01-07 13:14:50,082 Stage-1 map = 0%,  reduce = 0%
+2015-01-07 13:15:30,154 Stage-1 map = 100%,  reduce = 100%
+Ended Job = job_1420194485920_0106 with errors
+Error during job, obtaining debugging information...
+Examining task ID: task_1420194485920_0106_m_000000 (and more) from job job_1420194485920_0106
+Task with the most failures(4): 
+
+Task ID:
+  task_1420194485920_0106_m_000001
+URL:
+http://sandbox.hortonworks.com:8088/taskdetails.jsp?jobid=job_1420194485920_0106&amp;amp;tipid=task_1420194485920_0106_m_000001
+
+Diagnostic Messages for this Task:
+Error: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row 
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:185)
+	at org.apache.hadoop.mapred.MapRunner.run(MapRunner.java:54)
+	at org.apache.hadoop.mapred.MapTask.runOldMapper(MapTask.java:450)
+	at org.apache.hadoop.mapred.MapTask.run(MapTask.java:343)
+	at org.apache.hadoop.mapred.YarnChild$2.run(YarnChild.java:163)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1628)
+	at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:158)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row 
+	at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:52)
+	at org.apache.hadoop.hive.ql.exec.mr.ExecMapper.map(ExecMapper.java:176)
+	... 8 more
+Caused by: java.lang.ArrayIndexOutOfBoundsException: 2
+	at org.apache.hadoop.hive.ql.exec.vector.expressions.LongToStringUnaryUDF.evaluate(LongToStringUnaryUDF.java:57)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorHashKeyWrapperBatch.evaluateBatch(VectorHashKeyWrapperBatch.java:91)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator$ProcessingModeHashAggregate.processBatch(VectorGroupByOperator.java:315)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorGroupByOperator.processOp(VectorGroupByOperator.java:859)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorSelectOperator.processOp(VectorSelectOperator.java:138)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:815)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:95)
+	at org.apache.hadoop.hive.ql.exec.MapOperator$MapOpCtx.forward(MapOperator.java:157)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:45)
+	... 9 more
+FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+MapReduce Jobs Launched: 
+Stage-Stage-1: Map: 3  Reduce: 1   HDFS Read: 0 HDFS Write: 0 FAIL
+Total MapReduce CPU Time Spent: 0 msec
+Problem table creation
+create table entrance_t 
+(createdAt timestamp, ip string)
+clustered by (createdAt) into 3 buckets STORED AS orc TBLPROPERTIES ('transactional'='true');
+insert into table entrance_t select createdat, ip from ad_server LIMIT 10;
+No problem table creation
+create table entrance_t 
+(createdAt timestamp, ip string)
+clustered by (createdAt) into 3 buckets STORED AS orc;
+insert into table entrance_t select createdat, ip from ad_server LIMIT 10;
+
+

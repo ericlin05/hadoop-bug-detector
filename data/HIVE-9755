@@ -1,0 +1,31 @@
+Description
+
+hive&amp;gt; describe ngramtest;
+OK
+col1                	int                 	                    
+col3                	string              	                    
+Time taken: 0.192 seconds, Fetched: 2 row(s)
+SELECT explode(ngrams(sentences(lower(t.col3)), 3, 10)) as x FROM (SELECT col3  FROM ngramtest WHERE col1=0) t;
+when any result has value equal null, returned the error. 
+2015-01-08 09:15:00,262 FATAL ExecReducer: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row (tag=0) {"key":{},"value":
+{"_col0":["0","0","0","0"]}
+,"alias":0} 
+at org.apache.hadoop.hive.ql.exec.ExecReducer.reduce(ExecReducer.java:258) 
+at org.apache.hadoop.mapred.ReduceTask.runOldReducer(ReduceTask.java:506) 
+at org.apache.hadoop.mapred.ReduceTask.run(ReduceTask.java:447) 
+at org.apache.hadoop.mapred.Child$4.run(Child.java:268) 
+at java.security.AccessController.doPrivileged(Native Method) 
+at javax.security.auth.Subject.doAs(Subject.java:396) 
+at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1408) 
+at org.apache.hadoop.mapred.Child.main(Child.java:262) 
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: GenericUDAFnGramEvaluator: mismatch in value for 'n', which usually is caused by a non-constant expression. Found '0' and '1'. 
+at org.apache.hadoop.hive.ql.udf.generic.GenericUDAFnGrams$GenericUDAFnGramEvaluator.merge(GenericUDAFnGrams.java:242) 
+at org.apache.hadoop.hive.ql.udf.generic.GenericUDAFEvaluator.aggregate(GenericUDAFEvaluator.java:142) 
+at org.apache.hadoop.hive.ql.exec.GroupByOperator.updateAggregations(GroupByOperator.java:658) 
+at org.apache.hadoop.hive.ql.exec.GroupByOperator.processAggr(GroupByOperator.java:911) 
+at org.apache.hadoop.hive.ql.exec.GroupByOperator.processKey(GroupByOperator.java:753) 
+at org.apache.hadoop.hive.ql.exec.GroupByOperator.processOp(GroupByOperator.java:819) 
+at org.apache.hadoop.hive.ql.exec.Operator.process(Operator.java:474) 
+at org.apache.hadoop.hive.ql.exec.ExecReducer.reduce(ExecReducer.java:249) 
+
+

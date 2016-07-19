@@ -1,0 +1,28 @@
+Description
+
+Seems to be a regression in behavior from HIVE-7648.
+
+FAILED: SemanticException [Error 10001]: Table not found missing_ddl_3
+14/09/09 16:12:46 [main]: ERROR ql.Driver: FAILED: SemanticException [Error 10001]: Table not found missing_ddl_3
+org.apache.hadoop.hive.ql.parse.SemanticException: Table not found missing_ddl_3
+	at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.getTable(BaseSemanticAnalyzer.java:1243)
+	at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.getTable(BaseSemanticAnalyzer.java:1226)
+	at org.apache.hadoop.hive.ql.parse.DDLSemanticAnalyzer.analyzeDropIndex(DDLSemanticAnalyzer.java:1148)
+	at org.apache.hadoop.hive.ql.parse.DDLSemanticAnalyzer.analyzeInternal(DDLSemanticAnalyzer.java:326)
+	at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:208)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:402)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:298)
+	at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:992)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1062)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:929)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:919)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:246)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:198)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:408)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:781)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:675)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:614)
+
+
+
+

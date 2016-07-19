@@ -1,0 +1,32 @@
+Description
+
+In recent ptest run (Test results: http://ec2-174-129-184-35.compute-1.amazonaws.com/jenkins/job/PreCommit-HIVE-SPARK-Build/511/testReport), test groupby_multi_single_reducer.q failed w/ the following stacktrace:
+
+
+java.lang.RuntimeException: Map operator initialization failed
+	at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.init(SparkMapRecordHandler.java:136)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunction.call(HiveMapFunction.java:54)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunction.call(HiveMapFunction.java:29)
+	at org.apache.spark.api.java.JavaRDDLike$$anonfun$fn$7$1.apply(JavaRDDLike.scala:167)
+	at org.apache.spark.api.java.JavaRDDLike$$anonfun$fn$7$1.apply(JavaRDDLike.scala:167)
+	at org.apache.spark.rdd.RDD$$anonfun$13.apply(RDD.scala:601)
+	at org.apache.spark.rdd.RDD$$anonfun$13.apply(RDD.scala:601)
+	at org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:35)
+	at org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:263)
+	at org.apache.spark.rdd.RDD.iterator(RDD.scala:230)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:68)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:41)
+	at org.apache.spark.scheduler.Task.run(Task.scala:56)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:196)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:744)
+Caused by: java.lang.NullPointerException
+	at org.apache.hadoop.hive.ql.io.IOContext.copy(IOContext.java:119)
+	at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.init(SparkMapRecordHandler.java:97)
+	... 16 more
+
+
+This failure is again about IOContext object, which needs further investigation.
+
+

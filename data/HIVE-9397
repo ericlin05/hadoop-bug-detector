@@ -1,0 +1,34 @@
+Description
+
+These queries produce an error :
+
+
+DROP TABLE IF EXISTS foo;
+
+CREATE TABLE foo (id int) STORED AS ORC;
+
+INSERT INTO TABLE foo VALUES (1);
+INSERT INTO TABLE foo VALUES (2);
+INSERT INTO TABLE foo VALUES (3);
+INSERT INTO TABLE foo VALUES (4);
+INSERT INTO TABLE foo VALUES (5);
+
+SELECT max(id) FROM foo;
+
+ANALYZE TABLE foo COMPUTE STATISTICS FOR COLUMNS id;
+
+SELECT max(id) FROM foo;
+
+
+The last query throws org.apache.hive.service.cli.HiveSQLException
+
+0: jdbc:hive2://nc-h04:10000/casino&amp;gt; SELECT max(id) FROM foo;
++-------------+--+
+|     _c0     |
++-------------+--+
+org.apache.hive.service.cli.HiveSQLException: java.lang.ClassCastException
+0: jdbc:hive2://nc-h04:10000/casino&amp;gt;
+
+
+
+

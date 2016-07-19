@@ -1,0 +1,14 @@
+Description
+
+current restriction makes the existing support very limited.
+
+
+select rnum, c1, c2, c3, sum( c3 ) over(partition by c1 order by c2 , c3) from tolap
+
+Error: Error while compiling statement: FAILED: SemanticException Range based Window Frame can have only 1 Sort Key
+SQLState:  42000
+ErrorCode: 40000
+
+
+
+

@@ -1,0 +1,20 @@
+Description
+
+When a full file-path is specified in in_file(), and the query runs as a local-job (i.e. without MR/Tez), one sees the following FNFE:
+
+java.io.IOException: org.apache.hadoop.hive.ql.metadata.HiveException: java.io.FileNotFoundException: int_list.txt (No such file or directory)
+	at org.apache.hadoop.hive.ql.exec.FetchTask.fetch(FetchTask.java:152)
+	at org.apache.hadoop.hive.ql.Driver.getResults(Driver.java:1651)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:227)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:159)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:370)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:305)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:702)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:675)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:615)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+...
+It looks like GenericUDFInFile trims the file-path to just the file-name, perhaps under the assumption that the file would be in DistributedCache. In case the job runs locally, the file ought to be read using the full path.
+
+

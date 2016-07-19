@@ -1,0 +1,7 @@
+Description
+
+Check all data types work for Parquet in Group By operator.
+1. Add test cases for data types.
+2. Fix the ClassCastException bug for CHAR&amp;amp;VARCHAR used in group by for Parquet.
+
+

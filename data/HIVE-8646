@@ -1,0 +1,39 @@
+Description
+
+When running Hive actions with Oozie we hit this issue sometimes.    What is interesting is that we have all the necessary jars in the classpath (or atleast are expected to be localized).
+This static initialization block is introduced by HIVE-3925.
+==
+Exception in thread "main" java.lang.ExceptionInInitializerError
+	at java.lang.Class.forName0(Native Method)
+	at java.lang.Class.forName(Class.java:270)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:214)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+Caused by: java.lang.TypeNotPresentException: Type org.apache.hadoop.hive.metastore.api.FieldSchema not present
+	at sun.reflect.generics.factory.CoreReflectionFactory.makeNamedType(CoreReflectionFactory.java:117)
+	at sun.reflect.generics.visitor.Reifier.visitClassTypeSignature(Reifier.java:125)
+	at sun.reflect.generics.tree.ClassTypeSignature.accept(ClassTypeSignature.java:49)
+	at sun.reflect.generics.visitor.Reifier.reifyTypeArguments(Reifier.java:68)
+	at sun.reflect.generics.visitor.Reifier.visitClassTypeSignature(Reifier.java:138)
+	at sun.reflect.generics.tree.ClassTypeSignature.accept(ClassTypeSignature.java:49)
+	at sun.reflect.generics.repository.MethodRepository.getReturnType(MethodRepository.java:68)
+	at java.lang.reflect.Method.getGenericReturnType(Method.java:245)
+	at java.beans.FeatureDescriptor.getReturnType(FeatureDescriptor.java:370)
+	at java.beans.Introspector.getTargetEventInfo(Introspector.java:996)
+	at java.beans.Introspector.getBeanInfo(Introspector.java:417)
+	at java.beans.Introspector.getBeanInfo(Introspector.java:163)
+	at org.apache.hadoop.hive.ql.exec.PTFUtils.makeTransient(PTFUtils.java:267)
+	at org.apache.hadoop.hive.ql.exec.Task.&amp;lt;clinit&amp;gt;(Task.java:53)
+	... 4 more
+Caused by: java.lang.ClassNotFoundException: org.apache.hadoop.hive.metastore.api.FieldSchema
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+	at java.lang.Class.forName0(Native Method)
+	at java.lang.Class.forName(Class.java:270)
+	at sun.reflect.generics.factory.CoreReflectionFactory.makeNamedType(CoreReflectionFactory.java:114)
+	... 17 more
+
+

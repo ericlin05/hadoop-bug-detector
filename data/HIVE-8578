@@ -1,0 +1,5 @@
+Description
+
+In HIVE-8545, there are a few test failures, for instance, multi_insert_lateral_view.q and ppd_multi_insert.q. They appear to be happening at random, and not reproducible locally. We need to track down the root cause, and fix in this JIRA.
+
+

@@ -1,0 +1,39 @@
+Description
+
+I made a pass through HIVE-9257 and found the following issues: 
+HashTableSinkOperator.java
+The fields EMPTY_OBJECT_ARRAY and EMPTY_ROW_CONTAINER are no longer constants and should not be in upper case.
+HivePairFlatMapFunction.java
+We share NumberFormat accross threads and it's not thread safe.
+KryoSerializer.java
+we eat the stack trace in deserializeJobConf
+SparkMapRecordHandler
+in processRow we should not be using StringUtils.stringifyException since LOG can handle stack traces.
+in close:
+
+        // signal new failure to map-reduce
+        LOG.error("Hit error while closing operators - failing tree");
+        throw new IllegalStateException("Error while closing operators", e);
+
+
+Should be:
+
+         String msg = "Error while closing operators: " + e;
+        throw new IllegalStateException(msg, e);
+
+
+SparkSessionManagerImpl - the method canReuseSession is useless
+GenSparkSkewJoinProcessor
+
++      // keep it as reference in case we need fetch work
++//        localPlan.getAliasToFetchWork().put(small_alias.toString(),
++//            new FetchWork(tblDir, tableDescList.get(small_alias)));
+
+
+GenSparkWorkWalker trim ws
+SparkCompiler remote init
+SparkEdgeProperty trim ws
+CounterStatsPublisher eat exception
+Hadoop23Shims unused import of ResourceBundles
+
+

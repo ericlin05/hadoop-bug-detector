@@ -1,0 +1,85 @@
+Description
+
+Run query that involves a join and constant folding that is always false 
+
+
+select  s_store_id as store_id,
+          sum(ss_ext_sales_price) as sales
+  from store_sales, 
+     date_dim,
+     store
+ where ss_sold_date_sk = d_date_sk
+       and d_date between cast('1998-08-04' as date) 
+                  and (cast('1998-09-04' as date))
+       and ss_store_sk = s_store_sk and 1 = 2
+ group by s_store_id
+
+
+If vectorization is enable we hit this exception 
+
+
+, TaskAttempt 3 failed, info=[Error: Failure while running task:java.lang.RuntimeException: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:187)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.run(TezProcessor.java:142)
+	at org.apache.tez.runtime.LogicalIOProcessorRuntimeTask.run(LogicalIOProcessorRuntimeTask.java:324)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:180)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable$1.run(TezTaskRunner.java:172)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1548)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:172)
+	at org.apache.tez.runtime.task.TezTaskRunner$TaskRunnerCallable.call(TezTaskRunner.java:167)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:744)
+Caused by: java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:93)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.pushRecord(MapRecordSource.java:70)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.run(MapRecordProcessor.java:272)
+	at org.apache.hadoop.hive.ql.exec.tez.TezProcessor.initializeAndRunProcessor(TezProcessor.java:164)
+	... 13 more
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row
+	at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:45)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordSource.processRow(MapRecordSource.java:85)
+	... 16 more
+Caused by: java.lang.ClassCastException: org.apache.hadoop.io.NullWritable cannot be cast to org.apache.hadoop.hive.ql.exec.vector.VectorizedRowBatch
+	at org.apache.hadoop.hive.ql.exec.vector.VectorFilterOperator.processOp(VectorFilterOperator.java:86)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:801)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:95)
+	at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:801)
+	at org.apache.hadoop.hive.ql.exec.vector.VectorMapOperator.process(VectorMapOperator.java:43)
+	... 17 more
+
+
+If vectorization is disabled we hit this exception
+
+
+Caused by: java.lang.RuntimeException: cannot find field ss_store_sk from [org.apache.hadoop.hive.serde2.objectinspector.UnionStructObjectInspector$MyField@52c64dde]
+	at org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils.getStandardStructFieldRef(ObjectInspectorUtils.java:410)
+	at org.apache.hadoop.hive.serde2.objectinspector.UnionStructObjectInspector.getStructFieldRef(UnionStructObjectInspector.java:112)
+	at org.apache.hadoop.hive.ql.exec.ExprNodeColumnEvaluator.initialize(ExprNodeColumnEvaluator.java:55)
+	at org.apache.hadoop.hive.ql.exec.Operator.initEvaluators(Operator.java:940)
+	at org.apache.hadoop.hive.ql.exec.Operator.initEvaluatorsAndReturnStruct(Operator.java:966)
+	at org.apache.hadoop.hive.ql.exec.SelectOperator.initializeOp(SelectOperator.java:63)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:381)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:465)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:421)
+	at org.apache.hadoop.hive.ql.exec.FilterOperator.initializeOp(FilterOperator.java:83)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:381)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:465)
+	at org.apache.hadoop.hive.ql.exec.Operator.initializeChildren(Operator.java:421)
+	at org.apache.hadoop.hive.ql.exec.TableScanOperator.initializeOp(TableScanOperator.java:193)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:381)
+	at org.apache.hadoop.hive.ql.exec.MapOperator.initializeOp(MapOperator.java:421)
+	at org.apache.hadoop.hive.ql.exec.Operator.initialize(Operator.java:381)
+	at org.apache.hadoop.hive.ql.exec.tez.MapRecordProcessor.init(MapRecordProcessor.java:200)
+	... 14 more
+]], Vertex failed as one or more tasks failed. failedTasks:1]
+Vertex killed, vertexName=Map 2, vertexId=vertex_1412107847244_0030_3_02, diagnostics=[Vertex received Kill while in RUNNING state., Vertex killed as other vertex failed. failedTasks:0]
+Vertex killed, vertexName=Reducer 3, vertexId=vertex_1412107847244_0030_3_03, diagnostics=[Vertex received Kill while in RUNNING state., Vertex killed as other vertex failed. failedTasks:0]
+DAG failed due to vertex failure. failedVertices:1 killedVertices:2
+
+
+
+

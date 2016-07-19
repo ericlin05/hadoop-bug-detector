@@ -1,0 +1,58 @@
+Description
+
+This may mean merging patches from trunk and fixing whatever problem specific to Spark branch. Here are user reported problems:
+Problem 1:
+
+
+Hive Serde ......................................... FAILURE [  2.357 s]
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.1:compile (default-compile) on project hive-serde: Compilation failure: Compilation failure:
+[ERROR] /data/hive-spark/serde/src/java/org/apache/hadoop/hive/serde2/AbstractSerDe.java:[27,24] cannot find symbol
+[ERROR] symbol:   class Nullable
+[ERROR] location: package javax.annotation
+[ERROR] /data/hive-spark/serde/src/java/org/apache/hadoop/hive/serde2/AbstractSerDe.java:[67,36] cannot find symbol
+[ERROR] symbol:   class Nullable
+[ERROR] location: class org.apache.hadoop.hive.serde2.AbstractSerDe
+
+
+My understanding: Looks the Nullable annotation was recently added in the recent branch. Added the below dependency in the project hive-serde
+
+
+&amp;lt;dependency&amp;gt;
+    &amp;lt;groupId&amp;gt;com.google.code.findbugs&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;jsr305&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;3.0.0&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+
+
+Problem 2:
+After adding the dependency for hive-serde, got the below compilation error
+
+
+[INFO] Hive Query Language ................................ FAILURE [01:35 min]
+
+/data/hive-spark/ql/src/java/org/apache/hadoop/hive/ql/exec/spark/counter/SparkCounters.java:[35,39] error: package org.apache.hadoop.mapreduce.util does not exist
+
+
+In the dependency jar for hadoop-1 (hadoop-core-1.2.1.jar) - We do not have the package “org.apache.hadoop.mapreduce.util” to circumvent it added the below dependency where we had the package (not sure, it is right – I badly wanted to make the build successful L)
+
+
+&amp;lt;dependency&amp;gt;
+                &amp;lt;groupId&amp;gt;org.apache.hadoop&amp;lt;/groupId&amp;gt;
+                        &amp;lt;artifactId&amp;gt;hadoop-mapreduce-client-core&amp;lt;/artifactId&amp;gt;
+                                &amp;lt;version&amp;gt;0.23.11&amp;lt;/version&amp;gt;
+                                &amp;lt;/dependency&amp;gt;
+      &amp;lt;/dependencies&amp;gt;
+
+
+Problem 3:
+After making the above change, again failed in the same project @ file /data/hive-spark/ql/src/java/org/apache/hadoop/hive/ql/exec/persistence/MapJoinTableContainerSerDe.java. In the snippet below taken from the file, we can see the “fileStatus.isFile()” is called which is not available in the “org.apache.hadoop.fs.FileStatus” hadoop1 api.
+
+
+ for (FileStatus fileStatus: fs.listStatus(folder)) {
+       Path filePath = fileStatus.getPath();
+        if (!fileStatus.isFile()) {
+          throw new HiveException("Error, not a file: " + filePath);
+
+
+
+

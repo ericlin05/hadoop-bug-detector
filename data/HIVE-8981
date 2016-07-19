@@ -1,0 +1,44 @@
+Description
+
+Hits the following exception:
+
+2014-11-26 15:17:11,728 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) - 14/11/26 15:17:11 WARN TaskSetManager: Lost task 0.0 in stage 8.0 (TID 18, 172.16.3.52): java.lang.RuntimeException: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: Error while trying to create table container
+2014-11-26 15:17:11,728 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.processRow(SparkMapRecordHandler.java:160)
+2014-11-26 15:17:11,728 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:47)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:28)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.spark.HiveBaseFunctionResultList$ResultIterator.hasNext(HiveBaseFunctionResultList.java:96)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at scala.collection.convert.Wrappers$JIteratorWrapper.hasNext(Wrappers.scala:41)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at scala.collection.Iterator$class.foreach(Iterator.scala:727)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at scala.collection.AbstractIterator.foreach(Iterator.scala:1157)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.spark.rdd.AsyncRDDActions$$anonfun$foreachAsync$2.apply(AsyncRDDActions.scala:115)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.spark.rdd.AsyncRDDActions$$anonfun$foreachAsync$2.apply(AsyncRDDActions.scala:115)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.spark.SparkContext$$anonfun$30.apply(SparkContext.scala:1390)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.spark.SparkContext$$anonfun$30.apply(SparkContext.scala:1390)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:61)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.spark.scheduler.Task.run(Task.scala:56)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:196)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at java.lang.Thread.run(Thread.java:744)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) - Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: org.apache.hadoop.hive.ql.metadata.HiveException: Error while trying to create table container
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.spark.HashTableLoader.load(HashTableLoader.java:100)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.MapJoinOperator.loadHashTable(MapJoinOperator.java:193)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.MapJoinOperator.cleanUpInputFileChangedOp(MapJoinOperator.java:219)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1051)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.Operator.cleanUpInputFileChanged(Operator.java:1055)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:486)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.processRow(SparkMapRecordHandler.java:149)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     ... 16 more
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) - Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Error while trying to create table container
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.persistence.MapJoinTableContainerSerDe.load(MapJoinTableContainerSerDe.java:154)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.spark.HashTableLoader.load(HashTableLoader.java:97)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     ... 24 more
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) - Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: Error, not a directory: file:/home/szehon/repos/apache-hive-git/hive/itests/qtest-spark/target/tmp/scratchdir/szehon/34689ef1-da29-422f-9409-f358480e03b9/hive_2014-11-26_15-17-11_015_4372638719563218766-1/-mr-10002/HashTable-Stage-1/MapJoin-mapfile31--.hashtable
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     at org.apache.hadoop.hive.ql.exec.persistence.MapJoinTableContainerSerDe.load(MapJoinTableContainerSerDe.java:105)
+2014-11-26 15:17:11,729 INFO  [stderr-redir-1]: client.SparkClientImpl (SparkClientImpl.java:run(364)) -     ... 25 more
+
+
+
+

@@ -1,0 +1,24 @@
+Description
+
+I am trying to create hbase table using this query
+
+
+CREATE TABLE foo4(rowkey STRING, a STRING, b STRING) STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' WITH SERDEPROPERTIES ('hbase.columns.mapping' = ':key,f:c1,f:c2') TBLPROPERTIES ('hbase.table.name' = 'bar4');
+
+
+with the help of java Impala api and I am sharing you code link
+https://github.com/pauldeschacht/impala-java-client
+When I am trying to create table in habse I am facing this issue
+
+AnalysisException: Syntax error in line 2:
+STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
+       ^
+Encountered: BY
+Expected: AS
+
+CAUSED BY: Exception: Syntax error,HY000,0,false
+
+
+Please help me what I do?
+
+

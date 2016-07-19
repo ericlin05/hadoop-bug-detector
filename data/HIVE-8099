@@ -1,0 +1,35 @@
+Description
+
+Test table DLL:
+
+
+CREATE TABLE testTbl(col1 string) PARTITIONED BY (date_prt date);
+
+
+Following query used to work fine in Hive 0.12 as the constant types are 'string' and partition column type is considered as 'string' throughout the planning and optimization (including partition pruning).
+
+
+SELECT * FROM testTbl WHERE date_prt IN ('2014-08-09', '2014-08-08'); 
+
+
+In trunk the above query fails with:
+
+
+Line 1:33 Wrong arguments ''2014-08-08'': The arguments for IN should be the same type! Types are: {date IN (string, string)}
+
+
+HIVE-6642 changed the SemanticAnalyzer.java to consider partition type given in table definition instead of hardcoded 'string' type. (Modified Hive 0.12 code). So changed the query as follows to go past the above error:
+
+
+SELECT * FROM testTbl WHERE date_prt IN (CAST('2014-08-09' AS DATE), CAST('2014-08-08' AS DATE)); 
+
+
+Now query goes past the error in SemanticAnalyzer, but hits the same issue (default 'string' type for partition columns) in partition pruning optimization. (Realted code here).
+
+
+14/09/14 20:07:20 ERROR ql.Driver: FAILED: SemanticException MetaException(message:The arguments for IN should be the same type! Types are: {string IN (date, date)})
+
+
+We need to change partition pruning code to consider the partition column as the type given in table definition.
+
+

@@ -1,0 +1,35 @@
+Description
+
+I hit an issue with a fresh set up of hive in a vm, where I did not have db tables as specified by hive-txn-schema-0.14.0.mysql.sql created.
+On metastore startup, I got an endless loop of errors being populated to the log file, which caused the log file to grow to 1.7GB in 5 minutes, with 950k copies of the same error stack trace in it before I realized what was happening and killed it. We should either have a delay of sorts to make sure we don't endlessly respin on that error so quickly, or we should error out and fail if we're not able to start.
+The stack trace in question is as follows:
+
+2014-11-19 01:44:57,654 ERROR compactor.Cleaner
+(Cleaner.java:run(143)) - Caught an exception in the main loop of
+compactor cleaner, MetaException(message:Unable to connect to
+transaction database
+com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Table
+'hive.COMPACTION_QUEUE' doesn't exist
+at sun.reflect.GeneratedConstructorAccessor20.newInstance(Unknown Source)
+at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:27)
+at java.lang.reflect.Constructor.newInstance(Constructor.java:513)
+at com.mysql.jdbc.Util.handleNewInstance(Util.java:411)
+at com.mysql.jdbc.Util.getInstance(Util.java:386)
+at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:1052)
+at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:3597)
+at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:3529)
+at com.mysql.jdbc.MysqlIO.sendCommand(MysqlIO.java:1990)
+at com.mysql.jdbc.MysqlIO.sqlQueryDirect(MysqlIO.java:2151)
+at com.mysql.jdbc.ConnectionImpl.execSQL(ConnectionImpl.java:2619)
+at com.mysql.jdbc.ConnectionImpl.execSQL(ConnectionImpl.java:2569)
+at com.mysql.jdbc.StatementImpl.executeQuery(StatementImpl.java:1524)
+at com.jolbox.bonecp.StatementHandle.executeQuery(StatementHandle.java:464)
+at org.apache.hadoop.hive.metastore.txn.CompactionTxnHandler.findReadyToClean(CompactionTxnHandler.java:266)
+at org.apache.hadoop.hive.ql.txn.compactor.Cleaner.run(Cleaner.java:86)
+)
+at org.apache.hadoop.hive.metastore.txn.CompactionTxnHandler.findReadyToClean(CompactionTxnHandler.java:291)
+at org.apache.hadoop.hive.ql.txn.compactor.Cleaner.run(Cleaner.java:86)
+
+
+
+

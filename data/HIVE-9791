@@ -1,0 +1,18 @@
+Description
+
+to reproduce NPE run the following
+
+
+create table a as select 'A' letter;
+OK
+
+insert into table a select 'B' letter;
+FAILED: NullPointerException null
+
+-- works fine if add "from &amp;lt;table&amp;gt;" to select statement
+insert into table a select 'B' letter from dual;
+OK
+
+
+
+

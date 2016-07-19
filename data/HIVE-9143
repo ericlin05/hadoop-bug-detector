@@ -1,0 +1,25 @@
+Description
+
+Feature request to add support for determining in HQL session which user I am currently connected as - an old MySQL ability:
+
+mysql&amp;gt; select user(), current_user();
++----------------+----------------+
+| user()         | current_user() |
++----------------+----------------+
+| root@localhost | root@localhost |
++----------------+----------------+
+1 row in set (0.00 sec)
+
+
+which doesn't seem to have a counterpart in Hive at this time:
+
+0: jdbc:hive2://&amp;lt;host&amp;gt;:100&amp;gt; select user();
+Error: Error while compiling statement: FAILED: SemanticException Line 0:-1 Invalid function 'user' (state=42000,code=40000)
+0: jdbc:hive2://&amp;lt;host&amp;gt;:100&amp;gt; select current_user();
+Error: Error while compiling statement: FAILED: SemanticException [Error 10011]: Line 1:7 Invalid function 'current_user' (state=42000,code=10011)
+
+Regards,
+Hari Sekhon
+http://www.linkedin.com/in/harisekhon
+
+

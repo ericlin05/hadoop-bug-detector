@@ -1,0 +1,8 @@
+Description
+
+I am using Mariadb as the metastore database and the schema is created manually. Even when the property 'datanucleus.autoCreateSchema' is set to 'false', HiveMetaStore tries to create it. Not sure, if this is a datanucleus issue or hive's.. Attaching my fix for review (this was the only way I was able to successfully deploy).
+I was trying to fix the following exception, but realized the above when, even with disabling autoCreateSchema, it was trying to create it. 
+Exception:
+metastore.HiveMetaStore (HiveMetaStore.java:startMetaStore(5671)) - javax.jdo.JDOUserException: Could not create "increment"/"table" value-generation container `SEQUENCE_TABLE` since autoCreate flags do not allow it. (... SKIPPED ..)
+
+

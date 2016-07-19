@@ -1,0 +1,129 @@
+Description
+
+While trying to enable auto_smb_mapjoin_14.q, the following query:
+
+
+select count(*) from (
+  select a.key as key, a.value as val1, b.value as val2 from tbl1 a join tbl2 b on a.key = b.key
+) subq1;
+
+
+failed with exception:
+
+2014-09-22 11:42:56,157 ERROR [Executor task launch worker-2]: spark.SparkMapRecordHandler (SparkMapRecordHandler.java:processRow(150)) - org.apache.hadoop.hive.ql.metadata.HiveException: Hive Runtime Error while processing row {"key":0,"value":"val_0"}
+  at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:550)
+  at org.apache.hadoop.hive.ql.exec.spark.SparkMapRecordHandler.processRow(SparkMapRecordHandler.java:140)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:47)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveMapFunctionResultList.processNextRecord(HiveMapFunctionResultList.java:28)
+  at org.apache.hadoop.hive.ql.exec.spark.HiveBaseFunctionResultList$ResultIterator.hasNext(HiveBaseFunctionResultList.java:108)
+  at scala.collection.convert.Wrappers$JIteratorWrapper.hasNext(Wrappers.scala:41)
+  at scala.collection.Iterator$class.foreach(Iterator.scala:727)
+  at scala.collection.AbstractIterator.foreach(Iterator.scala:1157)
+  at org.apache.spark.shuffle.hash.HashShuffleWriter.write(HashShuffleWriter.scala:65)
+  at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:68)
+  at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:41)
+  at org.apache.spark.scheduler.Task.run(Task.scala:54)
+  at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:199)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+  at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.NullPointerException
+  at org.apache.hadoop.hive.ql.exec.SMBMapJoinOperator.processOp(SMBMapJoinOperator.java:258)
+  at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:800)
+  at org.apache.hadoop.hive.ql.exec.FilterOperator.processOp(FilterOperator.java:137)
+  at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:800)
+  at org.apache.hadoop.hive.ql.exec.TableScanOperator.processOp(TableScanOperator.java:95)
+  at org.apache.hadoop.hive.ql.exec.Operator.forward(Operator.java:800)
+  at org.apache.hadoop.hive.ql.exec.MapOperator.process(MapOperator.java:540)
+  ... 15 more
+
+
+The query plan doesn't look correct:
+
+STAGE DEPENDENCIES:
+  Stage-1 is a root stage
+  Stage-0 depends on stages: Stage-1
+
+STAGE PLANS:
+  Stage: Stage-1
+    Spark
+      Edges:
+        Reducer 2 &amp;lt;- Map 1 (GROUP)
+      DagName: chao_20140922113636_e90b1567-df72-43f4-b9ea-15f986de35c2:11
+      Vertices:
+        Map 1 
+            Map Operator Tree:
+                TableScan
+                  alias: a
+                  Statistics: Num rows: 10 Data size: 70 Basic stats: COMPLETE Column stats: NONE
+                  Filter Operator
+                    predicate: key is not null (type: boolean)
+                    Statistics: Num rows: 5 Data size: 35 Basic stats: COMPLETE Column stats: NONE
+                    Sorted Merge Bucket Map Join Operator
+                      condition map:
+                           Inner Join 0 to 1
+                      condition expressions:
+                        0 
+                        1 
+                      keys:
+                        0 key (type: int)
+                        1 key (type: int)
+                      Select Operator
+                        Group By Operator
+                          aggregations: count()
+                          mode: hash
+                          outputColumnNames: _col0
+                          Reduce Output Operator
+                            sort order: 
+                            value expressions: _col0 (type: bigint)
+        Map 3 
+            Map Operator Tree:
+                TableScan
+                  alias: b
+                  Statistics: Num rows: 10 Data size: 70 Basic stats: COMPLETE Column stats: NONE
+                  Filter Operator
+                    predicate: key is not null (type: boolean)
+                    Statistics: Num rows: 5 Data size: 35 Basic stats: COMPLETE Column stats: NONE
+                      Sorted Merge Bucket Map Join Operator
+                        condition map:
+                             Inner Join 0 to 1
+                        condition expressions:
+                          0 
+                          1 
+                        keys:
+                          0 key (type: int)
+                          1 key (type: int)
+                        Select Operator
+                          Group By Operator
+                            aggregations: count()
+                            mode: hash
+                            outputColumnNames: _col0
+                            Reduce Output Operator
+                              sort order: 
+                              value expressions: _col0 (type: bigint)
+        Reducer 2 
+            Reduce Operator Tree:
+              Group By Operator
+                aggregations: count(VALUE._col0)
+                mode: mergepartial
+                outputColumnNames: _col0
+                Select Operator
+                  expressions: _col0 (type: bigint)
+                  outputColumnNames: _col0
+                  File Output Operator
+                    compressed: false
+                    table:
+                        input format: org.apache.hadoop.mapred.TextInputFormat
+                        output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                        serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+
+  Stage: Stage-0
+    Fetch Operator
+      limit: -1
+      Processor Tree:
+        ListSink
+
+
+I think it's related to SMB Join, so this JIRA should be solved once that is done.
+
+

@@ -1,0 +1,28 @@
+Description
+
+Error in logged in spark.log. It might be an concurrency issue:
+
+
+2014-12-11 05:24:58,690 ERROR [delete Spark local dirs]: storage.DiskBlockManager (Logging.scala:logError(96)) - Exception while deleting local spark dir: /tmp/spark-local-20141211052409-61ef
+java.io.IOException: Failed to list files for dir: /tmp/spark-local-20141211052409-61ef/24
+	at org.apache.spark.util.Utils$.listFilesSafely(Utils.scala:745)
+	at org.apache.spark.util.Utils$.deleteRecursively(Utils.scala:763)
+	at org.apache.spark.util.Utils$$anonfun$deleteRecursively$1.apply(Utils.scala:765)
+	at org.apache.spark.util.Utils$$anonfun$deleteRecursively$1.apply(Utils.scala:763)
+	at scala.collection.IndexedSeqOptimized$class.foreach(IndexedSeqOptimized.scala:33)
+	at scala.collection.mutable.WrappedArray.foreach(WrappedArray.scala:34)
+	at org.apache.spark.util.Utils$.deleteRecursively(Utils.scala:763)
+	at org.apache.spark.storage.DiskBlockManager$$anonfun$stop$1.apply(DiskBlockManager.scala:171)
+	at org.apache.spark.storage.DiskBlockManager$$anonfun$stop$1.apply(DiskBlockManager.scala:168)
+	at scala.collection.IndexedSeqOptimized$class.foreach(IndexedSeqOptimized.scala:33)
+	at scala.collection.mutable.ArrayOps$ofRef.foreach(ArrayOps.scala:108)
+	at org.apache.spark.storage.DiskBlockManager.stop(DiskBlockManager.scala:168)
+	at org.apache.spark.storage.DiskBlockManager$$anon$1$$anonfun$run$1.apply$mcV$sp(DiskBlockManager.scala:159)
+	at org.apache.spark.storage.DiskBlockManager$$anon$1$$anonfun$run$1.apply(DiskBlockManager.scala:157)
+	at org.apache.spark.storage.DiskBlockManager$$anon$1$$anonfun$run$1.apply(DiskBlockManager.scala:157)
+	at org.apache.spark.util.Utils$.logUncaughtExceptions(Utils.scala:1460)
+	at org.apache.spark.storage.DiskBlockManager$$anon$1.run(DiskBlockManager.scala:157)
+
+
+
+

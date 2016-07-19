@@ -1,0 +1,12 @@
+Description
+
+allow a quantified predicate using ALL/ANY/SOME
+
+
+select rnum, c1, c2 from tjoin2 where 20 &amp;gt; some (select c1 from tjoin1)
+
+Error while compiling statement: FAILED: ParseException line 1:50 cannot recognize input near 'select' 'c1' 'from' in function specification
+
+
+
+

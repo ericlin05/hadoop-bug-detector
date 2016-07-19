@@ -1,0 +1,11 @@
+Description
+
+HiveStatement throws ClassCastException while trying to return query logs.
+
+
+java.lang.ClassCastException: java.lang.Integer cannot be cast to java.lang.String
+	at org.apache.hive.jdbc.HiveStatement.getQueryLog(HiveStatement.java:841)
+
+
+
+

@@ -1,0 +1,50 @@
+Description
+
+with hive-site.xml config like:
+&amp;lt;property&amp;gt;
+  &amp;lt;name&amp;gt;hive.metastore.uris&amp;lt;/name&amp;gt;
+  &amp;lt;value&amp;gt;thrift://mashine1:9083,thrift://mashine2:9083&amp;lt;/value&amp;gt;
+&amp;lt;/property&amp;gt;
+log:
+2014-10-16 14:04:04,502 INFO  hive.metastore (HiveMetaStoreClient.java:open(257)) - Trying to connect to metastore with URI thrift://mashine1:9083
+2014-10-16 14:04:04,515 INFO  hive.metastore (HiveMetaStoreClient.java:open(345)) - Connected to metastore.
+if split current connection, for example with command:  iptables -I INPUT -d mashine1 -j REJECT, try to refresh database list through hue\beeline : show tables, restore old connection iptables -D OUTPUT 1, and split ones more :  iptables -I INPUT -d mashine2 -j REJECT
+; we have an stack like :
+2014-10-07 10:14:33,898 ERROR hive.log (MetaStoreUtils.java:logAndThrowMetaException(911)) - Got exception: org.apache.thrift.transport.TTransportException java.net.SocketException: Broken pipe
+org.apache.thrift.transport.TTransportException: java.net.SocketException: Broken pipe
+        at org.apache.thrift.transport.TIOStreamTransport.flush(TIOStreamTransport.java:161)
+        at org.apache.thrift.TServiceClient.sendBase(TServiceClient.java:65)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.send_get_databases(ThriftHiveMetastore.java:498)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.get_databases(ThriftHiveMetastore.java:490)
+        at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.getDatabases(HiveMetaStoreClient.java:735)
+        at sun.reflect.GeneratedMethodAccessor15.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hadoop.hive.metastore.HiveMetaStoreClient$SynchronizedHandler.invoke(HiveMetaStoreClient.java:1425)
+        at com.sun.proxy.$Proxy14.getDatabases(Unknown Source)
+        at org.apache.hive.service.cli.operation.GetSchemasOperation.run(GetSchemasOperation.java:73)
+        at org.apache.hive.service.cli.session.HiveSessionImpl.runOperationWithLogCapture(HiveSessionImpl.java:514)
+        at org.apache.hive.service.cli.session.HiveSessionImpl.getSchemas(HiveSessionImpl.java:284)
+        at sun.reflect.GeneratedMethodAccessor19.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hive.service.cli.session.HiveSessionProxy$1.run(HiveSessionProxy.java:62)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1554)
+        at org.apache.hadoop.hive.shims.HadoopShimsSecure.doAs(HadoopShimsSecure.java:556)
+        at org.apache.hive.service.cli.session.HiveSessionProxy.invoke(HiveSessionProxy.java:57)
+        at com.sun.proxy.$Proxy13.getSchemas(Unknown Source)
+        at org.apache.hive.service.cli.CLIService.getSchemas(CLIService.java:222)
+        at org.apache.hive.service.cli.thrift.ThriftCLIService.GetSchemas(ThriftCLIService.java:360)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$GetSchemas.getResult(TCLIService.java:1433)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$GetSchemas.getResult(TCLIService.java:1418)
+        at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+        at org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:39)
+        at org.apache.hive.service.auth.TSetIpAddressProcessor.process(TSetIpAddressProcessor.java:57)
+        at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:244)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:744)
+
+

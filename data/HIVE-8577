@@ -1,0 +1,36 @@
+Description
+
+An avro table with a map&amp;lt;string,string&amp;gt; column that contains null values
+cannot be deserialized when running the select statement.
+Create the following table:
+
+CREATE TABLE avro_table (avreau_col_1 map&amp;lt;string,string&amp;gt;) 
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe' STORED AS
+INPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat' 
+OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat' 
+TBLPROPERTIES ('avro.schema.url'='file:///tmp/map_null_schema.avro');
+
+
+Then load the avro data:
+
+LOAD DATA LOCAL INPATH '/tmp/map_null_val.avro' OVERWRITE INTO TABLE avro_table;
+
+
+And do the select (it fails):
+
+SELECT * FROM avro_table;
+Error: java.io.IOException: org.apache.avro.AvroRuntimeException: Not a map: "null" (state=,code=0)
+
+
+This is a regression bug (it works correctly on hive 0.13.1 version).
+This is the output that hive 0.13.1 displays:
+
+{"key3":"val3","key4":null}
+{"key3":"val3","key4":null}
+{"key1":null,"key2":"val2"}
+{"key3":"val3","key4":null}
+{"key3":"val3","key4":null}
+
+
+
+

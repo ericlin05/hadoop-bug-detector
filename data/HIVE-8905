@@ -1,0 +1,50 @@
+Description
+
+
+2014-11-18 02:36:04,168 DEBUG spark.HttpFileServer (Logging.scala:logDebug(63)) - HTTP file server started at: http://10.203.137.143:46436
+2014-11-18 02:36:04,172 ERROR session.TestSparkSessionManagerImpl (TestSparkSessionManagerImpl.java:run(127)) - Error executing 'Session thread 5'
+org.apache.hadoop.hive.ql.metadata.HiveException: Failed to create spark client.
+	at org.apache.hadoop.hive.ql.exec.spark.session.SparkSessionImpl.open(SparkSessionImpl.java:55)
+	at org.apache.hadoop.hive.ql.exec.spark.session.SparkSessionManagerImpl.getSession(SparkSessionManagerImpl.java:122)
+	at org.apache.hadoop.hive.ql.exec.spark.session.TestSparkSessionManagerImpl$SessionThread.run(TestSparkSessionManagerImpl.java:112)
+	at java.lang.Thread.run(Thread.java:744)
+Caused by: java.lang.SecurityException: class "javax.servlet.FilterRegistration"'s signer information does not match signer information of other classes in the same package
+	at java.lang.ClassLoader.checkCerts(ClassLoader.java:952)
+	at java.lang.ClassLoader.preDefineClass(ClassLoader.java:666)
+	at java.lang.ClassLoader.defineClass(ClassLoader.java:794)
+	at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:142)
+	at java.net.URLClassLoader.defineClass(URLClassLoader.java:449)
+	at java.net.URLClassLoader.access$100(URLClassLoader.java:71)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:361)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:425)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+	at org.eclipse.jetty.servlet.ServletContextHandler.&amp;lt;init&amp;gt;(ServletContextHandler.java:136)
+	at org.eclipse.jetty.servlet.ServletContextHandler.&amp;lt;init&amp;gt;(ServletContextHandler.java:129)
+	at org.eclipse.jetty.servlet.ServletContextHandler.&amp;lt;init&amp;gt;(ServletContextHandler.java:98)
+	at org.apache.spark.ui.JettyUtils$.createServletHandler(JettyUtils.scala:96)
+	at org.apache.spark.ui.JettyUtils$.createServletHandler(JettyUtils.scala:87)
+	at org.apache.spark.ui.WebUI.attachPage(WebUI.scala:67)
+	at org.apache.spark.ui.WebUI$$anonfun$attachTab$1.apply(WebUI.scala:60)
+	at org.apache.spark.ui.WebUI$$anonfun$attachTab$1.apply(WebUI.scala:60)
+	at scala.collection.mutable.ResizableArray$class.foreach(ResizableArray.scala:59)
+	at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:47)
+	at org.apache.spark.ui.WebUI.attachTab(WebUI.scala:60)
+	at org.apache.spark.ui.SparkUI.initialize(SparkUI.scala:49)
+	at org.apache.spark.ui.SparkUI.&amp;lt;init&amp;gt;(SparkUI.scala:60)
+	at org.apache.spark.ui.SparkUI$.create(SparkUI.scala:150)
+	at org.apache.spark.ui.SparkUI$.createLiveUI(SparkUI.scala:105)
+	at org.apache.spark.SparkContext.&amp;lt;init&amp;gt;(SparkContext.scala:237)
+	at org.apache.spark.api.java.JavaSparkContext.&amp;lt;init&amp;gt;(JavaSparkContext.scala:58)
+	at org.apache.hadoop.hive.ql.exec.spark.LocalHiveSparkClient.&amp;lt;init&amp;gt;(LocalHiveSparkClient.java:107)
+	at org.apache.hadoop.hive.ql.exec.spark.LocalHiveSparkClient.getInstance(LocalHiveSparkClient.java:69)
+	at org.apache.hadoop.hive.ql.exec.spark.HiveSparkClientFactory.createHiveSparkClient(HiveSparkClientFactory.java:52)
+	at org.apache.hadoop.hive.ql.exec.spark.session.SparkSessionImpl.open(SparkSessionImpl.java:53)
+	... 3 more
+
+
+
+

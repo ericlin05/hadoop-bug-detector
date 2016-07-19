@@ -1,0 +1,28 @@
+Description
+
+I tryed to run max query using jdbc it didint work please look at it
+Class.forName("org.apache.hive.jdbc.HiveDriver");
+        try 
+{
+            con1 =3D DriverManager.getConnection(
+                    "jdbc:hive2://dkhc3012:10000/default", "hive", "");
+        }
+ catch (SQLException sqle) 
+{
+            System.out.println("SQL Exception thrown: " + sqle);
+        }
+
+        System.out.println("Connected");
+        System.out.println(columns + tables);
+        Statement stmt =3D con1.createStatement();
+        result =3D stmt.executeQuery("SELECT max(date_id) FROM date_dim");
+        while (result.next()) 
+{
+            System.out.println("In while");
+             val =3D result.getInt(1);
+            System.out.println(val);
+            System.out.println(result.getString(1));
+        }
+        System.out.println("JDBC Done");
+
+

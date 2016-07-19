@@ -1,0 +1,17 @@
+Description
+
+TestSparkClient has been throwing TimeoutException in some test runs.
+The exception looks like:
+
+java.util.concurrent.TimeoutException: null
+	at io.netty.util.concurrent.AbstractFuture.get(AbstractFuture.java:49)
+	at org.apache.hive.spark.client.JobHandleImpl.get(JobHandleImpl.java:74)
+	at org.apache.hive.spark.client.JobHandleImpl.get(JobHandleImpl.java:35)
+	at org.apache.hive.spark.client.TestSparkClient$5.call(TestSparkClient.java:130)
+	at org.apache.hive.spark.client.TestSparkClient.runTest(TestSparkClient.java:224)
+	at org.apache.hive.spark.client.TestSparkClient.testMetricsCollection(TestSparkClient.java:126)
+
+
+but for each of the tests.
+
+

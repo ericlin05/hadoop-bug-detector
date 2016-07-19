@@ -1,0 +1,9 @@
+Description
+
+HIVE-9367 is not a complete fix. It fixed for Hadoop 1. For Hadoop2, this method is not invoked.
+
+protected FileStatus[] listStatus(JobConf job) throws IOException;
+
+
+
+

@@ -1,0 +1,42 @@
+Description
+
+This is originally discovered by Deepesh Khandelwal
+When running a Sqoop integration test from WebHCat
+
+curl --show-error -d command="export -libjars hdfs:///tmp/mysql-connector-java.jar --connect jdbc:mysql://deepesh-c6-1.cs1cloud.internal/sqooptest --username sqoop --password passwd --export-dir /tmp/templeton_test_data/sqoop --table person" -d statusdir=sqoop.output -X POST "http://deepesh-c6-1.cs1cloud.internal:50111/templeton/v1/sqoop?user.name=hrt_qa"
+
+
+the job is failing with the following error:
+
+$ hadoop fs -cat /user/hrt_qa/sqoop.output/stderr
+14/10/15 23:52:53 INFO sqoop.Sqoop: Running Sqoop version: 1.4.5.2.2.0.0-897
+14/10/15 23:52:53 WARN tool.BaseSqoopTool: Setting your password on the command-line is insecure. Consider using -P instead.
+14/10/15 23:52:54 INFO manager.MySQLManager: Preparing to use a MySQL streaming resultset.
+14/10/15 23:52:54 INFO tool.CodeGenTool: Beginning code generation
+14/10/15 23:52:54 ERROR sqoop.Sqoop: Got exception running Sqoop: java.lang.RuntimeException: Could not load db driver class: com.mysql.jdbc.Driver
+java.lang.RuntimeException: Could not load db driver class: com.mysql.jdbc.Driver
+	at org.apache.sqoop.manager.SqlManager.makeConnection(SqlManager.java:848)
+	at org.apache.sqoop.manager.GenericJdbcManager.getConnection(GenericJdbcManager.java:52)
+	at org.apache.sqoop.manager.SqlManager.execute(SqlManager.java:736)
+	at org.apache.sqoop.manager.SqlManager.execute(SqlManager.java:759)
+	at org.apache.sqoop.manager.SqlManager.getColumnInfoForRawQuery(SqlManager.java:269)
+	at org.apache.sqoop.manager.SqlManager.getColumnTypesForRawQuery(SqlManager.java:240)
+	at org.apache.sqoop.manager.SqlManager.getColumnTypes(SqlManager.java:226)
+	at org.apache.sqoop.manager.ConnManager.getColumnTypes(ConnManager.java:295)
+	at org.apache.sqoop.orm.ClassWriter.getColumnTypes(ClassWriter.java:1773)
+	at org.apache.sqoop.orm.ClassWriter.generate(ClassWriter.java:1578)
+	at org.apache.sqoop.tool.CodeGenTool.generateORM(CodeGenTool.java:96)
+	at org.apache.sqoop.tool.ExportTool.exportTable(ExportTool.java:64)
+	at org.apache.sqoop.tool.ExportTool.run(ExportTool.java:100)
+	at org.apache.sqoop.Sqoop.run(Sqoop.java:143)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.sqoop.Sqoop.runSqoop(Sqoop.java:179)
+	at org.apache.sqoop.Sqoop.runTool(Sqoop.java:218)
+	at org.apache.sqoop.Sqoop.runTool(Sqoop.java:227)
+	at org.apache.sqoop.Sqoop.main(Sqoop.java:236)
+
+
+Note that the Sqoop tar bundle does not contain the JDBC connector jar. I think the problem here maybe that the mysql connector jar added to libjars isn't available to the Sqoop tool which first connects to the database through JDBC driver to collect some table information before running the MR job. libjars will only add the connector jar for the MR job and not the local one.
+NO PRECOMMIT TESTS
+
+

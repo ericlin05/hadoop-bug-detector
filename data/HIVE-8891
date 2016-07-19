@@ -1,0 +1,7 @@
+Description
+
+It might be another possible cause to org.datanucleus.exceptions.NucleusObjectNotFoundException: No such database row in drops and retries. 
+The rollback might also fail for some reason (e.g. same as that for commit), and the detached objects should also be evicted for same reason as HIVE-3826. 
+The evictAll needs to be put in the finally block.
+
+

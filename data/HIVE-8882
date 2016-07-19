@@ -1,0 +1,14 @@
+Description
+
+TestHiveKVResultCache is broken with latest builds:
+
+java.lang.NumberFormatException: For input string: "0&amp;amp;amp#0;&amp;amp;amp#0;&amp;amp;amp#0;"
+	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:65)
+	at java.lang.Long.parseLong(Long.java:441)
+	at java.lang.Long.valueOf(Long.java:540)
+	at org.apache.hadoop.hive.ql.exec.spark.TestHiveKVResultCache.scanAndVerify(TestHiveKVResultCache.java:127)
+	at org.apache.hadoop.hive.ql.exec.spark.TestHiveKVResultCache.testResultList(TestHiveKVResultCache.java:106)
+
+
+
+

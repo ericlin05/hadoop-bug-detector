@@ -1,0 +1,94 @@
+Description
+
+I'm using Hive 13.1 in cdh environment.
+Using hue's beeswax, sometimes hiveserver2 occur MetaException.
+And after that, hive meta data request timed out.
+error log's detail is below.
+2014-09-29 12:05:44,829 ERROR hive.log: Got exception: org.apache.thrift.transport.TTransportException java.net.SocketTimeoutException: Read timed out
+org.apache.thrift.transport.TTransportException: java.net.SocketTimeoutException: Read timed out
+        at org.apache.thrift.transport.TIOStreamTransport.read(TIOStreamTransport.java:129)
+        at org.apache.thrift.transport.TTransport.readAll(TTransport.java:84)
+        at org.apache.thrift.protocol.TBinaryProtocol.readAll(TBinaryProtocol.java:378)
+        at org.apache.thrift.protocol.TBinaryProtocol.readI32(TBinaryProtocol.java:297)
+        at org.apache.thrift.protocol.TBinaryProtocol.readMessageBegin(TBinaryProtocol.java:204)
+        at org.apache.thrift.TServiceClient.receiveBase(TServiceClient.java:69)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.recv_get_databases(ThriftHiveMetastore.java:600)
+        at org.apache.hadoop.hive.metastore.api.ThriftHiveMetastore$Client.get_databases(ThriftHiveMetastore.java:587)
+        at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.getDatabases(HiveMetaStoreClient.java:826)
+        at org.apache.hive.service.cli.operation.GetSchemasOperation.run(GetSchemasOperation.java:62)
+        at org.apache.hive.service.cli.session.HiveSessionImpl.runOperationWithLogCapture(HiveSessionImpl.java:562)
+        at org.apache.hive.service.cli.session.HiveSessionImpl.getSchemas(HiveSessionImpl.java:315)
+        at sun.reflect.GeneratedMethodAccessor9.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hive.service.cli.session.HiveSessionProxy.invoke(HiveSessionProxy.java:79)
+        at org.apache.hive.service.cli.session.HiveSessionProxy.access$000(HiveSessionProxy.java:37)
+        at org.apache.hive.service.cli.session.HiveSessionProxy$1.run(HiveSessionProxy.java:64)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1548)
+        at org.apache.hadoop.hive.shims.HadoopShimsSecure.doAs(HadoopShimsSecure.java:493)
+        at org.apache.hive.service.cli.session.HiveSessionProxy.invoke(HiveSessionProxy.java:60)
+        at com.sun.proxy.$Proxy13.getSchemas(Unknown Source)
+        at org.apache.hive.service.cli.CLIService.getSchemas(CLIService.java:273)
+        at org.apache.hive.service.cli.thrift.ThriftCLIService.GetSchemas(ThriftCLIService.java:402)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$GetSchemas.getResult(TCLIService.java:1429)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$GetSchemas.getResult(TCLIService.java:1414)
+        at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+        at org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:39)
+        at org.apache.hive.service.auth.TSetIpAddressProcessor.process(TSetIpAddressProcessor.java:55)
+        at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:206)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+Caused by: java.net.SocketTimeoutException: Read timed out
+        at java.net.SocketInputStream.socketRead0(Native Method)
+        at java.net.SocketInputStream.read(SocketInputStream.java:152)
+        at java.net.SocketInputStream.read(SocketInputStream.java:122)
+        at java.io.BufferedInputStream.fill(BufferedInputStream.java:235)
+        at java.io.BufferedInputStream.read1(BufferedInputStream.java:275)
+        at java.io.BufferedInputStream.read(BufferedInputStream.java:334)
+        at org.apache.thrift.transport.TIOStreamTransport.read(TIOStreamTransport.java:127)
+        ... 34 more
+2014-09-29 12:05:44,830 ERROR hive.log: Converting exception to MetaException
+2014-09-29 12:05:44,830 WARN org.apache.hadoop.security.UserGroupInformation: PriviledgedActionException as:datalab (auth:SIMPLE) cause:org.apache.hive.service.cli.HiveSQLException: MetaException(message:Got exception: org.apache.thrift.transport.TTransportException java.net.SocketTimeoutException: Read timed out)
+2014-09-29 12:05:44,830 WARN org.apache.hive.service.cli.thrift.ThriftCLIService: Error getting schemas:
+org.apache.hive.service.cli.HiveSQLException: MetaException(message:Got exception: org.apache.thrift.transport.TTransportException java.net.SocketTimeoutException: Read timed out)
+        at org.apache.hive.service.cli.operation.GetSchemasOperation.run(GetSchemasOperation.java:68)
+        at org.apache.hive.service.cli.session.HiveSessionImpl.runOperationWithLogCapture(HiveSessionImpl.java:562)
+        at org.apache.hive.service.cli.session.HiveSessionImpl.getSchemas(HiveSessionImpl.java:315)
+        at sun.reflect.GeneratedMethodAccessor9.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:606)
+        at org.apache.hive.service.cli.session.HiveSessionProxy.invoke(HiveSessionProxy.java:79)
+        at org.apache.hive.service.cli.session.HiveSessionProxy.access$000(HiveSessionProxy.java:37)
+        at org.apache.hive.service.cli.session.HiveSessionProxy$1.run(HiveSessionProxy.java:64)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:415)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1548)
+        at org.apache.hadoop.hive.shims.HadoopShimsSecure.doAs(HadoopShimsSecure.java:493)
+        at org.apache.hive.service.cli.session.HiveSessionProxy.invoke(HiveSessionProxy.java:60)
+        at com.sun.proxy.$Proxy13.getSchemas(Unknown Source)
+        at org.apache.hive.service.cli.CLIService.getSchemas(CLIService.java:273)
+        at org.apache.hive.service.cli.thrift.ThriftCLIService.GetSchemas(ThriftCLIService.java:402)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$GetSchemas.getResult(TCLIService.java:1429)
+        at org.apache.hive.service.cli.thrift.TCLIService$Processor$GetSchemas.getResult(TCLIService.java:1414)
+        at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+        at org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:39)
+        at org.apache.hive.service.auth.TSetIpAddressProcessor.process(TSetIpAddressProcessor.java:55)
+        at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:206)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+        at java.lang.Thread.run(Thread.java:745)
+Caused by: MetaException(message:Got exception: org.apache.thrift.transport.TTransportException java.net.SocketTimeoutException: Read timed out)
+        at org.apache.hadoop.hive.metastore.MetaStoreUtils.logAndThrowMetaException(MetaStoreUtils.java:1102)
+        at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.getDatabases(HiveMetaStoreClient.java:828)
+        at org.apache.hive.service.cli.operation.GetSchemasOperation.run(GetSchemasOperation.java:62)
+        ... 25 more
+This case caused when hue request twice GetSchema with  same sessionHandler in same time.
+(hue use same session handle to same hue username)
+I found the thread-unsafe situation in hive session's metastore client access code.
+so i patched my hive's HiveSessionImpl.java and HiveMetaStoreClient.java to synchronize metastore client instance.
+How do you think about this patch applying to hive?
+
+

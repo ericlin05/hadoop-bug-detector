@@ -1,0 +1,6 @@
+Description
+
+trunk and hive 0.14 based builds no longer have  hive-log4j.properties in the jars. This means that in default tar, unless  hive-log4j.properties is created in conf dir (from  hive-log4j.properties.template file), hive cli is much more verbose in what is printed to console. Hiveserver2 fails to come up, as it errors out with - 
+org.apache.hadoop.hive.common.LogUtils$LogInitializationException: Unable to initialize logging using hive-log4j.properties, not found on CLASSPATH!
+
+

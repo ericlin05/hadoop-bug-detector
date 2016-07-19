@@ -1,0 +1,13 @@
+Description
+
+
+
+hive&amp;gt; select date_add('2015-01-01', map(1,1));
+FAILED: ArrayIndexOutOfBoundsException 2
+
+hive&amp;gt; select date_sub('2015-01-01', map(1,1));
+FAILED: ArrayIndexOutOfBoundsException 2
+
+
+
+

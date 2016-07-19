@@ -1,0 +1,20 @@
+Description
+
+Fixing test fails in HIVE-8186, I've found some failures are ignored by jdbc client. Below is code part that verifies result of jdbc call.
+
+public static void verifySuccess(TStatus status, boolean withInfo) throws SQLException {
+    if ((status.getStatusCode() != TStatusCode.SUCCESS_STATUS) &amp;amp;&amp;amp;
+        (withInfo &amp;amp;&amp;amp; (status.getStatusCode() != TStatusCode.SUCCESS_WITH_INFO_STATUS))) {
+        throw new HiveSQLException(status);
+    }
+  }
+
+
+If withInfo is false(verifySuccess), it ignores status. By fixing this, two tests are failed. (http://ec2-174-129-184-35.compute-1.amazonaws.com/jenkins/job/PreCommit-HIVE-TRUNK-Build/1285/testReport/)
+
+org.apache.hive.minikdc.TestJdbcWithMiniKdc.testNegativeProxyAuth
+org.apache.hive.minikdc.TestJdbcWithMiniKdc.testNegativeTokenAuth
+
+
+
+
