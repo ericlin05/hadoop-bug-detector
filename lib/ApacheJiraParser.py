@@ -5,9 +5,11 @@ import pycurl
 from lib.Logger import Logger
 
 class ApacheJiraParser:
-    def __init__(self, apache_id):
-        self.apache_id = apache_id
-        self.url = 'https://issues.apache.org/jira/browse/' + apache_id
+    def __init__(self, type, apache_id):
+        self.type = type
+        self.apache_id = str(apache_id)
+        self.full_id = self.type.upper() + '-' + self.apache_id
+        self.url = 'https://issues.apache.org/jira/browse/' + self.full_id
         self.data = "" 
         self.logger = Logger(__name__)
 
@@ -17,7 +19,7 @@ class ApacheJiraParser:
         buffer = StringIO()
         c = pycurl.Curl()
         c.setopt(c.URL, self.url)
-        c.setopt(c.WRITEDATA, buffer)
+        c.setopt(c.WRITEFUNCTION, buffer.write)
         c.perform()
         c.close()
         
@@ -30,9 +32,9 @@ class ApacheJiraParser:
         self.logger.info("JIRA retrieved")
         
         if content is None or content == 'None' or content.strip() == "":
-            self.logger.info('No description was found for ID: %s', self.apache_id)
+            self.logger.info('No description was found for ID: %s', self.full_id)
         elif re.search(".*Exception.*", content) is None and re.search(".*Caused by.*", content) is None:
-            self.logger.info('No Exception or Cause By found for ID: %s', self.apache_id)
+            self.logger.info('No Exception or Cause By found for ID: %s', self.full_id)
         else:
             tag_re = re.compile(r'(<!--.*?-->|<[^>]*>)')
             self.data = cgi.escape(tag_re.sub('', content))
@@ -42,10 +44,10 @@ class ApacheJiraParser:
 
     def write(self):
         if not self.data:
-            self.logger.info('No data was found for ID: %s, skipping writing file..', self.apache_id)
+            self.logger.info('No data was found for ID: %s, skipping writing file..', self.full_id)
             return
 
-        text_file = open("data/" + self.apache_id, "w")
+        text_file = open("data2/" + self.type.lower() + '/' + self.full_id, "w")
         text_file.write(self.data)
         text_file.close()
 

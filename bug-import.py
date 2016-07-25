@@ -7,7 +7,7 @@ from lib.Logger import Logger
 #     parser.parse().write()
 
 for a in range(9525,14240):
-    parser = ApacheJiraParser('HIVE-' + str(a))
+    parser = ApacheJiraParser('hive', a)
 
     logger = Logger(__name__)
 

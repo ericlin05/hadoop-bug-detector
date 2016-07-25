@@ -2,11 +2,11 @@ import glob
 from lib.Logger import Logger
 
 class ApacheJiraLoader:
-    def __init__(self):
+    def __init__(self, type):
         self.lines = {}
         logger = Logger(__name__)
 
-        files = glob.glob("data/*")
+        files = glob.glob("data/" + type.upper() + "/*")
 
         for file in files:
             logger.info("Loading JIRA: " + file)

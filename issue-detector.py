@@ -13,4 +13,5 @@ if not os.path.isfile(filename):
 detector = HadoopIssueDetector(type, filename)
 detector.detect()
 
-print detector.found
+for key in detector.found:
+    print key
