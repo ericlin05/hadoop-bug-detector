@@ -14,7 +14,8 @@ class ApacheJiraLoader:
             with open(file, 'r') as f:
                 lines = []
                 for line in f:
-                    lines.append(line.strip())
+                    if line.find('Caused by') >= 0 or line.find('ERROR') >= 0:
+                        lines.append(line.strip())
 
                 self.lines[file] = lines
                 logger.debug("JIRA: %s loaded with %s lines", file, str(len(lines)))

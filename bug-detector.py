@@ -1,7 +1,6 @@
 import os, sys
 from lib.HadoopBugDetector import HadoopBugDetector
 from lib.ApacheJiraLoader import ApacheJiraLoader
-from lib.LogFileExceptionExtractor import LogFileExceptionExtractor
 from lib.Logger import Logger
 
 logger = Logger(__name__)
@@ -23,12 +22,10 @@ if not os.path.isfile(filename):
     logger.error("File: %s does not exist", filename)
     exit(1)
 
-exceptionExtractor = LogFileExceptionExtractor(filename)
-exceptionExtractor.extract()
-
-detector = HadoopBugDetector(exceptionExtractor.new_file_path, ApacheJiraLoader(type))
+detector = HadoopBugDetector(filename, ApacheJiraLoader(type))
 detector.detect()
 
-exceptionExtractor.remove()
-
-print "\n".join(detector.matchedJira)
+if len(detector.matchedJira) > 0:
+    print "\n".join(detector.matchedJira)
+else:
+    print "No bugs detected"

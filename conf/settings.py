@@ -2,7 +2,9 @@ import logging
 
 SIMILARITY_RATIO = 0.90
 
-LOG_LEVEL = logging.INFO
+LOG_LEVEL = logging.DEBUG
+
+PROGRESS_PERCENTAGE = 0.01
 
 LOG_PATTERNS = {
     "hive": {
