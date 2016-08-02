@@ -1,5 +1,8 @@
+import logging
 
-SIMILARITY_RATIO = 0.70
+SIMILARITY_RATIO = 0.90
+
+LOG_LEVEL = logging.INFO
 
 LOG_PATTERNS = {
     "hive": {

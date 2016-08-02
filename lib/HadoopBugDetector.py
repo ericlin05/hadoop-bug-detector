@@ -25,7 +25,7 @@ class HadoopBugDetector:
             for jiraID in self.jiraLoader.lines:
                 for l in self.jiraLoader.lines[jiraID]:
                     ratio = SequenceMatcher(None, line, l).ratio()
-                    if ratio > settings.SIMILARITY_RATIO:
+                    if ratio >= settings.SIMILARITY_RATIO:
                         self.logger.info("")
                         self.logger.info("Similarity ratio: %s found in JIRA %s", str(ratio), jiraID)
                         self.logger.info("JIRA line: %s", l)

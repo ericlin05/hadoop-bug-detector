@@ -9,7 +9,7 @@ class ApacheJiraLoader:
         files = glob.glob("data/" + type.upper() + "/*")
 
         for file in files:
-            logger.info("Loading JIRA: " + file)
+            logger.debug("Loading JIRA: " + file)
             self.lines[file] = []
             with open(file, 'r') as f:
                 lines = []
@@ -17,5 +17,5 @@ class ApacheJiraLoader:
                     lines.append(line.strip())
 
                 self.lines[file] = lines
-                logger.info("JIRA: %s loaded with %s lines", file, str(len(lines)))
+                logger.debug("JIRA: %s loaded with %s lines", file, str(len(lines)))
         
