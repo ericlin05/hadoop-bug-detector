@@ -4,6 +4,10 @@ import re, cgi
 import pycurl
 from lib.Logger import Logger
 
+# This class scans through a given Apache JIRA ID's description part on
+# the JIRA web page, and determine if there is any Exception or "Caused by"
+# word, we will consider it as a BUG JIRA and we will capture it and store
+# in a local file
 class ApacheJiraParser:
     def __init__(self, type, apache_id):
         self.type = type
@@ -36,6 +40,7 @@ class ApacheJiraParser:
         elif re.search(".*Exception.*", content) is None and re.search(".*Caused by.*", content) is None:
             self.logger.info('No Exception or Cause By found for ID: %s', self.full_id)
         else:
+            # strip HTML tags
             tag_re = re.compile(r'(<!--.*?-->|<[^>]*>)')
             self.data = cgi.escape(tag_re.sub('', content))
             self.logger.info("Striping HTML tags")
@@ -47,7 +52,7 @@ class ApacheJiraParser:
             self.logger.info('No data was found for ID: %s, skipping writing file..', self.full_id)
             return
 
-        text_file = open("data2/" + self.type.lower() + '/' + self.full_id, "w")
+        text_file = open("data/" + self.type.lower() + '/' + self.full_id, "w")
         text_file.write(self.data)
         text_file.close()
 
